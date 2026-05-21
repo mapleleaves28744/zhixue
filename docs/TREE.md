@@ -89,15 +89,15 @@ docs/
 ├── 10_数据库设计/01_数据库总体设计.md  # 描述 PostgreSQL 数据库整体设计原则。
 ├── 10_数据库设计/02_ER模型设计.md  # 存放 ER 图说明和实体关系分析。
 ├── 10_数据库设计/03_用户与权限表设计.md  # 设计 users、roles、permissions 等表。
-├── 10_数据库设计/04_课程与资料表设计.md  # 设计 courses、documents、document_chunks 等表。
-├── 10_数据库设计/05_Wiki相关表设计.md  # 设计 wiki_pages、wiki_versions、wiki_relations 等表。
-├── 10_数据库设计/06_向量检索相关表设计.md  # 设计 embeddings、vector_chunks、retrieval_logs 等表。
-├── 10_数据库设计/07_问答与会话表设计.md  # 设计 chat_sessions、chat_messages、citations 等表。
-├── 10_数据库设计/08_练习与错题表设计.md  # 设计 questions、answers、mistakes、question_records 等表。
+├── 10_数据库设计/04_课程与资料表设计.md  # 设计 courses、course_materials、document_chunks 等表。
+├── 10_数据库设计/05_Wiki相关表设计.md  # 设计 wiki_pages、wiki_page_versions、wiki_links、wiki_sources 等表。
+├── 10_数据库设计/06_向量检索相关表设计.md  # 设计 document_chunks.embedding 与 retrieval_logs 等能力。
+├── 10_数据库设计/07_问答与会话表设计.md  # 设计 learning_records 与问答引用数据结构。
+├── 10_数据库设计/08_练习与错题表设计.md  # 设计 quizzes、questions、answer_records、mistake_books 等表。
 ├── 10_数据库设计/09_学生画像与记忆表设计.md  # 设计 student_profiles、learning_memories、mastery_records 等表。
 ├── 10_数据库设计/10_学习诊断与推荐表设计.md  # 设计 diagnosis_reports、recommendations、learning_paths 等表。
-├── 10_数据库设计/11_Agent运行日志表设计.md  # 设计 agent_runs、agent_steps、tool_calls 等表。
-├── 10_数据库设计/12_自进化策略表设计.md  # 设计 strategy_versions、evolution_logs、rollback_records 等表。
+├── 10_数据库设计/11_Agent运行日志表设计.md  # 设计 agent_runs、llm_call_logs 等表。
+├── 10_数据库设计/12_自进化策略表设计.md  # 设计 evolution_strategies、evolution_events 等表。
 ├── 10_数据库设计/13_管理员后台表设计.md  # 设计 system_configs、model_configs、admin_logs 等表。
 ├── 10_数据库设计/14_数据库初始化与种子数据.md  # 说明初始化 SQL、演示数据、默认管理员账号等。
 ├── 11_API接口设计/01_API设计规范.md  # 统一 RESTful API 风格、响应格式、错误码、分页格式。

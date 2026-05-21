@@ -1029,7 +1029,7 @@ Wiki 更新：
 | change_type | varchar | create / update / rollback / merge |
 | created_at | timestamp | 创建时间 |
 
-## 19.3 wiki_relations：Wiki 关系表
+## 19.3 wiki_links：Wiki 关系表
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
@@ -1443,7 +1443,7 @@ MVP 可以先实现以下表：
 
 1. `wiki_pages`
 2. `wiki_page_versions`
-3. `wiki_relations`
+3. `wiki_links`
 4. `wiki_sources`
 5. `knowledge_points`
 
