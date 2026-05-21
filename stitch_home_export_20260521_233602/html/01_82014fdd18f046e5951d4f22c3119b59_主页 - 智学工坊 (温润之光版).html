@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>主页 - 智学工坊</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e5e2e1",
+                        "inverse-surface": "#313030",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#643f00",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#eae7e7",
+                        "tertiary-fixed-dim": "#c0c7cf",
+                        "on-secondary-fixed": "#301214",
+                        "surface-tint": "#835400",
+                        "primary": "#835400",
+                        "secondary-container": "#fec7c7",
+                        "surface-dim": "#dcd9d9",
+                        "tertiary-fixed": "#dce3eb",
+                        "surface-container-highest": "#e5e2e1",
+                        "inverse-on-surface": "#f3f0ef",
+                        "surface-container-low": "#f6f3f2",
+                        "on-tertiary-fixed-variant": "#40484e",
+                        "on-primary-container": "#674100",
+                        "background": "#fcf9f8",
+                        "on-background": "#1c1b1b",
+                        "inverse-primary": "#ffb957",
+                        "tertiary": "#585f66",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#efb9b9",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed-variant": "#633c3d",
+                        "primary-container": "#f9a826",
+                        "tertiary-container": "#b3bac2",
+                        "on-surface-variant": "#524434",
+                        "on-surface": "#1c1b1b",
+                        "surface": "#fcf9f8",
+                        "primary-fixed-dim": "#ffb957",
+                        "on-tertiary-container": "#434a51",
+                        "primary-fixed": "#ffddb5",
+                        "outline-variant": "#d7c3ae",
+                        "outline": "#857462",
+                        "on-secondary-container": "#7a5051",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#fcf9f8",
+                        "secondary-fixed": "#ffdad9",
+                        "on-primary-fixed": "#2a1800",
+                        "on-tertiary-fixed": "#151c22",
+                        "surface-container": "#f0eded",
+                        "secondary": "#7d5354"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-padding-mobile": "20px",
+                        "unit": "8px",
+                        "gutter": "16px",
+                        "card-gap": "24px",
+                        "container-padding-desktop": "48px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-md": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Manrope"],
+                        "body-md": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "500"}],
+                        "display-lg": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #fcf9f8;
+            background-image: radial-gradient(at 0% 0%, rgba(249, 168, 38, 0.05) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(131, 84, 0, 0.03) 0px, transparent 50%);
+        }
+        .glass-card {
+            background: rgba(252, 249, 248, 0.6);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            background: rgba(252, 249, 248, 0.8);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -10px rgba(131, 84, 0, 0.1);
+        }
+        .inner-glow {
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+        }
+        .mesh-bg {
+            background-image: linear-gradient(rgba(133, 116, 98, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(133, 116, 98, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-background min-h-screen selection:bg-primary-container/30">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-screen w-72 flex flex-col z-50 bg-surface-container-low/40 backdrop-blur-2xl border-r border-outline-variant/20 p-gutter gap-unit">
+<div class="mb-8 px-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">智学工坊</h1>
+<p class="text-xs text-on-surface-variant/70 uppercase tracking-widest font-label-sm">Academic Excellence</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<!-- Home Active -->
+<a class="flex items-center gap-4 px-4 py-3 bg-primary-container/80 text-on-primary-container font-bold rounded-xl shadow-sm border border-primary/20 scale-95 transition-transform group" href="#">
+<span class="material-symbols-outlined active-icon">home</span>
+<span class="font-label-md text-label-md">主页</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-variant/30 rounded-xl transition-all hover:translate-x-1 duration-300 group" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-md text-label-md">课程空间</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-variant/30 rounded-xl transition-all hover:translate-x-1 duration-300 group" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-label-md text-label-md">智能问答</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-variant/30 rounded-xl transition-all hover:translate-x-1 duration-300 group" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">课程知识库</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-variant/30 rounded-xl transition-all hover:translate-x-1 duration-300 group" href="#">
+<span class="material-symbols-outlined">assignment_turned_in</span>
+<span class="font-label-md text-label-md">练习与诊断</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-variant/30 rounded-xl transition-all hover:translate-x-1 duration-300 group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">学习仪表盘</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-variant/30 rounded-xl transition-all hover:translate-x-1 duration-300 group" href="#">
+<span class="material-symbols-outlined">route</span>
+<span class="font-label-md text-label-md">学习路径与模型</span>
+</a>
+</nav>
+<div class="mt-auto p-4 glass-card rounded-2xl border-primary/10">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-3 rounded-xl hover:shadow-lg hover:shadow-primary/20 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+                开始学习
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-72 min-h-screen p-container-padding-desktop relative">
+<!-- Abstract Decoration -->
+<div class="absolute top-0 right-0 w-full h-full mesh-bg pointer-events-none opacity-40 z-0"></div>
+<!-- Top Navigation / Search -->
+<header class="flex justify-between items-center mb-10 relative z-10">
+<div class="flex-1 max-w-xl">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-low/60 backdrop-blur-xl border-none rounded-2xl focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-body-md" placeholder="搜索课程、知识点或诊断报告..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative p-2 text-on-surface-variant hover:bg-surface-variant/30 rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant/30 rounded-full transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="font-label-md text-label-md text-on-surface">李华</p>
+<p class="text-xs text-on-surface-variant/70">高级学员</p>
+</div>
+<img alt="Academic User Avatar" class="w-10 h-10 rounded-xl object-cover ring-2 ring-white shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAv3TVbBnfWk5TQB3V9fWB90yi4nS6W1fcp5ggTBa7N8HMqDSKpECCSXi0BTZKSUZEV9bLhLX-xUx7sZoXIq9WElpCG79-mw9JGa7qj-gUydly0o0unUQ04zJ1cZnlhZqi27WrGngK7PawYk4yOem5JqKh3970VTXk33sjONfYSbTtFVy6hplRlCgWY4jeOGOff4KypnWjE_hNDlbegQmAPI446Zph14KZsrtXekVDR9J3iv93l2k9FHWJ31-GP8VxRJhEN2sevX8E"/>
+</div>
+</div>
+</header>
+<!-- Welcome Section -->
+<section class="mb-12 relative z-10">
+<h2 class="font-display-lg text-display-lg text-on-background mb-2">早上好，李华学员！</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">欢迎回到智学工坊。今天是你连续学习的第 <span class="text-primary font-bold">14</span> 天，继续加油！</p>
+</section>
+<!-- Bento Grid Overview -->
+<div class="grid grid-cols-12 gap-card-gap relative z-10">
+<!-- 1. Course Space -->
+<div class="col-span-8 glass-card rounded-[32px] p-8 flex flex-col justify-between overflow-hidden relative">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold tracking-widest uppercase mb-3">课程进行中</span>
+<h3 class="font-headline-md text-headline-md">数据结构与算法分析</h3>
+</div>
+<span class="material-symbols-outlined text-primary/20 text-4xl">school</span>
+</div>
+<div class="flex items-end justify-between">
+<div>
+<p class="text-on-surface-variant text-label-md font-label-md mb-1">下一节课</p>
+<p class="font-headline-sm text-headline-sm text-primary">下午 2:00 <span class="text-body-md font-normal text-on-surface-variant/60 ml-2">远程协作室 A1</span></p>
+</div>
+<button class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-xl font-label-md text-label-md hover:scale-105 transition-transform flex items-center gap-2">
+                        进入课程 <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Decorative image -->
+<div class="absolute -right-12 -top-12 w-48 h-48 opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-[160px]">bubble_chart</span>
+</div>
+</div>
+<!-- 2. AI Tutor Quick Input -->
+<div class="col-span-4 glass-card rounded-[32px] p-8 flex flex-col bg-primary-fixed/30 border-primary/10">
+<div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-primary mb-6 shadow-sm">
+<span class="material-symbols-outlined active-icon">smart_toy</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-4">智学助手</h3>
+<p class="text-on-surface-variant font-body-md text-body-md mb-6">有关课程的任何疑问，随时向我提问。</p>
+<div class="mt-auto relative">
+<input class="w-full bg-white/60 border-none rounded-xl py-3 pl-4 pr-12 text-body-md focus:ring-2 focus:ring-primary/20" placeholder="向 AI 提问..." type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-primary text-on-primary rounded-lg">
+<span class="material-symbols-outlined text-sm">send</span>
+</button>
+</div>
+</div>
+<!-- 3. Knowledge Base -->
+<div class="col-span-4 glass-card rounded-[32px] p-8">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary">menu_book</span>
+<h3 class="font-headline-sm text-headline-sm">知识库更新</h3>
+</div>
+<div class="space-y-4">
+<div class="p-4 rounded-2xl bg-surface-container-low/40 border border-outline-variant/10 group cursor-pointer">
+<p class="text-xs text-on-surface-variant font-label-md uppercase mb-1">最近更新百科</p>
+<p class="font-label-md text-label-md group-hover:text-primary transition-colors">红黑树 (Red-Black Trees)</p>
+</div>
+<div class="p-4 rounded-2xl bg-surface-container-low/40 border border-outline-variant/10 group cursor-pointer">
+<p class="text-xs text-on-surface-variant font-label-md uppercase mb-1">最新上传资料</p>
+<p class="font-label-md text-label-md group-hover:text-primary transition-colors">Lecture_05_Graphs.pdf</p>
+</div>
+</div>
+</div>
+<!-- 4. Exercise & Diagnosis -->
+<div class="col-span-4 glass-card rounded-[32px] p-8">
+<div class="flex justify-between items-start mb-6">
+<h3 class="font-headline-sm text-headline-sm">练习与诊断</h3>
+<span class="material-symbols-outlined text-tertiary">analytics</span>
+</div>
+<div class="mb-6">
+<div class="flex justify-between text-xs font-bold uppercase mb-2">
+<span>今日目标 (3/10)</span>
+<span class="text-primary">30%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[30%]"></div>
+</div>
+</div>
+<div class="p-4 rounded-2xl bg-error-container/20 border border-error/10">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-error text-sm">warning</span>
+<p class="text-xs text-error font-bold uppercase">薄弱知识点</p>
+</div>
+<p class="font-label-md text-label-md text-on-error-container">图论算法：最短路径优化</p>
+</div>
+</div>
+<!-- 5. Dashboard / Stats -->
+<div class="col-span-4 glass-card rounded-[32px] p-8">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-sm text-headline-sm">学习分析</h3>
+<select class="bg-transparent border-none text-xs font-bold text-on-surface-variant focus:ring-0">
+<option>本周</option>
+<option>本月</option>
+</select>
+</div>
+<div class="flex items-center gap-4 mb-8">
+<div class="flex-1">
+<p class="text-xs text-on-surface-variant font-label-md mb-1">学习时长</p>
+<p class="font-headline-md text-headline-md">18.5 <span class="text-sm font-normal">小时</span></p>
+</div>
+<div class="flex-1">
+<p class="text-xs text-on-surface-variant font-label-md mb-1">掌握度</p>
+<p class="font-headline-md text-headline-md text-primary">82%</p>
+</div>
+</div>
+<!-- Mini Sparkline Placeholder -->
+<div class="h-16 w-full flex items-end gap-1">
+<div class="flex-1 bg-primary/10 rounded-t-lg h-[40%]"></div>
+<div class="flex-1 bg-primary/10 rounded-t-lg h-[60%]"></div>
+<div class="flex-1 bg-primary/10 rounded-t-lg h-[45%]"></div>
+<div class="flex-1 bg-primary/20 rounded-t-lg h-[80%]"></div>
+<div class="flex-1 bg-primary/10 rounded-t-lg h-[50%]"></div>
+<div class="flex-1 bg-primary/30 rounded-t-lg h-[90%]"></div>
+<div class="flex-1 bg-primary/40 rounded-t-lg h-[70%]"></div>
+</div>
+</div>
+<!-- 6. Learning Path -->
+<div class="col-span-12 glass-card rounded-[32px] p-8 flex items-center gap-8 relative overflow-hidden">
+<div class="relative z-10 flex-1">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary">route</span>
+<h3 class="font-headline-sm text-headline-sm">当前学习阶段: Dijkstra 算法</h3>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex-1 h-3 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%] shadow-[0_0_12px_rgba(131,84,0,0.4)]"></div>
+</div>
+<span class="text-sm font-bold text-on-surface-variant">Lvl 12 / 65%</span>
+</div>
+</div>
+<div class="relative z-10 flex gap-4">
+<button class="bg-surface-container-high/60 hover:bg-surface-variant transition-colors px-6 py-3 rounded-2xl font-label-md text-label-md">查看全路径</button>
+<button class="bg-primary text-on-primary px-8 py-3 rounded-2xl font-label-md text-label-md shadow-lg shadow-primary/20 hover:scale-105 transition-transform">继续闯关</button>
+</div>
+<!-- Background Image Decoration -->
+<div class="absolute right-0 top-0 h-full w-1/3 opacity-20 pointer-events-none">
+<img class="w-full h-full object-cover mask-gradient" data-alt="A sophisticated abstract technological landscape featuring glowing circuit-like lines and floating nodes, captured in high-key warm light mode. The color palette emphasizes soft ambers, golden hues, and warm grays, creating a premium academic and futuristic atmosphere that feels luminous and welcoming." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFkORPmdhwk0qSI2kPeeRA564ae01kCoBR8mXXLESabAbqv83UbW6Nwo1o4NS1kXbENVEMx3XHoELNfp-t9D8zXPs4uSD3KOe_VLNCbGarQxUSfQcD8FwQyhoHZk-dPr6PQeOoBCCzNoOZh4-UAWJakD9wBTkzPYypcHNXK5AUvQ02Kcix4BAMvVpG-Ammk1hEXB5SO28BoCfUhKTfAPeGER3joEn1jCrBIXNMCTuJZUGkuYzB82SY576NAn028G3FXgP7Z2KuDW4"/>
+</div>
+<style>
+                    .mask-gradient {
+                        mask-image: linear-gradient(to left, black 0%, transparent 100%);
+                        -webkit-mask-image: linear-gradient(to left, black 0%, transparent 100%);
+                    }
+                </style>
+</div>
+</div>
+<!-- Recent Activity Feed -->
+<section class="mt-12 mb-10 relative z-10">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h3 class="font-headline-sm text-headline-sm">最近活动</h3>
+<p class="text-on-surface-variant text-body-md">记录你在智学工坊的点滴成长</p>
+</div>
+<button class="text-primary font-label-md text-label-md hover:underline">查看全部日志</button>
+</div>
+<div class="space-y-4">
+<div class="glass-card rounded-2xl p-6 flex items-center gap-6">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">history_edu</span>
+</div>
+<div class="flex-1">
+<p class="font-label-md text-label-md">完成了《贪心算法》章节的巩固练习</p>
+<p class="text-xs text-on-surface-variant/60">2 小时前 • 正确率 95%</p>
+</div>
+<div class="text-primary font-bold">+250 XP</div>
+</div>
+<div class="glass-card rounded-2xl p-6 flex items-center gap-6">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-container">
+<span class="material-symbols-outlined">auto_stories</span>
+</div>
+<div class="flex-1">
+<p class="font-label-md text-label-md">查阅了《B树与B+树》深度解析</p>
+<p class="text-xs text-on-surface-variant/60">昨天 16:45 • 学习时长 45min</p>
+</div>
+<div class="text-primary font-bold">+120 XP</div>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Micro-interaction for input fields
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('ring-primary/40');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('ring-primary/40');
+            });
+        });
+
+        // Simple mouse tracking for a soft glow effect
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            // You could apply this to a custom cursor or a subtle radial gradient overlay
+        });
+    </script>
+</body></html>

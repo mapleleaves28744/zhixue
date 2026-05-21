@@ -8,6 +8,29 @@
 
 ---
 
+# 当前实现视觉基准
+
+当前前端原型已采用 Stitch 生成的 **Luminous Warmth** 设计系统，详见：
+
+```text
+docs/DESIGN.md
+```
+
+因此，本文件中早期推荐的“靛蓝 + 青蓝 + 翡翠绿”方案只作为历史参考。当前前端重构、组件抽取和页面验收必须优先遵守 Luminous Warmth：
+
+1. 温润浅色背景：`#fcf9f8` / `#FCF9F2`；
+2. 主色金棕：`#835400`；
+3. 主强调暖橙：`#f9a826`；
+4. 玻璃拟态卡片：半透明白、强 backdrop blur、低透明边框；
+5. 标题字体：Plus Jakarta Sans；
+6. 正文字体：Manrope；
+7. 图标体系：Material Symbols Outlined；
+8. 页面气质：calm clarity、温润、高级、轻盈、学习空间感。
+
+后续如果本文件局部内容与 `docs/DESIGN.md` 冲突，以 `docs/DESIGN.md` 和当前 Stitch 页面视觉为准。
+
+---
+
 # 1. 设计理念
 
 ## 1.1 核心定位

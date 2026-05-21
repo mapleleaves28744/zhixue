@@ -1,0 +1,28 @@
+{
+  "id": 3,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\"name\":\"projects/1465105014587464426/screens/82014fdd18f046e5951d4f22c3119b59\",\"title\":\"主页 - 智学工坊 (温润之光版)\",\"screenshot\":{\"name\":\"projects/1465105014587464426/files/c1790378ce3244edaa6b7eb745946d18\",\"downloadUrl\":\"https://lh3.googleusercontent.com/aida/ADBb0ujNo3qlTsFHG1nTf0tmngh2ceUDJNst4eSpVdRijWCdr1oCyEM-VLCijQBqBKUrye451_D12FhWBh3P77eNBEZe2Gq9rg2THmjuEV3_nn2P8osgB4jEk4MdowIJe_u_HNHXart45nQwlGJCGf8qS3WGdgf2ln2RenzVNCQ6Ev-rLYgijE9tl8lUW9w51UPN3RyA82LE_pSNUsIT0hDSvXjoHnBlxgq8fSakKxpevgz3XX_TEMJNWIIwRP0\"},\"htmlCode\":{\"name\":\"projects/1465105014587464426/files/5edfd42cc29a44d4992a672d4a21b1cc\",\"downloadUrl\":\"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzc3YzRiMDA1YWQzNjQ2NDhiYjhkNGMxZjJkYWJjZDVhEgsSBxDejMzyzw0YAZIBIwoKcHJvamVjdF9pZBIVQhMxNDY1MTA1MDE0NTg3NDY0NDI2&filename=&opi=89354086\",\"mimeType\":\"text/html\"},\"width\":\"2560\",\"height\":\"2912\",\"deviceType\":\"DESKTOP\"}",
+        "type": "text"
+      }
+    ],
+    "structuredContent": {
+      "deviceType": "DESKTOP",
+      "height": "2912",
+      "htmlCode": {
+        "downloadUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzc3YzRiMDA1YWQzNjQ2NDhiYjhkNGMxZjJkYWJjZDVhEgsSBxDejMzyzw0YAZIBIwoKcHJvamVjdF9pZBIVQhMxNDY1MTA1MDE0NTg3NDY0NDI2&filename=&opi=89354086",
+        "mimeType": "text/html",
+        "name": "projects/1465105014587464426/files/5edfd42cc29a44d4992a672d4a21b1cc"
+      },
+      "name": "projects/1465105014587464426/screens/82014fdd18f046e5951d4f22c3119b59",
+      "screenshot": {
+        "downloadUrl": "https://lh3.googleusercontent.com/aida/ADBb0ujNo3qlTsFHG1nTf0tmngh2ceUDJNst4eSpVdRijWCdr1oCyEM-VLCijQBqBKUrye451_D12FhWBh3P77eNBEZe2Gq9rg2THmjuEV3_nn2P8osgB4jEk4MdowIJe_u_HNHXart45nQwlGJCGf8qS3WGdgf2ln2RenzVNCQ6Ev-rLYgijE9tl8lUW9w51UPN3RyA82LE_pSNUsIT0hDSvXjoHnBlxgq8fSakKxpevgz3XX_TEMJNWIIwRP0",
+        "name": "projects/1465105014587464426/files/c1790378ce3244edaa6b7eb745946d18"
+      },
+      "title": "主页 - 智学工坊 (温润之光版)",
+      "width": "2560"
+    }
+  }
+}

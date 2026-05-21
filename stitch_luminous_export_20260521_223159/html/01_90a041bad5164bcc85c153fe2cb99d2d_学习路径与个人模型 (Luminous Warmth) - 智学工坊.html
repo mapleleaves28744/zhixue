@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>智学工坊 - 学习路径与个人模型</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#151c22",
+                        "surface": "#fcf9f8",
+                        "primary-container": "#f9a826",
+                        "inverse-on-surface": "#f3f0ef",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#ffddb5",
+                        "on-surface-variant": "#524434",
+                        "surface-tint": "#835400",
+                        "surface-container-highest": "#e5e2e1",
+                        "tertiary": "#585f66",
+                        "on-secondary-fixed": "#301214",
+                        "tertiary-fixed-dim": "#c0c7cf",
+                        "surface-container-high": "#eae7e7",
+                        "inverse-primary": "#ffb957",
+                        "surface-variant": "#e5e2e1",
+                        "on-surface": "#1c1b1b",
+                        "surface-bright": "#fcf9f8",
+                        "on-secondary-fixed-variant": "#633c3d",
+                        "outline-variant": "#d7c3ae",
+                        "background": "#fcf9f8",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#674100",
+                        "inverse-surface": "#313030",
+                        "error": "#ba1a1a",
+                        "secondary-fixed-dim": "#efb9b9",
+                        "outline": "#857462",
+                        "on-tertiary-fixed-variant": "#40484e",
+                        "secondary-container": "#fec7c7",
+                        "secondary-fixed": "#ffdad9",
+                        "tertiary-fixed": "#dce3eb",
+                        "tertiary-container": "#b3bac2",
+                        "on-primary-fixed-variant": "#643f00",
+                        "surface-container-low": "#f6f3f2",
+                        "secondary": "#7d5354",
+                        "primary": "#835400",
+                        "on-primary-fixed": "#2a1800",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#f0eded",
+                        "on-secondary-container": "#7a5051",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#ffb957",
+                        "on-background": "#1c1b1b",
+                        "surface-dim": "#dcd9d9",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#434a51"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "card-gap": "24px",
+                        "container-padding-desktop": "48px",
+                        "container-padding-mobile": "20px",
+                        "gutter": "16px",
+                        "section-margin": "2.5rem"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Manrope"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "body-lg": ["Manrope"],
+                        "label-sm": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "headline-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "500"}],
+                        "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #fcf9f8;
+            background-image: radial-gradient(at 0% 0%, rgba(249, 168, 38, 0.05) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(125, 83, 84, 0.05) 0px, transparent 50%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 32px -4px rgba(131, 84, 0, 0.04);
+        }
+        .sidebar-glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+            border-right: 1px solid rgba(215, 195, 174, 0.3);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(133, 116, 98, 0.2);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<div class="flex min-h-screen">
+<!-- Sidebar Navigation -->
+<nav class="fixed h-screen w-20 left-0 top-0 sidebar-glass flex flex-col items-center py-6 gap-4 z-50 hidden md:flex">
+<div class="mb-6 w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center bg-primary-fixed">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSTPmeLbPWX_qVTQ5CJBuSdz5pF8Uzv31LiZpnpFLz661UFTMeV4ybk_4b7boUcEo6pH54TwBNycTiWNes0xQTyVbATpXOD7Nn3vxjAg5KLDdlzDIPP6JT2yxQbPvgVHL20k2eITrLP5wVeLm-8aYYav8WK5XasdqT2L64x_9H-OsT1w-guVqQ28yrdr-tYCPBMabrnkkHkuuTxWqWKVzoJEAmsGbHn3JU8plVHQBGXTj6_FZg9BDLj-QeYWJZ8svnr2EBh3R2Qro"/>
+</div>
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-xl group" href="#" title="Home">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
+</a>
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-xl group" href="#" title="My Space">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">person</span>
+</a>
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-xl group" href="#" title="AI Q&amp;A">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">smart_toy</span>
+</a>
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-xl group" href="#" title="Question Bank">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">inventory_2</span>
+</a>
+<a class="relative flex items-center justify-center w-12 h-12 bg-white text-primary rounded-xl shadow-sm border border-outline-variant/30 scale-95 active:scale-90 transition-transform" href="#" title="Learning Dashboard">
+<span class="absolute -left-1 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-primary rounded-r-full"></span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+</a>
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-xl group" href="#" title="Knowledge Graph">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">account_tree</span>
+</a>
+<div class="mt-auto">
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-xl group" href="#" title="Settings">
+<span class="material-symbols-outlined group-hover:rotate-45 transition-transform">settings</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-20 md:ml-24 max-w-[1800px] py-gutter px-6">
+<!-- Top App Bar -->
+<header class="flex justify-between items-center mb-8 w-full">
+<div class="flex items-center space-x-4">
+<div class="p-2 glass-card rounded-xl">
+<span class="material-symbols-outlined text-primary">analytics</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">学习路径与个人模型</h2>
+<p class="text-label-md text-on-surface-variant">实时追踪您的知识成长曲线与策略演化</p>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<div class="relative hidden lg:block">
+<input class="bg-surface-container-low border-none rounded-full px-6 py-2.5 w-72 focus:ring-2 focus:ring-primary/20 text-body-md placeholder:text-outline" placeholder="搜索知识点或策略..." type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-2.5 text-outline">search</span>
+</div>
+<button class="p-2.5 glass-card rounded-full hover:bg-white transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2.5 glass-card rounded-full hover:bg-white transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+</header>
+<!-- Grid Layout -->
+<div class="grid grid-cols-12 gap-card-gap">
+<!-- 1. Recommended Learning Path (Bento Large) -->
+<section class="col-span-12 lg:col-span-8 glass-card rounded-xl p-8 overflow-hidden relative">
+<div class="flex justify-between items-center mb-10">
+<h3 class="font-headline-md text-headline-md flex items-center">
+<span class="material-symbols-outlined mr-2 text-primary">route</span>
+                        推荐学习路径
+                    </h3>
+<span class="bg-primary/10 text-primary px-4 py-1 rounded-full text-label-sm uppercase tracking-wider">AI 定制计划</span>
+</div>
+<!-- Horizontal Timeline -->
+<div class="relative flex items-center justify-between pb-6 overflow-x-auto custom-scrollbar">
+<div class="absolute top-5 left-0 w-full h-[2px] bg-outline-variant/40"></div>
+<!-- Node 1 (Completed) -->
+<div class="relative z-10 flex flex-col items-center min-w-[200px]">
+<div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center mb-4 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">check</span>
+</div>
+<div class="text-center px-4">
+<p class="font-bold text-body-md">高等数学基础</p>
+<p class="text-label-sm text-on-surface-variant mb-2">已完成 24/24 课时</p>
+<span class="text-[10px] bg-surface-container-high px-2 py-0.5 rounded-full text-on-surface-variant font-bold">前置必备</span>
+</div>
+</div>
+<!-- Node 2 (In Progress) -->
+<div class="relative z-10 flex flex-col items-center min-w-[200px]">
+<div class="w-12 h-12 rounded-full bg-white border-2 border-primary text-primary flex items-center justify-center mb-4 relative overflow-hidden">
+<div class="absolute bottom-0 left-0 w-full h-1/2 bg-primary/10"></div>
+<span class="material-symbols-outlined animate-pulse" style="font-variation-settings: 'FILL' 1;">pending</span>
+</div>
+<div class="text-center px-4">
+<p class="font-bold text-body-md text-primary">导数应用详解</p>
+<p class="text-label-sm text-on-surface-variant mb-2">进度 45% (当前核心)</p>
+<span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">推荐关注: 物理建模</span>
+</div>
+</div>
+<!-- Node 3 (Locked/Upcoming) -->
+<div class="relative z-10 flex flex-col items-center min-w-[200px] opacity-60">
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant text-outline flex items-center justify-center mb-4">
+<span class="material-symbols-outlined">lock</span>
+</div>
+<div class="text-center px-4">
+<p class="font-bold text-body-md">多元积分进阶</p>
+<p class="text-label-sm text-on-surface-variant mb-2">预计解锁: 下周二</p>
+<span class="text-[10px] bg-secondary-fixed text-on-secondary-fixed-variant px-2 py-0.5 rounded-full font-bold">个性化扩充</span>
+</div>
+</div>
+<!-- Node 4 (Upcoming) -->
+<div class="relative z-10 flex flex-col items-center min-w-[200px] opacity-60">
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant text-outline flex items-center justify-center mb-4">
+<span class="material-symbols-outlined">flag</span>
+</div>
+<div class="text-center px-4">
+<p class="font-bold text-body-md">工程应用实战</p>
+<p class="text-label-sm text-on-surface-variant mb-2">目标课时: 12</p>
+</div>
+</div>
+</div>
+<div class="mt-10 p-5 rounded-xl bg-primary-fixed/30 border border-primary-container/20">
+<div class="flex items-start space-x-3">
+<span class="material-symbols-outlined text-primary mt-1">lightbulb</span>
+<div>
+<p class="font-bold text-on-primary-container mb-1">推荐理由</p>
+<p class="text-label-md text-on-surface-variant leading-relaxed">基于你近期在“物理力学”练习中的表现，系统识别出你对“曲率计算”掌握薄弱。建议优先完成“导数应用详解”中的第3-5章，这将有效提升你的物理建模效率。</p>
+</div>
+</div>
+</div>
+</section>
+<!-- 2. Student Portrait Summary (Bento Small) -->
+<section class="col-span-12 lg:col-span-4 glass-card rounded-xl p-8 flex flex-col">
+<h3 class="font-headline-md text-headline-md mb-8 flex items-center">
+<span class="material-symbols-outlined mr-2 text-secondary">face_6</span>
+                    学生画像摘要
+                </h3>
+<div class="flex-1 flex flex-col justify-between">
+<!-- Mastery Visualization -->
+<div class="relative aspect-square w-full max-w-[240px] mx-auto flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<!-- Background track -->
+<circle class="text-surface-container-high" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-width="8"></circle>
+<!-- Progress track -->
+<circle class="text-primary" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="31.6" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute text-center">
+<p class="text-4xl font-extrabold text-on-surface">88%</p>
+<p class="text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">知识掌控度</p>
+</div>
+<!-- Concentric decoration rings -->
+<div class="absolute inset-2 border border-outline-variant/10 rounded-full"></div>
+<div class="absolute inset-6 border border-outline-variant/20 rounded-full"></div>
+</div>
+<div class="mt-8 space-y-4">
+<p class="text-label-md font-bold flex items-center text-on-surface">
+<span class="material-symbols-outlined text-lg mr-2 text-outline">psychology_alt</span>
+                            学习偏好
+                        </p>
+<div class="flex flex-wrap gap-2">
+<span class="text-label-sm px-3 py-1.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant">视觉型学习者</span>
+<span class="text-label-sm px-3 py-1.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant">清晨活跃期</span>
+<span class="text-label-sm px-3 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant">偏向公式推演</span>
+</div>
+</div>
+<div class="pt-6 mt-6 border-t border-outline-variant/30 flex justify-between items-end">
+<div>
+<p class="text-label-sm text-on-surface-variant">最近一周进步</p>
+<p class="text-headline-sm font-bold text-primary">+4.2%</p>
+</div>
+<button class="text-label-md font-bold text-primary flex items-center hover:translate-x-1 transition-transform">
+                            查看完整报告 <span class="material-symbols-outlined text-base ml-1">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- 3. Long-term Memory (Horizontal List) -->
+<section class="col-span-12 lg:col-span-5 glass-card rounded-xl p-8">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md flex items-center">
+<span class="material-symbols-outlined mr-2 text-tertiary">memory</span>
+                        长期记忆
+                    </h3>
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors">history</span>
+</div>
+<div class="space-y-3 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
+<!-- Memory Item -->
+<div class="group p-4 bg-surface-container-low rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/30">
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center">
+<span class="material-symbols-outlined">menu_book</span>
+</div>
+<div>
+<p class="font-bold text-body-md">拉格朗日中值定理</p>
+<p class="text-label-sm text-on-surface-variant">巩固于 2023.10.15</p>
+</div>
+</div>
+<div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-primary-fixed rounded-lg" title="查看证据">
+<span class="material-symbols-outlined text-sm">link</span>
+</button>
+<button class="p-2 text-error hover:bg-error-container rounded-lg" title="归档">
+<span class="material-symbols-outlined text-sm">archive</span>
+</button>
+</div>
+</div>
+<!-- Memory Item -->
+<div class="group p-4 bg-surface-container-low rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/30">
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center">
+<span class="material-symbols-outlined">functions</span>
+</div>
+<div>
+<p class="font-bold text-body-md">傅里叶级数收敛性</p>
+<p class="text-label-sm text-on-surface-variant">巩固于 2023.09.28</p>
+</div>
+</div>
+<div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-primary-fixed rounded-lg" title="查看证据">
+<span class="material-symbols-outlined text-sm">link</span>
+</button>
+<button class="p-2 text-error hover:bg-error-container rounded-lg" title="归档">
+<span class="material-symbols-outlined text-sm">archive</span>
+</button>
+</div>
+</div>
+<!-- Memory Item -->
+<div class="group p-4 bg-surface-container-low rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/30">
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center">
+<span class="material-symbols-outlined">biotech</span>
+</div>
+<div>
+<p class="font-bold text-body-md">纳维-斯托克斯方程</p>
+<p class="text-label-sm text-on-surface-variant">巩固于 2023.08.12</p>
+</div>
+</div>
+<div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-primary-fixed rounded-lg" title="查看证据">
+<span class="material-symbols-outlined text-sm">link</span>
+</button>
+<button class="p-2 text-error hover:bg-error-container rounded-lg" title="归档">
+<span class="material-symbols-outlined text-sm">archive</span>
+</button>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-3 rounded-xl border-2 border-dashed border-outline-variant/50 text-on-surface-variant text-label-md hover:border-primary hover:text-primary hover:bg-primary/5 transition-all">
+                    + 添加自定义记忆节点
+                </button>
+</section>
+<!-- 4. Self-Evolving Strategy (Comparison Table) -->
+<section class="col-span-12 lg:col-span-7 glass-card rounded-xl p-8 overflow-hidden">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md flex items-center">
+<span class="material-symbols-outlined mr-2 text-primary" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                        自进化策略
+                    </h3>
+<div class="flex space-x-2">
+<button class="px-4 py-1.5 text-label-sm font-bold glass-card rounded-lg hover:bg-white transition-colors border border-outline-variant/30">版本记录</button>
+<button class="px-4 py-1.5 text-label-sm font-bold bg-primary text-white rounded-lg hover:shadow-lg shadow-primary/20 transition-all">应用全部</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-separate border-spacing-y-2">
+<thead>
+<tr class="text-label-sm text-on-surface-variant uppercase tracking-wider">
+<th class="px-4 pb-2">策略维度</th>
+<th class="px-4 pb-2">当前方案 (V2.4)</th>
+<th class="px-4 pb-2">进化预测 (V2.5)</th>
+<th class="px-4 pb-2">风险等级</th>
+<th class="px-4 pb-2 text-right">操作</th>
+</tr>
+</thead>
+<tbody class="text-body-md">
+<!-- Row 1 -->
+<tr class="bg-surface-container-low/50 hover:bg-white transition-colors rounded-xl overflow-hidden group">
+<td class="p-4 rounded-l-xl font-bold">难度调节</td>
+<td class="p-4 text-on-surface-variant">线性递增 (+10%)</td>
+<td class="p-4 font-bold text-primary">动态反馈 (+5%~15%)</td>
+<td class="p-4">
+<span class="px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-label-sm font-bold">低风险</span>
+</td>
+<td class="p-4 rounded-r-xl text-right">
+<button class="text-primary font-bold hover:underline">确认</button>
+</td>
+</tr>
+<!-- Row 2 - High Risk -->
+<tr class="bg-error-container/20 hover:bg-error-container/30 transition-colors rounded-xl group border-l-4 border-error">
+<td class="p-4 rounded-l-xl font-bold">知识跳跃</td>
+<td class="p-4 text-on-surface-variant">严格遵循大纲</td>
+<td class="p-4 font-bold text-error">基于语义关联跨级</td>
+<td class="p-4">
+<span class="px-2.5 py-0.5 rounded-full bg-error text-white text-label-sm font-bold">高风险</span>
+</td>
+<td class="p-4 rounded-r-xl text-right space-x-3">
+<button class="text-on-surface-variant font-bold hover:underline">驳回</button>
+<button class="bg-error text-white px-3 py-1 rounded-lg text-label-sm hover:shadow-md transition-all">强制更新</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="bg-surface-container-low/50 hover:bg-white transition-colors rounded-xl overflow-hidden group">
+<td class="p-4 rounded-l-xl font-bold">交互偏好</td>
+<td class="p-4 text-on-surface-variant">文本+图形</td>
+<td class="p-4 font-bold text-primary">沉浸式 3D 模拟</td>
+<td class="p-4">
+<span class="px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant text-label-sm font-bold">中风险</span>
+</td>
+<td class="p-4 rounded-r-xl text-right">
+<button class="text-primary font-bold hover:underline">确认</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-6 flex items-center justify-between text-label-sm text-on-surface-variant">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-base mr-1">info</span>
+                        高风险策略可能显著改变学习节奏，建议查看 <a class="text-primary hover:underline ml-1 font-bold" href="#">证据链路</a> 后操作。
+                    </div>
+<p>上次自进化时间: 10分钟前</p>
+</div>
+</section>
+</div>
+<!-- Footer Floating Action Button -->
+<div class="fixed bottom-8 right-8 z-40">
+<button class="flex items-center space-x-3 bg-primary text-white px-8 py-4 rounded-xl shadow-2xl shadow-primary/40 hover:scale-105 active:scale-95 transition-transform group">
+<span class="material-symbols-outlined group-hover:rotate-12 transition-transform">auto_fix_high</span>
+<span class="font-bold tracking-wide">生成路径优化建议</span>
+</button>
+</div>
+</main>
+</div>
+<script>
+    // Subtle interactivity
+    document.querySelectorAll('.glass-card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-2px)';
+            card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'translateY(0)';
+        });
+    });
+</script>
+</body></html>

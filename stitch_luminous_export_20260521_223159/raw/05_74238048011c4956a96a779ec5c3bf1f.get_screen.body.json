@@ -1,0 +1,13 @@
+{
+  "id": 5,
+  "params": {
+    "arguments": {
+      "projectId": "1465105014587464426",
+      "name": "projects/1465105014587464426/screens/74238048011c4956a96a779ec5c3bf1f",
+      "screenId": "74238048011c4956a96a779ec5c3bf1f"
+    },
+    "name": "get_screen"
+  },
+  "jsonrpc": "2.0",
+  "method": "tools/call"
+}

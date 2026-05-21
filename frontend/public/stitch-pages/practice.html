@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>练习与诊断 - 智学工坊</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-tertiary-fixed": "#151c22",
+                "surface": "#fcf9f8",
+                "primary-container": "#f9a826",
+                "inverse-on-surface": "#f3f0ef",
+                "surface-container-lowest": "#ffffff",
+                "primary-fixed": "#ffddb5",
+                "on-surface-variant": "#524434",
+                "surface-tint": "#835400",
+                "surface-container-highest": "#e5e2e1",
+                "tertiary": "#585f66",
+                "on-secondary-fixed": "#301214",
+                "tertiary-fixed-dim": "#c0c7cf",
+                "surface-container-high": "#eae7e7",
+                "inverse-primary": "#ffb957",
+                "surface-variant": "#e5e2e1",
+                "on-surface": "#1c1b1b",
+                "surface-bright": "#fcf9f8",
+                "on-secondary-fixed-variant": "#633c3d",
+                "outline-variant": "#d7c3ae",
+                "background": "#fcf9f8",
+                "on-primary": "#ffffff",
+                "on-primary-container": "#674100",
+                "inverse-surface": "#313030",
+                "error": "#ba1a1a",
+                "secondary-fixed-dim": "#efb9b9",
+                "outline": "#857462",
+                "on-tertiary-fixed-variant": "#40484e",
+                "secondary-container": "#fec7c7",
+                "secondary-fixed": "#ffdad9",
+                "tertiary-fixed": "#dce3eb",
+                "tertiary-container": "#b3bac2",
+                "on-primary-fixed-variant": "#643f00",
+                "surface-container-low": "#f6f3f2",
+                "secondary": "#7d5354",
+                "primary": "#835400",
+                "on-primary-fixed": "#2a1800",
+                "error-container": "#ffdad6",
+                "surface-container": "#f0eded",
+                "on-secondary-container": "#7a5051",
+                "on-error": "#ffffff",
+                "primary-fixed-dim": "#ffb957",
+                "on-background": "#1c1b1b",
+                "surface-dim": "#dcd9d9",
+                "on-secondary": "#ffffff",
+                "on-error-container": "#93000a",
+                "on-tertiary": "#ffffff",
+                "on-tertiary-container": "#434a51"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "unit": "8px",
+                "card-gap": "24px",
+                "container-padding-desktop": "48px",
+                "container-padding-mobile": "20px",
+                "gutter": "16px"
+        },
+        "fontFamily": {
+                "display-lg": ["Plus Jakarta Sans"],
+                "label-md": ["Manrope"],
+                "headline-sm": ["Plus Jakarta Sans"],
+                "body-lg": ["Manrope"],
+                "label-sm": ["Manrope"],
+                "body-md": ["Manrope"],
+                "headline-md": ["Plus Jakarta Sans"]
+        },
+        "fontSize": {
+                "display-lg": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "500"}],
+                "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+        }
+      },
+    },
+  }
+</script>
+<style>
+        body {
+            background-color: #fcf9f8;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(131, 84, 0, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(125, 83, 84, 0.03) 0%, transparent 40%);
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 20px rgba(131, 84, 0, 0.05);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-tab {
+            position: relative;
+        }
+        .active-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background: #835400;
+            border-radius: 99px;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<div class="flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="fixed h-screen w-20 left-0 top-0 bg-white/40 backdrop-blur-xl border-r border-outline-variant/30 flex flex-col items-center py-6 gap-4 z-50 hidden md:flex">
+<div class="mb-6 w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center bg-primary/10">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSTPmeLbPWX_qVTQ5CJBuSdz5pF8Uzv31LiZpnpFLz661UFTMeV4ybk_4b7boUcEo6pH54TwBNycTiWNes0xQTyVbATpXOD7Nn3vxjAg5KLDdlzDIPP6JT2yxQbPvgVHL20k2eITrLP5wVeLm-8aYYav8WK5XasdqT2L64x_9H-OsT1w-guVqQ28yrdr-tYCPBMabrnkkHkuuTxWqWKVzoJEAmsGbHn3JU8plVHQBGXTj6_FZg9BDLj-QeYWJZ8svnr2EBh3R2Qro"/>
+</div>
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/" target="_parent" title="首页">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
+</a>
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/courses" target="_parent" title="课程空间">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">grid_view</span>
+</a>
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/assistant" target="_parent" title="AI 学习助手">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">smart_toy</span>
+</a>
+<a class="relative flex items-center justify-center w-12 h-12 bg-white/80 text-primary rounded-2xl shadow-sm border border-white/90 scale-95 active:scale-90 transition-transform" href="/practice" target="_parent" title="练习与诊断">
+<span class="absolute -left-1 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-primary rounded-r-full"></span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+</a>
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/dashboard" target="_parent" title="学习仪表盘">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">dashboard</span>
+</a>
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/knowledge" target="_parent" title="课程知识库">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">menu_book</span>
+</a>
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/path-profile" target="_parent" title="学习路径与个人模型">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">route</span>
+</a>
+</nav>
+<main class="flex-1 flex flex-col overflow-y-auto ml-0 md:ml-20">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-8 max-w-[calc(100%-80px)] h-20 bg-transparent z-40 hidden md:flex fixed top-0 left-20">
+<div class="flex items-center gap-4">
+<h1 class="font-display-lg text-headline-md text-on-background">智学工坊</h1>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<h2 class="font-headline-md text-headline-sm text-on-surface-variant font-normal">学术研究门户</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input class="pl-12 pr-6 py-2.5 w-72 bg-white/60 border border-outline-variant/30 rounded-full focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 backdrop-blur-md transition-all shadow-sm text-body-md text-on-background placeholder-outline" placeholder="搜索题目、知识点或报告..." type="text"/>
+</div>
+<button class="bg-white/60 border border-outline-variant/30 hover:bg-white rounded-full p-2.5 transition-all shadow-sm text-outline hover:text-primary relative group">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border border-white"></span>
+</button>
+<div class="flex items-center gap-3">
+<img alt="用户头像" class="w-8 h-8 rounded-full border border-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa3tD7B2F4becf2vSWXYhjmlG0uItp0eLZ5m3t8qmrKU8AWNbumFauvNivQ-IUGJMc7MkyuoQqH7LHHbzCRynOCckYqp_dTH1KnuIYpje43YgPCBs4_m2a4I3Vm5nNBg2CTLHWIzf3FhzH-uW4smy8o0pJz4ubkJYfShW7ZhYcZcfKKeWN_N0VMZ_Su7l5A2lFpreLEbeVcygP1GGLO5xdf2Aho5yh_PZarAyZ2fN_8266dELN3eUIzvzIVm0yXMrv1T1ueF6kA-U"/>
+<span class="text-label-md font-bold">李华 学员</span>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<div class="p-8 max-w-7xl mx-auto w-full mt-0 md:mt-20">
+<!-- Tab Navigation Header -->
+<div class="flex items-center justify-between mb-10">
+<div class="flex gap-10">
+<button class="font-headline-md text-primary active-tab">练习生成</button>
+<button class="font-headline-md text-on-surface-variant hover:text-primary transition-colors">答题竞技</button>
+<button class="font-headline-md text-on-surface-variant hover:text-primary transition-colors">错题本</button>
+<button class="font-headline-md text-on-surface-variant hover:text-primary transition-colors">诊断报告</button>
+</div>
+<div class="flex gap-3">
+<div class="flex items-center gap-1.5 px-4 py-1.5 bg-primary-fixed rounded-full text-on-primary-fixed text-xs font-bold shadow-sm">
+<span class="material-symbols-outlined text-sm">bolt</span>
+                            AI 状态: 在线
+                        </div>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<!-- Left Column: Config & Practice -->
+<div class="col-span-12 lg:col-span-8 space-y-8">
+<!-- Section 1: Practice Configuration -->
+<section class="glass-card rounded-xl p-6">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">tune</span>
+<h3 class="text-headline-sm font-bold">定制您的练习计划</h3>
+</div>
+<div class="grid grid-cols-3 gap-6">
+<div>
+<label class="block text-label-sm text-outline uppercase mb-2">题目类型</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium shadow-sm">单选</button>
+<button class="px-4 py-2 bg-white/50 border border-outline-variant hover:border-primary rounded-lg text-sm font-medium transition-colors">多选</button>
+<button class="px-4 py-2 bg-white/50 border border-outline-variant hover:border-primary rounded-lg text-sm font-medium transition-colors">填空</button>
+</div>
+</div>
+<div>
+<label class="block text-label-sm text-outline uppercase mb-2">难度级别</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-3 py-2 bg-white/50 border border-outline-variant hover:border-primary rounded-lg text-sm font-medium">入门</button>
+<button class="px-3 py-2 bg-secondary-container text-on-secondary-container border border-secondary/20 rounded-lg text-sm font-bold shadow-sm">进阶</button>
+<button class="px-3 py-2 bg-white/50 border border-outline-variant hover:border-primary rounded-lg text-sm font-medium">挑战</button>
+</div>
+</div>
+<div>
+<label class="block text-label-sm text-outline uppercase mb-2">知识点范围</label>
+<select class="w-full bg-white/50 border-outline-variant rounded-lg text-sm py-2 focus:ring-primary focus:border-primary">
+<option>量子物理基础</option>
+<option>线性代数进阶</option>
+<option>宏观经济模型</option>
+</select>
+</div>
+</div>
+</section>
+<!-- Section 2: Active Quiz Interface -->
+<section class="glass-card rounded-xl p-8 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4">
+<div class="text-label-sm text-outline">题号: 12 / 20</div>
+</div>
+<div class="mb-8">
+<span class="px-2.5 py-1 bg-primary-fixed text-on-primary-fixed-variant text-[11px] font-bold rounded uppercase mb-3 inline-block">量子物理 - 波粒二象性</span>
+<h2 class="text-headline-md leading-relaxed text-on-surface">
+                                    下列关于海森堡不确定性原理的描述中，哪项准确地反映了由于量子观测导致的坐标与动量测量误差的关系？
+                                </h2>
+</div>
+<div class="space-y-4 mb-8">
+<label class="flex items-center gap-4 p-4 rounded-xl bg-white/40 border border-outline-variant/50 hover:border-primary/50 cursor-pointer transition-all group">
+<div class="w-7 h-7 rounded-full border border-outline group-hover:border-primary flex items-center justify-center text-xs font-bold">A</div>
+<span class="flex-1 text-body-md">测量仪器本身的技术限制导致了不确定性的产生。</span>
+</label>
+<label class="flex items-center gap-4 p-4 rounded-xl bg-primary/5 border border-primary cursor-pointer transition-all ring-1 ring-primary/20">
+<div class="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">B</div>
+<span class="flex-1 font-semibold text-on-surface">不确定性是量子系统的内在属性，与测量仪器的精度无关。</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</label>
+<label class="flex items-center gap-4 p-4 rounded-xl bg-white/40 border border-outline-variant/50 hover:border-primary/50 cursor-pointer transition-all group">
+<div class="w-7 h-7 rounded-full border border-outline group-hover:border-primary flex items-center justify-center text-xs font-bold">C</div>
+<span class="flex-1 text-body-md">该原理仅适用于微观粒子，在宏观尺度上完全失效。</span>
+</label>
+</div>
+<div class="flex justify-between items-center">
+<button class="flex items-center gap-2 text-outline hover:text-primary font-bold text-sm">
+<span class="material-symbols-outlined text-lg">skip_previous</span>
+                                    上一题
+                                </button>
+<div class="flex gap-4">
+<button class="px-6 py-2.5 bg-white/50 border border-primary text-primary rounded-lg font-bold text-sm hover:bg-primary/5 transition-all">
+                                        标记疑问
+                                    </button>
+<button class="px-8 py-2.5 bg-primary text-white rounded-lg font-bold text-sm shadow-md shadow-primary/20 hover:shadow-lg active:scale-95 transition-all" onclick="document.getElementById('analysis-panel').classList.remove('hidden')">
+                                        检查答案
+                                    </button>
+</div>
+</div>
+</section>
+<!-- Section 3: Analysis Panel (Hidden initially) -->
+<section class="glass-card rounded-xl p-8 bg-surface-container-low/80 border-primary-container/20 hidden" id="analysis-panel">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div>
+<h4 class="font-bold text-headline-sm">AI 自动批改与解析</h4>
+<p class="text-label-sm text-outline">回答正确 · 耗时 42s · 击败 85% 的用户</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-white/50 rounded-lg transition-colors text-outline" title="存入错题本"><span class="material-symbols-outlined">bookmark</span></button>
+<button class="p-2 hover:bg-white/50 rounded-lg transition-colors text-outline" title="分享解析"><span class="material-symbols-outlined">share</span></button>
+</div>
+</div>
+<div class="bg-white/60 rounded-xl p-6 mb-6 border border-white/50 shadow-sm">
+<p class="text-body-md leading-relaxed mb-4">
+<strong class="text-primary">答案解析：</strong> 海森堡不确定性原理 ($\Delta x \Delta p \ge \hbar/2$) 指出，一个粒子的位置和动量不能同时被无限精确地测量。这不是因为实验技术的局限，而是物质波本质的体现。任何试图测量其中一个量的行为都会不可避免地干扰另一个量。
+                                </p>
+<div class="flex items-center gap-4">
+<span class="text-label-sm font-bold text-outline">常见错因分析:</span>
+<span class="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed-variant rounded-full text-xs font-semibold">概念模糊 (34%)</span>
+<span class="px-3 py-1 bg-surface-variant text-on-surface-variant rounded-full text-xs font-semibold">思路断裂 (12%)</span>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="flex-1 py-3 bg-white/60 border border-outline-variant rounded-lg text-sm font-bold flex items-center justify-center gap-2 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">menu_book</span> 跳转 Wiki
+                                </button>
+<button class="flex-1 py-3 bg-primary/10 text-primary border border-primary/20 rounded-lg text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">bolt</span> AI 资源生成
+                                </button>
+</div>
+</section>
+</div>
+<!-- Right Column: Diagnosis & Recommendation -->
+<div class="col-span-12 lg:col-span-4 space-y-8">
+<!-- Section 4: Diagnosis Report Dashboard -->
+<section class="glass-card rounded-xl p-6">
+<h3 class="font-bold mb-6 flex items-center gap-2 text-headline-sm">
+<span class="material-symbols-outlined text-primary">analytics</span>
+                                掌握度矩阵
+                            </h3>
+<!-- Mock Spider Chart Area -->
+<div class="relative h-48 flex items-center justify-center mb-8">
+<div class="absolute inset-0 flex items-center justify-center opacity-10">
+<div class="w-32 h-32 border border-primary rounded-full"></div>
+<div class="absolute w-40 h-40 border border-primary rounded-full"></div>
+<div class="absolute w-24 h-24 border border-primary rounded-full"></div>
+</div>
+<svg class="w-40 h-40 transform rotate-[-18deg]" viewbox="0 0 100 100">
+<polygon fill="none" points="50,10 90,40 70,90 30,90 10,40" stroke="#835400" stroke-dasharray="2 1" stroke-width="0.5"></polygon>
+<polygon fill="rgba(249, 168, 38, 0.2)" points="50,25 75,45 65,75 35,70 25,50" stroke="#835400" stroke-width="2"></polygon>
+</svg>
+<div class="absolute -top-2 text-[10px] font-bold text-on-surface-variant">概念理解</div>
+<div class="absolute -right-6 top-1/3 text-[10px] font-bold text-on-surface-variant">逻辑推导</div>
+<div class="absolute -bottom-2 right-4 text-[10px] font-bold text-on-surface-variant">计算精度</div>
+<div class="absolute -bottom-2 left-4 text-[10px] font-bold text-on-surface-variant">综合应用</div>
+<div class="absolute -left-6 top-1/3 text-[10px] font-bold text-on-surface-variant">迁移能力</div>
+</div>
+<div class="space-y-4">
+<div class="p-3 bg-error-container/30 border border-error/10 rounded-lg">
+<div class="flex justify-between items-center mb-1">
+<span class="text-label-sm font-bold text-error">薄弱知识点</span>
+<span class="text-[10px] text-error font-bold px-1.5 py-0.5 bg-white/50 rounded">建议复习</span>
+</div>
+<p class="text-sm font-semibold text-on-surface">波函数的统计诠释</p>
+</div>
+<div class="p-3 bg-surface-container-high rounded-lg border border-outline-variant/20">
+<div class="flex justify-between items-center mb-1">
+<span class="text-label-sm font-bold text-on-surface-variant">诊断证据</span>
+</div>
+<p class="text-[11px] text-on-surface-variant leading-tight">基于近3场练习，由于对“几率波”概念模糊导致的错误率达 40%。</p>
+</div>
+</div>
+</section>
+<!-- Section 5: Smart Next Step -->
+<section class="glass-card rounded-xl p-6">
+<h3 class="font-bold mb-5 flex items-center gap-2 text-headline-sm">
+<span class="material-symbols-outlined text-primary">auto_fix_high</span>
+                                智能下一步
+                            </h3>
+<div class="space-y-4">
+<!-- Recommendation Item -->
+<div class="bg-white/60 rounded-xl p-4 border border-outline-variant/30 hover:shadow-md transition-shadow group">
+<div class="flex items-start gap-3 mb-3">
+<div class="w-9 h-9 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-xl">video_library</span>
+</div>
+<div class="flex-1">
+<h5 class="text-sm font-bold group-hover:text-primary transition-colors">3分钟搞懂薛定谔方程</h5>
+<p class="text-[11px] text-outline">可视化教学 · 匹配度 98%</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-1.5 bg-primary-fixed/50 text-on-primary-fixed-variant text-[11px] font-bold rounded-lg hover:bg-primary-fixed transition-colors">立即学习</button>
+<button class="px-2 py-1.5 text-outline hover:text-on-surface"><span class="material-symbols-outlined text-lg">close</span></button>
+<button class="px-2 py-1.5 text-outline hover:text-on-surface"><span class="material-symbols-outlined text-lg">sentiment_dissatisfied</span></button>
+</div>
+</div>
+<!-- Recommendation Item -->
+<div class="bg-white/60 rounded-xl p-4 border border-outline-variant/30 hover:shadow-md transition-shadow group">
+<div class="flex items-start gap-3 mb-3">
+<div class="w-9 h-9 rounded-lg bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-xl">article</span>
+</div>
+<div class="flex-1">
+<h5 class="text-sm font-bold group-hover:text-primary transition-colors">波粒二象性深度词条</h5>
+<p class="text-[11px] text-outline">百科阅读 · 匹配度 92%</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-1.5 bg-primary-fixed/50 text-on-primary-fixed-variant text-[11px] font-bold rounded-lg hover:bg-primary-fixed transition-colors">立即阅读</button>
+<button class="px-2 py-1.5 text-outline hover:text-on-surface"><span class="material-symbols-outlined text-lg">close</span></button>
+<button class="px-2 py-1.5 text-outline hover:text-on-surface"><span class="material-symbols-outlined text-lg">sentiment_dissatisfied</span></button>
+</div>
+</div>
+<button class="w-full py-2.5 text-xs font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors border border-primary/10 mt-2">
+                                    查看更多建议
+                                </button>
+</div>
+</section>
+<!-- Progress Summary -->
+<div class="relative glass-card rounded-xl p-6 overflow-hidden bg-gradient-to-br from-primary/5 to-secondary/5 h-32 flex items-center justify-center text-center">
+<div class="relative z-10 w-full">
+<p class="text-label-sm font-bold text-on-surface-variant mb-2">"保持专注，距离掌握该领域还有最后 5%"</p>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden shadow-inner">
+<div class="bg-primary h-full w-[95%]"></div>
+</div>
+</div>
+<div class="absolute -bottom-4 -right-4 w-20 h-20 bg-primary-container/10 rounded-full blur-2xl"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Floating Action Button -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</button>
+<script>
+        function toggleAnalysis() {
+            const panel = document.getElementById('analysis-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) - 0.5;
+            const y = (e.clientY / window.innerHeight) - 0.5;
+            document.body.style.backgroundPosition = `${x * 20}px ${y * 20}px`;
+        });
+    </script>
+</body></html>
