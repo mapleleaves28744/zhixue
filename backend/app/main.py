@@ -1,7 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.router import router as api_v1_router
 from app.core.config import settings
+from app.core.exceptions import register_exception_handlers
+from app.core.response import generate_request_id
 
 
 app = FastAPI(
@@ -17,6 +20,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def request_id_middleware(request: Request, call_next):
+    request_id = request.headers.get("X-Request-ID") or generate_request_id()
+    request.state.request_id = request_id
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    return response
+
+
+register_exception_handlers(app)
+app.include_router(api_v1_router, prefix="/api/v1")
 
 
 @app.get("/health")
