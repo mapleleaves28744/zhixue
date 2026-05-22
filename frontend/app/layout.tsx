@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import type { ReactNode } from "react"
 
+import { Toaster } from "@/components/ui/sonner"
+
 import "../styles/globals.css"
 
 export const metadata: Metadata = {
@@ -23,7 +25,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster />
+      </body>
     </html>
   )
 }

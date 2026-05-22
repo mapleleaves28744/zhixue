@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     debug: bool = Field(default=True, alias="DEBUG")
 
     database_url: str = Field(
-        default="postgresql+psycopg://zhixue:zhixue_password@localhost:5432/zhixue",
+        default="postgresql+asyncpg://zhixue:zhixue_password@localhost:5432/zhixue",
         alias="DATABASE_URL",
     )
     redis_url: str = Field(default="redis://localhost:6379/0", alias="REDIS_URL")

@@ -1,0 +1,21 @@
+{
+  "projectId": "1465105014587464426",
+  "title": "Zhixue Glassmorphism Learning Dashboard",
+  "exportedAt": "2026-05-22T23:53:29",
+  "screens": [
+    {
+      "index": 1,
+      "screenId": "05850ff3457142bbbff0338de59c3bef",
+      "screenName": "projects/1465105014587464426/screens/05850ff3457142bbbff0338de59c3bef",
+      "title": "智学工坊 - 品牌介绍页 (温润之光版)",
+      "width": "2560",
+      "height": "7026",
+      "deviceType": "DESKTOP",
+      "html": "C:\\Users\\28744\\Desktop\\zhixue\\stitch_brand_export_20260522_2354\\html\\01_05850ff3457142bbbff0338de59c3bef_智学工坊 - 品牌介绍页 (温润之光版).html",
+      "image": "C:\\Users\\28744\\Desktop\\zhixue\\stitch_brand_export_20260522_2354\\images\\01_05850ff3457142bbbff0338de59c3bef_智学工坊 - 品牌介绍页 (温润之光版).jpg",
+      "raw": "C:\\Users\\28744\\Desktop\\zhixue\\stitch_brand_export_20260522_2354\\raw\\05850ff3457142bbbff0338de59c3bef.get_screen.response.json",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/ADBb0ui26z8jqSYuWgJ1V_7dT8uw1CiaPW2WNS4NqJtvU22RqRusfnpFhA8K9CGPwbaVYAnY0bNamenKrbks49zRtq34kT1wUnElVxAJRFGuI6JHtx6wpxy5JJF5-GEup-Y7m6524BsadqPcv2B4NZQ_2xv50Shnf2vpm2pwKqOpUKFW4jEZAMoBMBI0r3pM_-vVJazh3Qni89oNiGJ5Qu-aLycn3VIiPLpffTfk9UAlMU6E21Bc4YoqtQthNQ",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzAwMDY1MjY4ZjIyYjYyZmYwMzgzOGYxM2ZmMmIxYzNmEgsSBxDejMzyzw0YAZIBIwoKcHJvamVjdF9pZBIVQhMxNDY1MTA1MDE0NTg3NDY0NDI2&filename=&opi=89354086"
+    }
+  ]
+}

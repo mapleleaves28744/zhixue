@@ -1,12 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html,
 body {
   margin: 0;
   min-height: 100%;
-  background: #faf9f8;
+  background: #fcf9f8;
+  color: #1c1b1b;
 }
 
 * {
   box-sizing: border-box;
+}
+
+:root {
+  --background: 24 40% 98%;
+  --foreground: 0 2% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 2% 11%;
+  --popover: 24 40% 98%;
+  --popover-foreground: 0 2% 11%;
+  --primary: 38 100% 26%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 359 31% 41%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 20 13% 91%;
+  --muted-foreground: 31 18% 35%;
+  --accent: 38 95% 56%;
+  --accent-foreground: 38 100% 20%;
+  --destructive: 0 75% 42%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 31 36% 76%;
+  --input: 31 36% 76%;
+  --ring: 38 100% 26%;
+  --radius: 1.5rem;
+}
+
+body {
+  font-family: Manrope, "Microsoft YaHei", "Noto Sans SC", sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.glass-panel {
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.52);
+  box-shadow: 0 24px 70px rgba(131, 84, 0, 0.08);
+  backdrop-filter: blur(30px);
 }
 
 .stitch-shell {

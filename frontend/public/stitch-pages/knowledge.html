@@ -312,7 +312,7 @@
 <h3 class="font-headline-sm text-headline-sm text-on-surface">资料库</h3>
 <p class="font-label-sm text-label-sm text-on-surface-variant mt-1 opacity-80">共 24 个文档</p>
 </div>
-<button class="bg-primary text-on-primary px-4 py-2 rounded-xl font-label-md flex items-center gap-2 hover:bg-primary/90 transition-all shadow-md shadow-primary/20 hover:-translate-y-0.5">
+<button id="material-upload-button" class="bg-primary text-on-primary px-4 py-2 rounded-xl font-label-md flex items-center gap-2 hover:bg-primary/90 transition-all shadow-md shadow-primary/20 hover:-translate-y-0.5">
 <span class="material-symbols-outlined text-[18px]">upload</span>
                     上传资料
                 </button>
@@ -449,4 +449,134 @@
 </div>
 </main>
 </div>
+<script>
+(() => {
+  const API_BASE_URL = "http://localhost:8000/api/v1";
+  const uploadButton = document.getElementById("material-upload-button");
+  const docList = document.querySelector(".flex-1.overflow-y-auto.pr-2.flex.flex-col.gap-3");
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".pdf,.docx,.md,.txt";
+  input.style.display = "none";
+  document.body.appendChild(input);
+
+  function getToken() {
+    return window.localStorage.getItem("access_token");
+  }
+
+  async function request(path, options = {}) {
+    const token = getToken();
+    if (!token) {
+      throw new Error("请先登录后再上传资料");
+    }
+    const headers = new Headers(options.headers || {});
+    headers.set("Authorization", `Bearer ${token}`);
+    headers.set("Accept", "application/json");
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers,
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok || !payload || payload.code !== 0) {
+      throw new Error(payload?.detail || payload?.message || "请求失败");
+    }
+    return payload.data;
+  }
+
+  async function getCourseId() {
+    const urlCourseId = new URLSearchParams(window.parent.location.search).get("course_id")
+      || new URLSearchParams(window.location.search).get("course_id");
+    if (urlCourseId) {
+      return urlCourseId;
+    }
+    const page = await request("/courses?page=1&page_size=1&status=active");
+    const firstCourse = page.items && page.items[0];
+    if (!firstCourse) {
+      throw new Error("请先创建课程，再上传资料");
+    }
+    return firstCourse.id;
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(1)} KB`;
+    }
+    return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+  }
+
+  function addMaterialCard(material) {
+    if (!docList) {
+      return;
+    }
+    const item = document.createElement("div");
+    item.className = "glass-card p-4 border-l-[6px] border-l-primary cursor-pointer hover:bg-white/95 transition-all group";
+    item.innerHTML = `
+      <div class="flex justify-between items-start mb-2">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-[20px]">description</span>
+          <h4 class="font-title text-title-sm text-on-surface line-clamp-1">${material.file_name}</h4>
+        </div>
+        <span class="text-[10px] px-1.5 py-0.5 rounded bg-primary-container text-primary font-bold">待解析</span>
+      </div>
+      <div class="flex items-center gap-2 text-label-sm text-on-surface-variant mt-3">
+        <span>${formatSize(material.file_size)}</span>
+        <span>•</span>
+        <span>${material.file_type.toUpperCase()}</span>
+        <span>刚刚上传</span>
+      </div>
+    `;
+    docList.prepend(item);
+  }
+
+  function setUploading(isUploading) {
+    uploadButton.disabled = isUploading;
+    uploadButton.classList.toggle("opacity-70", isUploading);
+    uploadButton.innerHTML = isUploading
+      ? '<span class="material-symbols-outlined text-[18px]">hourglass_top</span>上传中...'
+      : '<span class="material-symbols-outlined text-[18px]">upload</span>上传资料';
+  }
+
+  async function loadExistingMaterials() {
+    try {
+      const courseId = await getCourseId();
+      const page = await request(`/materials?course_id=${encodeURIComponent(courseId)}&page=1&page_size=20`);
+      const uploadedMaterials = (page.items || []).slice().reverse();
+      uploadedMaterials.forEach(addMaterialCard);
+    } catch {
+      // 未登录或尚未创建课程时保持静态演示内容，不打断页面展示。
+    }
+  }
+
+  uploadButton?.addEventListener("click", () => {
+    input.value = "";
+    input.click();
+  });
+
+  input.addEventListener("change", async () => {
+    const file = input.files && input.files[0];
+    if (!file) {
+      return;
+    }
+    try {
+      setUploading(true);
+      const courseId = await getCourseId();
+      const formData = new FormData();
+      formData.set("course_id", courseId);
+      formData.set("file", file);
+      const material = await request("/materials/upload", {
+        method: "POST",
+        body: formData,
+      });
+      addMaterialCard(material);
+      alert("上传成功，资料已进入待解析状态");
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "上传失败");
+    } finally {
+      setUploading(false);
+    }
+  });
+
+  void loadExistingMaterials();
+})();
+</script>
 </body></html>
