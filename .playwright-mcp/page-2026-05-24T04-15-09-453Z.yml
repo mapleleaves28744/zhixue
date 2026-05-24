@@ -1,0 +1,169 @@
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - iframe [active] [ref=e3]:
+      - generic [ref=f3e1]:
+        - navigation [ref=f3e2]:
+          - generic [ref=f3e3]:
+            - generic [ref=f3e4]:
+              - generic [ref=f3e6]: auto_stories
+              - generic [ref=f3e7]: 智学工坊
+            - generic [ref=f3e8]:
+              - link "核心模块" [ref=f3e9] [cursor=pointer]:
+                - /url: "#"
+              - link "品牌愿景" [ref=f3e10] [cursor=pointer]:
+                - /url: "#"
+              - link "社区动态" [ref=f3e11] [cursor=pointer]:
+                - /url: "#"
+              - link "技术支持" [ref=f3e12] [cursor=pointer]:
+                - /url: "#"
+            - generic [ref=f3e13]:
+              - button "登录" [ref=f3e14] [cursor=pointer]
+              - button "立即开始" [ref=f3e15] [cursor=pointer]
+        - main [ref=f3e16]:
+          - generic [ref=f3e18]:
+            - generic [ref=f3e19]:
+              - generic [ref=f3e20]:
+                - generic [ref=f3e21]: verified
+                - generic [ref=f3e22]: 智研学习 AI 2.0 现已上线
+              - generic [ref=f3e23]:
+                - heading "智学工坊 AI 原生学习伴侣" [level=1] [ref=f3e24]:
+                  - text: 智学工坊
+                  - text: AI 原生学习伴侣
+                - paragraph [ref=f3e25]: 让学习更有温度
+                - paragraph [ref=f3e26]: 深度集成大语言模型，连接碎片化资料、结构化知识与个人成长路径，为您打造下一代学习研究工作台。
+              - generic [ref=f3e27]:
+                - button "立即开始体验 arrow_forward" [ref=f3e28] [cursor=pointer]:
+                  - text: 立即开始体验
+                  - generic [ref=f3e29]: arrow_forward
+                - button "探索功能 explore" [ref=f3e30] [cursor=pointer]:
+                  - text: 探索功能
+                  - generic [ref=f3e31]: explore
+            - generic [ref=f3e33]:
+              - img [ref=f3e35]
+              - generic [ref=f3e39]: AI 诊断中
+          - generic [ref=f3e42]:
+            - generic [ref=f3e43]:
+              - heading "核心模块" [level=2] [ref=f3e44]
+              - paragraph [ref=f3e45]: 集成多重维度智能工具，重塑学习全周期效率。
+            - generic [ref=f3e46]:
+              - generic [ref=f3e48]:
+                - generic [ref=f3e49]:
+                  - generic [ref=f3e51]: hub
+                  - heading "知识图谱" [level=3] [ref=f3e52]
+                  - paragraph [ref=f3e53]: 基于先进的语义理解技术，文档自动切片并生成关联 Wiki。将散乱的 PDF 转化为可交互的知识神经网络。
+                  - link "了解细节 arrow_forward" [ref=f3e54] [cursor=pointer]:
+                    - /url: "#"
+                    - text: 了解细节
+                    - generic [ref=f3e55]: arrow_forward
+                - img [ref=f3e57]
+              - generic [ref=f3e58]:
+                - generic [ref=f3e60]: question_answer
+                - heading "智能问答" [level=3] [ref=f3e61]
+                - paragraph [ref=f3e62]: 深度连接个人知识库，不仅仅是搜索，更是基于你已有研究的深度对话与洞察提取。
+              - generic [ref=f3e63]:
+                - generic [ref=f3e65]: folder_managed
+                - heading "课程空间" [level=3] [ref=f3e66]
+                - paragraph [ref=f3e67]: 资产一站式管理，自动化归类学习论文、笔记与会议录音。
+              - generic [ref=f3e68]:
+                - generic [ref=f3e70]: analytics
+                - heading "练习诊断" [level=3] [ref=f3e71]
+                - paragraph [ref=f3e72]: AI 驱动的精准巩固，自动识别知识盲区，生成个性化练习方案。
+              - generic [ref=f3e73]:
+                - generic [ref=f3e75]: speed
+                - heading "仪表盘" [level=3] [ref=f3e76]
+                - paragraph [ref=f3e77]: 全景透视学习进度，可视化展示您的学习产出与认知曲线增长。
+          - generic [ref=f3e80]:
+            - generic [ref=f3e81]:
+              - heading "学习愿景： 人机协同的知识进化" [level=2] [ref=f3e82]:
+                - text: 学习愿景：
+                - text: 人机协同的知识进化
+              - paragraph [ref=f3e83]: 我们相信，未来的学习不应是孤岛。通过将“底层知识”、“人工智能”与“科学方法论”深度融合，智学工坊致力于构建一个会自进化的学习系统。
+              - generic [ref=f3e84]:
+                - generic [ref=f3e85]:
+                  - generic [ref=f3e87]: check
+                  - paragraph [ref=f3e88]: 以 AI 为枢纽，加速从信息到认知的转化
+                - generic [ref=f3e89]:
+                  - generic [ref=f3e91]: check
+                  - paragraph [ref=f3e92]: 打破数据孤岛，实现学习资料的语义化互联
+            - generic [ref=f3e93]:
+              - generic [ref=f3e94]:
+                - generic [ref=f3e95]:
+                  - generic [ref=f3e96]: "01"
+                  - paragraph [ref=f3e97]: 知识驱动
+                - generic [ref=f3e98]:
+                  - generic [ref=f3e99]: "02"
+                  - paragraph [ref=f3e100]: AI 协同
+              - generic [ref=f3e101]:
+                - generic [ref=f3e102]:
+                  - generic [ref=f3e103]: "03"
+                  - paragraph [ref=f3e104]: 方法论集成
+                - generic [ref=f3e105]:
+                  - generic [ref=f3e106]: "04"
+                  - paragraph [ref=f3e107]: 自进化路径
+          - generic [ref=f3e110]:
+            - heading "开启您的学习进化之旅" [level=2] [ref=f3e111]
+            - paragraph [ref=f3e112]: 立即加入数万名学者与研究者的行列，体验更有温度的智能学习。
+            - generic [ref=f3e113]:
+              - button "免费开始使用" [ref=f3e114] [cursor=pointer]
+              - button "预约企业演示" [ref=f3e115] [cursor=pointer]
+        - contentinfo [ref=f3e116]:
+          - generic [ref=f3e117]:
+            - generic [ref=f3e118]:
+              - generic [ref=f3e119]:
+                - generic [ref=f3e121]: terminal
+                - generic [ref=f3e122]: 智学工坊
+              - paragraph [ref=f3e123]: 下一代 AI 原生学习伴侣，致力于用技术服务人类的求知本能。
+              - paragraph [ref=f3e124]: © 2024 智学工坊 Zhixue Gongfang. All rights reserved.
+            - generic [ref=f3e125]:
+              - generic [ref=f3e126]:
+                - paragraph [ref=f3e127]: 产品
+                - generic [ref=f3e128]:
+                  - link "核心功能" [ref=f3e129] [cursor=pointer]:
+                    - /url: "#"
+                  - link "更新日志" [ref=f3e130] [cursor=pointer]:
+                    - /url: "#"
+                  - link "价格策略" [ref=f3e131] [cursor=pointer]:
+                    - /url: "#"
+              - generic [ref=f3e132]:
+                - paragraph [ref=f3e133]: 关于
+                - generic [ref=f3e134]:
+                  - link "关于我们" [ref=f3e135] [cursor=pointer]:
+                    - /url: "#"
+                  - link "服务条款" [ref=f3e136] [cursor=pointer]:
+                    - /url: "#"
+                  - link "隐私政策" [ref=f3e137] [cursor=pointer]:
+                    - /url: "#"
+              - generic [ref=f3e138]:
+                - paragraph [ref=f3e139]: 联系
+                - generic [ref=f3e140]:
+                  - link "联系我们" [ref=f3e141] [cursor=pointer]:
+                    - /url: "#"
+                  - link "加入社区" [ref=f3e142] [cursor=pointer]:
+                    - /url: "#"
+        - dialog "登录智学工坊" [ref=f3e144]:
+          - generic [ref=f3e145]:
+            - generic [ref=f3e146]:
+              - generic [ref=f3e147]:
+                - paragraph [ref=f3e148]: Zhixue Account
+                - heading "登录智学工坊" [level=2] [ref=f3e149]
+                - paragraph [ref=f3e150]: 进入你的课程空间，继续上传资料与生成 Wiki。
+              - button "关闭" [ref=f3e151] [cursor=pointer]:
+                - generic [ref=f3e152]: close
+            - generic [ref=f3e153]:
+              - button "登录" [ref=f3e154] [cursor=pointer]
+              - button "注册" [ref=f3e155] [cursor=pointer]
+            - generic [ref=f3e156]:
+              - generic [ref=f3e157]:
+                - text: 用户名
+                - textbox "用户名" [active] [ref=f3e158]:
+                  - /placeholder: 输入用户名
+              - generic [ref=f3e159]:
+                - text: 密码
+                - textbox "密码" [ref=f3e160]:
+                  - /placeholder: 至少 6 位
+              - paragraph [ref=f3e161]
+              - button "登录并进入学习空间" [ref=f3e162] [cursor=pointer]
+            - paragraph [ref=f3e163]:
+              - text: 还没有账号？
+              - button "立即注册" [ref=f3e164] [cursor=pointer]
+  - region "Notifications alt+T"

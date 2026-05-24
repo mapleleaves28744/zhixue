@@ -6,6 +6,7 @@ import { WikiContentRenderer } from "@/components/wiki/WikiContentRenderer"
 import { WikiEditor } from "@/components/wiki/WikiEditor"
 import { WikiSourcePanel } from "@/components/wiki/WikiSourcePanel"
 import { WikiVersionHistory } from "@/components/wiki/WikiVersionHistory"
+import { ResourceGenerateDialog } from "@/components/resources/ResourceGenerateDialog"
 import { Button } from "@/components/ui/button"
 import { getWikiPage, updateWikiPage } from "@/services/wikiService"
 import type { WikiPage } from "@/types/wiki"
@@ -19,6 +20,7 @@ export default function WikiDetailPage() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [showVersions, setShowVersions] = useState(false)
+  const [showResourceDialog, setShowResourceDialog] = useState(false)
 
   const loadPage = useCallback(async () => {
     try {
@@ -111,6 +113,16 @@ export default function WikiDetailPage() {
             </span>
             版本
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowResourceDialog(true)}
+          >
+            <span className="material-symbols-outlined text-[16px] mr-1">
+              auto_awesome
+            </span>
+            生成资源
+          </Button>
           <Button size="sm" onClick={() => setEditing(true)}>
             <span className="material-symbols-outlined text-[16px] mr-1">
               edit
@@ -148,6 +160,16 @@ export default function WikiDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Resource generation dialog */}
+      <ResourceGenerateDialog
+        open={showResourceDialog}
+        onOpenChange={setShowResourceDialog}
+        courseId={page.course_id}
+        wikiPageId={pageId}
+        wikiPageTitle={page.title}
+        onSaved={loadPage}
+      />
     </div>
   )
 }

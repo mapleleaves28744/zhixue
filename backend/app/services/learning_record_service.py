@@ -22,6 +22,7 @@ class LearningRecordService:
         event_type: str,
         event_source: str | None = None,
         event_payload: dict[str, Any] | None = None,
+        commit: bool = True,
     ) -> LearningRecord:
         record = LearningRecord(
             user_id=user_id,
@@ -32,8 +33,10 @@ class LearningRecordService:
             event_payload=event_payload or {},
         )
         self.db.add(record)
-        await self.db.commit()
-        await self.db.refresh(record)
+        await self.db.flush()
+        if commit:
+            await self.db.commit()
+            await self.db.refresh(record)
         return record
 
     async def list_records(
@@ -51,3 +54,17 @@ class LearningRecordService:
         stmt = stmt.order_by(LearningRecord.created_at.desc()).limit(limit)
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_user_record(
+        self,
+        *,
+        record_id: UUID,
+        user_id: UUID,
+    ) -> LearningRecord | None:
+        result = await self.db.execute(
+            select(LearningRecord).where(
+                LearningRecord.id == record_id,
+                LearningRecord.user_id == user_id,
+            )
+        )
+        return result.scalar_one_or_none()

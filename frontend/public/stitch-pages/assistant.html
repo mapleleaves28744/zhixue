@@ -446,6 +446,7 @@
   let selectedResourceType = "explanation";
   let sending = false;
   let generatingResource = false;
+  let createdDemoCourse = false;
 
   function escapeHtml(value) {
     return String(value || "").replace(/[&<>"']/g, (char) => ({
@@ -461,15 +462,72 @@
     return api.getParentSearchParams ? api.getParentSearchParams() : new URLSearchParams(window.location.search);
   }
 
+  function resetChatToApiReady() {
+    if (!chatArea) {
+      return;
+    }
+    chatArea.innerHTML = `
+      <div class="flex justify-center">
+        <span class="px-5 py-1.5 bg-surface-container-high/40 text-outline rounded-full text-label-sm font-bold backdrop-blur-sm">Tutor API 已连接</span>
+      </div>
+      <div class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20 text-primary shadow-sm backdrop-blur-md">
+          <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+        </div>
+        <div class="chat-bubble-ai rounded-[24px] rounded-tl-sm p-6 shadow-sm space-y-3 max-w-[85%]">
+          <p class="text-body-md text-on-surface leading-relaxed">可以直接提问了。我会调用真实 /api/v1/tutor/chat，并把引用、相关知识点、反馈与保存到 Wiki 串进学习闭环。</p>
+          <div class="text-label-sm text-outline font-bold">试试：什么是栈？它和队列有什么区别？</div>
+        </div>
+      </div>`;
+  }
+
+  async function ensureDemoCourse() {
+    if (createdDemoCourse) {
+      return null;
+    }
+    createdDemoCourse = true;
+    const course = await api.createCourse({
+      title: "数据结构体验课",
+      course_code: "DEMO-DS",
+      subject: "计算机科学",
+      description: "用于首次试用 AI Tutor、资源生成和 Wiki 保存的默认课程。",
+    });
+    await api.createWikiPage({
+      course_id: course.id,
+      title: "栈与队列",
+      summary: "数据结构体验课的默认 Wiki 页面，可承接 AI Tutor 问答沉淀。",
+      content: [
+        "# 栈与队列",
+        "",
+        "栈和队列都是线性表的受限形式。",
+        "",
+        "## 栈",
+        "栈遵循后进先出（LIFO），典型操作包括入栈、出栈和读取栈顶元素。",
+        "",
+        "## 队列",
+        "队列遵循先进先出（FIFO），典型操作包括入队、出队和读取队首元素。",
+        "",
+        "> 来源：AI 推断内容，建议核对课程资料。"
+      ].join("\n"),
+    });
+    return course;
+  }
+
   async function loadCourses() {
     if (!courseSelect) {
       return;
     }
     try {
-      const page = await api.listCourses({ pageSize: 50, status: "active" });
-      const courses = page.items || [];
+      let page = await api.listCourses({ pageSize: 50, status: "active" });
+      let courses = page.items || [];
       if (!courses.length) {
-        courseSelect.innerHTML = '<option value="">请先创建课程</option>';
+        api.toast("已为你创建数据结构体验课，可直接试用问答。", "success");
+        await ensureDemoCourse();
+        page = await api.listCourses({ pageSize: 50, status: "active" });
+        courses = page.items || [];
+      }
+      if (!courses.length) {
+        courseSelect.innerHTML = '<option value="">暂无可用课程</option>';
         currentCourseId = null;
         return;
       }
@@ -501,7 +559,7 @@
       }
       chapterSelect.innerHTML = [
         '<option value="">基于当前课程资料库</option>',
-        ...pages.map((item) => `<option value="${item.id}">${escapeHtml(item.title)}</option>`),
+        ...pages.map((item, index) => `<option value="${item.id}" ${index === 0 ? "selected" : ""}>${escapeHtml(item.title)}</option>`),
       ].join("");
       updateSaveButton();
     } catch (error) {
@@ -527,23 +585,48 @@
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 
-  function appendAiMessage(answer, sources, model) {
+  function appendAiMessage(payload, sources, model) {
     if (!chatArea) {
       return;
     }
+    const data = typeof payload === "string"
+      ? { answer: payload, citations: sources || [], model }
+      : (payload || {});
+    const answer = data.answer || "AI Tutor 暂无回答。";
+    const citations = data.citations || data.sources || [];
+    const related = data.related_knowledge_points || [];
+    const followUps = data.follow_up_questions || [];
+    const messageId = data.message_id;
     const wrapper = document.createElement("div");
     wrapper.className = "flex items-start gap-4";
-    const sourceHtml = sources && sources.length
-      ? sources.map((source) => `
+    const sourceHtml = citations && citations.length
+      ? citations.map((source) => `
           <div class="flex items-center gap-2 px-4 py-2 bg-white/80 border border-white/90 rounded-xl text-xs shrink-0 shadow-sm">
-            <span class="material-symbols-outlined text-sm text-primary">description</span>
-            <span class="text-on-surface-variant line-clamp-1 max-w-[180px] font-semibold">${escapeHtml(source.source_title || "课程资料")} · ${Number(source.score || 0).toFixed(3)}</span>
+            <span class="material-symbols-outlined text-sm text-primary">${source.source_type === "wiki" ? "menu_book" : source.source_type === "inference" ? "info" : "description"}</span>
+            <span class="text-on-surface-variant line-clamp-1 max-w-[220px] font-semibold">${escapeHtml(source.title || source.source_title || "课程资料")}${Number.isFinite(Number(source.score)) ? ` · ${Number(source.score).toFixed(3)}` : ""}</span>
           </div>`).join("")
       : `
           <div class="flex items-center gap-2 px-4 py-2 bg-white/80 border border-white/90 rounded-xl text-xs shrink-0 shadow-sm">
             <span class="material-symbols-outlined text-sm text-outline">info</span>
             <span class="text-on-surface-variant font-semibold">未检索到来源，建议核对课程资料。</span>
           </div>`;
+    const relatedHtml = related.length
+      ? `
+        <div class="ml-14 mr-4">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="material-symbols-outlined text-[18px] text-secondary">explore</span>
+            <span class="text-label-sm font-bold text-on-surface-variant tracking-wider">相关知识点推荐</span>
+          </div>
+          <div class="flex flex-wrap gap-2.5">
+            ${related.map((item) => `<span class="px-4 py-1.5 bg-secondary-container/20 text-secondary text-label-md font-bold rounded-full border border-secondary-container/30">${escapeHtml(item.name || item)}</span>`).join("")}
+          </div>
+        </div>`
+      : "";
+    const followHtml = followUps.length
+      ? `<div class="grid gap-2 pt-3">
+          ${followUps.map((item) => `<button class="text-left px-4 py-2 rounded-xl bg-primary/5 hover:bg-primary/10 text-primary font-bold text-label-sm transition-all tutor-follow-up" data-question="${escapeHtml(item)}">${escapeHtml(item)}</button>`).join("")}
+        </div>`
+      : "";
     wrapper.innerHTML = `
       <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20 text-primary shadow-sm backdrop-blur-md">
         <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
@@ -551,12 +634,75 @@
       <div class="flex flex-col gap-3 max-w-[85%]">
         <div class="chat-bubble-ai rounded-[24px] rounded-tl-sm p-6 shadow-sm space-y-4">
           <p class="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap">${escapeHtml(answer)}</p>
-          <div class="text-label-sm text-outline font-bold">Model: ${escapeHtml(model || "mock")}</div>
+          <div class="text-label-sm text-outline font-bold">Model: ${escapeHtml(data.model || model || "mock")} · Agent: ${escapeHtml(data.agent_run_id || "pending")}</div>
           <div class="mt-4 pt-4 border-t border-outline-variant/30 flex gap-3 overflow-x-auto pb-2">${sourceHtml}</div>
+          ${followHtml}
+        </div>
+        <div class="flex items-center gap-3 ml-2">
+          <button class="tutor-save-answer flex items-center gap-1.5 text-label-sm font-bold text-primary hover:bg-primary/5 px-3 py-1.5 rounded-full transition-all border border-transparent hover:border-primary/10 ${messageId ? "" : "opacity-50"}" ${messageId ? "" : "disabled"}>
+            <span class="material-symbols-outlined text-[18px]">bookmark_add</span>
+            保存到 Wiki
+          </button>
+          <button class="tutor-feedback p-1.5 text-outline-variant hover:text-primary transition-colors rounded-full hover:bg-white/50" data-feedback-type="useful" ${messageId ? "" : "disabled"}>
+            <span class="material-symbols-outlined text-[20px]">thumb_up</span>
+          </button>
+          <button class="tutor-feedback p-1.5 text-outline-variant hover:text-error transition-colors rounded-full hover:bg-white/50" data-feedback-type="useless" ${messageId ? "" : "disabled"}>
+            <span class="material-symbols-outlined text-[20px]">thumb_down</span>
+          </button>
         </div>
       </div>`;
     chatArea.appendChild(wrapper);
+    if (relatedHtml) {
+      const relatedNode = document.createElement("div");
+      relatedNode.innerHTML = relatedHtml;
+      chatArea.appendChild(relatedNode.firstElementChild);
+    }
+    wrapper.querySelector(".tutor-save-answer")?.addEventListener("click", () => saveTutorAnswer(messageId));
+    wrapper.querySelectorAll(".tutor-feedback").forEach((button) => {
+      button.addEventListener("click", () => submitTutorFeedback(messageId, button.dataset.feedbackType || "useful", button));
+    });
+    wrapper.querySelectorAll(".tutor-follow-up").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (textarea) {
+          textarea.value = button.dataset.question || "";
+          textarea.focus();
+        }
+      });
+    });
     chatArea.scrollTop = chatArea.scrollHeight;
+  }
+
+  async function saveTutorAnswer(messageId) {
+    if (!messageId) {
+      return;
+    }
+    const wikiPageId = chapterSelect?.value;
+    if (!wikiPageId) {
+      api.toast("请先在顶部选择一个 Wiki 页面。", "info");
+      return;
+    }
+    try {
+      const result = await api.saveTutorAnswerToWiki(messageId, { wiki_page_id: wikiPageId });
+      api.toast(`已保存到 Wiki：${result.wiki_page?.title || "目标页面"}`, "success");
+      await loadWikiPages();
+    } catch (error) {
+      api.toast(error.message || "保存问答失败", "error");
+    }
+  }
+
+  async function submitTutorFeedback(messageId, feedbackType, button) {
+    if (!messageId || button?.disabled) {
+      return;
+    }
+    button.disabled = true;
+    try {
+      await api.submitTutorFeedback(messageId, { feedback_type: feedbackType });
+      button.classList.add(feedbackType === "useful" ? "text-primary" : "text-error");
+      api.toast("反馈已记录，会用于后续个性化优化。", "success");
+    } catch (error) {
+      button.disabled = false;
+      api.toast(error.message || "反馈提交失败", "error");
+    }
   }
 
   function setSending(next) {
@@ -583,15 +729,16 @@
     appendUserMessage(question);
     setSending(true);
     try {
-      const data = await api.request("/tutor/ask", {
-        method: "POST",
-        body: {
-          course_id: currentCourseId,
-          question,
-          top_k: 5,
-        },
+      const data = await api.chatWithTutor({
+        course_id: currentCourseId,
+        question,
+        wiki_page_id: chapterSelect?.value || null,
+        top_k: 5,
+        use_rag: true,
+        use_wiki: true,
+        use_profile: true,
       });
-      appendAiMessage(data.answer, data.sources || [], data.model);
+      appendAiMessage(data);
     } catch (error) {
       appendAiMessage(error.message || "AI Tutor 请求失败，请稍后重试。", [], "error");
     } finally {
@@ -881,6 +1028,7 @@
   generateResourceButton?.addEventListener("click", generateLearningResource);
   saveResourceButton?.addEventListener("click", saveCurrentResourceToWiki);
 
+  resetChatToApiReady();
   sendButton?.addEventListener("click", sendQuestion);
   textarea?.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !event.shiftKey) {

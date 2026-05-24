@@ -43,10 +43,14 @@ DEFAULT_PROMPTS: dict[tuple[str, str], str] = {
         "TutorAgent",
         "tutor.qa",
     ): (
-        "你是数据结构课程的 AI Tutor。请基于课程资料、Wiki 和学生画像回答问题。\n\n"
+        "你是数据结构课程的 AI Tutor。请基于课程资料、Wiki、学生画像和长期记忆回答问题。\n\n"
         "问题：{question}\n\n"
         "检索资料：\n{retrieved_context}\n\n"
-        "回答必须包含：直接解答、关键依据、相关知识点、后续练习建议。依据不足时明确说明。"
+        "关联 Wiki：\n{wiki_context}\n\n"
+        "学生画像：\n{student_profile}\n\n"
+        "长期记忆：\n{memory_context}\n\n"
+        "回答必须包含：直接解答、关键依据、相关知识点、后续练习建议。"
+        "依据不足时明确说明“AI 推断内容，建议核对资料”。"
     ),
     (
         "ResourceAgent",
@@ -71,6 +75,32 @@ DEFAULT_PROMPTS: dict[tuple[str, str], str] = {
         "可用时间：{available_time}\n"
         "学生画像：\n{student_profile}\n\n"
         "要求：输出一段不超过 120 字的推荐理由，必须提到薄弱点、知识顺序或 Wiki 依据之一。"
+    ),
+    (
+        "QuizAgent",
+        "quiz.generate",
+    ): (
+        "你是数据结构课程的 Quiz Agent。请围绕知识点生成结构化练习题。\n\n"
+        "知识点：{knowledge_name}\n"
+        "知识点描述：{knowledge_description}\n"
+        "题型：{question_types}\n"
+        "难度：{difficulty}\n"
+        "数量：{count}\n\n"
+        "请只返回 JSON，不要添加 Markdown 解释。格式如下：\n"
+        "{{\n"
+        "  \"questions\": [\n"
+        "    {{\n"
+        "      \"question_type\": \"single_choice\",\n"
+        "      \"difficulty\": \"medium\",\n"
+        "      \"question_text\": \"题干\",\n"
+        "      \"options\": {{\"A\": \"选项A\", \"B\": \"选项B\", \"C\": \"选项C\", \"D\": \"选项D\"}},\n"
+        "      \"standard_answer\": \"B\",\n"
+        "      \"analysis\": \"解析与正确思路\",\n"
+        "      \"error_tags\": [\"概念理解偏差\"]\n"
+        "    }}\n"
+        "  ]\n"
+        "}}\n\n"
+        "要求：题目必须和知识点直接相关；客观题只有一个最优答案；解析要说明依据；错因标签要可用于错题本。"
     ),
     (
         "DiagnosisAgent",

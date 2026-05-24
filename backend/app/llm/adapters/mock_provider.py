@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import math
+import re
 import struct
 from collections.abc import AsyncIterator
 
@@ -86,6 +88,9 @@ class MockLLMProvider(BaseLLMProvider):
             return "你好！我是智学工坊的 AI 学习助手，有什么可以帮助你的吗？"
 
         topic = self._detect_topic(user_input)
+
+        if "Quiz Agent" in user_input or "结构化练习题" in user_input or "error_tags" in user_input:
+            return self._generate_quiz_response(user_input, topic)
 
         if "个性化学习资源" in user_input or "资源类型" in user_input:
             return (
@@ -172,6 +177,49 @@ class MockLLMProvider(BaseLLMProvider):
             if topic in user_input:
                 return topic
         return "知识点概述"
+
+    def _generate_quiz_response(self, user_input: str, topic: str) -> str:
+        count = self._detect_count(user_input)
+        difficulty = self._detect_difficulty(user_input)
+        questions = []
+        stems = [
+            ("核心理解", f"关于「{topic}」的核心理解，下列说法哪一项最准确？"),
+            ("操作过程", f"学习「{topic}」时，为什么要手工模拟一次典型操作？"),
+            ("复杂度分析", f"分析「{topic}」相关算法时，最应该关注哪组指标？"),
+            ("边界条件", f"使用「{topic}」解决问题时，哪一类情况最容易造成错误？"),
+            ("应用迁移", f"把「{topic}」迁移到新题目时，第一步更适合做什么？"),
+        ]
+        for index in range(count):
+            label, stem = stems[index % len(stems)]
+            questions.append({
+                "question_type": "single_choice",
+                "difficulty": difficulty,
+                "question_text": stem,
+                "options": {
+                    "A": "只记忆教材中的一句定义",
+                    "B": "把定义、操作过程、复杂度和应用场景联系起来",
+                    "C": "跳过边界条件，直接套答案",
+                    "D": "只看最终结果，不关注中间状态变化",
+                },
+                "standard_answer": "B",
+                "analysis": f"{label}题用于检查是否能把{topic}的概念、过程和应用联系起来。选 B 更符合数据结构学习的迁移要求。",
+                "error_tags": ["概念理解偏差", "过程推演不足"],
+            })
+        return json.dumps({"questions": questions}, ensure_ascii=False)
+
+    def _detect_count(self, user_input: str) -> int:
+        for pattern in (r"数量[：:]\s*(\d+)", r"生成\s*(\d+)\s*道", r"(\d+)\s*道"):
+            match = re.search(pattern, user_input)
+            if match:
+                return max(1, min(20, int(match.group(1))))
+        return 5
+
+    def _detect_difficulty(self, user_input: str) -> str:
+        if "hard" in user_input or "挑战" in user_input:
+            return "hard"
+        if "easy" in user_input or "入门" in user_input:
+            return "easy"
+        return "medium"
 
 
 def _text_to_vec(text: str, dim: int) -> list[float]:

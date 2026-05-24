@@ -4,15 +4,13 @@ import { useEffect, useState } from "react"
 import { WikiPageGrid } from "@/components/wiki/WikiPageGrid"
 import { Button } from "@/components/ui/button"
 import { listWikiPages } from "@/services/wikiService"
+import { listCourses } from "@/services/courseService"
 import type { WikiPageListItem } from "@/types/wiki"
 
 export default function StudentWikiPage() {
   const [pages, setPages] = useState<WikiPageListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [total, setTotal] = useState(0)
-
-  // TODO: get courseId from context/route
-  const courseId = "00000000-0000-0000-0000-000000000001"
 
   useEffect(() => {
     loadPages()
@@ -21,9 +19,13 @@ export default function StudentWikiPage() {
   const loadPages = async () => {
     try {
       setLoading(true)
-      const data = await listWikiPages(courseId)
-      setPages(data.items)
-      setTotal(data.total)
+      const coursesData = await listCourses().catch(() => ({ items: [], total: 0 }))
+      const activeCourseId = coursesData.items[0]?.id
+      if (activeCourseId) {
+        const data = await listWikiPages(activeCourseId)
+        setPages(data.items)
+        setTotal(data.total)
+      }
     } catch {
       // silent
     } finally {

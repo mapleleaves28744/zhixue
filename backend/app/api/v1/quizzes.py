@@ -1,141 +1,109 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_current_user
-from app.core.response import success_response
+from app.core.deps import require_student
+from app.core.response import page_response, success_response
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.quiz import (
-    QuizAttemptRead,
-    QuizAttemptWithQuiz,
-    QuizGenerateRequest,
-    QuizRead,
-    QuizSubmitRequest,
-)
+from app.schemas.quiz import QuizGenerateRequest, QuizSubmitRequest
 from app.services.quiz_service import QuizService
 
 router = APIRouter()
 
 
 @router.post("/generate")
-async def generate_quizzes(
+async def generate_quiz(
     payload: QuizGenerateRequest,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_student),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    svc = QuizService(db)
-    quizzes = await svc.generate_quizzes(
-        user_id=current_user.id,
-        course_id=payload.course_id,
-        topic=payload.topic,
-        count=payload.count,
-        difficulty=payload.difficulty,
+    data = await QuizService(db).generate_quiz(
+        payload=payload,
+        current_user=current_user,
     )
-    return success_response(
-        {
-            "items": [QuizRead.model_validate(q).model_dump(mode="json") for q in quizzes],
-            "count": len(quizzes),
-        },
-        request=request,
-    )
+    return success_response(data.model_dump(mode="json"), request=request)
 
 
 @router.get("")
 async def list_quizzes(
     request: Request,
-    course_id: UUID | None = None,
-    page: int = 1,
-    page_size: int = 20,
-    current_user: User = Depends(get_current_user),
+    course_id: UUID | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+    current_user: User = Depends(require_student),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    svc = QuizService(db)
-    items, total = await svc.list_quizzes(
-        user_id=current_user.id,
+    items, total = await QuizService(db).list_quizzes(
+        current_user=current_user,
         course_id=course_id,
         page=page,
         page_size=page_size,
     )
-    return success_response(
-        {
-            "items": [QuizRead.model_validate(q).model_dump(mode="json") for q in items],
-            "total": total,
-            "page": page,
-            "page_size": page_size,
-        },
+    return page_response(
+        items=[item.model_dump(mode="json") for item in items],
+        total=total,
+        page=page,
+        page_size=page_size,
         request=request,
     )
 
 
-@router.post("/submit")
-async def submit_answer(
+@router.get("/mistakes")
+async def list_mistakes(
+    request: Request,
+    course_id: UUID | None = Query(default=None),
+    knowledge_id: UUID | None = Query(default=None),
+    status: str | None = Query(default="unresolved"),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+    current_user: User = Depends(require_student),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    items, total = await QuizService(db).list_mistakes(
+        current_user=current_user,
+        course_id=course_id,
+        knowledge_id=knowledge_id,
+        status=status,
+        page=page,
+        page_size=page_size,
+    )
+    return page_response(
+        items=[item.model_dump(mode="json") for item in items],
+        total=total,
+        page=page,
+        page_size=page_size,
+        request=request,
+    )
+
+
+@router.get("/{quiz_id}")
+async def get_quiz(
+    quiz_id: UUID,
+    request: Request,
+    current_user: User = Depends(require_student),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    data = await QuizService(db).get_quiz(
+        quiz_id=quiz_id,
+        current_user=current_user,
+    )
+    return success_response(data.model_dump(mode="json"), request=request)
+
+
+@router.post("/{quiz_id}/submit")
+async def submit_quiz(
+    quiz_id: UUID,
     payload: QuizSubmitRequest,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_student),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    svc = QuizService(db)
-    attempt = await svc.submit_answer(
-        user_id=current_user.id,
-        quiz_id=payload.quiz_id,
-        user_answer=payload.user_answer,
-        time_spent_seconds=payload.time_spent_seconds,
-    )
-    return success_response(QuizAttemptRead.model_validate(attempt).model_dump(mode="json"), request=request)
-
-
-@router.get("/attempts")
-async def list_attempts(
-    request: Request,
-    quiz_id: UUID | None = None,
-    page: int = 1,
-    page_size: int = 20,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-) -> dict[str, object]:
-    svc = QuizService(db)
-    items, total = await svc.get_attempts(
-        user_id=current_user.id,
+    data = await QuizService(db).submit_answers(
         quiz_id=quiz_id,
-        page=page,
-        page_size=page_size,
+        payload=payload,
+        current_user=current_user,
     )
-    return success_response(
-        {
-            "items": [QuizAttemptWithQuiz.model_validate(a).model_dump(mode="json") for a in items],
-            "total": total,
-            "page": page,
-            "page_size": page_size,
-        },
-        request=request,
-    )
-
-
-@router.get("/wrong-questions")
-async def wrong_questions(
-    request: Request,
-    course_id: UUID | None = None,
-    page: int = 1,
-    page_size: int = 20,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-) -> dict[str, object]:
-    svc = QuizService(db)
-    items, total = await svc.get_wrong_questions(
-        user_id=current_user.id,
-        course_id=course_id,
-        page=page,
-        page_size=page_size,
-    )
-    return success_response(
-        {
-            "items": [QuizAttemptWithQuiz.model_validate(a).model_dump(mode="json") for a in items],
-            "total": total,
-            "page": page,
-            "page_size": page_size,
-        },
-        request=request,
-    )
+    return success_response(data.model_dump(mode="json"), request=request)

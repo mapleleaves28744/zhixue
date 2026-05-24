@@ -1,0 +1,77 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "auto_stories" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]: auto_stories
+      - navigation [ref=e6]:
+        - link "dashboard" [ref=e7] [cursor=pointer]:
+          - /url: /student/dashboard
+          - generic [ref=e8]: dashboard
+        - link "menu_book" [ref=e9] [cursor=pointer]:
+          - /url: /student/wiki
+          - generic [ref=e10]: menu_book
+        - link "smart_toy" [ref=e11] [cursor=pointer]:
+          - /url: /student/tutor
+          - generic [ref=e12]: smart_toy
+        - link "auto_awesome" [ref=e13] [cursor=pointer]:
+          - /url: /student/resources
+          - generic [ref=e14]: auto_awesome
+        - link "fact_check" [ref=e15] [cursor=pointer]:
+          - /url: /student/quizzes
+          - generic [ref=e16]: fact_check
+        - link "monitoring" [ref=e17] [cursor=pointer]:
+          - /url: /student/diagnosis
+          - generic [ref=e18]: monitoring
+        - link "face_6" [ref=e19] [cursor=pointer]:
+          - /url: /student/profile
+          - generic [ref=e20]: face_6
+        - link "memory" [ref=e21] [cursor=pointer]:
+          - /url: /student/memory
+          - generic [ref=e22]: memory
+    - generic [ref=e23]:
+      - banner [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - paragraph [ref=e27]: 智学工坊
+            - heading "学生学习空间" [level=1] [ref=e28]
+          - generic [ref=e29]:
+            - generic [ref=e30]: testuser
+            - button "退出" [ref=e31] [cursor=pointer]:
+              - img [ref=e32]
+              - text: 退出
+      - main [ref=e35]:
+        - generic [ref=e36]:
+          - generic [ref=e40]:
+            - generic [ref=e41]:
+              - button "arrow_back" [ref=e42] [cursor=pointer]:
+                - generic [ref=e43]: arrow_back
+              - generic [ref=e44]:
+                - heading "微积分基础" [level=1] [ref=e45]
+                - paragraph [ref=e46]: v1 · 2026/5/24 12:25:47
+            - generic [ref=e47]:
+              - button "history 版本" [ref=e48] [cursor=pointer]:
+                - generic [ref=e49]: history
+                - text: 版本
+              - button "auto_awesome 生成资源" [ref=e50] [cursor=pointer]:
+                - generic [ref=e51]: auto_awesome
+                - text: 生成资源
+              - button "edit 编辑" [ref=e52] [cursor=pointer]:
+                - generic [ref=e53]: edit
+                - text: 编辑
+          - generic [ref=e54]:
+            - generic [ref=e55]:
+              - paragraph [ref=e57]: 摘要微积分核心知识点总结
+              - generic [ref=e58]:
+                - heading "微积分基础" [level=1] [ref=e59]
+                - heading "极限" [level=2] [ref=e60]
+                - paragraph [ref=e61]: 极限是微积分的核心概念，描述函数在某点附近的行为。
+                - heading "导数" [level=2] [ref=e62]
+                - paragraph [ref=e63]: 导数描述函数的变化率，是微分学的基础。
+                - heading "积分" [level=2] [ref=e64]
+                - paragraph [ref=e65]: 积分是导数的逆运算，用于计算面积和累积量。
+            - generic [ref=e67]:
+              - generic [ref=e68]: link_off
+              - paragraph [ref=e69]: 暂无来源信息
+  - region "Notifications alt+T"
+  - alert [ref=e39]

@@ -1,0 +1,57 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - link "auto_stories" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e8]: auto_stories
+      - navigation [ref=e9]:
+        - link "dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /student/dashboard
+          - generic [ref=e11]: dashboard
+        - link "menu_book" [ref=e12] [cursor=pointer]:
+          - /url: /student/wiki
+          - generic [ref=e13]: menu_book
+        - link "smart_toy" [ref=e14] [cursor=pointer]:
+          - /url: /student/tutor
+          - generic [ref=e15]: smart_toy
+        - link "auto_awesome" [ref=e16] [cursor=pointer]:
+          - /url: /student/resources
+          - generic [ref=e17]: auto_awesome
+        - link "fact_check" [ref=e18] [cursor=pointer]:
+          - /url: /student/quizzes
+          - generic [ref=e19]: fact_check
+        - link "monitoring" [ref=e20] [cursor=pointer]:
+          - /url: /student/diagnosis
+          - generic [ref=e21]: monitoring
+        - link "face_6" [ref=e22] [cursor=pointer]:
+          - /url: /student/profile
+          - generic [ref=e23]: face_6
+        - link "memory" [ref=e24] [cursor=pointer]:
+          - /url: /student/memory
+          - generic [ref=e25]: memory
+    - generic [ref=e26]:
+      - banner [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - paragraph [ref=e30]: 智学工坊
+            - heading "学生学习空间" [level=1] [ref=e31]
+          - generic [ref=e32]:
+            - generic [ref=e33]: testuser
+            - button "退出" [ref=e34] [cursor=pointer]:
+              - img [ref=e35]
+              - text: 退出
+      - main [ref=e38]:
+        - generic [ref=e97]:
+          - generic [ref=e98]:
+            - generic [ref=e99]:
+              - heading "课程 Wiki" [level=1] [ref=e100]
+              - paragraph [ref=e101]: 从资料生成知识 Wiki，构建个人知识库
+            - button "add 新建页面" [ref=e102] [cursor=pointer]:
+              - generic [ref=e103]: add
+              - text: 新建页面
+          - generic [ref=e104]:
+            - generic [ref=e105]: menu_book
+            - paragraph [ref=e106]: 还没有 Wiki 页面
+            - paragraph [ref=e107]: 从资料生成或手动创建第一个 Wiki 页面
+  - region "Notifications alt+T"
+  - alert [ref=e68]

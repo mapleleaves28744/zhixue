@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.llm.provider import get_llm_provider
 from app.llm.schemas import ChatMessage
-from app.models.quiz import QuizAttempt
+from app.models.quiz import AnswerRecord
 
 
 class DiagnosisReport:
@@ -32,14 +32,14 @@ class DiagnosisService:
         course_id: UUID | None = None,
     ) -> DiagnosisReport:
         query = (
-            select(QuizAttempt)
-            .where(QuizAttempt.user_id == user_id)
+            select(AnswerRecord)
+            .where(AnswerRecord.user_id == user_id)
         )
         if course_id:
             from app.models.quiz import Quiz
-            query = query.join(Quiz, QuizAttempt.quiz_id == Quiz.id).where(Quiz.course_id == course_id)
+            query = query.join(Quiz, AnswerRecord.quiz_id == Quiz.id).where(Quiz.course_id == course_id)
 
-        query = query.order_by(QuizAttempt.created_at.desc()).limit(50)
+        query = query.order_by(AnswerRecord.answered_at.desc()).limit(50)
         result = await self.db.execute(query)
         attempts = list(result.scalars().all())
 
@@ -111,19 +111,19 @@ class DiagnosisService:
         page_size: int = 20,
     ) -> tuple[list[DiagnosisReport], int]:
         query = (
-            select(QuizAttempt)
-            .where(QuizAttempt.user_id == user_id)
+            select(AnswerRecord)
+            .where(AnswerRecord.user_id == user_id)
         )
         if course_id:
             from app.models.quiz import Quiz
-            query = query.join(Quiz, QuizAttempt.quiz_id == Quiz.id).where(Quiz.course_id == course_id)
+            query = query.join(Quiz, AnswerRecord.quiz_id == Quiz.id).where(Quiz.course_id == course_id)
 
         total_result = await self.db.execute(
             select(func.count()).select_from(query.subquery())
         )
         total = total_result.scalar() or 0
 
-        query = query.order_by(QuizAttempt.created_at.desc())
+        query = query.order_by(AnswerRecord.answered_at.desc())
         query = query.offset((page - 1) * page_size).limit(page_size)
         result = await self.db.execute(query)
         attempts = list(result.scalars().all())
@@ -133,9 +133,9 @@ class DiagnosisService:
             reports.append(DiagnosisReport(
                 id=str(attempt.id),
                 quiz_id=str(attempt.quiz_id),
-                user_answer=attempt.user_answer,
+                user_answer=attempt.answer_text,
                 is_correct=attempt.is_correct,
-                created_at=attempt.created_at.isoformat() if attempt.created_at else None,
+                created_at=attempt.answered_at.isoformat() if attempt.answered_at else None,
             ))
 
         return reports, total

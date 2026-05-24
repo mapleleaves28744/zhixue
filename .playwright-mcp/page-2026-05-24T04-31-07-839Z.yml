@@ -1,0 +1,123 @@
+- generic:
+  - generic:
+    - complementary:
+      - link:
+        - /url: /
+        - generic: auto_stories
+      - navigation:
+        - link:
+          - /url: /student/dashboard
+          - generic: dashboard
+        - link:
+          - /url: /student/wiki
+          - generic: menu_book
+        - link:
+          - /url: /student/tutor
+          - generic: smart_toy
+        - link:
+          - /url: /student/resources
+          - generic: auto_awesome
+        - link:
+          - /url: /student/quizzes
+          - generic: fact_check
+        - link:
+          - /url: /student/diagnosis
+          - generic: monitoring
+        - link:
+          - /url: /student/profile
+          - generic: face_6
+        - link:
+          - /url: /student/memory
+          - generic: memory
+    - generic:
+      - banner:
+        - generic:
+          - generic:
+            - paragraph: 智学工坊
+            - heading [level=1]: 学生学习空间
+          - generic:
+            - generic: testuser
+            - button:
+              - img
+              - text: 退出
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - button:
+                - generic: arrow_back
+              - generic:
+                - heading [level=1]: 微积分基础
+                - paragraph: v1 · 2026/5/24 12:25:47
+            - generic:
+              - button:
+                - generic: history
+                - text: 版本
+              - button:
+                - generic: auto_awesome
+                - text: 生成资源
+              - button:
+                - generic: edit
+                - text: 编辑
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: 摘要微积分核心知识点总结
+              - generic:
+                - heading [level=1]: 微积分基础
+                - heading [level=2]: 极限
+                - paragraph: 极限是微积分的核心概念，描述函数在某点附近的行为。
+                - heading [level=2]: 导数
+                - paragraph: 导数描述函数的变化率，是微分学的基础。
+                - heading [level=2]: 积分
+                - paragraph: 积分是导数的逆运算，用于计算面积和累积量。
+            - generic:
+              - generic:
+                - generic: link_off
+                - paragraph: 暂无来源信息
+  - region "Notifications alt+T"
+  - alert
+  - dialog "生成学习资源" [active] [ref=e71]:
+    - generic [ref=e72]:
+      - heading "生成学习资源" [level=2] [ref=e73]
+      - paragraph [ref=e74]: 为「微积分基础」生成个性化学习资源，可保存回 Wiki 页面。
+    - generic [ref=e75]:
+      - paragraph [ref=e76]: 资源类型
+      - generic [ref=e77]:
+        - button "menu_book 讲解" [ref=e78] [cursor=pointer]:
+          - generic [ref=e79]: menu_book
+          - text: 讲解
+        - button "summarize 总结" [ref=e80] [cursor=pointer]:
+          - generic [ref=e81]: summarize
+          - text: 总结
+        - button "quiz 例题" [ref=e82] [cursor=pointer]:
+          - generic [ref=e83]: quiz
+          - text: 例题
+        - button "style 复习卡" [ref=e84] [cursor=pointer]:
+          - generic [ref=e85]: style
+          - text: 复习卡
+        - button "rate_review 错题解析" [ref=e86] [cursor=pointer]:
+          - generic [ref=e87]: rate_review
+          - text: 错题解析
+    - generic [ref=e88]:
+      - paragraph [ref=e89]: 补充要求（可选）
+      - textbox "例如：用通俗语言解释、多举生活中的例子、重点讲解应用场景..." [ref=e90]
+    - generic [ref=e98]:
+      - generic [ref=e99]:
+        - heading "个性化学习资源：微积分基础" [level=4] [ref=e100]
+        - generic [ref=e101]: "# 个性化学习资源：微积分基础 同学你好！这是一份为你准备的关于**微积分基础**的入门讲解。微积分是研究变化与累积的强大工具，我们将从最核心的三个概念开始。 --- ## 一、 核心概念讲解 ### 1. 极限 * **定义**：极限描述的是当自变量（比如 `x`）**无限接近**某个值时，函数值（比如 `f(x)`）的**变化趋势**。它回答的是“当 `x` 越来越靠近 `a` 时，`f(x)` 会越来越靠近谁？”这个问题。 * **要点**： * 关注的是“**趋势**”，而不是“到达”。`x` 无限接近 `a`，但不必等于 `a`。 * 它是整个微积分的基石，导数和积分都建立在极限思想之上。 * **例子**：考虑函数 `f(x) = (x² - 1)/(x - 1)`。在 `x = 1` 处，函数没有定义（分母为0）。但当我们计算 `x` 取 `0.9, 0.99, 0.999...` 或 `1.1, 1.01, 1.001...` 时，会发现 `f(x)` 的值都越来越接近 **2**。我们就说，当 `x` 趋近于1时，`f(x)` 的极限是2。 ### 2. 导数 * **定义**：导数描述的是函数在**某一点处的瞬时变化率**。几何上，它代表函数图像在该点处的**切线斜率**。 * **要点**： * 核心思想是“**变化率**”。比如，路程关于时间的导数就是瞬时速度。 * 计算公式是：`f'(x) = lim(h→0) [f(x+h) - f(x)] / h`。这个公式本身就是由极限定义的。 * **例子**：对于直线 `y = 2x`，它的变化率是恒定的，任何一点的导数都是2。对于曲线 `y = x²`，在 `x=3` 这一点，导数是6，意味着在该点附近，`x` 每增加一点点，`y` 大约会以6倍的速度增长。 ### 3. 积分 * **定义**：积分是导数的**逆运算**，主要用于计算**累积量**。最直观的几何意义是计算**曲线下方的面积**。 * **要点**： * 分为**不定积分**（求原函数）和**定积分**（求数值结果，如面积）。 * 微积分基本定理揭示了导数与积分之间的深刻联系：求面积（积分）的问题可以转化为求原函数（导数的逆运算）的问题。 * **例子**：已知一个物体的速度函数是 `v(t) = 3t²`，那么它在第1秒到第3秒之间行驶的总距离，就是速度函数 `v(t)` 在区间 `[1, 3]` 上的定积分。计算这个积分（找到 `3t²` 的原函数 `t³`，然后代入上下限），得到 `3³ - 1³ = 26`。 --- ## 二、 学习与练习建议 1. **从直观理解开始**：先不要纠结于复杂的计算。多思考“极限”是趋势、“导数”是瞬时速度、“积分”是累积总量这些直观概念。 2. **动手画图**：对于简单的函数（如 `y=x²`, `y=sinx`），尝试在纸上画出它们的图像，并标出某点的切线（感受导数），或者估算曲线下方的方格数（感受积分）。 3. **基础计算练习**： * **极限**：尝试计算一些简单函数的极限，如 `lim(x→2) (x² - 4)/(x - 2)`。 * **导数**：练习使用导数公式计算多项式函数（如 `f(x)=x³+2x`）的导数。 * **积分**：练习计算一些基本函数的不定积分（如 `∫x² dx`）和简单的定积分（如 `∫(从0到1) x dx`）。 4. **联系实际**：试着找出生活中可以用这三个概念解释的现象（例如：加速度是速度的导数，功是力在位移上的积分）。 --- ## 个性化原因 根据提供的学生状态，你目前**暂无学习记录**，因此无法基于你的历史表现（如薄弱点、偏好风格）进行深度个性化调整。本资源的设计基于以下通用考虑： 1. **零基础友好**：从最核心的“极限、导数、积分”三大概念切入，避免一开始就陷入复杂计算。 2. **结构化认知**：按照“定义 -> 要点 -> 例子”的逻辑展开，帮助建立清晰的概念框架。 3. **鼓励探索**：建议从直观理解和动手实践开始，旨在降低入门门槛，激发学习兴趣，为后续收集学习数据、生成更精准的画像打下基础。 ## 引用来源 * **核心概念框架**：基于提供的 Wiki 知识条目“微积分基础”中的“极限”、“导数”、“积分”部分。 * **内容补充与示例**：结合通用微积分教学知识进行阐述与举例。 * **AI 推断内容，建议核对资料**：本资源中的具体例子、练习建议及详细解释，是在 Wiki 骨架基础上由 AI 推断生成的通用教学内容。为确保绝对准确性，建议结合正规教材或课程进行核对。 --- 希望这份资源能帮助你迈出学习微积分的第一步！开始练习和提问是生成更个性化学习路径的关键哦。"
+      - generic [ref=e102]:
+        - paragraph [ref=e103]: 个性化原因
+        - paragraph [ref=e104]: 当前缺少充分个性化证据，因此先按数据结构课程的一般学习路径生成「微积分基础」讲解；建议结合引用来源核对。
+      - generic [ref=e105]:
+        - paragraph [ref=e106]: 引用来源
+        - list [ref=e107]:
+          - listitem [ref=e108]:
+            - generic [ref=e109]: link
+            - generic [ref=e110]: "[wiki] 微积分基础"
+      - generic [ref=e111]:
+        - button "重新生成" [ref=e112] [cursor=pointer]
+        - button "保存到 Wiki" [ref=e113] [cursor=pointer]
+    - button "关闭" [ref=e93] [cursor=pointer]:
+      - img [ref=e94]
+      - generic [ref=e97]: 关闭

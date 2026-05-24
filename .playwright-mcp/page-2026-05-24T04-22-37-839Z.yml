@@ -1,0 +1,108 @@
+- generic:
+  - generic:
+    - complementary:
+      - link:
+        - /url: /
+        - generic: auto_stories
+      - navigation:
+        - link:
+          - /url: /student/dashboard
+          - generic: dashboard
+        - link:
+          - /url: /student/wiki
+          - generic: menu_book
+        - link:
+          - /url: /student/tutor
+          - generic: smart_toy
+        - link:
+          - /url: /student/resources
+          - generic: auto_awesome
+        - link:
+          - /url: /student/quizzes
+          - generic: fact_check
+        - link:
+          - /url: /student/diagnosis
+          - generic: monitoring
+        - link:
+          - /url: /student/profile
+          - generic: face_6
+        - link:
+          - /url: /student/memory
+          - generic: memory
+    - generic:
+      - banner:
+        - generic:
+          - generic:
+            - paragraph: 智学工坊
+            - heading [level=1]: 学生学习空间
+          - generic:
+            - generic: testuser
+            - button:
+              - img
+              - text: 退出
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - button:
+                - generic: arrow_back
+              - generic:
+                - heading [level=1]: 数据结构基础
+                - paragraph: v1 · 2026/5/24 12:22:22
+            - generic:
+              - button:
+                - generic: history
+                - text: 版本
+              - button:
+                - generic: auto_awesome
+                - text: 生成资源
+              - button:
+                - generic: edit
+                - text: 编辑
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: 摘要数据结构核心知识点
+              - generic:
+                - heading [level=1]: 数据结构基础
+                - heading [level=2]: 线性表
+                - paragraph: 线性表是最基本的数据结构。
+                - heading [level=2]: 栈与队列
+                - paragraph: 栈是LIFO，队列是FIFO。
+            - generic:
+              - generic:
+                - generic: link_off
+                - paragraph: 暂无来源信息
+  - region "Notifications alt+T"
+  - alert
+  - dialog "生成学习资源" [ref=e70]:
+    - generic [ref=e71]:
+      - heading "生成学习资源" [level=2] [ref=e72]
+      - paragraph [ref=e73]: 为「数据结构基础」生成个性化学习资源，可保存回 Wiki 页面。
+    - generic [ref=e74]:
+      - paragraph [ref=e75]: 资源类型
+      - generic [ref=e76]:
+        - button "menu_book 讲解" [active] [ref=e77] [cursor=pointer]:
+          - generic [ref=e78]: menu_book
+          - text: 讲解
+        - button "summarize 总结" [ref=e79] [cursor=pointer]:
+          - generic [ref=e80]: summarize
+          - text: 总结
+        - button "quiz 例题" [ref=e81] [cursor=pointer]:
+          - generic [ref=e82]: quiz
+          - text: 例题
+        - button "style 复习卡" [ref=e83] [cursor=pointer]:
+          - generic [ref=e84]: style
+          - text: 复习卡
+        - button "rate_review 错题解析" [ref=e85] [cursor=pointer]:
+          - generic [ref=e86]: rate_review
+          - text: 错题解析
+    - generic [ref=e87]:
+      - paragraph [ref=e88]: 补充要求（可选）
+      - textbox "例如：用通俗语言解释、多举生活中的例子、重点讲解应用场景..." [ref=e89]
+    - button "auto_awesome 生成资源" [ref=e90] [cursor=pointer]:
+      - generic [ref=e91]: auto_awesome
+      - text: 生成资源
+    - button "关闭" [ref=e92] [cursor=pointer]:
+      - img [ref=e93]
+      - generic [ref=e96]: 关闭

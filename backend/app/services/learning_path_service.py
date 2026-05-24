@@ -231,7 +231,7 @@ class LearningPathService:
         target_ids = {str(item) for item in target_knowledge_ids}
         weak_names = {str(item.get("name", item)).lower() for item in weak_points if item}
 
-        def score(point: KnowledgePoint) -> tuple[int, float, int, str]:
+        def score(point: KnowledgePoint) -> tuple[int, int, int, int, str]:
             mastery = self._mastery_for(point, mastery_snapshot)
             target_bonus = 0 if str(point.id) in target_ids else 1
             weak_bonus = 0 if point.name.lower() in weak_names or point.name in goal else 1

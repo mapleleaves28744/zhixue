@@ -134,6 +134,13 @@
     return request(`/courses?${query}`);
   }
 
+  async function createCourse(payload) {
+    return request("/courses", {
+      method: "POST",
+      body: payload,
+    });
+  }
+
   async function getMe() {
     return request("/users/me");
   }
@@ -146,6 +153,13 @@
       status: params.status || "active",
     });
     return request(`/wiki/pages?${query}`);
+  }
+
+  async function createWikiPage(payload) {
+    return request("/wiki/pages", {
+      method: "POST",
+      body: payload,
+    });
   }
 
   async function generateResource(payload) {
@@ -177,6 +191,27 @@
     });
   }
 
+  async function chatWithTutor(payload) {
+    return request("/tutor/chat", {
+      method: "POST",
+      body: payload,
+    });
+  }
+
+  async function saveTutorAnswerToWiki(messageId, payload) {
+    return request(`/tutor/messages/${messageId}/save-to-wiki`, {
+      method: "POST",
+      body: payload,
+    });
+  }
+
+  async function submitTutorFeedback(messageId, payload) {
+    return request(`/tutor/messages/${messageId}/feedback`, {
+      method: "POST",
+      body: payload,
+    });
+  }
+
   async function resolveCourseId() {
     const courseId = getCourseIdFromUrl();
     if (courseId) {
@@ -193,6 +228,9 @@
   window.ZhixueStatic = {
     formatDate,
     formatSize,
+    chatWithTutor,
+    createCourse,
+    createWikiPage,
     generateResource,
     getMe,
     getCourseIdFromUrl,
@@ -205,6 +243,8 @@
     request,
     resolveCourseId,
     saveResourceToWiki,
+    saveTutorAnswerToWiki,
+    submitTutorFeedback,
     toast,
   };
 })();

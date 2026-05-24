@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 import { toast } from "sonner"
 import { AppShell } from "@/components/layout/AppShell"
 import { studentNavItems } from "@/components/layout/StudentSidebar"
@@ -10,9 +10,12 @@ import { Button } from "@/components/ui/button"
 import { getProfile, getProfileSummary, getPreferences, rebuildProfile } from "@/services/profileService"
 import { analyze, listStrategies, applyStrategy, rollbackStrategy } from "@/services/evolutionService"
 import { listMemories } from "@/services/memoryService"
+import { listLearningPaths, generateLearningPath, updateLearningPathItem } from "@/services/learningPathService"
+import { listCourses } from "@/services/courseService"
 import type { ProfileSummary, StudentProfile, LearningPreference } from "@/types/profile"
 import type { EvolutionStrategy } from "@/types/evolution"
 import type { StudentMemory } from "@/types/memory"
+import type { LearningPath } from "@/types/learning-path"
 
 export default function StudentProfilePage() {
   const [profile, setProfile] = useState<StudentProfile | null>(null)
@@ -20,12 +23,13 @@ export default function StudentProfilePage() {
   const [preferences, setPreferences] = useState<LearningPreference[]>([])
   const [strategies, setStrategies] = useState<EvolutionStrategy[]>([])
   const [memories, setMemories] = useState<StudentMemory[]>([])
+  const [learningPaths, setLearningPaths] = useState<LearningPath[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [rebuilding, setRebuilding] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
-
-  const courseId = "00000000-0000-0000-0000-000000000001"
+  const [generatingPath, setGeneratingPath] = useState(false)
+  const [courseId, setCourseId] = useState<string | null>(null)
 
   useEffect(() => {
     loadData()
@@ -35,18 +39,29 @@ export default function StudentProfilePage() {
     try {
       setLoading(true)
       setError(null)
-      const [profileData, summaryData, prefsData, strategiesData, memoriesData] = await Promise.all([
+      const [profileData, summaryData, prefsData, coursesData] = await Promise.all([
         getProfile(),
         getProfileSummary(),
         getPreferences(),
-        listStrategies({ courseId, status: "active" }).catch(() => ({ items: [], total: 0 })),
-        listMemories().catch(() => []),
+        listCourses().catch(() => ({ items: [], total: 0 })),
       ])
       setProfile(profileData)
       setSummary(summaryData)
       setPreferences(prefsData)
-      setStrategies(strategiesData.items)
-      setMemories(memoriesData)
+
+      const activeCourseId = coursesData.items[0]?.id ?? null
+      setCourseId(activeCourseId)
+
+      if (activeCourseId) {
+        const [strategiesData, memoriesData, pathsData] = await Promise.all([
+          listStrategies({ courseId: activeCourseId, status: "active" }).catch(() => ({ items: [], total: 0 })),
+          listMemories().catch(() => []),
+          listLearningPaths({ courseId: activeCourseId }).catch(() => ({ items: [], total: 0 })),
+        ])
+        setStrategies(strategiesData.items)
+        setMemories(memoriesData)
+        setLearningPaths(pathsData.items)
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "加载画像失败"
       setError(msg)
@@ -72,6 +87,7 @@ export default function StudentProfilePage() {
   }
 
   const handleAnalyze = useCallback(async () => {
+    if (!courseId) { toast.error("暂无课程"); return }
     try {
       setAnalyzing(true)
       const result = await analyze(courseId, "学习策略优化")
@@ -121,6 +137,51 @@ export default function StudentProfilePage() {
     }
   }, [])
 
+  const handleGeneratePath = useCallback(async () => {
+    if (!courseId) { toast.error("暂无课程"); return }
+    try {
+      setGeneratingPath(true)
+      const path = await generateLearningPath({
+        course_id: courseId,
+        goal: "补强数据结构核心薄弱点",
+        path_type: "weakness_repair",
+      })
+      setLearningPaths((prev) => [path, ...prev])
+      toast.success("学习路径已生成")
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "生成失败"
+      toast.error(msg)
+    } finally {
+      setGeneratingPath(false)
+    }
+  }, [courseId])
+
+  const handleTogglePathItem = useCallback(async (itemId: string) => {
+    try {
+      await updateLearningPathItem(itemId, "completed")
+      setLearningPaths((prev) =>
+        prev.map((p) => ({
+          ...p,
+          items: p.items.map((item) =>
+            item.id === itemId ? { ...item, status: "completed" as const } : item,
+          ),
+          progress: p.items.length > 0
+            ? Math.round(((p.items.filter((i) => i.id === itemId || i.status === "completed").length) / p.items.length) * 100)
+            : p.progress,
+        }))
+      )
+      toast.success("路径节点已完成")
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "更新失败"
+      toast.error(msg)
+    }
+  }, [])
+
+  const activePath = useMemo(
+    () => learningPaths.find((p) => p.status === "active") ?? learningPaths[0] ?? null,
+    [learningPaths],
+  )
+
   return (
     <AppShell title="学习路径与个人模型" navItems={studentNavItems}>
       <div className="grid grid-cols-12 gap-6">
@@ -166,39 +227,84 @@ export default function StudentProfilePage() {
                 <span className="material-symbols-outlined mr-2 text-primary">route</span>
                 推荐学习路径
               </h3>
-              <span className="bg-primary/10 text-primary px-4 py-1 rounded-full text-label-sm uppercase tracking-wider">AI 定制计划</span>
-            </div>
-            <div className="relative flex items-center justify-between pb-6 overflow-x-auto">
-              <div className="absolute top-5 left-0 w-full h-[2px] bg-outline-variant/40" />
-              {["基础概念", "核心原理", "进阶应用", "综合实战"].map((step, i) => (
-                <div key={i} className="relative z-10 flex flex-col items-center min-w-[160px]">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-4 shadow-lg ${
-                    i === 0
-                      ? "bg-primary text-white shadow-primary/20"
-                      : "bg-surface-container-high border border-outline-variant text-outline"
-                  }`}>
-                    <span className="material-symbols-outlined">{i === 0 ? "check" : i === 1 ? "pending" : "lock"}</span>
-                  </div>
-                  <div className="text-center px-4">
-                    <p className="font-bold text-body-md">{step}</p>
-                    <p className="text-label-sm text-on-surface-variant">
-                      {i === 0 ? "已完成" : i === 1 ? "进行中" : "待解锁"}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 p-5 rounded-xl bg-primary-fixed/30 border border-primary-container/20">
-              <div className="flex items-start space-x-3">
-                <span className="material-symbols-outlined text-primary mt-1">lightbulb</span>
-                <div>
-                  <p className="font-bold text-on-primary-container mb-1">推荐理由</p>
-                  <p className="text-label-md text-on-surface-variant leading-relaxed">
-                    {profile?.profile_summary || "系统将根据你的学习数据生成个性化推荐。"}
-                  </p>
-                </div>
+              <div className="flex items-center gap-2">
+                {activePath && (
+                  <span className="bg-primary/10 text-primary px-4 py-1 rounded-full text-label-sm uppercase tracking-wider">
+                    {Math.round(activePath.progress)}% 已完成
+                  </span>
+                )}
+                <Button size="sm" onClick={handleGeneratePath} disabled={generatingPath}>
+                  {generatingPath ? "生成中..." : "生成路径"}
+                </Button>
               </div>
             </div>
+            {!activePath ? (
+              <div className="flex flex-col items-center justify-center py-14 text-center text-on-surface-variant">
+                <span className="material-symbols-outlined text-5xl mb-4 text-primary/40">route</span>
+                <p className="text-body-lg font-bold text-on-surface mb-2">暂无学习路径</p>
+                <p className="text-label-md max-w-xl">
+                  点击生成路径，PlannerAgent 会基于课程知识点、画像薄弱点和 Wiki 线索生成第一条可执行路径。
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="mb-6">
+                  <p className="text-label-sm text-on-surface-variant mb-1">当前目标</p>
+                  <h4 className="font-headline-sm text-on-surface">{activePath.title}</h4>
+                </div>
+                <div className="relative flex items-center justify-between pb-6 overflow-x-auto">
+                  <div className="absolute top-5 left-0 w-full h-[2px] bg-outline-variant/40" />
+                  {[...activePath.items]
+                    .sort((a, b) => a.order_index - b.order_index)
+                    .map((item, index) => {
+                      const isDone = item.status === "completed"
+                      const isDoing = item.status === "doing"
+                      const icon = isDone ? "check" : isDoing ? "pending" : "flag"
+                      const circleClass = isDone
+                        ? "bg-primary text-white shadow-lg shadow-primary/20"
+                        : isDoing
+                          ? "bg-white border-2 border-primary text-primary"
+                          : "bg-surface-container-high border border-outline-variant text-outline"
+                      return (
+                        <div
+                          key={item.id}
+                          className={`relative z-10 flex flex-col items-center min-w-[160px] ${item.status === "pending" ? "opacity-70" : ""}`}
+                        >
+                          <button
+                            className={`w-11 h-11 rounded-full ${circleClass} flex items-center justify-center mb-4 transition-transform hover:scale-105`}
+                            onClick={() => handleTogglePathItem(item.id)}
+                            title="标记完成"
+                          >
+                            <span className="material-symbols-outlined">{icon}</span>
+                          </button>
+                          <div className="text-center px-4">
+                            <p className={`font-bold text-body-md ${isDoing ? "text-primary" : ""}`}>{item.title}</p>
+                            <p className="text-label-sm text-on-surface-variant mb-2">
+                              {item.item_type} · {item.estimated_minutes || 30} 分钟
+                            </p>
+                            <span
+                              className={`text-[10px] ${isDone ? "bg-primary/10 text-primary" : "bg-surface-container-high text-on-surface-variant"} px-2 py-0.5 rounded-full font-bold`}
+                            >
+                              第 {index + 1} 步
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                </div>
+                <div className="mt-6 p-5 rounded-xl bg-primary-fixed/30 border border-primary-container/20">
+                  <div className="flex items-start space-x-3">
+                    <span className="material-symbols-outlined text-primary mt-1">lightbulb</span>
+                    <div>
+                      <p className="font-bold text-on-primary-container mb-1">推荐理由</p>
+                      <p className="text-label-md text-on-surface-variant leading-relaxed">
+                        {activePath.reason || "基于课程知识顺序、学生画像和近期薄弱点生成。"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </section>
 
           {/* 自进化策略 */}

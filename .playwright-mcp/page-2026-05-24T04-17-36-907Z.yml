@@ -1,0 +1,129 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - link "auto_stories" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e8]: auto_stories
+      - navigation [ref=e9]:
+        - link "dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /student/dashboard
+          - generic [ref=e11]: dashboard
+        - link "menu_book" [ref=e12] [cursor=pointer]:
+          - /url: /student/wiki
+          - generic [ref=e13]: menu_book
+        - link "smart_toy" [ref=e14] [cursor=pointer]:
+          - /url: /student/tutor
+          - generic [ref=e15]: smart_toy
+        - link "auto_awesome" [ref=e16] [cursor=pointer]:
+          - /url: /student/resources
+          - generic [ref=e17]: auto_awesome
+        - link "fact_check" [ref=e18] [cursor=pointer]:
+          - /url: /student/quizzes
+          - generic [ref=e19]: fact_check
+        - link "monitoring" [ref=e20] [cursor=pointer]:
+          - /url: /student/diagnosis
+          - generic [ref=e21]: monitoring
+        - link "face_6" [ref=e22] [cursor=pointer]:
+          - /url: /student/profile
+          - generic [ref=e23]: face_6
+        - link "memory" [ref=e24] [cursor=pointer]:
+          - /url: /student/memory
+          - generic [ref=e25]: memory
+    - generic [ref=e26]:
+      - banner [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - paragraph [ref=e30]: 智学工坊
+            - heading "学生学习空间" [level=1] [ref=e31]
+          - generic [ref=e32]:
+            - generic [ref=e33]: testuser
+            - button "退出" [ref=e34] [cursor=pointer]:
+              - img [ref=e35]
+              - text: 退出
+      - main [ref=e38]:
+        - generic [ref=e39]:
+          - complementary [ref=e40]:
+            - link "auto_stories" [ref=e41] [cursor=pointer]:
+              - /url: /
+              - generic [ref=e42]: auto_stories
+            - navigation [ref=e43]:
+              - link "dashboard" [ref=e44] [cursor=pointer]:
+                - /url: /student/dashboard
+                - generic [ref=e45]: dashboard
+              - link "menu_book" [ref=e46] [cursor=pointer]:
+                - /url: /student/wiki
+                - generic [ref=e47]: menu_book
+              - link "smart_toy" [ref=e48] [cursor=pointer]:
+                - /url: /student/tutor
+                - generic [ref=e49]: smart_toy
+              - link "auto_awesome" [ref=e50] [cursor=pointer]:
+                - /url: /student/resources
+                - generic [ref=e51]: auto_awesome
+              - link "fact_check" [ref=e52] [cursor=pointer]:
+                - /url: /student/quizzes
+                - generic [ref=e53]: fact_check
+              - link "monitoring" [ref=e54] [cursor=pointer]:
+                - /url: /student/diagnosis
+                - generic [ref=e55]: monitoring
+              - link "face_6" [ref=e56] [cursor=pointer]:
+                - /url: /student/profile
+                - generic [ref=e57]: face_6
+              - link "memory" [ref=e58] [cursor=pointer]:
+                - /url: /student/memory
+                - generic [ref=e59]: memory
+          - generic [ref=e60]:
+            - generic [ref=e62]:
+              - generic [ref=e63]:
+                - paragraph [ref=e64]: 智学工坊
+                - heading "学习路径与个人模型" [level=1] [ref=e65]
+              - generic [ref=e66]:
+                - generic [ref=e67]: testuser
+                - button "退出" [ref=e68] [cursor=pointer]:
+                  - img [ref=e69]
+                  - text: 退出
+            - main [ref=e72]:
+              - generic [ref=e73]:
+                - generic [ref=e75]:
+                  - heading "face_6 学生画像摘要" [level=3] [ref=e76]:
+                    - generic [ref=e77]: face_6
+                    - text: 学生画像摘要
+                  - generic [ref=e78]: 暂无掌握度数据
+                  - button "refresh 重建画像" [ref=e80] [cursor=pointer]:
+                    - generic [ref=e81]: refresh
+                    - text: 重建画像
+                - generic [ref=e82]:
+                  - generic [ref=e83]:
+                    - generic [ref=e84]:
+                      - heading "route 推荐学习路径" [level=3] [ref=e85]:
+                        - generic [ref=e86]: route
+                        - text: 推荐学习路径
+                      - button "生成路径" [ref=e88] [cursor=pointer]
+                    - generic [ref=e89]:
+                      - generic [ref=e90]: route
+                      - paragraph [ref=e91]: 暂无学习路径
+                      - paragraph [ref=e92]: 点击生成路径，PlannerAgent 会基于课程知识点、画像薄弱点和 Wiki 线索生成第一条可执行路径。
+                  - generic [ref=e93]:
+                    - generic [ref=e94]:
+                      - heading "bolt 自进化策略" [level=3] [ref=e95]:
+                        - generic [ref=e96]: bolt
+                        - text: 自进化策略
+                      - button "触发分析" [ref=e98] [cursor=pointer]
+                    - generic [ref=e99]:
+                      - generic [ref=e100]: psychology
+                      - paragraph [ref=e101]: 暂无策略建议
+                      - paragraph [ref=e102]: 点击"触发分析"，让 EvolutionAgent 基于学习数据生成策略建议
+                  - generic [ref=e103]:
+                    - generic [ref=e104]:
+                      - heading "memory 长期记忆" [level=3] [ref=e105]:
+                        - generic [ref=e106]: memory
+                        - text: 长期记忆
+                      - generic [ref=e107]: 0 条
+                    - generic [ref=e108]:
+                      - paragraph [ref=e109]: 暂无长期记忆
+                      - paragraph [ref=e110]: 使用问答、练习和诊断后，系统会自动生成长期记忆。
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e112]:
+        - img [ref=e114]
+        - generic [ref=e117]: 课程不存在
+  - alert [ref=e111]
