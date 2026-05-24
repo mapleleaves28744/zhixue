@@ -7,9 +7,13 @@ from app.api.v1 import (
     courses,
     diagnosis,
     evolution,
+    knowledge,
+    learning_paths,
     materials,
     quizzes,
     resources,
+    student_memory,
+    student_profile,
     tutor,
     users,
     wiki,
@@ -29,6 +33,8 @@ router.include_router(auth.router, prefix="/auth", tags=["auth"])
 router.include_router(users.router, prefix="/users", tags=["users"])
 router.include_router(courses.router, prefix="/courses", tags=["courses"])
 router.include_router(materials.router, prefix="/materials", tags=["materials"])
+router.include_router(knowledge.router, prefix="/knowledge", tags=["knowledge"])
+router.include_router(learning_paths.router, prefix="/learning-paths", tags=["learning-paths"])
 router.include_router(wiki.router, prefix="/wiki", tags=["wiki"])
 router.include_router(tutor.router, prefix="/tutor", tags=["tutor"])
 router.include_router(resources.router, prefix="/resources", tags=["resources"])
@@ -37,3 +43,5 @@ router.include_router(diagnosis.router, prefix="/diagnosis", tags=["diagnosis"])
 router.include_router(evolution.router, prefix="/evolution", tags=["evolution"])
 router.include_router(agents.router, prefix="/agents", tags=["agents"])
 router.include_router(admin.router, prefix="/admin", tags=["admin"])
+router.include_router(student_profile.router, prefix="/student/profile", tags=["student-profile"])
+router.include_router(student_memory.router, prefix="/student/memory", tags=["student-memory"])

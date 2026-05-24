@@ -251,7 +251,7 @@
 <div class="mb-6 w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center bg-primary/10">
 <img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1EZ4-_OqvLolrIYsVavZ41LOfIffnec98XBc0EYVq62ylT7CK9vnL3PqRZLE7u_qUV2tt2HWiZKHStzAVqpeH9M4qHvsvV-qXIrCKIWJAF5e4iThmFdhho-TcvjQdZtfeBR0obiutEJYp3DIkMJa4Ey5XQ-eOI2BP10hciIBR4Yir3WE0fSxgEXE6N-ZoOOiMlNDXnbteoYU8ShR-oqJc07NOd5nHfKA5AxsrY11VWKNF_HJymUnKG1STvetjzPPMhjMfZ7H94PE"/>
 </div>
-<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/" target="_parent" title="首页">
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/home" target="_parent" title="主页">
 <span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
 </a>
 <a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/courses" target="_parent" title="课程空间">
@@ -300,6 +300,9 @@
 <button class="bg-white/50 border border-white/80 hover:bg-white/80 rounded-full p-2.5 transition-all hover:-translate-y-0.5 shadow-sm text-outline hover:text-primary group">
 <span class="material-symbols-outlined">help</span>
 </button>
+<a class="bg-white/50 border border-white/80 hover:bg-white/80 rounded-full p-2.5 transition-all hover:-translate-y-0.5 shadow-sm text-outline hover:text-primary group" href="/" target="_parent" title="返回介绍页">
+<span class="material-symbols-outlined">cottage</span>
+</a>
 </div>
 </header>
 <!-- Main Dashboard Area -->
@@ -449,86 +452,269 @@
 </div>
 </main>
 </div>
+<script src="/stitch-pages/zhixue-static-api.js"></script>
 <script>
 (() => {
-  const API_BASE_URL = "http://localhost:8000/api/v1";
+  const api = window.ZhixueStatic;
   const uploadButton = document.getElementById("material-upload-button");
   const docList = document.querySelector(".flex-1.overflow-y-auto.pr-2.flex.flex-col.gap-3");
+  const countLabel = document.querySelector(".glass-card.p-4 h3 + p");
+  const detailTitle = document.querySelector(".glass-card.p-6 h2");
+  const detailMeta = document.querySelector(".glass-card.p-6 .flex.gap-4.text-sm");
+  const sliceGrid = document.querySelector(".grid.grid-cols-2.gap-4");
+  const topActions = document.querySelector(".flex.justify-end.gap-3");
   const input = document.createElement("input");
+  let currentCourseId = null;
+  let selectedMaterial = null;
+  let materials = [];
+  let wikiPages = [];
+  let lastExtractedPoints = [];
+  let lastSearchResults = [];
+
   input.type = "file";
   input.accept = ".pdf,.docx,.md,.txt";
   input.style.display = "none";
   document.body.appendChild(input);
 
-  function getToken() {
-    return window.localStorage.getItem("access_token");
+  function escapeHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    }[char]));
   }
 
-  async function request(path, options = {}) {
-    const token = getToken();
-    if (!token) {
-      throw new Error("请先登录后再上传资料");
-    }
-    const headers = new Headers(options.headers || {});
-    headers.set("Authorization", `Bearer ${token}`);
-    headers.set("Accept", "application/json");
-    const response = await fetch(`${API_BASE_URL}${path}`, {
-      ...options,
-      headers,
-    });
-    const payload = await response.json().catch(() => null);
-    if (!response.ok || !payload || payload.code !== 0) {
-      throw new Error(payload?.detail || payload?.message || "请求失败");
-    }
-    return payload.data;
+  function statusLabel(status) {
+    return {
+      pending: "待解析",
+      processing: "解析中",
+      success: "解析成功",
+      failed: "解析失败",
+    }[status] || status || "待解析";
   }
 
-  async function getCourseId() {
-    const urlCourseId = new URLSearchParams(window.parent.location.search).get("course_id")
-      || new URLSearchParams(window.location.search).get("course_id");
-    if (urlCourseId) {
-      return urlCourseId;
+  function statusClass(status) {
+    if (status === "success") {
+      return "bg-primary/10 text-primary";
     }
-    const page = await request("/courses?page=1&page_size=1&status=active");
-    const firstCourse = page.items && page.items[0];
-    if (!firstCourse) {
-      throw new Error("请先创建课程，再上传资料");
+    if (status === "failed") {
+      return "bg-error-container text-on-error-container";
     }
-    return firstCourse.id;
+    if (status === "processing") {
+      return "bg-secondary-container/30 text-secondary";
+    }
+    return "bg-tertiary-container/20 text-tertiary";
   }
 
-  function formatSize(bytes) {
-    if (bytes < 1024 * 1024) {
-      return `${(bytes / 1024).toFixed(1)} KB`;
+  function borderClass(status) {
+    if (status === "success") {
+      return "border-l-primary";
     }
-    return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+    if (status === "failed") {
+      return "border-l-error";
+    }
+    if (status === "processing") {
+      return "border-l-secondary-fixed-dim/50";
+    }
+    return "border-l-tertiary-container/50";
   }
 
-  function addMaterialCard(material) {
+  function iconForType(fileType) {
+    return fileType === "pdf" ? "picture_as_pdf" : fileType === "docx" ? "article" : "description";
+  }
+
+  function makeActionButton(id, icon, label, className) {
+    const button = document.createElement("button");
+    button.id = id;
+    button.className = className || "bg-white/60 border border-white/80 hover:bg-white/90 px-4 py-2 rounded-xl font-label-md text-on-surface-variant hover:text-primary flex items-center gap-2 transition-all shadow-sm";
+    button.innerHTML = `<span class="material-symbols-outlined text-[18px]">${icon}</span>${label}`;
+    return button;
+  }
+
+  function ensurePipelineButtons() {
+    if (!topActions || document.getElementById("material-parse-button")) {
+      return;
+    }
+    const wikiButton = topActions.querySelector("button:last-child");
+    if (wikiButton) {
+      wikiButton.id = "material-wiki-button";
+      wikiButton.addEventListener("click", generateWikiFromSelectedMaterial);
+    }
+    const buttons = [
+      makeActionButton("material-search-button", "travel_explore", "检索资料"),
+      makeActionButton("material-extract-button", "account_tree", "抽取知识点"),
+      makeActionButton("material-embed-button", "hub", "向量化"),
+      makeActionButton("material-chunk-button", "segment", "切片"),
+      makeActionButton("material-parse-button", "data_object", "解析资料"),
+    ];
+    buttons.forEach((button) => topActions.prepend(button));
+    document.getElementById("material-parse-button")?.addEventListener("click", parseSelectedMaterial);
+    document.getElementById("material-chunk-button")?.addEventListener("click", chunkSelectedMaterial);
+    document.getElementById("material-embed-button")?.addEventListener("click", embedSelectedMaterial);
+    document.getElementById("material-extract-button")?.addEventListener("click", extractKnowledgeFromSelectedMaterial);
+    document.getElementById("material-search-button")?.addEventListener("click", searchCurrentCourse);
+  }
+
+  function updateDetail(material) {
+    selectedMaterial = material;
+    if (!detailTitle) {
+      return;
+    }
+    if (!material) {
+      detailTitle.textContent = "暂无真实资料";
+      if (detailMeta) {
+        detailMeta.innerHTML = `
+          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">info</span>请先上传课程资料</span>
+          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">database</span>来自 /api/v1/materials</span>`;
+      }
+      if (sliceGrid) {
+        sliceGrid.innerHTML = `
+          <div class="bg-white/70 backdrop-blur-md rounded-xl p-4 border border-white/90 shadow-sm col-span-2">
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-label-sm text-label-sm text-outline bg-surface-container-low/60 px-2 py-1 rounded border border-white/50">Empty State</span>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-tertiary-container/20 text-tertiary">等待上传</span>
+            </div>
+            <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              当前课程还没有真实上传资料。上传 PDF、DOCX、MD 或 TXT 后，可以继续执行解析、切片、向量化、知识点抽取和 Wiki 生成。
+            </p>
+          </div>`;
+      }
+      return;
+    }
+    detailTitle.textContent = material.file_name;
+    if (detailMeta) {
+      detailMeta.innerHTML = `
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">calendar_today</span>${api.formatDate(material.created_at)} 上传</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">description</span>${api.formatSize(material.file_size)} · ${escapeHtml(material.file_type.toUpperCase())}</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">tag</span>${statusLabel(material.parse_status)}</span>`;
+    }
+    const parseButton = document.getElementById("material-parse-button");
+    if (parseButton) {
+      parseButton.disabled = material.parse_status === "processing";
+      parseButton.innerHTML = material.parse_status === "success"
+        ? '<span class="material-symbols-outlined text-[18px]">refresh</span>重新解析'
+        : '<span class="material-symbols-outlined text-[18px]">data_object</span>解析资料';
+    }
+    const wikiButton = document.getElementById("material-wiki-button");
+    if (wikiButton) {
+      wikiButton.disabled = !material;
+      wikiButton.innerHTML = '<span class="material-symbols-outlined text-[18px]">auto_awesome</span>从资料生成 Wiki';
+    }
+    const chunkButton = document.getElementById("material-chunk-button");
+    if (chunkButton) {
+      chunkButton.innerHTML = '<span class="material-symbols-outlined text-[18px]">segment</span>切片';
+    }
+    const embedButton = document.getElementById("material-embed-button");
+    if (embedButton) {
+      embedButton.innerHTML = '<span class="material-symbols-outlined text-[18px]">hub</span>向量化';
+    }
+    const extractButton = document.getElementById("material-extract-button");
+    if (extractButton) {
+      extractButton.innerHTML = '<span class="material-symbols-outlined text-[18px]">account_tree</span>抽取知识点';
+    }
+    const searchButton = document.getElementById("material-search-button");
+    if (searchButton) {
+      searchButton.innerHTML = '<span class="material-symbols-outlined text-[18px]">travel_explore</span>检索资料';
+    }
+    if (sliceGrid) {
+      const textLength = material.extra_meta && material.extra_meta.text_length;
+      const parsedPath = material.extra_meta && material.extra_meta.parsed_text_path;
+      const pipelineMeta = material.extra_meta || {};
+      sliceGrid.innerHTML = `
+        <div class="bg-white/70 backdrop-blur-md rounded-xl p-4 border border-white/90 shadow-sm col-span-2">
+          <div class="flex items-center justify-between mb-3">
+            <span class="font-label-sm text-label-sm text-outline bg-surface-container-low/60 px-2 py-1 rounded border border-white/50">Parse Status</span>
+            <span class="text-xs font-bold px-2 py-0.5 rounded-md ${statusClass(material.parse_status)}">${statusLabel(material.parse_status)}</span>
+          </div>
+          <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+            ${material.parse_status === "success"
+              ? `已完成文本解析，文本长度约 ${textLength || 0} 字符。后续切片与向量化会基于解析后的 sidecar 文本继续处理。`
+              : material.parse_status === "failed"
+                ? `解析失败：${escapeHtml(material.parse_error || "请检查文件内容后重试。")}`
+                : "资料已保存，点击“解析资料”提取纯文本，为后续切片、检索和 Wiki 生成做准备。"}
+          </p>
+          ${parsedPath ? `<p class="mt-3 text-[12px] text-on-surface-variant font-semibold">文本缓存：${escapeHtml(parsedPath)}</p>` : ""}
+        </div>
+        <div class="bg-white/70 backdrop-blur-md rounded-xl p-4 border border-white/90 shadow-sm">
+          <span class="font-label-sm text-label-sm text-outline bg-surface-container-low/60 px-2 py-1 rounded border border-white/50">Chunks</span>
+          <p class="mt-3 text-2xl font-bold text-on-surface">${pipelineMeta.chunk_count || 0}</p>
+          <p class="text-[12px] text-on-surface-variant mt-1">由 /materials/{id}/chunk 生成</p>
+        </div>
+        <div class="bg-white/70 backdrop-blur-md rounded-xl p-4 border border-white/90 shadow-sm">
+          <span class="font-label-sm text-label-sm text-outline bg-surface-container-low/60 px-2 py-1 rounded border border-white/50">Embeddings</span>
+          <p class="mt-3 text-2xl font-bold text-on-surface">${pipelineMeta.embedded_count || 0}</p>
+          <p class="text-[12px] text-on-surface-variant mt-1">Mock/真实 embedding 均通过后端服务</p>
+        </div>
+        <div class="bg-white/70 backdrop-blur-md rounded-xl p-4 border border-white/90 shadow-sm col-span-2">
+          <div class="flex items-center justify-between">
+            <span class="font-label-sm text-label-sm text-outline bg-surface-container-low/60 px-2 py-1 rounded border border-white/50">Knowledge / Wiki</span>
+            <span class="text-[12px] font-bold text-primary">${lastExtractedPoints.length} 个知识点 · ${wikiPages.length} 个 Wiki 页面</span>
+          </div>
+          <div class="mt-3 flex flex-wrap gap-2">
+            ${(lastExtractedPoints.length ? lastExtractedPoints : wikiPages).slice(0, 6).map((item) => `
+              <span class="text-[12px] px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-bold">${escapeHtml(item.name || item.title)}</span>
+            `).join("") || '<span class="text-[12px] text-on-surface-variant">点击“抽取知识点”或“从资料生成 Wiki”后展示真实结果。</span>'}
+          </div>
+        </div>
+        <div class="bg-white/70 backdrop-blur-md rounded-xl p-4 border border-white/90 shadow-sm col-span-2">
+          <span class="font-label-sm text-label-sm text-outline bg-surface-container-low/60 px-2 py-1 rounded border border-white/50">RAG Search</span>
+          <div class="mt-3 space-y-2">
+            ${lastSearchResults.slice(0, 3).map((item) => `
+              <div class="rounded-xl bg-white/70 border border-white/80 p-3">
+                <p class="text-[12px] font-bold text-primary">${escapeHtml(item.source_title || "课程资料")} · score ${Number(item.score || 0).toFixed(3)}</p>
+                <p class="text-[12px] text-on-surface-variant mt-1 line-clamp-2">${escapeHtml(item.content)}</p>
+              </div>
+            `).join("") || '<p class="text-[12px] text-on-surface-variant mt-2">点击“检索资料”后显示后端向量检索结果。</p>'}
+          </div>
+        </div>`;
+    }
+  }
+
+  function renderMaterials() {
     if (!docList) {
       return;
     }
-    const item = document.createElement("div");
-    item.className = "glass-card p-4 border-l-[6px] border-l-primary cursor-pointer hover:bg-white/95 transition-all group";
-    item.innerHTML = `
-      <div class="flex justify-between items-start mb-2">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-primary text-[20px]">description</span>
-          <h4 class="font-title text-title-sm text-on-surface line-clamp-1">${material.file_name}</h4>
+    if (countLabel) {
+      countLabel.textContent = `共 ${materials.length} 个文档`;
+    }
+    if (!materials.length) {
+      docList.innerHTML = `
+        <div class="glass-card p-5 border-l-[6px] border-l-tertiary-container/50">
+          <p class="font-label-md text-label-md text-on-surface">暂无真实资料</p>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-2">点击“上传资料”添加 PDF、DOCX、MD 或 TXT 文件。</p>
+        </div>`;
+      updateDetail(null);
+      return;
+    }
+    docList.innerHTML = materials.map((material) => `
+      <div class="glass-card p-4 border-l-[6px] ${borderClass(material.parse_status)} cursor-pointer hover:bg-white/95 transition-all group" data-material-id="${material.id}">
+        <div class="flex justify-between items-start mb-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="material-symbols-outlined text-primary text-[20px]">${iconForType(material.file_type)}</span>
+            <span class="font-label-md text-label-md text-on-surface truncate w-40" title="${escapeHtml(material.file_name)}">${escapeHtml(material.file_name)}</span>
+          </div>
+          <span class="px-2 py-0.5 rounded-md font-label-sm text-[10px] ${statusClass(material.parse_status)}">${statusLabel(material.parse_status)}</span>
         </div>
-        <span class="text-[10px] px-1.5 py-0.5 rounded bg-primary-container text-primary font-bold">待解析</span>
-      </div>
-      <div class="flex items-center gap-2 text-label-sm text-on-surface-variant mt-3">
-        <span>${formatSize(material.file_size)}</span>
-        <span>•</span>
-        <span>${material.file_type.toUpperCase()}</span>
-        <span>刚刚上传</span>
-      </div>
-    `;
-    docList.prepend(item);
+        <div class="flex justify-between items-center text-[12px] text-on-surface-variant font-medium">
+          <span>${api.formatSize(material.file_size)} · ${escapeHtml(material.file_type.toUpperCase())}</span>
+          <span>${api.formatDate(material.created_at)}</span>
+        </div>
+      </div>`).join("");
+    docList.querySelectorAll("[data-material-id]").forEach((card) => {
+      card.addEventListener("click", () => {
+        const material = materials.find((item) => item.id === card.dataset.materialId);
+        updateDetail(material);
+      });
+    });
+    updateDetail(selectedMaterial && materials.find((item) => item.id === selectedMaterial.id) || materials[0]);
   }
 
   function setUploading(isUploading) {
+    if (!uploadButton) {
+      return;
+    }
     uploadButton.disabled = isUploading;
     uploadButton.classList.toggle("opacity-70", isUploading);
     uploadButton.innerHTML = isUploading
@@ -536,15 +722,152 @@
       : '<span class="material-symbols-outlined text-[18px]">upload</span>上传资料';
   }
 
-  async function loadExistingMaterials() {
-    try {
-      const courseId = await getCourseId();
-      const page = await request(`/materials?course_id=${encodeURIComponent(courseId)}&page=1&page_size=20`);
-      const uploadedMaterials = (page.items || []).slice().reverse();
-      uploadedMaterials.forEach(addMaterialCard);
-    } catch {
-      // 未登录或尚未创建课程时保持静态演示内容，不打断页面展示。
+  async function loadMaterials() {
+    currentCourseId = await api.resolveCourseId();
+    const [materialPage, wikiPage] = await Promise.all([
+      api.request(`/materials?course_id=${encodeURIComponent(currentCourseId)}&page=1&page_size=50`),
+      api.listWikiPages(currentCourseId, { pageSize: 50 }).catch(() => ({ items: [] })),
+    ]);
+    materials = materialPage.items || [];
+    wikiPages = wikiPage.items || [];
+    renderMaterials();
+  }
+
+  async function parseSelectedMaterial() {
+    if (!selectedMaterial) {
+      api.toast("请先选择一个资料。", "info");
+      return;
     }
+    const parseButton = document.getElementById("material-parse-button");
+    try {
+      parseButton.disabled = true;
+      parseButton.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">sync</span>解析中...';
+      const result = await api.request(`/materials/${selectedMaterial.id}/parse`, { method: "POST" });
+      const index = materials.findIndex((item) => item.id === selectedMaterial.id);
+      if (index >= 0) {
+        materials[index] = {
+          ...materials[index],
+          parse_status: result.parse_status,
+          parse_error: result.parse_error,
+          text_hash: result.text_hash,
+          extra_meta: {
+            ...(materials[index].extra_meta || {}),
+            parsed_text_path: result.parsed_text_path,
+            text_length: result.text_length,
+          },
+        };
+      }
+      api.toast(result.parse_status === "success" ? "资料解析完成" : "资料解析失败", result.parse_status === "success" ? "success" : "error");
+      renderMaterials();
+    } catch (error) {
+      api.toast(error.message || "解析失败", "error");
+      updateDetail(selectedMaterial);
+    }
+  }
+
+  async function runMaterialAction(buttonId, loadingText, action) {
+    if (!selectedMaterial) {
+      api.toast("请先选择一个资料。", "info");
+      return null;
+    }
+    const button = document.getElementById(buttonId);
+    try {
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">sync</span>${loadingText}`;
+      }
+      const result = await action();
+      return result;
+    } catch (error) {
+      api.toast(error.message || "操作失败", "error");
+      return null;
+    } finally {
+      if (button) {
+        button.disabled = false;
+      }
+      updateDetail(selectedMaterial);
+    }
+  }
+
+  async function chunkSelectedMaterial() {
+    const result = await runMaterialAction("material-chunk-button", "切片中...", () => (
+      api.request(`/materials/${selectedMaterial.id}/chunk`, { method: "POST" })
+    ));
+    if (!result) return;
+    selectedMaterial.extra_meta = {
+      ...(selectedMaterial.extra_meta || {}),
+      chunk_count: result.chunk_count,
+    };
+    api.toast(`切片完成：${result.chunk_count} 个 chunks`, "success");
+    renderMaterials();
+  }
+
+  async function embedSelectedMaterial() {
+    const result = await runMaterialAction("material-embed-button", "向量化中...", () => (
+      api.request(`/materials/${selectedMaterial.id}/embed`, { method: "POST" })
+    ));
+    if (!result) return;
+    selectedMaterial.extra_meta = {
+      ...(selectedMaterial.extra_meta || {}),
+      embedded_count: result.embedded_count,
+    };
+    api.toast(`向量化完成：${result.embedded_count} 个 chunks`, "success");
+    renderMaterials();
+  }
+
+  async function extractKnowledgeFromSelectedMaterial() {
+    const result = await runMaterialAction("material-extract-button", "抽取中...", () => (
+      api.request("/knowledge/extract-from-material", {
+        method: "POST",
+        body: { material_id: selectedMaterial.id },
+      })
+    ));
+    if (!result) return;
+    lastExtractedPoints = result.points || [];
+    api.toast(`抽取完成：新增 ${result.extracted_count} 个知识点`, "success");
+    updateDetail(selectedMaterial);
+  }
+
+  async function generateWikiFromSelectedMaterial() {
+    const result = await runMaterialAction("material-wiki-button", "生成 Wiki 中...", () => (
+      api.request("/wiki/pages/generate-from-material", {
+        method: "POST",
+        body: {
+          course_id: currentCourseId,
+          material_id: selectedMaterial.id,
+        },
+      })
+    ));
+    if (!result) return;
+    const page = await api.listWikiPages(currentCourseId, { pageSize: 50 });
+    wikiPages = page.items || [];
+    api.toast(`已生成 ${result.generated_count} 个 Wiki 页面`, "success");
+    updateDetail(selectedMaterial);
+  }
+
+  async function searchCurrentCourse() {
+    if (!currentCourseId) {
+      api.toast("请先选择课程。", "info");
+      return;
+    }
+    const query = prompt("请输入要检索的知识点或问题", selectedMaterial ? selectedMaterial.file_name : "栈和队列");
+    if (!query) {
+      return;
+    }
+    const result = await runMaterialAction("material-search-button", "检索中...", () => (
+      api.request("/knowledge/search", {
+        method: "POST",
+        body: {
+          course_id: currentCourseId,
+          query,
+          top_k: 5,
+        },
+      })
+    ));
+    if (!result) return;
+    lastSearchResults = result;
+    api.toast(`检索完成：${result.length} 条结果`, "success");
+    updateDetail(selectedMaterial);
   }
 
   uploadButton?.addEventListener("click", () => {
@@ -559,24 +882,29 @@
     }
     try {
       setUploading(true);
-      const courseId = await getCourseId();
+      currentCourseId = currentCourseId || await api.resolveCourseId();
       const formData = new FormData();
-      formData.set("course_id", courseId);
+      formData.set("course_id", currentCourseId);
       formData.set("file", file);
-      const material = await request("/materials/upload", {
+      const material = await api.request("/materials/upload", {
         method: "POST",
         body: formData,
       });
-      addMaterialCard(material);
-      alert("上传成功，资料已进入待解析状态");
+      materials.unshift(material);
+      selectedMaterial = material;
+      renderMaterials();
+      api.toast("上传成功，资料已进入待解析状态", "success");
     } catch (error) {
-      alert(error instanceof Error ? error.message : "上传失败");
+      api.toast(error.message || "上传失败", "error");
     } finally {
       setUploading(false);
     }
   });
 
-  void loadExistingMaterials();
+  ensurePipelineButtons();
+  loadMaterials().catch((error) => {
+    api.toast(error.message || "资料加载失败", "error");
+  });
 })();
 </script>
 </body></html>

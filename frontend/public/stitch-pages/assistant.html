@@ -342,34 +342,42 @@
 <div class="space-y-6">
 <div>
 <label class="text-label-sm font-bold text-outline-variant block mb-3 uppercase tracking-widest">选择资源类型</label>
-<div class="flex flex-wrap gap-2.5">
-<button class="px-4 py-2 bg-primary text-on-primary rounded-xl font-bold text-label-md shadow-lg shadow-primary/25 transition-all hover:translate-y-[-1px]">讲解</button>
-<button class="px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm">总结</button>
-<button class="px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm">例题</button>
-<button class="px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm">复习卡</button>
-<button class="px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm">错题解析</button>
+<div class="flex flex-wrap gap-2.5" id="resource-type-group">
+<button class="resource-type-button px-4 py-2 bg-primary text-on-primary rounded-xl font-bold text-label-md shadow-lg shadow-primary/25 transition-all hover:translate-y-[-1px]" data-resource-type="explanation">讲解</button>
+<button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="summary">总结</button>
+<button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="example">例题</button>
+<button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="flashcard">复习卡</button>
+<button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="review">错题解析</button>
 </div>
 </div>
-<div class="bg-surface-container-low/50 rounded-2xl p-5 border border-white shadow-inner">
+<div>
+<label class="text-label-sm font-bold text-outline-variant block mb-3 uppercase tracking-widest">个性化要求</label>
+<textarea id="resource-requirement" class="w-full min-h-[86px] bg-white/70 border border-white/90 rounded-2xl px-4 py-3 text-sm text-on-surface placeholder-outline-variant outline-none focus:ring-4 focus:ring-primary/10 resize-none shadow-inner" placeholder="例如：用适合初学者的方式解释，并给出一个小例题"></textarea>
+</div>
+<button id="generate-resource-button" class="w-full py-3.5 bg-primary text-on-primary rounded-2xl font-bold text-label-lg shadow-lg shadow-primary/20 hover:bg-primary-container hover:text-on-primary-container transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">auto_fix_high</span>
+生成资源
+</button>
+<div id="resource-agent-status" class="bg-surface-container-low/50 rounded-2xl p-5 border border-white shadow-inner">
 <div class="flex justify-between items-center mb-4">
 <span class="text-label-sm font-bold text-outline">Agent 执行状态</span>
-<span class="flex items-center gap-2 font-bold text-label-sm text-primary">
-<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                                    Review Agent 校验中
+<span class="flex items-center gap-2 font-bold text-label-sm text-outline">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+                                    等待生成
                                 </span>
 </div>
 <div class="space-y-3 font-body-md">
 <div class="flex items-center gap-3 text-outline">
-<span class="material-symbols-outlined text-[18px] text-green-600 font-bold">check_circle</span>
-<span class="text-sm font-semibold">检索相关文档...完成</span>
+<span class="material-symbols-outlined text-[18px] text-outline font-bold">radio_button_unchecked</span>
+<span class="text-sm font-semibold">选择课程与 Wiki 来源</span>
 </div>
 <div class="flex items-center gap-3 text-outline">
-<span class="material-symbols-outlined text-[18px] text-green-600 font-bold">check_circle</span>
-<span class="text-sm font-semibold">提取核心概念...完成</span>
+<span class="material-symbols-outlined text-[18px] text-outline font-bold">radio_button_unchecked</span>
+<span class="text-sm font-semibold">Resource Agent 生成资源</span>
 </div>
-<div class="flex items-center gap-3 text-on-surface">
-<span class="material-symbols-outlined text-[18px] animate-spin text-primary">sync</span>
-<span class="text-sm font-bold">生成讲解文本及格式化...</span>
+<div class="flex items-center gap-3 text-outline">
+<span class="material-symbols-outlined text-[18px] text-outline">radio_button_unchecked</span>
+<span class="text-sm font-semibold">Review Agent 校验来源与风险</span>
 </div>
 </div>
 </div>
@@ -380,23 +388,17 @@
 <div class="flex items-center justify-between mb-6 border-b border-outline-variant/30 pb-4">
 <h4 class="font-headline-sm text-on-surface font-bold">资源预览</h4>
 <div class="flex gap-2">
-<button class="px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl font-bold text-label-sm transition-all flex items-center gap-2 border border-primary/20">
+<button id="save-resource-to-wiki-button" class="px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl font-bold text-label-sm transition-all flex items-center gap-2 border border-primary/20 opacity-60" disabled>
 <span class="material-symbols-outlined text-sm">save</span>
-                                保存资源
+                                保存到 Wiki
                             </button>
 </div>
 </div>
-<div class="flex-1 overflow-y-auto bg-white/50 rounded-2xl p-6 border border-white/80 relative shadow-inner">
+<div id="resource-preview" class="flex-1 overflow-y-auto bg-white/50 rounded-2xl p-6 border border-white/80 relative shadow-inner">
 <!-- Preview Content Placeholder -->
-<div class="animate-pulse space-y-5 opacity-60">
-<div class="h-5 bg-outline-variant/40 rounded-full w-3/4"></div>
-<div class="h-5 bg-outline-variant/40 rounded-full w-full"></div>
-<div class="h-5 bg-outline-variant/40 rounded-full w-5/6"></div>
-<div class="h-40 bg-outline-variant/20 rounded-2xl w-full mt-6"></div>
-</div>
-<div class="absolute inset-0 flex items-center justify-center">
-<div class="px-6 py-3 bg-white/90 backdrop-blur-xl rounded-full font-bold text-label-md text-on-surface shadow-xl border border-white ring-4 ring-primary/5">
-                                正在生成精美排版中...
+<div class="h-full min-h-[220px] flex items-center justify-center text-center">
+<div class="px-6 py-4 bg-white/80 backdrop-blur-xl rounded-2xl font-bold text-label-md text-on-surface shadow-xl border border-white ring-4 ring-primary/5">
+                                选择类型后生成学习资源
                             </div>
 </div>
 </div>
@@ -406,13 +408,15 @@
 <span class="text-label-sm font-bold text-outline-variant uppercase tracking-widest">历史记录</span>
 <span class="material-symbols-outlined text-lg text-outline cursor-pointer hover:text-primary transition-all">history</span>
 </div>
-<div class="group flex items-center gap-4 p-3.5 bg-white/30 hover:bg-white/80 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-white shadow-sm">
+<div id="resource-history" class="space-y-3">
+<div class="group flex items-center gap-4 p-3.5 bg-white/30 rounded-2xl border border-transparent shadow-sm">
 <div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shrink-0 border border-primary/20 group-hover:scale-105 transition-transform">
-<span class="material-symbols-outlined text-xl">quiz</span>
+<span class="material-symbols-outlined text-xl">auto_fix_high</span>
 </div>
 <div class="flex-1 min-w-0">
-<p class="font-bold text-on-surface truncate text-label-md">多元函数微分学 - 随堂测试 (5题)</p>
-<p class="text-xs text-outline font-semibold mt-0.5">今天 09:15 AM</p>
+<p class="font-bold text-on-surface truncate text-label-md">暂无生成记录</p>
+<p class="text-xs text-outline font-semibold mt-0.5">生成后会显示在这里</p>
+</div>
 </div>
 </div>
 </div>
@@ -421,4 +425,471 @@
 </div>
 </main>
 </div>
+<script src="/stitch-pages/zhixue-static-api.js"></script>
+<script>
+(() => {
+  const api = window.ZhixueStatic;
+  const courseSelect = document.querySelector(".p-5.border-b select");
+  const chapterSelect = document.querySelectorAll(".p-5.border-b select")[1];
+  const chatArea = document.querySelector(".flex-1.overflow-y-auto.p-8.space-y-8");
+  const textarea = document.querySelector("textarea[placeholder='输入问题，按 Enter 发送...']");
+  const sendButton = textarea?.parentElement?.querySelector("button:last-child");
+  const resourceButtons = document.querySelectorAll(".resource-type-button");
+  const generateResourceButton = document.getElementById("generate-resource-button");
+  const saveResourceButton = document.getElementById("save-resource-to-wiki-button");
+  const resourceRequirement = document.getElementById("resource-requirement");
+  const resourcePreview = document.getElementById("resource-preview");
+  const resourceHistory = document.getElementById("resource-history");
+  const resourceAgentStatus = document.getElementById("resource-agent-status");
+  let currentCourseId = null;
+  let currentResource = null;
+  let selectedResourceType = "explanation";
+  let sending = false;
+  let generatingResource = false;
+
+  function escapeHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    }[char]));
+  }
+
+  function topSearchParams() {
+    return api.getParentSearchParams ? api.getParentSearchParams() : new URLSearchParams(window.location.search);
+  }
+
+  async function loadCourses() {
+    if (!courseSelect) {
+      return;
+    }
+    try {
+      const page = await api.listCourses({ pageSize: 50, status: "active" });
+      const courses = page.items || [];
+      if (!courses.length) {
+        courseSelect.innerHTML = '<option value="">请先创建课程</option>';
+        currentCourseId = null;
+        return;
+      }
+      const preferred = topSearchParams().get("course_id") || localStorage.getItem("zhixue_current_course_id");
+      const selected = courses.find((course) => course.id === preferred) || courses[0];
+      currentCourseId = selected.id;
+      localStorage.setItem("zhixue_current_course_id", currentCourseId);
+      courseSelect.innerHTML = courses.map((course) => (
+        `<option value="${course.id}" ${course.id === currentCourseId ? "selected" : ""}>${escapeHtml(course.title)}</option>`
+      )).join("");
+      await loadWikiPages();
+      await loadResourceHistory();
+    } catch (error) {
+      api.toast(error.message || "课程加载失败", "error");
+    }
+  }
+
+  async function loadWikiPages() {
+    if (!chapterSelect || !currentCourseId) {
+      return;
+    }
+    try {
+      const page = await api.listWikiPages(currentCourseId, { pageSize: 50, status: "active" });
+      const pages = page.items || [];
+      if (!pages.length) {
+        chapterSelect.innerHTML = '<option value="">尚无 Wiki 页面，基于资料库生成</option>';
+        updateSaveButton();
+        return;
+      }
+      chapterSelect.innerHTML = [
+        '<option value="">基于当前课程资料库</option>',
+        ...pages.map((item) => `<option value="${item.id}">${escapeHtml(item.title)}</option>`),
+      ].join("");
+      updateSaveButton();
+    } catch (error) {
+      chapterSelect.innerHTML = '<option value="">Wiki 页面加载失败</option>';
+      api.toast(error.message || "Wiki 页面加载失败", "error");
+    }
+  }
+
+  function appendUserMessage(question) {
+    if (!chatArea) {
+      return;
+    }
+    const wrapper = document.createElement("div");
+    wrapper.className = "flex items-start gap-4 flex-row-reverse";
+    wrapper.innerHTML = `
+      <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 border-2 border-white shadow-sm bg-primary/10 flex items-center justify-center text-primary">
+        <span class="material-symbols-outlined">person</span>
+      </div>
+      <div class="chat-bubble-user rounded-[24px] rounded-tr-sm px-6 py-4 max-w-[75%] shadow-sm">
+        <p class="text-body-md text-on-surface leading-relaxed">${escapeHtml(question)}</p>
+      </div>`;
+    chatArea.appendChild(wrapper);
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+
+  function appendAiMessage(answer, sources, model) {
+    if (!chatArea) {
+      return;
+    }
+    const wrapper = document.createElement("div");
+    wrapper.className = "flex items-start gap-4";
+    const sourceHtml = sources && sources.length
+      ? sources.map((source) => `
+          <div class="flex items-center gap-2 px-4 py-2 bg-white/80 border border-white/90 rounded-xl text-xs shrink-0 shadow-sm">
+            <span class="material-symbols-outlined text-sm text-primary">description</span>
+            <span class="text-on-surface-variant line-clamp-1 max-w-[180px] font-semibold">${escapeHtml(source.source_title || "课程资料")} · ${Number(source.score || 0).toFixed(3)}</span>
+          </div>`).join("")
+      : `
+          <div class="flex items-center gap-2 px-4 py-2 bg-white/80 border border-white/90 rounded-xl text-xs shrink-0 shadow-sm">
+            <span class="material-symbols-outlined text-sm text-outline">info</span>
+            <span class="text-on-surface-variant font-semibold">未检索到来源，建议核对课程资料。</span>
+          </div>`;
+    wrapper.innerHTML = `
+      <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20 text-primary shadow-sm backdrop-blur-md">
+        <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+      </div>
+      <div class="flex flex-col gap-3 max-w-[85%]">
+        <div class="chat-bubble-ai rounded-[24px] rounded-tl-sm p-6 shadow-sm space-y-4">
+          <p class="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap">${escapeHtml(answer)}</p>
+          <div class="text-label-sm text-outline font-bold">Model: ${escapeHtml(model || "mock")}</div>
+          <div class="mt-4 pt-4 border-t border-outline-variant/30 flex gap-3 overflow-x-auto pb-2">${sourceHtml}</div>
+        </div>
+      </div>`;
+    chatArea.appendChild(wrapper);
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+
+  function setSending(next) {
+    sending = next;
+    if (sendButton) {
+      sendButton.disabled = next;
+      sendButton.classList.toggle("opacity-60", next);
+      sendButton.innerHTML = next
+        ? '<span class="material-symbols-outlined animate-spin">sync</span>'
+        : '<span class="material-symbols-outlined">send</span>';
+    }
+  }
+
+  async function sendQuestion() {
+    const question = textarea?.value.trim();
+    if (!question || sending) {
+      return;
+    }
+    if (!currentCourseId) {
+      api.toast("请先创建或选择课程。", "info");
+      return;
+    }
+    textarea.value = "";
+    appendUserMessage(question);
+    setSending(true);
+    try {
+      const data = await api.request("/tutor/ask", {
+        method: "POST",
+        body: {
+          course_id: currentCourseId,
+          question,
+          top_k: 5,
+        },
+      });
+      appendAiMessage(data.answer, data.sources || [], data.model);
+    } catch (error) {
+      appendAiMessage(error.message || "AI Tutor 请求失败，请稍后重试。", [], "error");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  function setResourceType(nextType) {
+    selectedResourceType = nextType;
+    resourceButtons.forEach((button) => {
+      const active = button.dataset.resourceType === nextType;
+      button.classList.toggle("bg-primary", active);
+      button.classList.toggle("text-on-primary", active);
+      button.classList.toggle("shadow-lg", active);
+      button.classList.toggle("shadow-primary/25", active);
+      button.classList.toggle("bg-white/60", !active);
+      button.classList.toggle("border", !active);
+      button.classList.toggle("border-white/90", !active);
+      button.classList.toggle("text-on-surface-variant", !active);
+      button.classList.toggle("shadow-sm", !active);
+    });
+  }
+
+  function setResourceStatus(mode, message) {
+    if (!resourceAgentStatus) {
+      return;
+    }
+    const isLoading = mode === "loading";
+    const isDone = mode === "done";
+    const isError = mode === "error";
+    const topColor = isError ? "text-error" : isDone ? "text-green-700" : isLoading ? "text-primary" : "text-outline";
+    const dotColor = isError ? "bg-error" : isDone ? "bg-green-600" : isLoading ? "bg-primary animate-pulse" : "bg-outline";
+    resourceAgentStatus.innerHTML = `
+      <div class="flex justify-between items-center mb-4">
+        <span class="text-label-sm font-bold text-outline">Agent 执行状态</span>
+        <span class="flex items-center gap-2 font-bold text-label-sm ${topColor}">
+          <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+          ${escapeHtml(message || "等待生成")}
+        </span>
+      </div>
+      <div class="space-y-3 font-body-md">
+        <div class="flex items-center gap-3 ${isLoading || isDone ? "text-on-surface" : "text-outline"}">
+          <span class="material-symbols-outlined text-[18px] ${isDone ? "text-green-600" : isLoading ? "text-green-600" : "text-outline"}">${isLoading || isDone ? "check_circle" : "radio_button_unchecked"}</span>
+          <span class="text-sm font-semibold">读取课程、Wiki 与画像</span>
+        </div>
+        <div class="flex items-center gap-3 ${isLoading || isDone ? "text-on-surface" : "text-outline"}">
+          <span class="material-symbols-outlined text-[18px] ${isLoading ? "animate-spin text-primary" : isDone ? "text-green-600" : "text-outline"}">${isLoading ? "sync" : isDone ? "check_circle" : "radio_button_unchecked"}</span>
+          <span class="text-sm font-semibold">Resource Agent 生成资源</span>
+        </div>
+        <div class="flex items-center gap-3 ${isDone ? "text-on-surface" : "text-outline"}">
+          <span class="material-symbols-outlined text-[18px] ${isDone ? "text-green-600" : "text-outline"}">${isDone ? "check_circle" : "radio_button_unchecked"}</span>
+          <span class="text-sm font-semibold">Review Agent 校验来源与风险</span>
+        </div>
+      </div>`;
+  }
+
+  function resourceTypeLabel(type) {
+    return {
+      explanation: "讲解",
+      summary: "总结",
+      example: "例题",
+      flashcard: "复习卡",
+      review: "错题解析",
+    }[type] || "资源";
+  }
+
+  function markdownToHtml(markdown) {
+    const lines = escapeHtml(markdown || "").split("\n");
+    let inList = false;
+    const html = [];
+    for (const line of lines) {
+      if (line.startsWith("### ")) {
+        if (inList) {
+          html.push("</ul>");
+          inList = false;
+        }
+        html.push(`<h5 class="mt-5 mb-2 text-sm font-bold text-primary">${line.slice(4)}</h5>`);
+      } else if (line.startsWith("## ")) {
+        if (inList) {
+          html.push("</ul>");
+          inList = false;
+        }
+        html.push(`<h4 class="mt-6 mb-3 text-base font-bold text-on-surface">${line.slice(3)}</h4>`);
+      } else if (line.startsWith("# ")) {
+        if (inList) {
+          html.push("</ul>");
+          inList = false;
+        }
+        html.push(`<h3 class="mb-4 text-lg font-bold text-on-surface">${line.slice(2)}</h3>`);
+      } else if (line.startsWith("- ") || /^\d+\.\s/.test(line)) {
+        if (!inList) {
+          html.push('<ul class="space-y-2 my-3 pl-4">');
+          inList = true;
+        }
+        const itemText = line.startsWith("- ") ? line.slice(2) : line.replace(/^\d+\.\s/, "");
+        html.push(`<li class="text-sm leading-relaxed text-on-surface-variant list-disc">${itemText}</li>`);
+      } else if (line.trim()) {
+        if (inList) {
+          html.push("</ul>");
+          inList = false;
+        }
+        html.push(`<p class="text-sm leading-7 text-on-surface-variant mb-3">${line}</p>`);
+      }
+    }
+    if (inList) {
+      html.push("</ul>");
+    }
+    return html.join("");
+  }
+
+  function renderResource(resource) {
+    if (!resourcePreview || !resource) {
+      return;
+    }
+    currentResource = resource;
+    const citations = resource.citations || [];
+    const citationHtml = citations.length
+      ? citations.map((citation) => `
+          <div class="rounded-xl bg-white/70 border border-white/90 px-3 py-2 text-xs text-on-surface-variant">
+            <span class="font-bold text-primary">${escapeHtml(citation.source_type || "source")}</span>
+            <span>${escapeHtml(citation.title || citation.source_title || "来源")}</span>
+          </div>`).join("")
+      : '<div class="rounded-xl bg-white/70 border border-white/90 px-3 py-2 text-xs text-outline">AI 推断内容，建议核对资料</div>';
+    resourcePreview.innerHTML = `
+      <article class="space-y-4">
+        <div>
+          <div class="text-[11px] font-bold text-primary uppercase tracking-widest mb-2">${resourceTypeLabel(resource.resource_type)}</div>
+          <h3 class="text-xl font-bold text-on-surface leading-snug">${escapeHtml(resource.title)}</h3>
+        </div>
+        <div class="rounded-2xl bg-white/70 border border-white/90 p-5 shadow-sm">
+          ${markdownToHtml(resource.content)}
+        </div>
+        <div class="rounded-2xl bg-primary/5 border border-primary/15 p-4">
+          <div class="text-label-sm font-bold text-primary mb-2">个性化原因</div>
+          <p class="text-sm leading-6 text-on-surface-variant">${escapeHtml(resource.personalized_reason || "暂无个性化证据，建议结合学习记录继续校准。")}</p>
+        </div>
+        <div>
+          <div class="text-label-sm font-bold text-outline-variant mb-2">引用来源</div>
+          <div class="grid gap-2">${citationHtml}</div>
+        </div>
+      </article>`;
+    updateSaveButton();
+  }
+
+  function updateSaveButton() {
+    if (!saveResourceButton) {
+      return;
+    }
+    const canSave = Boolean(currentResource && chapterSelect && chapterSelect.value);
+    saveResourceButton.disabled = !canSave;
+    saveResourceButton.classList.toggle("opacity-60", !canSave);
+  }
+
+  function setGeneratingResource(next) {
+    generatingResource = next;
+    if (generateResourceButton) {
+      generateResourceButton.disabled = next;
+      generateResourceButton.classList.toggle("opacity-60", next);
+      generateResourceButton.innerHTML = next
+        ? '<span class="material-symbols-outlined animate-spin">sync</span>生成中'
+        : '<span class="material-symbols-outlined">auto_fix_high</span>生成资源';
+    }
+  }
+
+  async function generateLearningResource() {
+    if (!currentCourseId) {
+      api.toast("请先创建或选择课程。", "info");
+      return;
+    }
+    if (generatingResource) {
+      return;
+    }
+    setGeneratingResource(true);
+    setResourceStatus("loading", "Resource Agent 工作中");
+    if (resourcePreview) {
+      resourcePreview.innerHTML = `
+        <div class="animate-pulse space-y-5 opacity-60">
+          <div class="h-5 bg-outline-variant/40 rounded-full w-3/4"></div>
+          <div class="h-5 bg-outline-variant/40 rounded-full w-full"></div>
+          <div class="h-5 bg-outline-variant/40 rounded-full w-5/6"></div>
+          <div class="h-40 bg-outline-variant/20 rounded-2xl w-full mt-6"></div>
+        </div>`;
+    }
+    try {
+      const resource = await api.generateResource({
+        course_id: currentCourseId,
+        wiki_page_id: chapterSelect?.value || null,
+        resource_type: selectedResourceType,
+        requirement: resourceRequirement?.value.trim() || null,
+        use_profile: true,
+        save_to_wiki: false,
+      });
+      renderResource(resource);
+      setResourceStatus("done", "Review Agent 已校验");
+      api.toast("学习资源已生成", "success");
+      await loadResourceHistory();
+    } catch (error) {
+      setResourceStatus("error", "生成失败");
+      if (resourcePreview) {
+        resourcePreview.innerHTML = `<div class="h-full min-h-[220px] flex items-center justify-center text-center text-error font-bold">${escapeHtml(error.message || "生成失败")}</div>`;
+      }
+      api.toast(error.message || "资源生成失败", "error");
+    } finally {
+      setGeneratingResource(false);
+    }
+  }
+
+  async function saveCurrentResourceToWiki() {
+    if (!currentResource) {
+      api.toast("请先生成资源", "info");
+      return;
+    }
+    const wikiPageId = chapterSelect?.value || currentResource.wiki_page_id;
+    if (!wikiPageId) {
+      api.toast("请选择要保存的 Wiki 页面", "info");
+      return;
+    }
+    try {
+      const resourceId = currentResource.resource_id || currentResource.id;
+      await api.saveResourceToWiki(resourceId, { wiki_page_id: wikiPageId });
+      currentResource.status = "saved_to_wiki";
+      currentResource.wiki_page_id = wikiPageId;
+      api.toast("已保存到 Wiki，并生成新版本", "success");
+      await loadResourceHistory();
+    } catch (error) {
+      api.toast(error.message || "保存到 Wiki 失败", "error");
+    }
+  }
+
+  async function loadResourceHistory() {
+    if (!resourceHistory || !currentCourseId) {
+      return;
+    }
+    try {
+      const page = await api.listResources(currentCourseId, { pageSize: 4, status: "all" });
+      const items = page.items || [];
+      if (!items.length) {
+        resourceHistory.innerHTML = `
+          <div class="group flex items-center gap-4 p-3.5 bg-white/30 rounded-2xl border border-transparent shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shrink-0 border border-primary/20">
+              <span class="material-symbols-outlined text-xl">auto_fix_high</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-on-surface truncate text-label-md">暂无生成记录</p>
+              <p class="text-xs text-outline font-semibold mt-0.5">生成后会显示在这里</p>
+            </div>
+          </div>`;
+        return;
+      }
+      resourceHistory.innerHTML = items.map((item) => `
+        <button class="w-full group flex items-center gap-4 p-3.5 bg-white/30 hover:bg-white/80 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-white shadow-sm text-left" data-resource-id="${item.id}">
+          <div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shrink-0 border border-primary/20 group-hover:scale-105 transition-transform">
+            <span class="material-symbols-outlined text-xl">${item.status === "saved_to_wiki" ? "bookmark_added" : "auto_fix_high"}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-on-surface truncate text-label-md">${escapeHtml(item.title)}</p>
+            <p class="text-xs text-outline font-semibold mt-0.5">${resourceTypeLabel(item.resource_type)} · ${api.formatDate(item.created_at)}</p>
+          </div>
+        </button>`).join("");
+      resourceHistory.querySelectorAll("[data-resource-id]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const resource = items.find((item) => item.id === button.dataset.resourceId);
+          if (resource) {
+            renderResource(resource);
+          }
+        });
+      });
+    } catch (error) {
+      resourceHistory.innerHTML = `<div class="text-xs font-bold text-error bg-white/50 rounded-xl p-3">${escapeHtml(error.message || "资源记录加载失败")}</div>`;
+    }
+  }
+
+  courseSelect?.addEventListener("change", () => {
+    currentCourseId = courseSelect.value || null;
+    if (currentCourseId) {
+      localStorage.setItem("zhixue_current_course_id", currentCourseId);
+    }
+    currentResource = null;
+    void loadWikiPages();
+    void loadResourceHistory();
+  });
+
+  chapterSelect?.addEventListener("change", updateSaveButton);
+  resourceButtons.forEach((button) => {
+    button.addEventListener("click", () => setResourceType(button.dataset.resourceType || "explanation"));
+  });
+  generateResourceButton?.addEventListener("click", generateLearningResource);
+  saveResourceButton?.addEventListener("click", saveCurrentResourceToWiki);
+
+  sendButton?.addEventListener("click", sendQuestion);
+  textarea?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendQuestion();
+    }
+  });
+
+  void loadCourses();
+})();
+</script>
 </body></html>

@@ -1,0 +1,58 @@
+{
+  "page_id": "DS-WIKI-xxxx",
+  "title": "知识点名称",
+  "module": "所属模块",
+  "summary": "一句话定义",
+  "sections": [
+    {
+      "heading": "定义",
+      "content": ""
+    },
+    {
+      "heading": "逻辑结构",
+      "content": ""
+    },
+    {
+      "heading": "存储结构",
+      "content": ""
+    },
+    {
+      "heading": "基本操作",
+      "content": ""
+    },
+    {
+      "heading": "复杂度",
+      "content": ""
+    },
+    {
+      "heading": "适用场景",
+      "content": ""
+    },
+    {
+      "heading": "易错点",
+      "content": ""
+    },
+    {
+      "heading": "对比知识点",
+      "content": ""
+    },
+    {
+      "heading": "练习题",
+      "content": ""
+    }
+  ],
+  "kg_relations": [
+    {
+      "relation": "BELONGS_TO",
+      "target": "模块"
+    },
+    {
+      "relation": "PREREQUISITE_OF",
+      "target": "后续知识点"
+    },
+    {
+      "relation": "COMPARE_WITH",
+      "target": "相似知识点"
+    }
+  ]
+}

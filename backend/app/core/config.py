@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,10 +23,17 @@ class Settings(BaseSettings):
     )
 
     llm_provider: str = Field(default="mock", alias="LLM_PROVIDER")
-    llm_model_name: str = Field(default="mock-learning-model", alias="LLM_MODEL_NAME")
+    llm_model_name: str = Field(
+        default="mock-learning-model",
+        validation_alias=AliasChoices("LLM_MODEL_NAME", "LLM_MODEL"),
+    )
     llm_api_key: str = Field(default="", alias="LLM_API_KEY")
     llm_base_url: str = Field(default="", alias="LLM_BASE_URL")
     llm_timeout_seconds: int = Field(default=60, alias="LLM_TIMEOUT_SECONDS")
+
+    embedding_provider: str = Field(default="mock", alias="EMBEDDING_PROVIDER")
+    embedding_model: str = Field(default="text-embedding-3-small", alias="EMBEDDING_MODEL")
+    embedding_dimension: int = Field(default=1024, alias="EMBEDDING_DIMENSION")
 
     storage_provider: str = Field(default="local", alias="STORAGE_PROVIDER")
     local_storage_root: str = Field(default="./storage", alias="LOCAL_STORAGE_ROOT")

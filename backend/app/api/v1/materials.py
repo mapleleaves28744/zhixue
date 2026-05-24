@@ -7,6 +7,8 @@ from app.core.deps import get_current_user
 from app.core.response import page_response, success_response
 from app.db.session import get_db
 from app.models.user import User
+from app.services.chunk_service import ChunkService
+from app.services.embedding_service import EmbeddingService
 from app.services.material_service import MaterialService
 
 
@@ -89,3 +91,39 @@ async def parse_material(
 ) -> dict[str, object]:
     result = await MaterialService(db).parse_material(material_id, current_user)
     return success_response(result.model_dump(mode="json"), request=request)
+
+
+@router.post("/{material_id}/chunk")
+async def chunk_material(
+    material_id: UUID,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    material = await MaterialService(db)._get_accessible_material(material_id, current_user)
+    chunks = await ChunkService(db).chunk_material(material)
+    return success_response(
+        {
+            "material_id": str(material_id),
+            "chunk_count": len(chunks),
+        },
+        request=request,
+    )
+
+
+@router.post("/{material_id}/embed")
+async def embed_material(
+    material_id: UUID,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    await MaterialService(db)._get_accessible_material(material_id, current_user)
+    count = await EmbeddingService(db).generate_embeddings(material_id)
+    return success_response(
+        {
+            "material_id": str(material_id),
+            "embedded_count": count,
+        },
+        request=request,
+    )

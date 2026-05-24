@@ -19,7 +19,14 @@
 - AI：统一 LLM Provider 抽象，默认支持 Mock Provider 占位
 - Deployment：Docker Compose
 
-## 本地启动
+## 本地优先启动
+
+当前阶段建议先使用本地开发环境把主链路跑通，Docker Compose 暂作为后续部署与演示目标。除非正在处理 Docker/部署任务，日常开发优先验证：
+
+- 后端：本地 Python 虚拟环境 + FastAPI
+- 前端：本地 Node.js + Next.js dev server
+- 数据库：本机 PostgreSQL / Redis 服务
+- LLM：`.env` 配置 OpenAI-compatible Provider；无 Key 时使用 Mock Provider
 
 1. 复制环境变量：
 
@@ -27,19 +34,27 @@
 cp .env.example .env
 ```
 
-2. 启动基础依赖和应用：
+2. 确认本机数据库和缓存可用：
 
-```bash
-docker compose up --build
+```env
+DATABASE_URL=postgresql+asyncpg://zhixue:zhixue_password@localhost:5432/zhixue
+REDIS_URL=redis://localhost:6379/0
 ```
 
-3. 访问服务：
+Docker Compose 内部使用的 `postgres`、`redis` 主机名只用于 Docker 部署环境，日常本地开发不要写进本地 `.env`。
 
-- 前端：http://localhost:3000
-- 后端健康检查：http://localhost:8000/health
-- 后端 OpenAPI：http://localhost:8000/docs
+3. 启动后端：
 
-也可以分别本地启动：
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python -m alembic upgrade head
+uvicorn app.main:app --reload
+```
+
+4. 启动前端：
 
 ```bash
 cd frontend
@@ -47,13 +62,42 @@ npm install
 npm run dev
 ```
 
-```bash
-cd backend
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+5. 访问服务：
+
+- 前端：http://localhost:3000
+- 后端健康检查：http://localhost:8000/health
+- 后端 OpenAPI：http://localhost:8000/docs
+
+## Docker 启动
+
+Docker Compose 用于后续部署、演示环境和第21阶段专项验收。如果本地链路尚未打通，不优先处理 Docker 问题。
+
+进入 Docker 部署阶段时，再把容器内环境切换为：
+
+```env
+DATABASE_URL=postgresql+asyncpg://zhixue:zhixue_password@postgres:5432/zhixue
+REDIS_URL=redis://redis:6379/0
 ```
+
+```bash
+docker compose up --build
+```
+
+- 前端：http://localhost:3000
+- 后端健康检查：http://localhost:8000/health
+- 后端 OpenAPI：http://localhost:8000/docs
+
+## 本地验收
+
+每个阶段完成后都要对照 `docs/19_测试方案/12_阶段运行验收清单.md` 做本地验收。基础检查脚本：
+
+```powershell
+scripts/local_check.ps1 -Database
+scripts/local_check.ps1 -Backend
+scripts/local_check.ps1 -Frontend
+```
+
+只有第21阶段 Docker 部署任务才强制 Docker 验收。
 
 ## 目录结构
 

@@ -137,7 +137,7 @@
 <div class="mb-6 w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center bg-primary/10">
 <img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSTPmeLbPWX_qVTQ5CJBuSdz5pF8Uzv31LiZpnpFLz661UFTMeV4ybk_4b7boUcEo6pH54TwBNycTiWNes0xQTyVbATpXOD7Nn3vxjAg5KLDdlzDIPP6JT2yxQbPvgVHL20k2eITrLP5wVeLm-8aYYav8WK5XasdqT2L64x_9H-OsT1w-guVqQ28yrdr-tYCPBMabrnkkHkuuTxWqWKVzoJEAmsGbHn3JU8plVHQBGXTj6_FZg9BDLj-QeYWJZ8svnr2EBh3R2Qro"/>
 </div>
-<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/" target="_parent" title="首页">
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/home" target="_parent" title="主页">
 <span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
 </a>
 <a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/courses" target="_parent" title="课程空间">
@@ -177,10 +177,9 @@
 <span class="material-symbols-outlined">notifications</span>
 <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border border-white"></span>
 </button>
-<div class="flex items-center gap-3">
-<img alt="用户头像" class="w-8 h-8 rounded-full border border-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa3tD7B2F4becf2vSWXYhjmlG0uItp0eLZ5m3t8qmrKU8AWNbumFauvNivQ-IUGJMc7MkyuoQqH7LHHbzCRynOCckYqp_dTH1KnuIYpje43YgPCBs4_m2a4I3Vm5nNBg2CTLHWIzf3FhzH-uW4smy8o0pJz4ubkJYfShW7ZhYcZcfKKeWN_N0VMZ_Su7l5A2lFpreLEbeVcygP1GGLO5xdf2Aho5yh_PZarAyZ2fN_8266dELN3eUIzvzIVm0yXMrv1T1ueF6kA-U"/>
-<span class="text-label-md font-bold">李华 学员</span>
-</div>
+<a class="bg-white/60 border border-outline-variant/30 hover:bg-white rounded-full p-2.5 transition-all shadow-sm text-outline hover:text-primary" href="/" target="_parent" title="返回介绍页">
+<span class="material-symbols-outlined">cottage</span>
+</a>
 </div>
 </header>
 <!-- Main Content Area -->
@@ -271,7 +270,7 @@
 <button class="px-6 py-2.5 bg-white/50 border border-primary text-primary rounded-lg font-bold text-sm hover:bg-primary/5 transition-all">
                                         标记疑问
                                     </button>
-<button class="px-8 py-2.5 bg-primary text-white rounded-lg font-bold text-sm shadow-md shadow-primary/20 hover:shadow-lg active:scale-95 transition-all" onclick="document.getElementById('analysis-panel').classList.remove('hidden')">
+<button class="px-8 py-2.5 bg-primary text-white rounded-lg font-bold text-sm shadow-md shadow-primary/20 hover:shadow-lg active:scale-95 transition-all" onclick="submitCurrentAnswer()">
                                         检查答案
                                     </button>
 </div>
@@ -420,11 +419,248 @@
 <button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
 <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
 </button>
-<script>
-        function toggleAnalysis() {
-            const panel = document.getElementById('analysis-panel');
-            panel.classList.toggle('hidden');
+<script src="/stitch-pages/zhixue-static-api.js"></script>
+    <script>
+        const api = window.ZhixueStatic;
+        let currentCourseId = null;
+        let currentQuizzes = [];
+        let currentQuizIndex = 0;
+        let selectedAnswer = null;
+
+        // Tab switching
+        const tabButtons = document.querySelectorAll('.flex.gap-10 button');
+        const sections = {
+            '练习生成': document.querySelector('.col-span-12.lg\\:col-span-8'),
+            '答题竞技': document.querySelector('.col-span-12.lg\\:col-span-8'),
+            '错题本': document.querySelector('.col-span-12.lg\\:col-span-8'),
+            '诊断报告': document.querySelector('.col-span-12.lg\\:col-span-8'),
+        };
+
+        function switchTab(activeLabel) {
+            tabButtons.forEach(btn => {
+                btn.classList.remove('text-primary', 'active-tab');
+                btn.classList.add('text-on-surface-variant');
+                if (btn.textContent.trim() === activeLabel) {
+                    btn.classList.add('text-primary', 'active-tab');
+                    btn.classList.remove('text-on-surface-variant');
+                }
+            });
+            if (activeLabel === '错题本') loadWrongQuestions();
+            if (activeLabel === '诊断报告') loadDiagnosis();
+            if (activeLabel === '答题竞技') loadQuizList();
         }
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.textContent.trim()));
+        });
+
+        // Init
+        async function init() {
+            try {
+                currentCourseId = await api.resolveCourseId();
+            } catch (e) {
+                api.toast('请先创建课程', 'info');
+            }
+        }
+        init();
+
+        // Generate quizzes
+        async function generateQuizzes() {
+            if (!currentCourseId) { api.toast('请先选择课程', 'info'); return; }
+            const topic = document.querySelector('select')?.value || '数据结构';
+            const difficulty = document.querySelector('.bg-secondary-container')?.textContent?.trim() === '进阶' ? 'medium' : 'easy';
+            try {
+                api.toast('正在生成练习题...', 'info');
+                const result = await api.request('/quizzes/generate', {
+                    method: 'POST',
+                    body: { course_id: currentCourseId, topic, count: 5, difficulty },
+                });
+                currentQuizzes = result.items || [];
+                currentQuizIndex = 0;
+                renderQuiz(currentQuizzes[0]);
+                api.toast(`已生成 ${currentQuizzes.length} 道题目`, 'success');
+            } catch (e) {
+                api.toast(e.message || '生成失败', 'error');
+            }
+        }
+
+        function renderQuiz(quiz) {
+            if (!quiz) return;
+            const section = document.querySelector('.col-span-12.lg\\:col-span-8 section:nth-child(2)');
+            if (!section) return;
+            const options = quiz.options || {};
+            const optionKeys = Object.keys(options);
+            section.innerHTML = `
+                <div class="absolute top-0 right-0 p-4">
+                    <div class="text-label-sm text-outline">题号: ${currentQuizIndex + 1} / ${currentQuizzes.length}</div>
+                </div>
+                <div class="mb-8">
+                    <span class="px-2.5 py-1 bg-primary-fixed text-on-primary-fixed-variant text-[11px] font-bold rounded uppercase mb-3 inline-block">${quiz.title}</span>
+                    <h2 class="text-headline-md leading-relaxed text-on-surface">${quiz.question_text}</h2>
+                </div>
+                <div class="space-y-4 mb-8" id="quiz-options">
+                    ${optionKeys.map((key, i) => `
+                        <label class="flex items-center gap-4 p-4 rounded-xl bg-white/40 border border-outline-variant/50 hover:border-primary/50 cursor-pointer transition-all group" data-answer="${key}">
+                            <div class="w-7 h-7 rounded-full border border-outline group-hover:border-primary flex items-center justify-center text-xs font-bold">${key}</div>
+                            <span class="flex-1 text-body-md">${options[key]}</span>
+                        </label>
+                    `).join('')}
+                </div>
+                <div class="flex justify-between items-center">
+                    <button class="flex items-center gap-2 text-outline hover:text-primary font-bold text-sm" onclick="prevQuiz()">
+                        <span class="material-symbols-outlined text-lg">skip_previous</span> 上一题
+                    </button>
+                    <div class="flex gap-4">
+                        <button class="px-8 py-2.5 bg-primary text-white rounded-lg font-bold text-sm shadow-md shadow-primary/20 hover:shadow-lg active:scale-95 transition-all" onclick="submitCurrentAnswer()">
+                            提交答案
+                        </button>
+                    </div>
+                </div>
+            `;
+            // Bind option clicks
+            section.querySelectorAll('#quiz-options label').forEach(label => {
+                label.addEventListener('click', () => {
+                    selectedAnswer = label.dataset.answer;
+                    section.querySelectorAll('#quiz-options label').forEach(l => {
+                        l.classList.remove('bg-primary/5', 'border-primary', 'ring-1', 'ring-primary/20');
+                        l.querySelector('div').classList.remove('bg-primary', 'text-white');
+                    });
+                    label.classList.add('bg-primary/5', 'border-primary', 'ring-1', 'ring-primary/20');
+                    label.querySelector('div').classList.add('bg-primary', 'text-white');
+                });
+            });
+        }
+
+        async function submitCurrentAnswer() {
+            if (!selectedAnswer || !currentQuizzes[currentQuizIndex]) return;
+            const quiz = currentQuizzes[currentQuizIndex];
+            try {
+                const result = await api.request('/quizzes/submit', {
+                    method: 'POST',
+                    body: { quiz_id: quiz.id, user_answer: selectedAnswer },
+                });
+                if (result.is_correct) {
+                    api.toast('回答正确！', 'success');
+                } else {
+                    api.toast(`回答错误，正确答案是 ${quiz.correct_answer}`, 'error');
+                }
+                selectedAnswer = null;
+                if (currentQuizIndex < currentQuizzes.length - 1) {
+                    currentQuizIndex++;
+                    renderQuiz(currentQuizzes[currentQuizIndex]);
+                }
+            } catch (e) {
+                api.toast(e.message || '提交失败', 'error');
+            }
+        }
+
+        function prevQuiz() {
+            if (currentQuizIndex > 0) {
+                currentQuizIndex--;
+                renderQuiz(currentQuizzes[currentQuizIndex]);
+            }
+        }
+
+        // Load quiz list for 答题竞技
+        async function loadQuizList() {
+            if (!currentCourseId) return;
+            try {
+                const result = await api.request(`/quizzes?course_id=${currentCourseId}&page=1&page_size=20`);
+                currentQuizzes = result.items || [];
+                if (currentQuizzes.length > 0) {
+                    currentQuizIndex = 0;
+                    renderQuiz(currentQuizzes[0]);
+                }
+            } catch (e) { /* ignore */ }
+        }
+
+        // Wrong questions
+        async function loadWrongQuestions() {
+            try {
+                const result = await api.request('/quizzes/wrong-questions?page=1&page_size=20');
+                const items = result.items || [];
+                const container = document.querySelector('.col-span-12.lg\\:col-span-8');
+                if (!container) return;
+                container.innerHTML = `
+                    <section class="glass-card rounded-xl p-6">
+                        <h3 class="font-bold mb-6 flex items-center gap-2 text-headline-sm">
+                            <span class="material-symbols-outlined text-error">error</span> 错题本
+                            <span class="text-label-sm text-outline ml-auto">${items.length} 道错题</span>
+                        </h3>
+                        <div class="space-y-4">
+                            ${items.length === 0 ? '<p class="text-outline text-center py-8">暂无错题，继续保持！</p>' :
+                            items.map(a => `
+                                <div class="p-4 bg-white/40 rounded-xl border border-outline-variant/30">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="px-2 py-0.5 bg-error-container/30 text-error text-[11px] font-bold rounded">错误</span>
+                                        <span class="text-label-sm text-outline">${a.quiz?.title || '练习题'}</span>
+                                    </div>
+                                    <p class="text-sm font-semibold mb-2">${a.quiz?.question_text || ''}</p>
+                                    <p class="text-xs text-outline">你的答案: ${a.user_answer} | 正确答案: ${a.quiz?.correct_answer || ''}</p>
+                                    ${a.quiz?.explanation ? `<p class="text-xs text-on-surface-variant mt-2 bg-surface-container-high p-2 rounded">${a.quiz.explanation}</p>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                `;
+            } catch (e) { /* ignore */ }
+        }
+
+        // Diagnosis
+        async function loadDiagnosis() {
+            try {
+                const result = await api.request('/diagnosis/analyze' + (currentCourseId ? `?course_id=${currentCourseId}` : ''), { method: 'POST' });
+                const container = document.querySelector('.col-span-12.lg\\:col-span-8');
+                if (!container) return;
+                container.innerHTML = `
+                    <section class="glass-card rounded-xl p-6">
+                        <h3 class="font-bold mb-6 flex items-center gap-2 text-headline-sm">
+                            <span class="material-symbols-outlined text-primary">analytics</span> 学习诊断报告
+                        </h3>
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <div class="text-center p-4 bg-white/40 rounded-xl">
+                                <div class="text-2xl font-bold text-primary">${Math.round((result.accuracy || 0) * 100)}%</div>
+                                <div class="text-label-sm text-outline">正确率</div>
+                            </div>
+                            <div class="text-center p-4 bg-white/40 rounded-xl">
+                                <div class="text-2xl font-bold text-primary">${result.total_questions || 0}</div>
+                                <div class="text-label-sm text-outline">总题数</div>
+                            </div>
+                            <div class="text-center p-4 bg-white/40 rounded-xl">
+                                <div class="text-2xl font-bold text-primary">${result.correct_answers || 0}</div>
+                                <div class="text-label-sm text-outline">正确数</div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-white/40 rounded-xl">
+                                <h4 class="font-bold text-sm mb-2 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-success text-lg">check_circle</span> 优势
+                                </h4>
+                                ${(result.strengths || []).map(s => `<p class="text-sm text-on-surface-variant">- ${s}</p>`).join('') || '<p class="text-sm text-outline">暂无数据</p>'}
+                            </div>
+                            <div class="p-4 bg-white/40 rounded-xl">
+                                <h4 class="font-bold text-sm mb-2 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-error text-lg">warning</span> 薄弱点
+                                </h4>
+                                ${(result.weaknesses || []).map(w => `<p class="text-sm text-on-surface-variant">- ${w}</p>`).join('') || '<p class="text-sm text-outline">暂无数据</p>'}
+                            </div>
+                            <div class="p-4 bg-white/40 rounded-xl">
+                                <h4 class="font-bold text-sm mb-2 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-lg">lightbulb</span> 建议
+                                </h4>
+                                ${(result.recommendations || []).map(r => `<p class="text-sm text-on-surface-variant">- ${r}</p>`).join('') || '<p class="text-sm text-outline">暂无数据</p>'}
+                            </div>
+                        </div>
+                        <p class="text-xs text-outline mt-4">${result.summary || ''}</p>
+                    </section>
+                `;
+            } catch (e) {
+                api.toast(e.message || '诊断失败', 'error');
+            }
+        }
+
+        // Generate button
+        document.querySelector('button.fixed')?.addEventListener('click', generateQuizzes);
 
         document.addEventListener('mousemove', (e) => {
             const x = (e.clientX / window.innerWidth) - 0.5;

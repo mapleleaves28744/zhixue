@@ -12,6 +12,8 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.course import Course
+    from app.models.learning_record import LearningRecord
+    from app.models.memory import StudentMemory
     from app.models.profile import LearningPreference, StudentProfile
 
 
@@ -66,6 +68,16 @@ class User(Base):
     )
     learning_preferences: Mapped[list[LearningPreference]] = relationship(
         "LearningPreference",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    learning_records: Mapped[list[LearningRecord]] = relationship(
+        "LearningRecord",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    memories: Mapped[list[StudentMemory]] = relationship(
+        "StudentMemory",
         back_populates="user",
         cascade="all, delete-orphan",
     )

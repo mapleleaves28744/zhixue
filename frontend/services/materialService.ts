@@ -27,3 +27,15 @@ export function parseMaterial(materialId: string): Promise<MaterialParseResult> 
     method: "POST"
   })
 }
+
+export function chunkMaterial(materialId: string): Promise<{ material_id: string; chunk_count: number }> {
+  return request<{ material_id: string; chunk_count: number }>(`/api/v1/materials/${materialId}/chunk`, {
+    method: "POST"
+  })
+}
+
+export function embedMaterial(materialId: string): Promise<{ material_id: string; embedded_count: number }> {
+  return request<{ material_id: string; embedded_count: number }>(`/api/v1/materials/${materialId}/embed`, {
+    method: "POST"
+  })
+}

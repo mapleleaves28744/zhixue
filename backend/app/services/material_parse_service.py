@@ -8,6 +8,7 @@ from app.core.exceptions import BusinessException
 from app.models.material import CourseMaterial
 from app.repositories.material_repository import MaterialRepository
 from app.schemas.material import MaterialParseResult
+from app.services.chunk_service import ChunkService
 from app.storage.local_storage import LocalMaterialStorage
 from app.utils.document_parser import parse_document_text
 
@@ -53,6 +54,14 @@ class MaterialParseService:
             )
             await self.db.commit()
             await self.db.refresh(material)
+
+            # Auto-chunk after successful parsing
+            try:
+                await ChunkService(self.db).chunk_material(material)
+            except Exception:
+                # Chunking failure should not fail the parse operation
+                pass
+
             return self._build_result(material)
         except Exception as exc:
             await self.materials.update(

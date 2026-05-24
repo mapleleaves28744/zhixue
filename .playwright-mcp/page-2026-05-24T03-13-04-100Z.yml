@@ -1,0 +1,100 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - img "User Avatar" [ref=e4]
+    - link "home" [ref=e5] [cursor=pointer]:
+      - /url: /home
+      - generic [ref=e6]: home
+    - link "grid_view" [ref=e7] [cursor=pointer]:
+      - /url: /courses
+      - generic [ref=e8]: grid_view
+    - link "smart_toy" [ref=e9] [cursor=pointer]:
+      - /url: /assistant
+      - generic [ref=e10]: smart_toy
+    - link "inventory_2" [ref=e11] [cursor=pointer]:
+      - /url: /practice
+      - generic [ref=e12]: inventory_2
+    - link "dashboard" [ref=e13] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e14]: dashboard
+    - link "menu_book" [ref=e15] [cursor=pointer]:
+      - /url: /knowledge
+      - generic [ref=e17]: menu_book
+    - link "route" [ref=e18] [cursor=pointer]:
+      - /url: /path-profile
+      - generic [ref=e19]: route
+  - generic [ref=e20]:
+    - banner [ref=e21]:
+      - generic [ref=e22]:
+        - heading "课程知识库" [level=2] [ref=e23]
+        - generic [ref=e24]:
+          - button "资料库" [ref=e25] [cursor=pointer]
+          - button "课程 Wiki" [ref=e26] [cursor=pointer]
+          - button "图谱视图" [ref=e27] [cursor=pointer]
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e30]: search
+          - textbox "搜索知识点、文档..." [ref=e31]
+        - button "notifications" [ref=e32] [cursor=pointer]:
+          - generic [ref=e33]: notifications
+        - button "help" [ref=e35] [cursor=pointer]:
+          - generic [ref=e36]: help
+        - link "cottage" [ref=e37] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e38]: cottage
+    - main [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - generic [ref=e43]:
+              - heading "资料库" [level=3] [ref=e44]
+              - paragraph [ref=e45]: 共 0 个文档
+            - button "upload 上传资料" [ref=e46] [cursor=pointer]:
+              - generic [ref=e47]: upload
+              - text: 上传资料
+          - generic [ref=e49]:
+            - paragraph [ref=e50]: 暂无真实资料
+            - paragraph [ref=e51]: 点击“上传资料”添加 PDF、DOCX、MD 或 TXT 文件。
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - button "data_object 解析资料" [ref=e54] [cursor=pointer]:
+              - generic [ref=e55]: data_object
+              - text: 解析资料
+            - button "segment 切片" [ref=e56] [cursor=pointer]:
+              - generic [ref=e57]: segment
+              - text: 切片
+            - button "hub 向量化" [ref=e58] [cursor=pointer]:
+              - generic [ref=e59]: hub
+              - text: 向量化
+            - button "account_tree 抽取知识点" [ref=e60] [cursor=pointer]:
+              - generic [ref=e61]: account_tree
+              - text: 抽取知识点
+            - button "travel_explore 检索资料" [ref=e62] [cursor=pointer]:
+              - generic [ref=e63]: travel_explore
+              - text: 检索资料
+            - button "edit 编辑元数据" [ref=e64] [cursor=pointer]:
+              - generic [ref=e65]: edit
+              - text: 编辑元数据
+            - button "auto_stories 从资料生成 Wiki" [ref=e66] [cursor=pointer]:
+              - generic [ref=e67]: auto_stories
+              - text: 从资料生成 Wiki
+          - generic [ref=e68]:
+            - generic [ref=e69]:
+              - generic [ref=e70]:
+                - heading "暂无真实资料" [level=2] [ref=e71]
+                - generic [ref=e72]:
+                  - generic [ref=e73]:
+                    - generic [ref=e74]: info
+                    - text: 请先上传课程资料
+                  - generic [ref=e75]:
+                    - generic [ref=e76]: database
+                    - text: 来自 /api/v1/materials
+              - generic [ref=e78]: 共 124 个切片
+            - generic [ref=e79]:
+              - heading "data_object 文档切片预览 (Document Slice Preview)" [level=4] [ref=e80]:
+                - generic [ref=e81]: data_object
+                - text: 文档切片预览 (Document Slice Preview)
+              - generic [ref=e83]:
+                - generic [ref=e84]:
+                  - generic [ref=e85]: Empty State
+                  - generic [ref=e86]: 等待上传
+                - paragraph [ref=e87]: 当前课程还没有真实上传资料。上传 PDF、DOCX、MD 或 TXT 后，可以继续执行解析、切片、向量化、知识点抽取和 Wiki 生成。

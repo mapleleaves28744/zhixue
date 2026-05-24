@@ -138,7 +138,7 @@
 <div class="mb-6 w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center bg-primary/10">
 <img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSTPmeLbPWX_qVTQ5CJBuSdz5pF8Uzv31LiZpnpFLz661UFTMeV4ybk_4b7boUcEo6pH54TwBNycTiWNes0xQTyVbATpXOD7Nn3vxjAg5KLDdlzDIPP6JT2yxQbPvgVHL20k2eITrLP5wVeLm-8aYYav8WK5XasdqT2L64x_9H-OsT1w-guVqQ28yrdr-tYCPBMabrnkkHkuuTxWqWKVzoJEAmsGbHn3JU8plVHQBGXTj6_FZg9BDLj-QeYWJZ8svnr2EBh3R2Qro"/>
 </div>
-<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/" target="_parent" title="首页">
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/home" target="_parent" title="主页">
 <span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
 </a>
 <a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/courses" target="_parent" title="课程空间">
@@ -186,6 +186,9 @@
 <button class="p-2.5 glass-card rounded-full hover:bg-white transition-colors">
 <span class="material-symbols-outlined">help_outline</span>
 </button>
+<a class="p-2.5 glass-card rounded-full hover:bg-white transition-colors text-on-surface-variant hover:text-primary" href="/" target="_parent" title="返回介绍页">
+<span class="material-symbols-outlined">cottage</span>
+</a>
 </div>
 </header>
 <!-- Grid Layout -->
@@ -470,5 +473,455 @@
             card.style.transform = 'translateY(0)';
         });
     });
+</script>
+<script src="/stitch-pages/zhixue-static-api.js"></script>
+<script>
+(() => {
+  const api = window.ZhixueStatic;
+
+  function escapeHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    }[char]));
+  }
+
+  function findSectionByTitle(title) {
+    return [...document.querySelectorAll("section")].find((section) => section.innerText.includes(title));
+  }
+
+  function normalizeList(value) {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (value && typeof value === "object") {
+      return Object.entries(value).map(([name, score]) => ({ name, score }));
+    }
+    return [];
+  }
+
+  function renderProfile(profile, preferences) {
+    const section = findSectionByTitle("学生画像摘要");
+    if (!section) return;
+    const masteryItems = normalizeList(profile.mastery_snapshot);
+    const weakPoints = normalizeList(profile.weak_points);
+    const scoreValues = masteryItems.map((item) => Number(item.score || item.mastery || item.value || 0)).filter(Number.isFinite);
+    const score = Math.round(scoreValues.length ? scoreValues.reduce((sum, item) => sum + item, 0) / scoreValues.length : 68);
+    const offset = Math.max(0, 264 - (264 * score) / 100).toFixed(1);
+    const prefTags = [
+      ...(preferences || []).map((item) => item.explanation_style || item.answer_length).filter(Boolean),
+      profile.learning_goal,
+      profile.major,
+    ].filter(Boolean).slice(0, 4);
+
+    section.innerHTML = `
+      <h3 class="font-headline-md text-headline-md mb-8 flex items-center">
+        <span class="material-symbols-outlined mr-2 text-secondary">face_6</span>学生画像摘要
+      </h3>
+      <div class="flex-1 flex flex-col justify-between">
+        <div class="relative aspect-square w-full max-w-[240px] mx-auto flex items-center justify-center">
+          <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+            <circle class="text-surface-container-high" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-width="8"></circle>
+            <circle class="text-primary" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="${offset}" stroke-linecap="round" stroke-width="8"></circle>
+          </svg>
+          <div class="absolute text-center">
+            <p class="text-4xl font-extrabold text-on-surface">${score}%</p>
+            <p class="text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">知识掌控度</p>
+          </div>
+          <div class="absolute inset-2 border border-outline-variant/10 rounded-full"></div>
+          <div class="absolute inset-6 border border-outline-variant/20 rounded-full"></div>
+        </div>
+        <div class="mt-8 space-y-4">
+          <p class="text-label-md font-bold flex items-center text-on-surface">
+            <span class="material-symbols-outlined text-lg mr-2 text-outline">psychology_alt</span>学习偏好
+          </p>
+          <div class="flex flex-wrap gap-2">
+            ${(prefTags.length ? prefTags : ["结构化讲解", "循序渐进", "数据结构演示"]).map((tag, index) => `
+              <span class="text-label-sm px-3 py-1.5 rounded-full ${index % 3 === 0 ? "bg-secondary-fixed text-on-secondary-fixed-variant" : index % 3 === 1 ? "bg-tertiary-fixed text-on-tertiary-fixed-variant" : "bg-primary-fixed text-on-primary-fixed-variant"}">${escapeHtml(tag)}</span>
+            `).join("")}
+          </div>
+          <p class="text-label-md text-on-surface-variant leading-relaxed">${escapeHtml(profile.profile_summary || "画像已由后端创建，后续会根据答疑、资料、练习和记忆持续更新。")}</p>
+        </div>
+        <div class="pt-6 mt-6 border-t border-outline-variant/30 flex justify-between items-end">
+          <div>
+            <p class="text-label-sm text-on-surface-variant">画像版本</p>
+            <p class="text-headline-sm font-bold text-primary">V${profile.version_no || 1}</p>
+          </div>
+          <button id="profile-rebuild-button" class="text-label-md font-bold text-primary flex items-center hover:translate-x-1 transition-transform">
+            重建画像 <span class="material-symbols-outlined text-base ml-1">auto_fix_high</span>
+          </button>
+        </div>
+      </div>`;
+    section.querySelector("#profile-rebuild-button")?.addEventListener("click", rebuildProfile);
+  }
+
+  function renderMemories(memories) {
+    const section = findSectionByTitle("长期记忆");
+    if (!section) return;
+    section.innerHTML = `
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="font-headline-md text-headline-md flex items-center">
+          <span class="material-symbols-outlined mr-2 text-tertiary">memory</span>长期记忆
+        </h3>
+        <span class="text-label-sm px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant">${memories.length} 条</span>
+      </div>
+      <div class="space-y-3 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
+        ${memories.length ? memories.slice(0, 8).map((memory) => `
+          <div class="group p-4 bg-surface-container-low rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/30" data-memory-id="${memory.id}">
+            <div class="flex items-center space-x-4 min-w-0">
+              <div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined">menu_book</span>
+              </div>
+              <div class="min-w-0">
+                <p class="font-bold text-body-md truncate">${escapeHtml(memory.content)}</p>
+                <p class="text-label-sm text-on-surface-variant">${escapeHtml(memory.memory_type)} · 置信度 ${Math.round(Number(memory.confidence || 0.8) * 100)}% · ${api.formatDate(memory.updated_at)}</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button class="p-2 text-primary hover:bg-primary-fixed rounded-lg" data-action="evidence" title="查看证据"><span class="material-symbols-outlined text-sm">link</span></button>
+              <button class="p-2 text-error hover:bg-error-container rounded-lg" data-action="delete" title="删除"><span class="material-symbols-outlined text-sm">delete</span></button>
+            </div>
+          </div>
+        `).join("") : `
+          <div class="p-5 bg-surface-container-low rounded-xl border border-outline-variant/20">
+            <p class="font-bold text-body-md">暂无长期记忆</p>
+            <p class="text-label-sm text-on-surface-variant mt-1">点击下方按钮，让 Memory Agent 基于学习行为生成第一批记忆。</p>
+          </div>`}
+      </div>
+      <button id="memory-reflect-button" class="w-full mt-6 py-3 rounded-xl border-2 border-dashed border-outline-variant/50 text-on-surface-variant text-label-md hover:border-primary hover:text-primary hover:bg-primary/5 transition-all">
+        触发 Memory Agent 反思
+      </button>`;
+
+    section.querySelector("#memory-reflect-button")?.addEventListener("click", reflectMemory);
+    section.querySelectorAll("[data-action='evidence']").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        const id = event.currentTarget.closest("[data-memory-id]")?.dataset.memoryId;
+        const memory = memories.find((item) => item.id === id);
+        api.toast(memory && memory.evidence && memory.evidence.length ? JSON.stringify(memory.evidence).slice(0, 180) : "暂无证据链，后续行为会继续补充。", "info");
+      });
+    });
+    section.querySelectorAll("[data-action='delete']").forEach((button) => {
+      button.addEventListener("click", async (event) => {
+        const id = event.currentTarget.closest("[data-memory-id]")?.dataset.memoryId;
+        if (!id || !confirm("确认删除这条长期记忆？")) return;
+        await api.request(`/student/memory/${id}`, { method: "DELETE" });
+        api.toast("记忆已删除", "success");
+        await loadProfileSpace();
+      });
+    });
+  }
+
+  const RISK_STYLES = { low: "bg-green-100 text-green-700", medium: "bg-primary-fixed text-on-primary-fixed-variant", high: "bg-error text-white" };
+  const RISK_LABELS = { low: "低风险", medium: "中风险", high: "高风险" };
+  const STATUS_LABELS = { draft: "待确认", active: "已生效", superseded: "已替代", rolled_back: "已回滚" };
+  const TYPE_LABELS = { difficulty: "难度调节", knowledge_skip: "知识跳跃", interaction: "交互偏好", recommendation: "推荐策略", prompt_style: "提示词风格", resource_type: "资源类型" };
+
+  function formatStrategyValue(value) {
+    if (!value || typeof value !== "object" || Object.keys(value).length === 0) return "-";
+    const entries = Object.entries(value);
+    if (entries.length === 1) return String(entries[0][1]);
+    return entries.map(([k, v]) => k + ": " + v).join(", ");
+  }
+
+  function renderStrategies(data) {
+    const section = findSectionByTitle("自进化策略");
+    if (!section) return;
+    const strategies = data.items || [];
+    const draftStrategies = strategies.filter((s) => s.status === "draft");
+    const displayStrategies = draftStrategies.length > 0 ? draftStrategies : strategies.filter((s) => s.status === "active");
+
+    section.innerHTML = `
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="font-headline-md text-headline-md flex items-center">
+          <span class="material-symbols-outlined mr-2 text-primary" style="font-variation-settings: 'FILL' 1;">bolt</span>自进化策略
+        </h3>
+        <div class="flex space-x-2">
+          <button id="evolution-analyze-button" class="px-4 py-1.5 text-label-sm font-bold bg-primary text-white rounded-lg hover:shadow-lg shadow-primary/20 transition-all">触发分析</button>
+          <button id="evolution-refresh-button" class="px-4 py-1.5 text-label-sm font-bold glass-card rounded-lg hover:bg-white transition-colors border border-outline-variant/30">刷新</button>
+        </div>
+      </div>
+      ${displayStrategies.length === 0 ? `
+        <div class="flex flex-col items-center justify-center py-12 text-on-surface-variant">
+          <span class="material-symbols-outlined text-4xl mb-3 opacity-40">psychology</span>
+          <p class="text-body-md mb-2">暂无策略建议</p>
+          <p class="text-label-md text-outline">点击"触发分析"，让 EvolutionAgent 基于学习数据生成策略建议</p>
+        </div>
+      ` : `
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-separate border-spacing-y-2">
+            <thead>
+              <tr class="text-label-sm text-on-surface-variant uppercase tracking-wider">
+                <th class="px-4 pb-2">策略维度</th>
+                <th class="px-4 pb-2">当前方案</th>
+                <th class="px-4 pb-2">进化预测</th>
+                <th class="px-4 pb-2">风险等级</th>
+                <th class="px-4 pb-2">状态</th>
+                <th class="px-4 pb-2 text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody class="text-body-md">
+              ${displayStrategies.map((s) => `
+                <tr class="${s.risk_level === "high" ? "bg-error-container/20 border-l-4 border-error" : "bg-surface-container-low/50"} hover:bg-white transition-colors rounded-xl overflow-hidden group">
+                  <td class="p-4 rounded-l-xl font-bold">${escapeHtml(TYPE_LABELS[s.strategy_type] || s.strategy_type)}</td>
+                  <td class="p-4 text-on-surface-variant">${escapeHtml(formatStrategyValue(s.before_value))}</td>
+                  <td class="p-4 font-bold text-primary">${escapeHtml(formatStrategyValue(s.after_value))}</td>
+                  <td class="p-4"><span class="px-2.5 py-0.5 rounded-full text-label-sm font-bold ${RISK_STYLES[s.risk_level] || RISK_STYLES.medium}">${escapeHtml(RISK_LABELS[s.risk_level] || s.risk_level)}</span></td>
+                  <td class="p-4"><span class="text-label-sm text-on-surface-variant">${escapeHtml(STATUS_LABELS[s.status] || s.status)}</span></td>
+                  <td class="p-4 rounded-r-xl text-right space-x-2">
+                    ${s.status === "draft" ? `<button class="text-primary font-bold hover:underline" data-action="apply" data-id="${s.id}">确认</button>` : ""}
+                    ${s.status === "active" && s.previous_strategy_id ? `<button class="text-on-surface-variant font-bold hover:underline" data-action="rollback" data-id="${s.id}">回滚</button>` : ""}
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+        ${draftStrategies.length > 0 ? `
+          <div class="mt-6 flex items-center justify-between text-label-sm text-on-surface-variant">
+            <div class="flex items-center"><span class="material-symbols-outlined text-base mr-1">info</span>高风险策略可能显著改变学习节奏，建议查看证据后操作。</div>
+            <p>${draftStrategies.length} 条待确认</p>
+          </div>
+        ` : ""}
+      `}
+      <div class="mt-6 flex items-center justify-between text-label-sm text-on-surface-variant">
+        <div class="flex items-center"><span class="material-symbols-outlined text-base mr-1">info</span>策略由 EvolutionAgent 基于学习数据生成，需人工确认后生效。</div>
+        <p>来自 /api/v1/evolution/strategies</p>
+      </div>`;
+
+    section.querySelector("#evolution-analyze-button")?.addEventListener("click", analyzeStrategies);
+    section.querySelector("#evolution-refresh-button")?.addEventListener("click", loadProfileSpace);
+    section.querySelectorAll("[data-action='apply']").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        if (!id) return;
+        btn.textContent = "处理中...";
+        btn.disabled = true;
+        try {
+          await api.request("/evolution/strategies/apply", { method: "POST", body: { strategy_id: id } });
+          api.toast("策略已生效", "success");
+          await loadProfileSpace();
+        } catch (error) {
+          api.toast(error.message || "应用失败", "error");
+          btn.textContent = "确认";
+          btn.disabled = false;
+        }
+      });
+    });
+    section.querySelectorAll("[data-action='rollback']").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        if (!id || !confirm("确认回滚到上一版本？")) return;
+        btn.textContent = "处理中...";
+        btn.disabled = true;
+        try {
+          await api.request(`/evolution/strategies/${id}/rollback`, { method: "POST" });
+          api.toast("已回滚到上一版本", "success");
+          await loadProfileSpace();
+        } catch (error) {
+          api.toast(error.message || "回滚失败", "error");
+          btn.textContent = "回滚";
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  function renderLearningPaths(data) {
+    const section = findSectionByTitle("推荐学习路径");
+    if (!section) return;
+    const paths = data.items || [];
+    const path = paths.find((item) => item.status === "active") || paths[0];
+    const items = path && path.items ? [...path.items].sort((a, b) => a.order_index - b.order_index) : [];
+    const completed = items.filter((item) => item.status === "completed").length;
+    const progress = path ? Math.round(Number(path.progress || 0)) : 0;
+
+    section.innerHTML = `
+      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-10">
+        <h3 class="font-headline-md text-headline-md flex items-center">
+          <span class="material-symbols-outlined mr-2 text-primary">route</span>推荐学习路径
+        </h3>
+        <div class="flex items-center gap-2">
+          ${path ? `<span class="bg-primary/10 text-primary px-4 py-1 rounded-full text-label-sm uppercase tracking-wider">${progress}% 已完成</span>` : ""}
+          <button id="learning-path-generate-button" class="px-4 py-1.5 text-label-sm font-bold bg-primary text-white rounded-lg hover:shadow-lg shadow-primary/20 transition-all">生成路径</button>
+        </div>
+      </div>
+      ${!path ? `
+        <div class="flex flex-col items-center justify-center py-14 text-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-5xl mb-4 text-primary/40">route</span>
+          <p class="text-body-lg font-bold text-on-surface mb-2">暂无学习路径</p>
+          <p class="text-label-md max-w-xl">点击生成路径，PlannerAgent 会基于课程知识点、画像薄弱点和 Wiki 线索生成第一条可执行路径。</p>
+        </div>
+      ` : `
+        <div class="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div>
+            <p class="text-label-sm text-on-surface-variant mb-1">当前目标</p>
+            <h4 class="font-headline-sm text-on-surface">${escapeHtml(path.title)}</h4>
+          </div>
+          <p class="text-label-md text-on-surface-variant">${completed}/${items.length} 个节点完成</p>
+        </div>
+        <div class="relative flex items-center justify-between pb-6 overflow-x-auto custom-scrollbar">
+          <div class="absolute top-5 left-0 w-full h-[2px] bg-outline-variant/40"></div>
+          ${items.map((item, index) => {
+            const isDone = item.status === "completed";
+            const isDoing = item.status === "doing";
+            const icon = isDone ? "check" : isDoing ? "pending" : "flag";
+            const circleClass = isDone
+              ? "bg-primary text-white shadow-lg shadow-primary/20"
+              : isDoing
+                ? "bg-white border-2 border-primary text-primary"
+                : "bg-surface-container-high border border-outline-variant text-outline";
+            return `
+              <div class="relative z-10 flex flex-col items-center min-w-[200px] ${item.status === "pending" ? "opacity-70" : ""}" data-path-item-id="${item.id}">
+                <button class="w-11 h-11 rounded-full ${circleClass} flex items-center justify-center mb-4 transition-transform hover:scale-105" data-action="toggle-path-item" title="标记完成">
+                  <span class="material-symbols-outlined">${icon}</span>
+                </button>
+                <div class="text-center px-4">
+                  <p class="font-bold text-body-md ${isDoing ? "text-primary" : ""}">${escapeHtml(item.title)}</p>
+                  <p class="text-label-sm text-on-surface-variant mb-2">${escapeHtml(item.item_type)} · ${item.estimated_minutes || 30} 分钟</p>
+                  <span class="text-[10px] ${isDone ? "bg-primary/10 text-primary" : "bg-surface-container-high text-on-surface-variant"} px-2 py-0.5 rounded-full font-bold">第 ${index + 1} 步</span>
+                </div>
+              </div>`;
+          }).join("")}
+        </div>
+        <div class="mt-10 p-5 rounded-xl bg-primary-fixed/30 border border-primary-container/20">
+          <div class="flex items-start space-x-3">
+            <span class="material-symbols-outlined text-primary mt-1">lightbulb</span>
+            <div>
+              <p class="font-bold text-on-primary-container mb-1">推荐理由</p>
+              <p class="text-label-md text-on-surface-variant leading-relaxed">${escapeHtml(path.reason || "基于课程知识顺序、学生画像和近期薄弱点生成。")}</p>
+            </div>
+          </div>
+        </div>
+      `}
+      <div class="mt-6 flex items-center justify-between text-label-sm text-on-surface-variant">
+        <div class="flex items-center"><span class="material-symbols-outlined text-base mr-1">info</span>路径节点可标记完成，进度会写回后端。</div>
+        <p>来自 /api/v1/learning-paths</p>
+      </div>`;
+
+    section.querySelector("#learning-path-generate-button")?.addEventListener("click", generateLearningPath);
+    section.querySelectorAll("[data-action='toggle-path-item']").forEach((button) => {
+      button.addEventListener("click", async (event) => {
+        const container = event.currentTarget.closest("[data-path-item-id]");
+        const itemId = container && container.dataset.pathItemId;
+        if (!itemId) return;
+        try {
+          await api.request(`/learning-paths/items/${itemId}`, { method: "PATCH", body: { status: "completed" } });
+          api.toast("路径节点已完成", "success");
+          await loadProfileSpace();
+        } catch (error) {
+          api.toast(error.message || "更新路径节点失败", "error");
+        }
+      });
+    });
+  }
+
+  async function rebuildProfile() {
+    const button = document.getElementById("profile-rebuild-button");
+    try {
+      if (button) {
+        button.textContent = "重建中...";
+        button.disabled = true;
+      }
+      await api.request("/student/profile/rebuild", { method: "POST" });
+      api.toast("画像已重建", "success");
+      await loadProfileSpace();
+    } catch (error) {
+      api.toast(error.message || "画像重建失败", "error");
+    }
+  }
+
+  async function reflectMemory() {
+    const button = document.getElementById("memory-reflect-button");
+    try {
+      if (button) {
+        button.textContent = "Memory Agent 反思中...";
+        button.disabled = true;
+      }
+      await api.request("/student/memory/reflect", { method: "POST" });
+      api.toast("长期记忆已更新", "success");
+      await loadProfileSpace();
+    } catch (error) {
+      api.toast(error.message || "记忆反思失败", "error");
+    }
+  }
+
+  async function analyzeStrategies() {
+    const button = document.getElementById("evolution-analyze-button");
+    try {
+      if (button) {
+        button.textContent = "分析中...";
+        button.disabled = true;
+      }
+      const courseId = await api.resolveCourseId();
+      await api.request("/evolution/analyze", {
+        method: "POST",
+        body: { course_id: courseId, focus: "学习策略优化" },
+      });
+      api.toast("策略分析完成", "success");
+      await loadProfileSpace();
+    } catch (error) {
+      api.toast(error.message || "策略分析失败", "error");
+    }
+    if (button) {
+      button.textContent = "触发分析";
+      button.disabled = false;
+    }
+  }
+
+  async function generateLearningPath() {
+    const button = document.getElementById("learning-path-generate-button") || document.querySelector(".fixed.bottom-8.right-8 button");
+    try {
+      if (button) {
+        button.textContent = "生成中...";
+        button.disabled = true;
+      }
+      const courseId = await api.resolveCourseId();
+      await api.request("/learning-paths/generate", {
+        method: "POST",
+        body: {
+          course_id: courseId,
+          goal: "补强数据结构核心薄弱点",
+          target_knowledge_ids: [],
+          path_type: "weakness_repair",
+        },
+      });
+      api.toast("学习路径已生成", "success");
+      await loadProfileSpace();
+    } catch (error) {
+      api.toast(error.message || "学习路径生成失败", "error");
+    }
+    if (button) {
+      button.innerHTML = button.classList.contains("flex")
+        ? '<span class="material-symbols-outlined group-hover:rotate-12 transition-transform">auto_fix_high</span><span class="font-bold tracking-wide">生成路径优化建议</span>'
+        : "生成路径";
+      button.disabled = false;
+    }
+  }
+
+  async function loadProfileSpace() {
+    try {
+      const courseId = await api.resolveCourseId().catch(() => null);
+      const [profile, preferences, memories, strategies, learningPaths] = await Promise.all([
+        api.request("/student/profile"),
+        api.request("/student/profile/preferences").catch(() => []),
+        api.request("/student/memory").catch(() => []),
+        api.request("/evolution/strategies?page=1&page_size=20").catch(() => ({ items: [], total: 0 })),
+        courseId ? api.request(`/learning-paths?course_id=${courseId}&page=1&page_size=5`).catch(() => ({ items: [], total: 0 })) : Promise.resolve({ items: [], total: 0 }),
+      ]);
+      renderLearningPaths(learningPaths);
+      renderProfile(profile, preferences);
+      renderMemories(memories);
+      renderStrategies(strategies);
+    } catch (error) {
+      api.toast(error.message || "个人模型加载失败", "error");
+    }
+  }
+
+  document.querySelector(".fixed.bottom-8.right-8 button")?.addEventListener("click", generateLearningPath);
+  void loadProfileSpace();
+})();
 </script>
 </body></html>

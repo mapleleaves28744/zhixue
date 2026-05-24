@@ -1,0 +1,151 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - img "User Avatar" [ref=e5]
+      - link "home" [ref=e6] [cursor=pointer]:
+        - /url: /home
+        - generic [ref=e7]: home
+      - link "grid_view" [ref=e8] [cursor=pointer]:
+        - /url: /courses
+        - generic [ref=e9]: grid_view
+      - link "smart_toy" [ref=e10] [cursor=pointer]:
+        - /url: /assistant
+        - generic [ref=e11]: smart_toy
+      - link "inventory_2" [ref=e12] [cursor=pointer]:
+        - /url: /practice
+        - generic [ref=e14]: inventory_2
+      - link "dashboard" [ref=e15] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e16]: dashboard
+      - link "menu_book" [ref=e17] [cursor=pointer]:
+        - /url: /knowledge
+        - generic [ref=e18]: menu_book
+      - link "route" [ref=e19] [cursor=pointer]:
+        - /url: /path-profile
+        - generic [ref=e20]: route
+    - main [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - heading "智学工坊" [level=1] [ref=e24]
+          - heading "学术研究门户" [level=2] [ref=e26]
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]: search
+            - textbox "搜索题目、知识点或报告..." [ref=e30]
+          - button "notifications" [ref=e31] [cursor=pointer]:
+            - generic [ref=e32]: notifications
+          - link "cottage" [ref=e34] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e35]: cottage
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - button "练习生成" [ref=e39] [cursor=pointer]
+            - button "答题竞技" [ref=e40] [cursor=pointer]
+            - button "错题本" [ref=e41] [cursor=pointer]
+            - button "诊断报告" [ref=e42] [cursor=pointer]
+          - generic [ref=e44]:
+            - generic [ref=e45]: bolt
+            - text: "AI 状态: 在线"
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - generic [ref=e49]:
+                - generic [ref=e50]: tune
+                - heading "定制您的练习计划" [level=3] [ref=e51]
+              - generic [ref=e52]:
+                - generic [ref=e53]:
+                  - generic [ref=e54]: 题目类型
+                  - generic [ref=e55]:
+                    - button "单选" [ref=e56] [cursor=pointer]
+                    - button "多选" [ref=e57] [cursor=pointer]
+                    - button "填空" [ref=e58] [cursor=pointer]
+                - generic [ref=e59]:
+                  - generic [ref=e60]: 难度级别
+                  - generic [ref=e61]:
+                    - button "入门" [ref=e62] [cursor=pointer]
+                    - button "进阶" [ref=e63] [cursor=pointer]
+                    - button "挑战" [ref=e64] [cursor=pointer]
+                - generic [ref=e65]:
+                  - generic [ref=e66]: 知识点范围
+                  - combobox [ref=e67]:
+                    - option "量子物理基础" [selected]
+                    - option "线性代数进阶"
+                    - option "宏观经济模型"
+            - generic [ref=e68]:
+              - generic [ref=e158]: "题号: 1 / 5"
+              - generic [ref=e159]:
+                - generic [ref=e160]: 波粒二象性的实验证据
+                - heading "下列哪个实验现象直接证明了光的粒子性？" [level=2] [ref=e161]
+              - generic [ref=e162]:
+                - generic [ref=e163] [cursor=pointer]:
+                  - generic [ref=e164]: A
+                  - generic [ref=e165]: 光的双缝干涉
+                - generic [ref=e166] [cursor=pointer]:
+                  - generic [ref=e167]: B
+                  - generic [ref=e168]: 光电效应
+                - generic [ref=e169] [cursor=pointer]:
+                  - generic [ref=e170]: C
+                  - generic [ref=e171]: 光的衍射
+                - generic [ref=e172] [cursor=pointer]:
+                  - generic [ref=e173]: D
+                  - generic [ref=e174]: 光的偏振
+              - generic [ref=e175]:
+                - button "skip_previous 上一题" [ref=e176] [cursor=pointer]:
+                  - generic [ref=e177]: skip_previous
+                  - text: 上一题
+                - button "提交答案" [ref=e179] [cursor=pointer]
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - heading "analytics 掌握度矩阵" [level=3] [ref=e93]:
+                - generic [ref=e94]: analytics
+                - text: 掌握度矩阵
+              - generic [ref=e95]:
+                - img [ref=e100]
+                - generic [ref=e103]: 概念理解
+                - generic [ref=e104]: 逻辑推导
+                - generic [ref=e105]: 计算精度
+                - generic [ref=e106]: 综合应用
+                - generic [ref=e107]: 迁移能力
+              - generic [ref=e108]:
+                - generic [ref=e109]:
+                  - generic [ref=e110]:
+                    - generic [ref=e111]: 薄弱知识点
+                    - generic [ref=e112]: 建议复习
+                  - paragraph [ref=e113]: 波函数的统计诠释
+                - generic [ref=e114]:
+                  - generic [ref=e116]: 诊断证据
+                  - paragraph [ref=e117]: 基于近3场练习，由于对“几率波”概念模糊导致的错误率达 40%。
+            - generic [ref=e118]:
+              - heading "auto_fix_high 智能下一步" [level=3] [ref=e119]:
+                - generic [ref=e120]: auto_fix_high
+                - text: 智能下一步
+              - generic [ref=e121]:
+                - generic [ref=e122]:
+                  - generic [ref=e123]:
+                    - generic [ref=e125]: video_library
+                    - generic [ref=e126]:
+                      - heading "3分钟搞懂薛定谔方程" [level=5] [ref=e127]
+                      - paragraph [ref=e128]: 可视化教学 · 匹配度 98%
+                  - generic [ref=e129]:
+                    - button "立即学习" [ref=e130] [cursor=pointer]
+                    - button "close" [ref=e131] [cursor=pointer]:
+                      - generic [ref=e132]: close
+                    - button "sentiment_dissatisfied" [ref=e133] [cursor=pointer]:
+                      - generic [ref=e134]: sentiment_dissatisfied
+                - generic [ref=e135]:
+                  - generic [ref=e136]:
+                    - generic [ref=e138]: article
+                    - generic [ref=e139]:
+                      - heading "波粒二象性深度词条" [level=5] [ref=e140]
+                      - paragraph [ref=e141]: 百科阅读 · 匹配度 92%
+                  - generic [ref=e142]:
+                    - button "立即阅读" [ref=e143] [cursor=pointer]
+                    - button "close" [ref=e144] [cursor=pointer]:
+                      - generic [ref=e145]: close
+                    - button "sentiment_dissatisfied" [ref=e146] [cursor=pointer]:
+                      - generic [ref=e147]: sentiment_dissatisfied
+                - button "查看更多建议" [ref=e148] [cursor=pointer]
+            - paragraph [ref=e151]: "\"保持专注，距离掌握该领域还有最后 5%\""
+  - button "bolt" [active] [ref=e155] [cursor=pointer]:
+    - generic [ref=e156]: bolt

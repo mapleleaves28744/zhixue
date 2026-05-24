@@ -5,7 +5,8 @@ export const studentNavItems = [
   { href: "/student/resources", icon: "auto_awesome", label: "Resources" },
   { href: "/student/quizzes", icon: "fact_check", label: "Quizzes" },
   { href: "/student/diagnosis", icon: "monitoring", label: "Diagnosis" },
-  { href: "/student/evolution", icon: "psychology", label: "Evolution" }
+  { href: "/student/profile", icon: "face_6", label: "Profile" },
+  { href: "/student/memory", icon: "memory", label: "Memory" },
 ]
 
 export function StudentSidebar() {

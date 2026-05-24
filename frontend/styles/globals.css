@@ -48,7 +48,8 @@ select {
   font: inherit;
 }
 
-.glass-panel {
+.glass-panel,
+.glass-card {
   border: 1px solid rgba(255, 255, 255, 0.7);
   background: rgba(255, 255, 255, 0.52);
   box-shadow: 0 24px 70px rgba(131, 84, 0, 0.08);

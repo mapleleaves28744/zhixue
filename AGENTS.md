@@ -161,6 +161,18 @@ Prompt 版本管理
 Docker Compose
 ```
 
+## 4.6 当前开发运行优先级
+
+在主链路尚未完全打通前，本项目采用“本地优先，Docker 后置”的开发约束：
+
+1. 默认先在本地运行和验证后端、前端、数据库 migration、Mock/真实 LLM 调用链路。
+2. Docker Compose 暂作为后续部署与演示目标，不作为日常功能开发的第一验证路径。
+3. 除非当前任务明确属于 Docker / 部署阶段，否则不要因为 Docker 容器问题阻塞业务功能开发。
+4. Docker 相关问题可以记录为后续部署 TODO，但不得替代本地可运行主链路的建设。
+5. 本地验证优先使用已有 PostgreSQL/Redis 服务、Python 虚拟环境和 Node 开发服务器。
+6. 数据库和缓存默认使用本机服务：`DATABASE_URL=postgresql+asyncpg://zhixue:zhixue_password@localhost:5432/zhixue`、`REDIS_URL=redis://localhost:6379/0`。
+7. 不要在非部署任务中默认启动或依赖 Docker 内的 PostgreSQL/Redis。
+
 ---
 
 # 5. 目录结构
@@ -301,6 +313,39 @@ class TutorAgent(BaseAgent):
 6. 页面应遵守 `docs/UI设计规范.md`。
 7. 不要做普通后台模板风格。
 8. 核心页面必须展示“依据、来源、推荐理由或 Agent 状态”。
+
+## 8.1.1 当前前端实现路线：保留 Stitch 静态页并接入后端
+
+当前学生端已有完整 Stitch 静态视觉原型。后续前端任务默认采用：
+
+```text
+保留 Stitch 静态页面视觉与导航
+  → 继续用 StitchFrame 承载 frontend/public/stitch-pages/*.html
+  → 在静态页中接入少量脚本和真实 API
+  → 公共请求能力放入 frontend/public/stitch-pages/zhixue-static-api.js
+  → 将静态占位内容替换为真实 API 数据、真实空状态和真实错误提示
+```
+
+除非任务明确要求并经人工确认“将某个页面 React 组件化”，否则禁止：
+
+1. 用新的 React 页面重做 `/courses`、`/knowledge`、`/assistant`、`/practice`、`/dashboard`、`/path-profile`；
+2. 删除或重排原 Stitch 导航栏、侧边栏、顶部栏和主布局；
+3. 新增一套与 Stitch 原型不一致的学生端 UI；
+4. 让后端能力只停留在接口层而没有接入对应静态页面。
+
+后续功能默认接入位置：
+
+| 功能 | 默认页面 |
+|---|---|
+| 课程 CRUD | `/courses` |
+| 资料上传、解析、切片、向量化、知识点抽取、Wiki 生成 | `/knowledge` |
+| Wiki、知识图谱、RAG 检索 | `/knowledge` |
+| AI Tutor、引用、资源生成 | `/assistant` |
+| 练习、错题、诊断 | `/practice` |
+| 学习总览、推荐、任务 | `/dashboard` |
+| 画像、长期记忆、学习路径、自进化、Agent 日志 | `/path-profile` |
+
+每个后端阶段完成后必须同步检查对应 Stitch 页面是否已经接入真实 API。若未接入，不得宣称阶段完成，只能说明“后端实现完成，前端 Stitch 联动未完成”。
 
 ## 8.2 必须使用的 UI 风格
 
@@ -872,7 +917,33 @@ Docker 任务：
 docker compose config
 ```
 
+当前阶段执行顺序约束：
+
+1. 非 Docker 任务优先完成本地验证，例如 `python -m pytest`、`python -m alembic upgrade head`、`uvicorn app.main:app --reload`、`npm run dev/build`。
+2. 只有任务明确涉及 Dockerfile、docker-compose、部署文档或演示部署时，才必须运行 Docker 验证。
+3. 如果 Docker 与本地运行结果冲突，先保证本地主链路可用，并在输出中记录 Docker 待修复问题。
+4. 不要为了让 Docker 临时跑通而改坏本地配置、业务代码、数据库 migration 或 LLM Provider 配置。
+
 如果无法运行，必须在输出中说明原因。
+
+## 16.5 阶段运行验收
+
+每个阶段完成后必须对照：
+
+```text
+docs/19_测试方案/12_阶段运行验收清单.md
+```
+
+进行本地运行验收。可使用：
+
+```powershell
+scripts/local_check.ps1 -Database
+scripts/local_check.ps1 -Backend
+scripts/local_check.ps1 -Frontend
+scripts/local_check.ps1 -All
+```
+
+阶段验收未通过时，不得宣称该阶段已完成，只能说明“实现已完成但验收未通过”，并列出阻塞项。
 
 ---
 
@@ -1191,12 +1262,13 @@ Mock 内容要求：
 
 必须满足：
 
-1. Docker Compose 可启动；
+1. 本地开发环境可启动并跑通主链路；
 2. 数据库 migration 可运行；
 3. 无真实 API Key 时可用 Mock；
 4. 前后端接口一致；
 5. 权限隔离正确；
 6. README 和 docs 完整。
+7. Docker Compose 在第21阶段或部署专项阶段补齐为可启动验收项。
 
 ---
 

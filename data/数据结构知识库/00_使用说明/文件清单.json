@@ -1,0 +1,154 @@
+[
+  {
+    "file": "00_使用说明/README.md",
+    "size_bytes": 2108
+  },
+  {
+    "file": "01_课程体系与教学大纲/常见结构与算法复杂度对比表.csv",
+    "size_bytes": 854
+  },
+  {
+    "file": "01_课程体系与教学大纲/数据结构课程教学大纲.md",
+    "size_bytes": 3109
+  },
+  {
+    "file": "01_课程体系与教学大纲/知识点总目录.md",
+    "size_bytes": 17495
+  },
+  {
+    "file": "01_课程体系与教学大纲/知识点目录.csv",
+    "size_bytes": 18776
+  },
+  {
+    "file": "02_LLMWiki知识页/01_绪论与复杂度分析.md",
+    "size_bytes": 9138
+  },
+  {
+    "file": "02_LLMWiki知识页/02_线性表.md",
+    "size_bytes": 9099
+  },
+  {
+    "file": "02_LLMWiki知识页/03_栈与队列.md",
+    "size_bytes": 12218
+  },
+  {
+    "file": "02_LLMWiki知识页/04_串与模式匹配.md",
+    "size_bytes": 7785
+  },
+  {
+    "file": "02_LLMWiki知识页/05_数组、矩阵与广义表.md",
+    "size_bytes": 6610
+  },
+  {
+    "file": "02_LLMWiki知识页/06_树与二叉树.md",
+    "size_bytes": 16177
+  },
+  {
+    "file": "02_LLMWiki知识页/07_森林与并查集.md",
+    "size_bytes": 6684
+  },
+  {
+    "file": "02_LLMWiki知识页/08_图.md",
+    "size_bytes": 20802
+  },
+  {
+    "file": "02_LLMWiki知识页/09_查找.md",
+    "size_bytes": 14085
+  },
+  {
+    "file": "02_LLMWiki知识页/10_排序.md",
+    "size_bytes": 14546
+  },
+  {
+    "file": "02_LLMWiki知识页/11_高级结构与工程应用.md",
+    "size_bytes": 10844
+  },
+  {
+    "file": "03_知识库切片_jsonl/ds_kb_chunks.csv",
+    "size_bytes": 148885
+  },
+  {
+    "file": "03_知识库切片_jsonl/ds_kb_chunks.jsonl",
+    "size_bytes": 189846
+  },
+  {
+    "file": "04_知识图谱_csv/entities.csv",
+    "size_bytes": 26745
+  },
+  {
+    "file": "04_知识图谱_csv/relations.csv",
+    "size_bytes": 642
+  },
+  {
+    "file": "04_知识图谱_csv/triples.csv",
+    "size_bytes": 25867
+  },
+  {
+    "file": "05_题库与测评/question_bank.jsonl",
+    "size_bytes": 71077
+  },
+  {
+    "file": "05_题库与测评/题库说明与示例.md",
+    "size_bytes": 7635
+  },
+  {
+    "file": "06_代码示例/binary_tree_traversal.py",
+    "size_bytes": 845
+  },
+  {
+    "file": "06_代码示例/graph_search.py",
+    "size_bytes": 577
+  },
+  {
+    "file": "06_代码示例/kmp.py",
+    "size_bytes": 629
+  },
+  {
+    "file": "06_代码示例/linked_list.py",
+    "size_bytes": 650
+  },
+  {
+    "file": "06_代码示例/lru_cache.py",
+    "size_bytes": 606
+  },
+  {
+    "file": "06_代码示例/sorting.py",
+    "size_bytes": 915
+  },
+  {
+    "file": "06_代码示例/stack_queue.py",
+    "size_bytes": 797
+  },
+  {
+    "file": "06_代码示例/union_find.py",
+    "size_bytes": 581
+  },
+  {
+    "file": "07_学习路径与先修关系/prerequisite_edges.csv",
+    "size_bytes": 4688
+  },
+  {
+    "file": "07_学习路径与先修关系/学习路径建议.md",
+    "size_bytes": 1414
+  },
+  {
+    "file": "07_学习路径与先修关系/课程知识图谱Mermaid.md",
+    "size_bytes": 885
+  },
+  {
+    "file": "08_检索增强与提示词模板/RAG_GraphRAG_LLMWiki提示词.md",
+    "size_bytes": 1378
+  },
+  {
+    "file": "09_导入模板/LLMWiki页面JSON模板.json",
+    "size_bytes": 982
+  },
+  {
+    "file": "09_导入模板/Neo4j导入说明.md",
+    "size_bytes": 776
+  },
+  {
+    "file": "09_导入模板/PostgreSQL表结构建议.sql",
+    "size_bytes": 974
+  }
+]

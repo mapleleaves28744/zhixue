@@ -138,7 +138,7 @@
 <div class="mb-6 w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center bg-primary/10">
 <img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSTPmeLbPWX_qVTQ5CJBuSdz5pF8Uzv31LiZpnpFLz661UFTMeV4ybk_4b7boUcEo6pH54TwBNycTiWNes0xQTyVbATpXOD7Nn3vxjAg5KLDdlzDIPP6JT2yxQbPvgVHL20k2eITrLP5wVeLm-8aYYav8WK5XasdqT2L64x_9H-OsT1w-guVqQ28yrdr-tYCPBMabrnkkHkuuTxWqWKVzoJEAmsGbHn3JU8plVHQBGXTj6_FZg9BDLj-QeYWJZ8svnr2EBh3R2Qro"/>
 </div>
-<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/" target="_parent" title="首页">
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/home" target="_parent" title="主页">
 <span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
 </a>
 <a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/courses" target="_parent" title="课程空间">
@@ -181,6 +181,9 @@
 <span class="material-symbols-outlined group-hover:animate-bounce">notifications</span>
 <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-primary rounded-full border-2 border-white"></span>
 </button>
+<a class="bg-white/70 border border-white/80 hover:bg-white rounded-full p-2.5 transition-all hover:-translate-y-0.5 shadow-sm text-outline hover:text-primary backdrop-blur-xl" href="/" target="_parent" title="返回介绍页">
+<span class="material-symbols-outlined">cottage</span>
+</a>
 </div>
 </header>
 <!-- Main Dashboard Area -->
@@ -434,4 +437,151 @@
 </div>
 </main>
 </div>
+<script src="/stitch-pages/zhixue-static-api.js"></script>
+<script>
+(() => {
+  const api = window.ZhixueStatic;
+
+  function escapeHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    }[char]));
+  }
+
+  function firstNumber(values, fallback) {
+    for (const value of values) {
+      const number = Number(value);
+      if (Number.isFinite(number)) return number;
+    }
+    return fallback;
+  }
+
+  function normalizeList(value) {
+    if (Array.isArray(value)) return value;
+    if (value && typeof value === "object") {
+      return Object.entries(value).map(([name, score]) => ({ name, score }));
+    }
+    return [];
+  }
+
+  function setStatCards(stats) {
+    const cards = document.querySelectorAll(".grid.grid-cols-2.md\\:grid-cols-4 .glass-card h3");
+    if (cards[0]) cards[0].innerHTML = `${stats.courses}<span class="font-body-sm text-body-sm text-outline ml-1">门课</span>`;
+    if (cards[1]) cards[1].innerHTML = `${stats.mastery}<span class="font-body-sm text-body-sm text-outline ml-1">%</span>`;
+    if (cards[2]) cards[2].innerHTML = `${stats.wiki}<span class="font-body-sm text-body-sm text-outline ml-1">页</span>`;
+    if (cards[3]) cards[3].innerHTML = `${stats.agents}<span class="font-body-sm text-body-sm text-outline ml-1">次</span>`;
+    const labels = document.querySelectorAll(".grid.grid-cols-2.md\\:grid-cols-4 .glass-card p.font-label-caps");
+    if (labels[0]) labels[0].textContent = "课程空间";
+    if (labels[2]) labels[2].textContent = "Wiki 页面";
+    if (labels[3]) labels[3].textContent = "Agent 运行";
+  }
+
+  function setKnowledgeCards(profile, wikiPages) {
+    const masteryItems = normalizeList(profile.mastery_snapshot);
+    const weakPoints = normalizeList(profile.weak_points);
+    const cards = [...document.querySelectorAll(".grid.grid-cols-1.md\\:grid-cols-3.gap-6 .glass-card")];
+    const masteredNames = (masteryItems.length ? masteryItems : wikiPages).slice(0, 3).map((item) => item.name || item.title).filter(Boolean);
+    const weakNames = (weakPoints.length ? weakPoints : [{ name: "等待诊断生成" }]).slice(0, 2).map((item) => item.name || item.title || item.reason).filter(Boolean);
+    const reviewNames = wikiPages.slice(0, 2).map((item) => item.title).filter(Boolean);
+    const blocks = [
+      { title: "已掌握知识点", names: masteredNames, width: "75%" },
+      { title: "薄弱知识点", names: weakNames, width: "35%" },
+      { title: "待复习节点", names: reviewNames, width: "55%" },
+    ];
+    cards.forEach((card, index) => {
+      const block = blocks[index];
+      if (!block) return;
+      const title = card.querySelector("h4");
+      const text = card.querySelector("p.font-body-sm");
+      const bar = card.querySelector(".h-full");
+      if (title) title.textContent = block.title;
+      if (text) text.textContent = block.names.length ? block.names.join("、") : "暂无真实数据";
+      if (bar) bar.style.width = block.width;
+    });
+  }
+
+  function setProfileCard(profile, preferences) {
+    const profileCard = [...document.querySelectorAll(".glass-card")].find((card) => card.innerText.includes("学习者画像"));
+    if (!profileCard) return;
+    const pref = preferences && preferences[0];
+    const rows = profileCard.querySelectorAll(".flex.items-center.justify-between");
+    const values = [
+      pref?.explanation_style || "结构化",
+      pref?.answer_length || "中等篇幅",
+      profile.profile_summary ? "持续学习中" : "待积累行为",
+    ];
+    rows.forEach((row, index) => {
+      const badge = row.querySelector("span.font-label-md");
+      if (badge && values[index]) badge.textContent = values[index];
+    });
+  }
+
+  function setTasksAndReminders(courses, wikiPages, runs) {
+    const taskCard = [...document.querySelectorAll(".glass-card")].find((card) => card.innerText.includes("今日任务"));
+    if (taskCard) {
+      const labels = taskCard.querySelectorAll("label p.font-body-sm");
+      if (labels[0]) labels[0].textContent = courses.length ? `进入《${courses[0].title}》课程空间` : "创建第一门课程";
+      if (labels[1]) labels[1].textContent = wikiPages.length ? `复习 Wiki：${wikiPages[0].title}` : "上传资料并生成 Wiki";
+      if (labels[2]) labels[2].textContent = runs.length ? `查看 ${runs[0].agent_name || "Agent"} 最近运行` : "向 AI 助手提一个问题";
+      const count = taskCard.querySelector("span.font-label-sm");
+      if (count) count.textContent = `${courses.length ? 1 : 0}/3 已完成`;
+    }
+    const reminderCard = [...document.querySelectorAll(".glass-card")].find((card) => card.innerText.includes("复习提醒"));
+    if (reminderCard) {
+      const list = reminderCard.querySelector("ul");
+      if (list) {
+        const reminders = [
+          wikiPages[0] ? `Wiki - ${wikiPages[0].title}` : "资料库 - 等待生成 Wiki",
+          courses[0] ? `课程 - ${courses[0].title}` : "课程空间 - 创建课程",
+          runs[0] ? `Agent - ${runs[0].task_type}` : "AI 助手 - 完成一次问答",
+        ];
+        list.innerHTML = reminders.map((item, index) => `
+          <li class="flex items-center gap-3 ${index === 0 ? "bg-white/50 p-3 rounded-xl border border-white/60" : "p-3 px-4"}">
+            <div class="${index === 0 ? "w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(131,84,0,0.4)]" : "w-2 h-2 rounded-full bg-outline-variant"}"></div>
+            <span class="font-body-sm text-body-sm text-on-surface-variant flex-1">${escapeHtml(item)}</span>
+            ${index === 0 ? '<span class="font-label-caps text-label-caps text-secondary bg-secondary-fixed/60 px-2 py-0.5 rounded-md font-bold">高优</span>' : ""}
+          </li>`).join("");
+      }
+    }
+  }
+
+  function bindQuickActions(courseId) {
+    const buttons = document.querySelectorAll(".flex.gap-4.mt-2 button");
+    buttons[0]?.addEventListener("click", () => api.navigate(courseId ? `/knowledge?course_id=${courseId}` : "/knowledge"));
+    buttons[1]?.addEventListener("click", () => api.navigate(courseId ? `/assistant?course_id=${courseId}` : "/assistant"));
+    document.querySelector("button.bg-white\\/60.backdrop-blur-md")?.addEventListener("click", () => api.navigate(courseId ? `/knowledge?course_id=${courseId}` : "/knowledge"));
+  }
+
+  async function loadDashboard() {
+    try {
+      const [coursePage, profile, preferences, runsPage] = await Promise.all([
+        api.listCourses({ pageSize: 20 }),
+        api.request("/student/profile/summary").catch(() => ({})),
+        api.request("/student/profile/preferences").catch(() => []),
+        api.request("/agents/runs?page=1&page_size=10").catch(() => ({ items: [] })),
+      ]);
+      const courses = coursePage.items || [];
+      const courseId = courses[0]?.id || await api.resolveCourseId().catch(() => null);
+      const wikiPage = courseId ? await api.listWikiPages(courseId, { pageSize: 20 }).catch(() => ({ items: [] })) : { items: [] };
+      const wikiPages = wikiPage.items || [];
+      const masteryItems = normalizeList(profile.mastery_snapshot);
+      const mastery = Math.round(firstNumber(masteryItems.map((item) => item.score || item.mastery || item.value), 68));
+      const runs = runsPage.items || [];
+      setStatCards({ courses: courses.length, mastery, wiki: wikiPages.length, agents: runs.length });
+      setKnowledgeCards(profile, wikiPages);
+      setProfileCard(profile, preferences);
+      setTasksAndReminders(courses, wikiPages, runs);
+      bindQuickActions(courseId);
+    } catch (error) {
+      api.toast(error.message || "仪表盘数据加载失败", "error");
+    }
+  }
+
+  void loadDashboard();
+})();
+</script>
 </body></html>

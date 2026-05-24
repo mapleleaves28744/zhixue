@@ -48,6 +48,42 @@
 3. `T09-01` 到 `T09-03` 的 Agent 基础框架应在具体 Agent 深度实现前完成；业务接口可以先直连 Service，但最终必须能写入 `agent_runs`。
 4. 数据库表名以 `docs/10_数据库设计/数据库设计.md` 为准：资料表使用 `course_materials`，Wiki 关系使用 `wiki_links`，自进化策略使用 `evolution_strategies`。
 
+## 1.2 前端实现路线修正：保留 Stitch 静态页并接入后端
+
+当前前端已经完成 Stitch 视觉原型，后续所有前端任务必须默认采用：
+
+```text
+保留 Stitch 静态页面视觉与导航
+  → 通过 StitchFrame 继续承载 frontend/public/stitch-pages/*.html
+  → 在静态页内追加或维护少量页面脚本
+  → 统一通过 frontend/public/stitch-pages/zhixue-static-api.js 调用 /api/v1 后端
+  → 将原静态占位内容替换为真实 API 数据、真实空状态和真实错误提示
+```
+
+除非任务明确写明“将某个页面 React 组件化”并得到人工确认，否则禁止：
+
+1. 用新的 React 页面重做 `/courses`、`/knowledge`、`/assistant`、`/practice`、`/dashboard`、`/path-profile` 的视觉结构；
+2. 删除或重排既有 Stitch 导航栏、侧边栏、顶部栏和主要布局；
+3. 新增一套与 Stitch 原型不一致的学生端 UI；
+4. 让后端能力只停留在接口层而没有接入对应静态页面。
+
+任务文档中历史提到的 `/student/wiki`、`/student/tutor`、`/student/resources`、`/student/quizzes`、`/student/diagnosis`、`/student/evolution` 等 React 页面路径，后续应优先作为功能清单参考，不作为默认新建页面要求。当前学生端功能应聚合到 7 个 Stitch 主入口中：
+
+| 功能阶段 | 默认接入页面 | 接入方式 |
+|---|---|---|
+| 认证、用户信息 | `/`、`/login`、`/register` 对应 Stitch/首页脚本 | 保留品牌页登录注册弹窗，写入 token 和用户信息 |
+| 课程 CRUD | `/courses` | 用课程卡片和创建弹窗调用 `/api/v1/courses` |
+| 资料上传、解析、切片、向量化、知识点抽取、Wiki 生成 | `/knowledge` | 在原资料库面板追加按钮和真实状态，不改布局 |
+| Wiki 页面、来源、版本、图谱 | `/knowledge` | 用原“课程 Wiki / 图谱视图”区域或局部面板展示 |
+| Tutor 问答、引用、Agent 状态 | `/assistant` | 用原聊天区调用 Tutor API 并追加回答 |
+| 资源生成 | `/assistant` 或 `/practice` 的资源面板 | 用原资源生成卡片调用 `/resources/generate` |
+| 练习、答题、错题、诊断 | `/practice` | 用原练习/诊断 Tab 调用 Quiz 和 Diagnosis API |
+| 画像、长期记忆、自进化策略、学习路径 | `/path-profile` | 用原画像、记忆、策略、路径卡片接入 API |
+| 学习总览、推荐、最近动态 | `/dashboard` | 用原统计卡、任务、提醒、推荐卡接入 API |
+| Agent 日志 | `/path-profile`、`/dashboard`，管理员端另行扩展 | 调用 `/api/v1/agents/runs` 展示调用链摘要 |
+
+每个后端阶段完成后，必须同步检查对应 Stitch 页面是否已经接入真实 API。若未接入，不得宣称“阶段已完成”，只能说明“后端实现完成，前端 Stitch 联动未完成”。
+
 ---
 # 第1阶段：项目初始化
 
@@ -62,6 +98,7 @@
 - **前置依赖**：无
 - **具体实现要求**：输入：无。输出：完整项目目录骨架。创建根目录结构，补充 README 初版，写清楚项目名称、技术栈、启动方式占位；创建 .env.example，包含 DATABASE_URL、REDIS_URL、JWT_SECRET、LLM_PROVIDER、LLM_API_KEY、LLM_BASE_URL 等占位变量。
 - **验收标准**：本地目录结构完整；README 可读；.env.example 字段齐全；前后端目录分离；不生成业务代码。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -79,6 +116,7 @@
 - **前置依赖**：T01-01
 - **具体实现要求**：输入：已有 docs 文档。输出：docs 文档索引。创建 docs/README.md，按 PRD、系统架构、数据库、API、前端、UI、自进化、LLM Wiki、多智能体、部署、测试、比赛材料分类列出文档用途。
 - **验收标准**：打开 docs/README.md 能快速找到各设计文档；文档路径与实际目录一致。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -96,6 +134,7 @@
 - **前置依赖**：T01-01
 - **具体实现要求**：输入：项目技术栈。输出：基础开发规范。添加 .editorconfig；编写 docs/开发规范.md，规定前端组件命名、后端分层、API 响应格式、异常处理、数据库命名、Prompt 存放规则。
 - **验收标准**：规范覆盖前端、后端、数据库、接口、Agent、Prompt；命名规则明确。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -117,6 +156,7 @@
 - **前置依赖**：T01-01
 - **具体实现要求**：输入：技术栈要求。输出：可启动 Next.js App Router 项目。使用 TypeScript，创建 app/page.tsx、app/login/page.tsx、app/register/page.tsx。
 - **验收标准**：npm install 后可运行；访问 /、/login、/register 不报错。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -134,6 +174,7 @@
 - **前置依赖**：T02-01
 - **具体实现要求**：输入：UI 设计规范。输出：Tailwind 主题和 shadcn/ui 基础组件。配置品牌色、圆角、阴影、背景渐变；安装 Button、Card、Input、Dialog、Tabs、Badge、Dropdown、Textarea、Toast。
 - **验收标准**：页面能使用 Tailwind；shadcn/ui 组件可正常导入；主题 token 与 UI 规范一致。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -151,6 +192,7 @@
 - **前置依赖**：T02-02
 - **具体实现要求**：输入：前端页面设计。输出：可复用 Layout。学生端侧边栏包含 Dashboard、Wiki、Tutor、Resources、Quizzes、Diagnosis、Evolution 等入口；管理员端包含 Dashboard、Users、Agents、LLM Logs、Evolution、System。
 - **验收标准**：访问 /student/dashboard 和 /admin/dashboard 可看到对应布局；侧边栏跳转正常。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -168,6 +210,7 @@
 - **前置依赖**：T02-01
 - **具体实现要求**：输入：API 接口设计。输出：统一 request 函数、ApiResponse 类型、Token 读写、authStore。处理 401、错误 toast、Authorization Bearer Header。
 - **验收标准**：前端任意服务可复用 request；Token 可保存和清除；类型定义清晰。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -185,6 +228,7 @@
 - **前置依赖**：T02-04
 - **具体实现要求**：输入：JWT 和用户角色。输出：路由保护。未登录访问 /student 或 /admin 跳转 /login；学生不能访问 /admin；管理员不能误入学生端时跳转 admin dashboard。
 - **验收标准**：权限跳转符合预期；无 Token 不能进入受保护页面。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -206,6 +250,7 @@
 - **前置依赖**：T01-01
 - **具体实现要求**：输入：后端技术栈。输出：FastAPI 项目骨架。实现 /health 接口、CORS 配置、settings 配置读取。
 - **验收标准**：uvicorn 可启动；GET /health 返回 success；CORS 支持前端本地地址。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -223,6 +268,7 @@
 - **前置依赖**：T03-01
 - **具体实现要求**：输入：API 设计文档。输出：ApiResponse、分页响应、业务异常类、全局异常处理。统一返回 code、message、data、request_id。
 - **验收标准**：正常和异常接口返回格式一致；错误码与 docs/API接口设计.md 对齐。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -240,6 +286,7 @@
 - **前置依赖**：T03-01
 - **具体实现要求**：输入：API 模块列表。输出：路由占位。每个模块有 APIRouter，占位 ping 接口或空 router，在 app/main.py 统一挂载 /api/v1。
 - **验收标准**：OpenAPI 中可见模块路径；项目启动不报错。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -257,6 +304,7 @@
 - **前置依赖**：T03-03
 - **具体实现要求**：输入：系统架构设计。输出：后端分层目录和基础 README。说明路由只做参数和响应，Service 写业务，Repository 写数据访问，Schema 写 Pydantic DTO。
 - **验收标准**：目录清晰；后续任务有固定落点。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -278,6 +326,7 @@
 - **前置依赖**：T03-01
 - **具体实现要求**：输入：DATABASE_URL。输出：数据库会话、Base、Alembic 配置。支持 async 或 sync 二选一，建议 Async SQLAlchemy。
 - **验收标准**：可执行 alembic revision/autogenerate；应用可创建数据库连接。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -295,6 +344,7 @@
 - **前置依赖**：T04-01
 - **具体实现要求**：输入：数据库设计。输出：users、courses、student_profiles、learning_preferences、prompt_versions 模型和迁移。字段与 docs/数据库设计.md 对齐。
 - **验收标准**：迁移能成功执行；数据库中生成对应表；外键和索引正确。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -312,6 +362,7 @@
 - **前置依赖**：T04-02
 - **具体实现要求**：输入：用户名、密码。输出：access_token、refresh_token、用户信息。实现密码哈希、JWT 生成、注册时创建 student_profile。
 - **验收标准**：POST /auth/register、/auth/login 可用；密码不明文存储；登录后返回 token。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -329,6 +380,7 @@
 - **前置依赖**：T04-03
 - **具体实现要求**：输入：JWT。输出：current_user。实现 get_current_user、require_admin、GET /users/me。
 - **验收标准**：无 Token 请求受保护接口返回 401；管理员权限校验生效；/users/me 返回当前用户。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -350,6 +402,7 @@
 - **前置依赖**：T04-04
 - **具体实现要求**：输入：课程标题、描述。输出：课程对象。实现创建、列表、详情、更新、归档；学生只能访问自己的课程，管理员可访问全部。
 - **验收标准**：课程 CRUD 接口可用；权限隔离正确；返回字段符合 API 文档。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -367,6 +420,7 @@
 - **前置依赖**：T05-01, T02-04
 - **具体实现要求**：输入：课程 API。输出：课程卡片和创建课程弹窗。Dashboard 显示课程列表，支持创建课程。
 - **验收标准**：前端可创建课程并刷新列表；错误有提示。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -384,6 +438,7 @@
 - **前置依赖**：T05-01
 - **具体实现要求**：输入：course_id、文件。输出：course_materials 记录和文件路径。支持 pdf、docx、md、txt；限制大小；本地存储到 storage/materials。
 - **验收标准**：上传接口可用；数据库记录 parse_status=pending；非法格式被拒绝。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -401,6 +456,7 @@
 - **前置依赖**：T05-03
 - **具体实现要求**：输入：资料上传 API。输出：上传组件、资料列表。Wiki 页面或 Dashboard 提供上传资料入口。
 - **验收标准**：选择文件后可上传；上传成功显示资料；解析状态可见。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -418,6 +474,7 @@
 - **前置依赖**：T05-03
 - **具体实现要求**：输入：course_materials 文件路径。输出：解析文本和状态。支持 txt、md 直接读取，docx 使用 python-docx，pdf 可先用 pypdf；失败写 parse_error。
 - **验收标准**：解析接口可用；成功 parse_status=success；失败有错误信息。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -439,6 +496,7 @@
 - **前置依赖**：T04-02
 - **具体实现要求**：输入：数据库设计。输出：knowledge_points、document_chunks 表。包含 pgvector embedding 字段，向量维度按配置或默认 1024。
 - **验收标准**：迁移成功；表、索引和外键正确；pgvector 扩展启用。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -456,6 +514,7 @@
 - **前置依赖**：T05-05, T06-01
 - **具体实现要求**：输入：资料解析文本。输出：document_chunks。按段落和长度切片，保存 chunk_index、content、token_count、source_title。
 - **验收标准**：资料解析后可生成 chunks；chunk 内容非空；顺序正确。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -473,6 +532,7 @@
 - **前置依赖**：T06-02, T08-01
 - **具体实现要求**：输入：document_chunks content。输出：embedding 字段。先支持 mock embedding 或配置的真实 embedding；为后续检索打通。
 - **验收标准**：每个 chunk 有 embedding；失败有日志；可重复生成。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -490,6 +550,7 @@
 - **前置依赖**：T06-03
 - **具体实现要求**：输入：course_id、query、top_k。输出：相关 chunks。使用 pgvector cosine 检索；支持 course_id、knowledge_id 过滤。
 - **验收标准**：POST /knowledge/search 可返回相似 chunks；无 embedding 时有明确提示。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -507,6 +568,7 @@
 - **前置依赖**：T06-02, T08-01
 - **具体实现要求**：输入：material_id。输出：knowledge_points。MVP 可用规则 + LLM 抽取标题和关键概念。
 - **验收标准**：可从数据结构资料中抽取若干知识点；重复知识点不重复入库。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -528,6 +590,7 @@
 - **前置依赖**：T06-01
 - **具体实现要求**：输入：数据库设计。输出：wiki_pages、wiki_page_versions、wiki_links、wiki_sources 表。
 - **验收标准**：迁移成功；外键和唯一索引正确。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -545,6 +608,7 @@
 - **前置依赖**：T07-01
 - **具体实现要求**：输入：页面内容。输出：wiki_pages 和 wiki_page_versions。每次更新创建新版本；学生只能访问自己的 Wiki。
 - **验收标准**：GET/POST/PUT/DELETE Wiki 页面可用；版本列表可查询；权限正确。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -562,6 +626,7 @@
 - **前置依赖**：T06-05, T07-02, T08-01
 - **具体实现要求**：输入：course_id、material_id。输出：Wiki 页面、来源和关系。读取 knowledge_points 和 chunks，生成知识点页面；绑定 wiki_sources；可先生成固定模板。
 - **验收标准**：POST /wiki/pages/generate-from-material 可生成数据结构 Wiki 页面；页面有来源；重复生成不乱覆盖。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -579,6 +644,7 @@
 - **前置依赖**：T07-02, T08-01
 - **具体实现要求**：输入：note_content 或 page_id。输出：新版本 Wiki 页面。实现 update-from-note 和 summarize，更新对应小节或 summary。
 - **验收标准**：两个重点接口可用；写入版本；AI 失败时返回明确错误。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -596,6 +662,7 @@
 - **前置依赖**：T07-02, T02-03
 - **具体实现要求**：输入：Wiki API。输出：/student/wiki 和 /student/wiki/[id]。支持页面列表、详情、编辑、来源、版本。
 - **验收标准**：页面可查看 Wiki；编辑保存后版本增加；来源展示清楚。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -613,6 +680,7 @@
 - **前置依赖**：T07-05
 - **具体实现要求**：输入：wiki_links、wiki_pages。输出：知识图谱页面。MVP 可先用关系卡片，增强版再做力导向图。
 - **验收标准**：能看到页面关系；点击节点进入 Wiki 详情。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -634,6 +702,7 @@
 - **前置依赖**：T03-01
 - **具体实现要求**：输入：messages、model_config。输出：统一 LLM 响应。定义 chat、stream_chat、embedding 接口；支持 mock provider。
 - **验收标准**：业务代码不直接调用厂商 SDK；mock provider 可正常返回。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -651,6 +720,7 @@
 - **前置依赖**：T08-01
 - **具体实现要求**：输入：LLM_BASE_URL、LLM_API_KEY、MODEL。输出：chat/stream_chat 结果。使用 httpx 调用 OpenAI-compatible API；错误统一抛出。
 - **验收标准**：配置 key 后可调用；无 key 时可 fallback mock；错误日志清楚。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -668,6 +738,7 @@
 - **前置依赖**：T04-02, T08-01
 - **具体实现要求**：输入：agent_name、scene、参数。输出：渲染后的 Prompt。读取 active prompt_versions；无配置则使用默认模板。
 - **验收标准**：Agent 可通过 PromptService 获取模板；变量渲染正确。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -685,6 +756,7 @@
 - **前置依赖**：T08-02
 - **具体实现要求**：输入：provider、model、tokens、请求摘要。输出：llm_call_logs。注意请求和响应脱敏。
 - **验收标准**：调用 LLM 后产生日志；失败也记录。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -706,6 +778,7 @@
 - **前置依赖**：T08-01
 - **具体实现要求**：输入：AgentContext。输出：AgentResult。定义 name、description、run 方法和统一返回结构。
 - **验收标准**：后续 Agent 能继承 BaseAgent；类型清晰。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -723,6 +796,7 @@
 - **前置依赖**：T09-01
 - **具体实现要求**：输入：task_type、上下文。输出：Agent 执行结果。MVP 用规则路由 TASK_AGENT_PLAN；按顺序调用 Agent。
 - **验收标准**：可执行 document_to_wiki、course_qa 等任务；失败可返回明确错误。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -740,6 +814,7 @@
 - **前置依赖**：T09-02
 - **具体实现要求**：输入：Agent 输入输出。输出：agent_runs 记录。实现运行列表和详情接口。
 - **验收标准**：每次 Agent 执行有日志；前端可查询 /agents/runs。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -757,6 +832,7 @@
 - **前置依赖**：T09-01
 - **具体实现要求**：输入：AgentContext。输出：占位结果或简单调用。先保证所有类可注册，不一定完成完整业务。
 - **验收标准**：Registry 能列出所有 Agent；Orchestrator 调用不报 ImportError。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -778,6 +854,7 @@
 - **前置依赖**：T04-04
 - **具体实现要求**：输入：user_id、course_id。输出：profile_summary、mastery、weak_points。实现 GET/PUT/rebuild。
 - **验收标准**：画像查询可用；手动更新学习目标可用；rebuild 可返回结果。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -795,6 +872,7 @@
 - **前置依赖**：T04-02
 - **具体实现要求**：输入：event_type、event_payload。输出：learning_records。提供内部方法和可选调试 API。
 - **验收标准**：问答、练习、推荐反馈能写 learning_records。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -812,6 +890,7 @@
 - **前置依赖**：T10-02, T09-04
 - **具体实现要求**：输入：学习记录。输出：student_memories。实现 GET /student/memory、POST /reflect、DELETE/PATCH。
 - **验收标准**：重点接口 GET /student/memory 和 POST /student/memory/reflect 可用；reflect 能生成或模拟记忆。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -829,6 +908,7 @@
 - **前置依赖**：T10-01, T10-03
 - **具体实现要求**：输入：画像和记忆 API。输出：/student/profile、/student/memory 页面。
 - **验收标准**：页面显示画像摘要、薄弱点、学习偏好、记忆列表；可触发 reflect。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -850,6 +930,7 @@
 - **前置依赖**：T04-02
 - **具体实现要求**：输入：数据库设计。输出：evolution_strategies、evolution_events 表。
 - **验收标准**：迁移成功；策略版本支持 previous_strategy_id、status、risk_level。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -867,6 +948,7 @@
 - **前置依赖**：T11-01, T10-03, T09-04
 - **具体实现要求**：输入：course_id、trigger_type、focus。输出：evolution_event 和 strategy draft。读取画像、记忆、诊断、行为，生成策略建议。
 - **验收标准**：POST /evolution/analyze 可生成策略；策略有证据、风险等级、状态。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -884,6 +966,7 @@
 - **前置依赖**：T11-02
 - **具体实现要求**：输入：strategy_id。输出：active 策略。实现 strategies 列表、详情、apply、rollback；同类型同用户同课程只允许一个 active。
 - **验收标准**：apply 后策略状态 active；旧策略失效；rollback 可恢复上一版本。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -901,6 +984,7 @@
 - **前置依赖**：T11-03
 - **具体实现要求**：输入：Evolution API。输出：自进化中心页面。展示事件时间线、策略版本、证据、应用、回滚。
 - **验收标准**：页面可触发 analyze；可应用策略；可查看更新前后对比。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -922,6 +1006,7 @@
 - **前置依赖**：T07-01, T10-01
 - **具体实现要求**：输入：goal、course_id、target_knowledge_ids。输出：learning_paths 和 items。MVP 用知识点关系 + 薄弱点规则生成。
 - **验收标准**：生成路径接口可用；路径节点顺序合理；可标记完成。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -939,6 +1024,7 @@
 - **前置依赖**：T12-01, T09-04
 - **具体实现要求**：输入：画像、掌握度、知识关系、目标。输出：路径计划。支持 LLM 生成理由，规则生成路径。
 - **验收标准**：PlannerAgent 可被 Orchestrator 调用；输出结构稳定。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -956,6 +1042,7 @@
 - **前置依赖**：T12-01
 - **具体实现要求**：输入：Learning Path API。输出：路径列表和详情页。
 - **验收标准**：可生成路径；节点可标记完成；点击节点跳转 Wiki 或练习。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -977,6 +1064,7 @@
 - **前置依赖**：T07-01, T08-01
 - **具体实现要求**：输入：resource_type、knowledge_id、wiki_page_id。输出：generated_resources。实现列表、详情、删除。
 - **验收标准**：资源可保存、查询、归档。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -994,6 +1082,7 @@
 - **前置依赖**：T13-01, T08-02, T10-01
 - **具体实现要求**：输入：course_id、knowledge_id、resource_type、requirement。输出：资源内容、引用、个性化原因。调用 RAG、Wiki、Profile、Memory。
 - **验收标准**：POST /resources/generate 可生成资源；结果有 personalized_reason 和 citations。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1011,6 +1100,7 @@
 - **前置依赖**：T13-02, T07-02
 - **具体实现要求**：输入：resource_id、target wiki。输出：Wiki 新版本。资源状态变 saved_to_wiki。
 - **验收标准**：保存后 Wiki 页面版本增加；资源状态更新。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1028,6 +1118,7 @@
 - **前置依赖**：T13-02
 - **具体实现要求**：输入：资源 API。输出：资源生成页和资源列表。支持选择课程、知识点、资源类型、保存到 Wiki。
 - **验收标准**：前端可生成资源、显示引用、保存到 Wiki。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1049,6 +1140,7 @@
 - **前置依赖**：T06-04, T07-02, T10-01, T08-02
 - **具体实现要求**：输入：course_id、question。输出：answer、citations、related_knowledge_points。记录 learning_records 和 agent_runs。
 - **验收标准**：POST /tutor/chat 可回答问题；带引用；依据不足时说明。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1066,6 +1158,7 @@
 - **前置依赖**：T14-01
 - **具体实现要求**：输入：stream=true。输出：SSE delta。后端支持 text/event-stream，前端可逐步显示。
 - **验收标准**：stream=true 时可看到流式文本；结束返回 citations。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1083,6 +1176,7 @@
 - **前置依赖**：T14-01
 - **具体实现要求**：输入：Tutor API。输出：聊天页。显示回答、引用、相关知识点、保存到 Wiki、反馈。
 - **验收标准**：可提问并看到回答；引用可展开；可保存回答到 Wiki。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1100,6 +1194,7 @@
 - **前置依赖**：T14-03, T07-04
 - **具体实现要求**：输入：message 或 answer 内容。输出：Wiki 新版本、user_feedback。实现保存到 Wiki 和点赞点踩。
 - **验收标准**：保存后 Wiki 页面更新；反馈写入 user_feedback 和 learning_records。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1121,6 +1216,7 @@
 - **前置依赖**：T06-01
 - **具体实现要求**：输入：course_id、knowledge_id。输出：quizzes、questions。实现列表、详情。
 - **验收标准**：可创建 quiz；题目可查询。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1138,6 +1234,7 @@
 - **前置依赖**：T15-01, T08-02, T07-02
 - **具体实现要求**：输入：知识点、题型、难度、数量。输出：题目、答案、解析、错因标签。结合 Wiki 页面生成。
 - **验收标准**：POST /quizzes/generate 可生成题目；题目结构完整。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1155,6 +1252,7 @@
 - **前置依赖**：T15-02, T10-02
 - **具体实现要求**：输入：quiz_id、answers。输出：answer_records、mistake_books。客观题规则批改，主观题可调用 LLM 或暂时人工/标准答案比对。
 - **验收标准**：提交答案可得分；错误题进入错题本；写 learning_records。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1172,6 +1270,7 @@
 - **前置依赖**：T15-03
 - **具体实现要求**：输入：Quiz API。输出：练习页和错题页。
 - **验收标准**：可生成题目、提交答案、查看解析、错题列表。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1193,6 +1292,7 @@
 - **前置依赖**：T15-03, T10-01
 - **具体实现要求**：输入：course_id、answer_records、mistake_books。输出：diagnosis_reports。规则计算掌握度和薄弱点。
 - **验收标准**：POST /diagnosis/generate 可生成报告；报告列表可查询。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1210,6 +1310,7 @@
 - **前置依赖**：T16-01, T08-02
 - **具体实现要求**：输入：错题、掌握度、行为记录。输出：诊断摘要、推荐动作、是否触发自进化。
 - **验收标准**：诊断报告有自然语言摘要和建议；可触发 evolution。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1227,6 +1328,7 @@
 - **前置依赖**：T16-01, T12-01, T13-01
 - **具体实现要求**：输入：profile、diagnosis、path、resources。输出：recommendations。MVP 规则：薄弱知识点优先、前置知识优先、错题相关优先。
 - **验收标准**：推荐列表可查询；refresh 可生成新推荐；状态可更新。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1244,6 +1346,7 @@
 - **前置依赖**：T16-03
 - **具体实现要求**：输入：Diagnosis 和 Recommendation API。输出：诊断页和推荐页。
 - **验收标准**：能生成诊断；显示薄弱点、错因、推荐动作；推荐可标记完成/忽略。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1265,6 +1368,7 @@
 - **前置依赖**：T02-03
 - **具体实现要求**：输入：教师角色。输出：教师端占位。说明当前版本教师能力并入管理员/课程内容维护，不提供班级作业管理。
 - **验收标准**：访问 /teacher/dashboard 可见说明；不影响学生端。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1282,6 +1386,7 @@
 - **前置依赖**：T05-03
 - **具体实现要求**：输入：课程资料。输出：公共课程模板资料。可复用 materials API 或 admin demo seed。
 - **验收标准**：能上传课程资料模板；权限可用；不涉及学生个人数据。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1299,6 +1404,7 @@
 - **前置依赖**：T17-01
 - **具体实现要求**：输入：产品定位。输出：说明文档。解释为什么不做完整教师端，教师相关能力如何由管理员和课程模板维护支撑。
 - **验收标准**：文档清楚说明范围，和 PRD 一致。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1320,6 +1426,7 @@
 - **前置依赖**：T04-04, T02-03
 - **具体实现要求**：输入：admin token。输出：用户列表和启停状态。实现 GET /admin/users、PATCH status。
 - **验收标准**：管理员能查看用户；可禁用/启用；学生无权限。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1337,6 +1444,7 @@
 - **前置依赖**：T09-03
 - **具体实现要求**：输入：agent_runs API。输出：Agent 日志表、详情抽屉。
 - **验收标准**：可筛选 Agent、状态、任务类型；可查看输入输出摘要。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1354,6 +1462,7 @@
 - **前置依赖**：T08-04
 - **具体实现要求**：输入：llm_call_logs。输出：日志列表和统计。
 - **验收标准**：可按 provider、model、status 筛选；显示 latency 和 token。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1371,6 +1480,7 @@
 - **前置依赖**：T08-03
 - **具体实现要求**：输入：模型配置、Prompt 模板。输出：prompt_versions 和配置。MVP 模型配置可读写 .env 展示或数据库配置占位。
 - **验收标准**：可查看和新增 Prompt 版本；可激活版本；模型配置表单可保存。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1388,6 +1498,7 @@
 - **前置依赖**：T18-01, T18-02, T18-03
 - **具体实现要求**：输入：用户、Agent、LLM、课程统计。输出：管理员 dashboard。
 - **验收标准**：显示关键指标和最近日志；不做复杂报表。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1409,6 +1520,7 @@
 - **前置依赖**：T02-02
 - **具体实现要求**：输入：UI 设计规范。输出：统一颜色、阴影、圆角、背景、公共卡片组件。
 - **验收标准**：主要页面风格一致；没有明显默认样式。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1426,6 +1538,7 @@
 - **前置依赖**：T19-01
 - **具体实现要求**：输入：现有页面。输出：高级教育科技风 UI。重点优化学生首页、Wiki 页面、自进化页面、AI 答疑页面、学习诊断页面。
 - **验收标准**：页面具备柔和渐变、卡片、大圆角、轻微动效；不再像普通后台。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1443,6 +1556,7 @@
 - **前置依赖**：T19-02
 - **具体实现要求**：输入：现有 UI 组件。输出：页面进入、卡片 hover、Agent 状态高亮动效。
 - **验收标准**：动效轻微；不影响性能；无夸张闪烁。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1460,6 +1574,7 @@
 - **前置依赖**：T19-02
 - **具体实现要求**：输入：现有页面。输出：移动端和平板适配。侧边栏折叠，表格转卡片，Wiki 三栏变单栏。
 - **验收标准**：Chrome 1024px、768px、390px 下可正常使用。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1481,6 +1596,7 @@
 - **前置依赖**：T04-04, T07-02
 - **具体实现要求**：输入：后端 API。输出：pytest 测试。覆盖 auth、courses、wiki 基础接口。
 - **验收标准**：pytest 通过；测试数据库隔离。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1498,6 +1614,7 @@
 - **前置依赖**：T14-01, T16-01
 - **具体实现要求**：输入：mock LLM。输出：集成测试。覆盖资料切片、Wiki 生成、Tutor Chat、资源生成、诊断。
 - **验收标准**：使用 mock LLM 时测试稳定通过。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1515,6 +1632,7 @@
 - **前置依赖**：T19-02
 - **具体实现要求**：输入：前端项目。输出：lint、typecheck、build 脚本和基础测试。
 - **验收标准**：npm run build 通过；TypeScript 无严重错误。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1532,6 +1650,7 @@
 - **前置依赖**：T22-02
 - **具体实现要求**：输入：演示数据。输出：E2E 测试脚本。模拟登录、进入 Wiki、提问、生成资源、诊断、自进化。
 - **验收标准**：一键运行能走完演示主链路。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1553,6 +1672,7 @@
 - **前置依赖**：T03-01
 - **具体实现要求**：输入：backend 项目。输出：后端镜像。安装依赖，启动 uvicorn。
 - **验收标准**：docker build 成功；容器启动 /health 正常。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1570,6 +1690,7 @@
 - **前置依赖**：T02-01
 - **具体实现要求**：输入：frontend 项目。输出：前端镜像。构建 Next.js 并运行。
 - **验收标准**：docker build 成功；容器启动可访问前端。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1587,6 +1708,7 @@
 - **前置依赖**：T21-01, T21-02, T04-01
 - **具体实现要求**：输入：服务配置。输出：完整 compose。包括 postgres + pgvector、redis、backend、frontend、volume。
 - **验收标准**：docker compose up 后服务全部启动；前端可访问后端。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1604,6 +1726,7 @@
 - **前置依赖**：T21-03
 - **具体实现要求**：输入：Docker Compose 配置。输出：部署步骤。包含本地运行、环境变量、数据库迁移、演示数据初始化、常见问题。
 - **验收标准**：按文档可完成启动；命令准确。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1625,6 +1748,7 @@
 - **前置依赖**：T01-01
 - **具体实现要求**：输入：数据结构课程设计。输出：结构化初始资料。至少包含绪论、线性表、栈和队列、树、图、排序等章节。
 - **验收标准**：目录完整；资料可被解析；知识点关系清晰。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1642,6 +1766,7 @@
 - **前置依赖**：T22-01, T07-02, T15-01, T11-01
 - **具体实现要求**：输入：seed_knowledge 文件。输出：数据库演示数据。创建 admin_demo、student_demo、数据结构课程、知识点、Wiki、题目、画像、策略。
 - **验收标准**：运行脚本后前端可直接演示主链路。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1659,6 +1784,7 @@
 - **前置依赖**：T22-02, T18-04
 - **具体实现要求**：输入：admin 请求。输出：seed 结果。调用 demo seed service，返回创建数量。
 - **验收标准**：管理员页面点击后可初始化数据；有成功/失败提示。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1676,6 +1802,7 @@
 - **前置依赖**：T22-02
 - **具体实现要求**：输入：演示数据。输出：账号、课程、演示路径说明。列出登录账号、演示问题、演示错题、自进化触发步骤。
 - **验收标准**：文档能指导队员完整演示。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1697,6 +1824,7 @@
 - **前置依赖**：T21-04, T22-02
 - **具体实现要求**：输入：项目功能和启动方式。输出：完整 README。包含项目简介、创新点、架构、技术栈、启动、演示账号、目录结构。
 - **验收标准**：README 可用于评委快速理解和运行项目。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1714,6 +1842,7 @@
 - **前置依赖**：T23-01
 - **具体实现要求**：输入：项目文档。输出：5-8 分钟答辩稿。突出赛题契合、创新点、系统闭环、可控自进化、LLM Wiki。
 - **验收标准**：语言自然；逻辑清楚；不过度夸大。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1731,6 +1860,7 @@
 - **前置依赖**：T22-04
 - **具体实现要求**：输入：演示数据说明。输出：分镜脚本。按登录、上传资料、生成 Wiki、答疑、资源、练习、诊断、自进化、管理员日志排序。
 - **验收标准**：每个镜头有操作、旁白、预期画面。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1748,6 +1878,7 @@
 - **前置依赖**：T23-01
 - **具体实现要求**：输入：项目文档和代码结构。输出：支撑材料说明。列出源码、文档、演示数据、部署方案、测试材料、视频脚本。
 - **验收标准**：可直接放入比赛提交材料。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
@@ -1765,6 +1896,7 @@
 - **前置依赖**：T23-02
 - **具体实现要求**：输入：项目创新点和风险点。输出：FAQ。覆盖自进化是否安全、和普通 RAG 区别、为什么不做完整教师端、如何避免概念堆砌、数据来源。
 - **验收标准**：FAQ 回答具体、克制、可信。
+- **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text

@@ -1,0 +1,10 @@
+﻿relation_type,relation_name,description
+BELONGS_TO,属于,知识点属于某个课程模块
+HAS_OPERATION,具有操作,结构或算法具有某种基本操作
+HAS_COMPLEXITY,具有复杂度,知识点和操作之间存在复杂度描述
+PREREQUISITE_OF,先修于,一个知识点是另一个知识点的先修基础
+COMPARE_WITH,可对比,两个知识点容易比较或混淆
+USED_IN,应用于,知识点应用于某个场景
+IMPLEMENTED_BY,可实现为,抽象结构可通过某种存储方式或结构实现
+OPTIMIZES,优化,一个算法或结构对另一个方案进行优化
+CAUSES_ERROR_IN,易错于,知识点常见错误类型

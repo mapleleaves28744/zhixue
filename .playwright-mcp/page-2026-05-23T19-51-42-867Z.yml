@@ -1,0 +1,144 @@
+- generic [ref=e2]:
+  - navigation [ref=e3]:
+    - img "User Avatar" [ref=e5]
+    - link "home" [ref=e6] [cursor=pointer]:
+      - /url: /home
+      - generic [ref=e7]: home
+    - link "grid_view" [ref=e8] [cursor=pointer]:
+      - /url: /courses
+      - generic [ref=e9]: grid_view
+    - link "smart_toy" [ref=e10] [cursor=pointer]:
+      - /url: /assistant
+      - generic [ref=e11]: smart_toy
+    - link "inventory_2" [ref=e12] [cursor=pointer]:
+      - /url: /practice
+      - generic [ref=e13]: inventory_2
+    - link "dashboard" [ref=e14] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e15]: dashboard
+    - link "menu_book" [ref=e16] [cursor=pointer]:
+      - /url: /knowledge
+      - generic [ref=e17]: menu_book
+    - link "route" [ref=e18] [cursor=pointer]:
+      - /url: /path-profile
+      - generic [ref=e20]: route
+  - main [ref=e21]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - generic [ref=e25]: analytics
+        - generic [ref=e26]:
+          - heading "学习路径与个人模型" [level=2] [ref=e27]
+          - paragraph [ref=e28]: 实时追踪您的知识成长曲线与策略演化
+      - generic [ref=e29]:
+        - button "notifications" [ref=e30] [cursor=pointer]:
+          - generic [ref=e31]: notifications
+        - button "help_outline" [ref=e33] [cursor=pointer]:
+          - generic [ref=e34]: help_outline
+        - link "cottage" [ref=e35] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e36]: cottage
+    - generic [ref=e37]:
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - heading "route 推荐学习路径" [level=3] [ref=e40]:
+            - generic [ref=e41]: route
+            - text: 推荐学习路径
+          - generic [ref=e42]: AI 定制计划
+        - generic [ref=e43]:
+          - generic [ref=e45]:
+            - generic [ref=e47]: check
+            - generic [ref=e48]:
+              - paragraph [ref=e49]: 高等数学基础
+              - paragraph [ref=e50]: 已完成 24/24 课时
+              - text: 前置必备
+          - generic [ref=e51]:
+            - generic [ref=e54]: pending
+            - generic [ref=e55]:
+              - paragraph [ref=e56]: 导数应用详解
+              - paragraph [ref=e57]: 进度 45% (当前核心)
+              - text: "推荐关注: 物理建模"
+          - generic [ref=e58]:
+            - generic [ref=e60]: lock
+            - generic [ref=e61]:
+              - paragraph [ref=e62]: 多元积分进阶
+              - paragraph [ref=e63]: "预计解锁: 下周二"
+              - text: 个性化扩充
+          - generic [ref=e64]:
+            - generic [ref=e66]: flag
+            - generic [ref=e67]:
+              - paragraph [ref=e68]: 工程应用实战
+              - paragraph [ref=e69]: "目标课时: 12"
+        - generic [ref=e71]:
+          - generic [ref=e72]: lightbulb
+          - generic [ref=e73]:
+            - paragraph [ref=e74]: 推荐理由
+            - paragraph [ref=e75]: 基于你近期在“物理力学”练习中的表现，系统识别出你对“曲率计算”掌握薄弱。建议优先完成“导数应用详解”中的第3-5章，这将有效提升你的物理建模效率。
+      - generic [ref=e76]:
+        - heading "face_6 学生画像摘要" [level=3] [ref=e193]:
+          - generic [ref=e194]: face_6
+          - text: 学生画像摘要
+        - generic [ref=e195]:
+          - generic [ref=e196]:
+            - img [ref=e197]
+            - generic [ref=e200]:
+              - paragraph [ref=e201]: 68%
+              - paragraph [ref=e202]: 知识掌控度
+          - generic [ref=e205]:
+            - paragraph [ref=e206]:
+              - generic [ref=e207]: psychology_alt
+              - text: 学习偏好
+            - generic [ref=e208]:
+              - generic [ref=e209]: 结构化讲解
+              - generic [ref=e210]: 循序渐进
+              - generic [ref=e211]: 数据结构演示
+            - paragraph [ref=e212]: 画像已由后端创建，后续会根据答疑、资料、练习和记忆持续更新。
+          - generic [ref=e213]:
+            - generic [ref=e214]:
+              - paragraph [ref=e215]: 画像版本
+              - paragraph [ref=e216]: V1
+            - button "重建画像 auto_fix_high" [ref=e217] [cursor=pointer]:
+              - text: 重建画像
+              - generic [ref=e218]: auto_fix_high
+      - generic [ref=e102]:
+        - generic [ref=e219]:
+          - heading "memory 长期记忆" [level=3] [ref=e220]:
+            - generic [ref=e221]: memory
+            - text: 长期记忆
+          - generic [ref=e222]: 0 条
+        - generic [ref=e224]:
+          - paragraph [ref=e225]: 暂无长期记忆
+          - paragraph [ref=e226]: 点击下方按钮，让 Memory Agent 基于学习行为生成第一批记忆。
+        - button "触发 Memory Agent 反思" [ref=e227] [cursor=pointer]
+      - generic [ref=e145]:
+        - generic [ref=e228]:
+          - heading "bolt 自进化策略" [level=3] [ref=e229]:
+            - generic [ref=e230]: bolt
+            - text: 自进化策略
+          - generic [ref=e231]:
+            - button "分析中..." [disabled] [ref=e256]
+            - button "刷新" [ref=e233] [cursor=pointer]
+        - table [ref=e235]:
+          - rowgroup [ref=e236]:
+            - row "策略维度 当前方案 进化预测 风险等级 状态 操作" [ref=e237]:
+              - columnheader "策略维度" [ref=e238]
+              - columnheader "当前方案" [ref=e239]
+              - columnheader "进化预测" [ref=e240]
+              - columnheader "风险等级" [ref=e241]
+              - columnheader "状态" [ref=e242]
+              - columnheader "操作" [ref=e243]
+          - rowgroup [ref=e244]:
+            - 'row "推荐策略 - ### 学习策略更新分析报告 **分析焦点**：物理力学练习表现（Physics Mechanics Practice Performance） --- #### **1. Change Summary（变更摘要）** 基于物理力学练习表现数据的分析，当前学习策略在以下方面需要优化： - **用户画像更新**：增加“力学概念掌握度细分维度”（如牛顿定律、动量守恒、能量转换等子领域），替代原有的单一“力学综合评分”。 - **偏好调整**：将“推荐题目难度”的权重从“历史正确率”转向“薄弱知识点优先”，并增加“可视化辅助偏好”（如动态示意图、受力分析图）。 - **Prompt参数优化**：在讲解力学问题时，增加“分步骤引导”和“常见错误对比”模板，减少直接给出答案的响应比例。 - **推荐策略调整**：引入“跨知识点关联推荐”（如将斜面问题与能量守恒结合），替代原有的“同类型题目重复训练”。 --- #### **2. Before Snapshot（更新前状态）** - **用户画像**：力学表现仅记录“综合正确率”（如75%），未细分知识点掌握情况。 - **偏好设置** 中风险 已生效" [ref=e245]':
+              - cell "推荐策略" [ref=e246]
+              - cell "-" [ref=e247]
+              - 'cell "### 学习策略更新分析报告 **分析焦点**：物理力学练习表现（Physics Mechanics Practice Performance） --- #### **1. Change Summary（变更摘要）** 基于物理力学练习表现数据的分析，当前学习策略在以下方面需要优化： - **用户画像更新**：增加“力学概念掌握度细分维度”（如牛顿定律、动量守恒、能量转换等子领域），替代原有的单一“力学综合评分”。 - **偏好调整**：将“推荐题目难度”的权重从“历史正确率”转向“薄弱知识点优先”，并增加“可视化辅助偏好”（如动态示意图、受力分析图）。 - **Prompt参数优化**：在讲解力学问题时，增加“分步骤引导”和“常见错误对比”模板，减少直接给出答案的响应比例。 - **推荐策略调整**：引入“跨知识点关联推荐”（如将斜面问题与能量守恒结合），替代原有的“同类型题目重复训练”。 --- #### **2. Before Snapshot（更新前状态）** - **用户画像**：力学表现仅记录“综合正确率”（如75%），未细分知识点掌握情况。 - **偏好设置**" [ref=e248]'
+              - cell "中风险" [ref=e249]
+              - cell "已生效" [ref=e250]
+              - cell [ref=e251]
+        - generic [ref=e252]:
+          - generic [ref=e253]:
+            - generic [ref=e254]: info
+            - text: 策略由 EvolutionAgent 基于学习数据生成，需人工确认后生效。
+          - paragraph [ref=e255]: 来自 /api/v1/evolution/strategies
+    - button "auto_fix_high 生成路径优化建议" [active] [ref=e190] [cursor=pointer]:
+      - generic [ref=e191]: auto_fix_high
+      - generic [ref=e192]: 生成路径优化建议

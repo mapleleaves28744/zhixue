@@ -39,7 +39,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://zhixue:zhixue_password@postgres:5432/zhixue}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://zhixue:zhixue_password@postgres:5432/zhixue}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
     ports:
       - "${BACKEND_PORT:-8000}:8000"

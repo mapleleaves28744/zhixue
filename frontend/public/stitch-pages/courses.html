@@ -154,6 +154,33 @@
         .orb-1 { top: -5%; left: -5%; width: 35vw; height: 35vw; background: rgba(249, 168, 38, 0.12); }
         .orb-2 { bottom: -10%; right: -5%; width: 45vw; height: 45vw; background: rgba(125, 83, 84, 0.08); }
         .orb-3 { top: 30%; left: 25%; width: 25vw; height: 25vw; background: rgba(131, 84, 0, 0.05); }
+        .zhixue-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(49, 48, 48, 0.28);
+            backdrop-filter: blur(18px);
+        }
+        .zhixue-modal[data-open="true"] {
+            display: flex;
+        }
+        .zhixue-field {
+            width: 100%;
+            border: 1px solid rgba(133, 116, 98, 0.32);
+            border-radius: 16px;
+            background: rgba(252, 249, 248, 0.82);
+            padding: 12px 14px;
+            color: #1c1b1b;
+            outline: none;
+        }
+        .zhixue-field:focus {
+            border-color: #835400;
+            box-shadow: 0 0 0 4px rgba(131, 84, 0, 0.12);
+        }
     </style>
 </head>
 <body class="font-body-md text-on-surface antialiased min-h-screen overflow-x-hidden">
@@ -166,7 +193,7 @@
 <div class="mb-6 w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center bg-primary/10">
 <img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASTPmeLbPWX_qVTQ5CJBuSdz5pF8Uzv31LiZpnpFLz661UFTMeV4ybk_4b7boUcEo6pH54TwBNycTiWNes0xQTyVbATpXOD7Nn3vxjAg5KLDdlzDIPP6JT2yxQbPvgVHL20k2eITrLP5wVeLm-8aYYav8WK5XasdqT2L64x_9H-OsT1w-guVqQ28yrdr-tYCPBMabrnkkHkuuTxWqWKVzoJEAmsGbHn3JU8plVHQBGXTj6_FZg9BDLj-QeYWJZ8svnr2EBh3R2Qro"/>
 </div>
-<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/" target="_parent" title="首页">
+<a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/home" target="_parent" title="主页">
 <span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
 </a>
 <a class="relative flex items-center justify-center w-12 h-12 bg-white/80 text-primary rounded-2xl shadow-sm border border-white/90 scale-95 active:scale-90 transition-transform" href="/courses" target="_parent" title="课程空间">
@@ -207,9 +234,9 @@
 <button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-white/40 transition-colors">
 <span class="material-symbols-outlined">help_outline</span>
 </button>
-<button class="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm ml-2">
-<img alt="User Academic Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJE6_mKJmvQR9ZSGelzB3GHEgfTpWIJN_h5RAiRX6UXKdEOfaYrdHXirdOXbJkIdl_-nCTjJFbgg4aExjufgT9BDtE_ByRQ-Fblt1lQEhl4gjdQMxwpXmqkVx5ydSgpzxJN5PAW7NJAR00HUYiGbBcuM4sPIQdEUh7WYdtmUqbV0_rztaoor_XyOpuXMJ-Lg4hx4JinM0LOkenlAotFL9jKInNFBSTMQ36RGMnVb9cvCQWMYWm5d9xB68FeNP8emGV6FQB2FbsbDo"/>
-</button>
+<a class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-white/40 transition-colors ml-2" href="/" target="_parent" title="返回介绍页">
+<span class="material-symbols-outlined">cottage</span>
+</a>
 </div>
 </header>
 <!-- Main Content Canvas -->
@@ -382,4 +409,261 @@
 </div>
 </div>
 </main>
+<div aria-hidden="true" class="zhixue-modal" id="course-create-modal">
+<div aria-labelledby="course-create-title" aria-modal="true" class="glass-panel w-[min(92vw,520px)] p-8" role="dialog">
+<div class="flex items-start justify-between gap-4 mb-6">
+<div>
+<p class="font-label-sm text-label-sm text-primary mb-2">Course Workspace</p>
+<h3 class="font-headline-md text-headline-md text-on-surface" id="course-create-title">创建课程空间</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">用现有课程页创建真实课程，后续资料和 Wiki 都会绑定到这个空间。</p>
+</div>
+<button aria-label="关闭" class="w-10 h-10 rounded-full bg-white/70 text-outline hover:text-primary transition-colors" id="course-create-close" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<form class="space-y-4" id="course-create-form">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface" for="course-title">课程标题</label>
+<input class="zhixue-field" id="course-title" maxlength="128" minlength="1" name="title" placeholder="例如：数据结构与算法" required type="text"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface" for="course-code">课程代码</label>
+<input class="zhixue-field" id="course-code" maxlength="64" name="course_code" placeholder="CS202" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface" for="course-subject">学科方向</label>
+<input class="zhixue-field" id="course-subject" maxlength="128" name="subject" placeholder="计算机科学" type="text"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface" for="course-description">课程描述</label>
+<textarea class="zhixue-field min-h-[112px] resize-none" id="course-description" name="description" placeholder="简单描述这门课程的学习目标和资料范围"></textarea>
+</div>
+<p class="min-h-[20px] text-sm font-semibold text-[#93000a]" id="course-create-message"></p>
+<div class="flex justify-end gap-3 pt-2">
+<button class="glass-button-secondary font-label-md text-label-md px-5 py-3" id="course-create-cancel" type="button">取消</button>
+<button class="glass-button-primary font-label-md text-label-md px-6 py-3" id="course-create-submit" type="submit">创建课程</button>
+</div>
+</form>
+</div>
+</div>
+<script src="/stitch-pages/zhixue-static-api.js"></script>
+<script>
+(() => {
+  const api = window.ZhixueStatic;
+  const createButton = Array.from(document.querySelectorAll("button")).find((button) => button.textContent.includes("创建课程"));
+  const importButton = Array.from(document.querySelectorAll("button")).find((button) => button.textContent.includes("导入示例数据"));
+  const modal = document.getElementById("course-create-modal");
+  const closeButton = document.getElementById("course-create-close");
+  const cancelButton = document.getElementById("course-create-cancel");
+  const form = document.getElementById("course-create-form");
+  const submitButton = document.getElementById("course-create-submit");
+  const message = document.getElementById("course-create-message");
+  const mainGrid = document.querySelector("main > .grid");
+  const heroCard = document.querySelector(".lg\\:col-span-8.glass-panel");
+  const currentCourseTitle = document.querySelector(".relative.group.z-20 h2");
+  const recentList = document.querySelector(".lg\\:col-span-12.glass-panel .flex.flex-col.gap-3");
+  let courses = [];
+
+  function openModal() {
+    modal.dataset.open = "true";
+    modal.setAttribute("aria-hidden", "false");
+    message.textContent = "";
+    setTimeout(() => document.getElementById("course-title").focus(), 40);
+  }
+
+  function closeModal() {
+    modal.dataset.open = "false";
+    modal.setAttribute("aria-hidden", "true");
+    form.reset();
+    message.textContent = "";
+  }
+
+  function escapeHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    }[char]));
+  }
+
+  function courseCode(course) {
+    return course.course_code ? ` (${escapeHtml(course.course_code)})` : "";
+  }
+
+  function updateHero(course) {
+    if (!course || !heroCard) {
+      return;
+    }
+    if (currentCourseTitle) {
+      currentCourseTitle.textContent = course.title;
+    }
+    const title = heroCard.querySelector("h3");
+    const desc = heroCard.querySelector("p.font-body-md");
+    const subjectPill = heroCard.querySelector(".bg-primary-fixed\\/30");
+    const statusPill = heroCard.querySelector(".bg-secondary-fixed\\/30");
+    if (title) {
+      title.innerHTML = `${escapeHtml(course.title)} <span class="text-outline font-light text-2xl">${courseCode(course)}</span>`;
+    }
+    if (desc) {
+      desc.textContent = course.description || "这个课程空间已经接入真实 API，可以继续上传资料、解析文本并生成个人 Wiki。";
+    }
+    if (subjectPill) {
+      subjectPill.textContent = course.subject || "个人课程空间";
+    }
+    if (statusPill) {
+      statusPill.textContent = course.status === "archived" ? "已归档" : "进行中";
+    }
+  }
+
+  function renderCoursePanel() {
+    let panel = document.getElementById("real-course-panel");
+    if (!panel) {
+      panel = document.createElement("div");
+      panel.id = "real-course-panel";
+      panel.className = "lg:col-span-12 glass-panel p-container-padding-desktop mb-2";
+      mainGrid.prepend(panel);
+    }
+    if (!courses.length) {
+      panel.innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h4 class="font-headline-md text-headline-md text-on-surface">我的真实课程</h4>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-2">还没有课程。点击右上角“创建课程”，这里会显示真实课程卡片。</p>
+          </div>
+          <button data-action="create-course-empty" class="glass-button-primary font-label-md text-label-md px-6 py-3 flex items-center gap-2 justify-center">
+            <span class="material-symbols-outlined text-sm">add</span>创建第一门课程
+          </button>
+        </div>`;
+      panel.querySelector("[data-action='create-course-empty']").addEventListener("click", openModal);
+      return;
+    }
+    panel.innerHTML = `
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h4 class="font-headline-md text-headline-md text-on-surface">我的真实课程</h4>
+          <p class="font-label-sm text-label-sm text-on-surface-variant mt-1">来自 /api/v1/courses，点击进入课程知识库</p>
+        </div>
+        <span class="font-label-sm text-label-sm text-outline">${courses.length} 门课程</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-card-gap">
+        ${courses.map((course) => `
+          <article class="glass-well p-5 cursor-pointer hover:bg-white/70 transition-all" data-course-id="${course.id}">
+            <div class="flex justify-between gap-3 mb-4">
+              <div>
+                <span class="font-label-sm text-label-sm text-primary">${escapeHtml(course.subject || "个人课程")}</span>
+                <h5 class="font-headline-sm text-headline-sm text-on-surface mt-1">${escapeHtml(course.title)}</h5>
+              </div>
+              <button class="w-9 h-9 rounded-xl bg-white/70 text-outline hover:text-[#93000a] transition-colors" data-action="archive-course" data-course-id="${course.id}" title="归档课程">
+                <span class="material-symbols-outlined text-[18px]">archive</span>
+              </button>
+            </div>
+            <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 min-h-[52px]">${escapeHtml(course.description || "暂无描述，进入知识库上传资料后继续构建学习空间。")}</p>
+            <div class="flex justify-between items-center mt-5 text-[12px] text-on-surface-variant font-semibold">
+              <span>${escapeHtml(course.course_code || "未设置课程代码")}</span>
+              <span>${api.formatDate(course.updated_at)}</span>
+            </div>
+          </article>
+        `).join("")}
+      </div>`;
+
+    panel.querySelectorAll("[data-course-id]").forEach((card) => {
+      card.addEventListener("click", () => api.navigate(`/knowledge?course_id=${card.dataset.courseId}`));
+    });
+    panel.querySelectorAll("[data-action='archive-course']").forEach((button) => {
+      button.addEventListener("click", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const id = button.dataset.courseId;
+        try {
+          await api.request(`/courses/${id}`, { method: "DELETE" });
+          api.toast("课程已归档", "success");
+          await loadCourses();
+        } catch (error) {
+          api.toast(error.message || "归档失败", "error");
+        }
+      });
+    });
+  }
+
+  function renderRecentActivities() {
+    if (!recentList || !courses.length) {
+      return;
+    }
+    recentList.innerHTML = courses.slice(0, 3).map((course) => `
+      <div class="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/60 transition-all cursor-pointer group" data-recent-course-id="${course.id}">
+        <div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary shrink-0 group-hover:bg-primary/5 transition-colors">
+          <span class="material-symbols-outlined">folder_open</span>
+        </div>
+        <div class="flex-grow">
+          <p class="font-body-lg text-body-lg text-on-surface">${escapeHtml(course.title)}</p>
+          <p class="font-label-sm text-label-sm text-on-surface-variant">课程空间 <span class="text-primary font-semibold">${escapeHtml(course.subject || "个人学习")}</span></p>
+        </div>
+        <span class="font-label-sm text-label-sm text-outline whitespace-nowrap">${api.formatDate(course.updated_at)}</span>
+      </div>`).join("");
+    recentList.querySelectorAll("[data-recent-course-id]").forEach((item) => {
+      item.addEventListener("click", () => api.navigate(`/knowledge?course_id=${item.dataset.recentCourseId}`));
+    });
+  }
+
+  async function loadCourses() {
+    try {
+      const page = await api.listCourses({ pageSize: 20, status: "active" });
+      courses = page.items || [];
+      updateHero(courses[0]);
+      renderCoursePanel();
+      renderRecentActivities();
+    } catch (error) {
+      renderCoursePanel();
+      api.toast(error.message || "课程加载失败", "error");
+    }
+  }
+
+  createButton?.addEventListener("click", openModal);
+  closeButton?.addEventListener("click", closeModal);
+  cancelButton?.addEventListener("click", closeModal);
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      closeModal();
+    }
+  });
+  importButton?.addEventListener("click", () => {
+    api.toast("演示数据导入会在后续阶段接入；当前请先创建课程并上传资料。", "info");
+  });
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const payload = {
+      title: String(data.get("title") || "").trim(),
+      course_code: String(data.get("course_code") || "").trim() || null,
+      subject: String(data.get("subject") || "").trim() || null,
+      description: String(data.get("description") || "").trim() || null,
+    };
+    if (!payload.title) {
+      message.textContent = "请填写课程标题。";
+      return;
+    }
+    submitButton.disabled = true;
+    submitButton.textContent = "正在创建...";
+    message.textContent = "";
+    try {
+      const course = await api.request("/courses", { method: "POST", body: payload });
+      api.toast("课程创建成功", "success");
+      closeModal();
+      await loadCourses();
+      api.navigate(`/knowledge?course_id=${course.id}`);
+    } catch (error) {
+      message.textContent = error.message || "创建失败，请稍后重试。";
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = "创建课程";
+    }
+  });
+
+  void loadCourses();
+})();
+</script>
 </body></html>

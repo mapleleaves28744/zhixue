@@ -11,8 +11,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
+    from app.models.knowledge import KnowledgePoint
+    from app.models.learning_path import LearningPath
     from app.models.material import CourseMaterial
     from app.models.profile import LearningPreference
+    from app.models.quiz import Quiz
     from app.models.user import User
 
 
@@ -67,5 +70,17 @@ class Course(Base):
     )
     learning_preferences: Mapped[list[LearningPreference]] = relationship(
         "LearningPreference",
+        back_populates="course",
+    )
+    knowledge_points: Mapped[list[KnowledgePoint]] = relationship(
+        "KnowledgePoint",
+        back_populates="course",
+    )
+    quizzes: Mapped[list[Quiz]] = relationship(
+        "Quiz",
+        back_populates="course",
+    )
+    learning_paths: Mapped[list[LearningPath]] = relationship(
+        "LearningPath",
         back_populates="course",
     )

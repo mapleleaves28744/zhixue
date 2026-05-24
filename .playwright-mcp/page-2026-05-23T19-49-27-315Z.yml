@@ -1,0 +1,193 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - img "User Avatar" [ref=e5]
+      - link "home" [ref=e6] [cursor=pointer]:
+        - /url: /home
+        - generic [ref=e7]: home
+      - link "grid_view" [ref=e8] [cursor=pointer]:
+        - /url: /courses
+        - generic [ref=e9]: grid_view
+      - link "smart_toy" [ref=e10] [cursor=pointer]:
+        - /url: /assistant
+        - generic [ref=e11]: smart_toy
+      - link "inventory_2" [ref=e12] [cursor=pointer]:
+        - /url: /practice
+        - generic [ref=e13]: inventory_2
+      - link "dashboard" [ref=e14] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e15]: dashboard
+      - link "menu_book" [ref=e16] [cursor=pointer]:
+        - /url: /knowledge
+        - generic [ref=e17]: menu_book
+      - link "route" [ref=e18] [cursor=pointer]:
+        - /url: /path-profile
+        - generic [ref=e20]: route
+    - main [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - generic [ref=e25]: analytics
+          - generic [ref=e26]:
+            - heading "学习路径与个人模型" [level=2] [ref=e27]
+            - paragraph [ref=e28]: 实时追踪您的知识成长曲线与策略演化
+        - generic [ref=e29]:
+          - button "notifications" [ref=e30] [cursor=pointer]:
+            - generic [ref=e31]: notifications
+          - button "help_outline" [ref=e33] [cursor=pointer]:
+            - generic [ref=e34]: help_outline
+          - link "cottage" [ref=e35] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e36]: cottage
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - heading "route 推荐学习路径" [level=3] [ref=e40]:
+              - generic [ref=e41]: route
+              - text: 推荐学习路径
+            - generic [ref=e42]: AI 定制计划
+          - generic [ref=e43]:
+            - generic [ref=e45]:
+              - generic [ref=e47]: check
+              - generic [ref=e48]:
+                - paragraph [ref=e49]: 高等数学基础
+                - paragraph [ref=e50]: 已完成 24/24 课时
+                - text: 前置必备
+            - generic [ref=e51]:
+              - generic [ref=e54]: pending
+              - generic [ref=e55]:
+                - paragraph [ref=e56]: 导数应用详解
+                - paragraph [ref=e57]: 进度 45% (当前核心)
+                - text: "推荐关注: 物理建模"
+            - generic [ref=e58]:
+              - generic [ref=e60]: lock
+              - generic [ref=e61]:
+                - paragraph [ref=e62]: 多元积分进阶
+                - paragraph [ref=e63]: "预计解锁: 下周二"
+                - text: 个性化扩充
+            - generic [ref=e64]:
+              - generic [ref=e66]: flag
+              - generic [ref=e67]:
+                - paragraph [ref=e68]: 工程应用实战
+                - paragraph [ref=e69]: "目标课时: 12"
+          - generic [ref=e71]:
+            - generic [ref=e72]: lightbulb
+            - generic [ref=e73]:
+              - paragraph [ref=e74]: 推荐理由
+              - paragraph [ref=e75]: 基于你近期在“物理力学”练习中的表现，系统识别出你对“曲率计算”掌握薄弱。建议优先完成“导数应用详解”中的第3-5章，这将有效提升你的物理建模效率。
+        - generic [ref=e76]:
+          - heading "face_6 学生画像摘要" [level=3] [ref=e77]:
+            - generic [ref=e78]: face_6
+            - text: 学生画像摘要
+          - generic [ref=e79]:
+            - generic [ref=e80]:
+              - img [ref=e81]
+              - generic [ref=e84]:
+                - paragraph [ref=e85]: 88%
+                - paragraph [ref=e86]: 知识掌控度
+            - generic [ref=e89]:
+              - paragraph [ref=e90]:
+                - generic [ref=e91]: psychology_alt
+                - text: 学习偏好
+              - generic [ref=e92]:
+                - generic [ref=e93]: 视觉型学习者
+                - generic [ref=e94]: 清晨活跃期
+                - generic [ref=e95]: 偏向公式推演
+            - generic [ref=e96]:
+              - generic [ref=e97]:
+                - paragraph [ref=e98]: 最近一周进步
+                - paragraph [ref=e99]: +4.2%
+              - button "查看完整报告 arrow_forward" [ref=e100] [cursor=pointer]:
+                - text: 查看完整报告
+                - generic [ref=e101]: arrow_forward
+        - generic [ref=e102]:
+          - generic [ref=e103]:
+            - heading "memory 长期记忆" [level=3] [ref=e104]:
+              - generic [ref=e105]: memory
+              - text: 长期记忆
+            - generic [ref=e106] [cursor=pointer]: history
+          - generic [ref=e107]:
+            - generic [ref=e108]:
+              - generic [ref=e109]:
+                - generic [ref=e111]: menu_book
+                - generic [ref=e112]:
+                  - paragraph [ref=e113]: 拉格朗日中值定理
+                  - paragraph [ref=e114]: 巩固于 2023.10.15
+              - generic [ref=e115]:
+                - button "link" [ref=e116] [cursor=pointer]:
+                  - generic [ref=e117]: link
+                - button "archive" [ref=e118] [cursor=pointer]:
+                  - generic [ref=e119]: archive
+            - generic [ref=e120]:
+              - generic [ref=e121]:
+                - generic [ref=e123]: functions
+                - generic [ref=e124]:
+                  - paragraph [ref=e125]: 傅里叶级数收敛性
+                  - paragraph [ref=e126]: 巩固于 2023.09.28
+              - generic [ref=e127]:
+                - button "link" [ref=e128] [cursor=pointer]:
+                  - generic [ref=e129]: link
+                - button "archive" [ref=e130] [cursor=pointer]:
+                  - generic [ref=e131]: archive
+            - generic [ref=e132]:
+              - generic [ref=e133]:
+                - generic [ref=e135]: biotech
+                - generic [ref=e136]:
+                  - paragraph [ref=e137]: 纳维-斯托克斯方程
+                  - paragraph [ref=e138]: 巩固于 2023.08.12
+              - generic [ref=e139]:
+                - button "link" [ref=e140] [cursor=pointer]:
+                  - generic [ref=e141]: link
+                - button "archive" [ref=e142] [cursor=pointer]:
+                  - generic [ref=e143]: archive
+          - button "+ 添加自定义记忆节点" [ref=e144] [cursor=pointer]
+        - generic [ref=e145]:
+          - generic [ref=e146]:
+            - heading "bolt 自进化策略" [level=3] [ref=e147]:
+              - generic [ref=e148]: bolt
+              - text: 自进化策略
+            - generic [ref=e149]:
+              - button "版本记录" [ref=e150] [cursor=pointer]
+              - button "应用全部" [ref=e151] [cursor=pointer]
+          - table [ref=e153]:
+            - rowgroup [ref=e154]:
+              - row "策略维度 当前方案 (V2.4) 进化预测 (V2.5) 风险等级 操作" [ref=e155]:
+                - columnheader "策略维度" [ref=e156]
+                - columnheader "当前方案 (V2.4)" [ref=e157]
+                - columnheader "进化预测 (V2.5)" [ref=e158]
+                - columnheader "风险等级" [ref=e159]
+                - columnheader "操作" [ref=e160]
+            - rowgroup [ref=e161]:
+              - row "难度调节 线性递增 (+10%) 动态反馈 (+5%~15%) 低风险 确认" [ref=e162]:
+                - cell "难度调节" [ref=e163]
+                - cell "线性递增 (+10%)" [ref=e164]
+                - cell "动态反馈 (+5%~15%)" [ref=e165]
+                - cell "低风险" [ref=e166]
+                - cell "确认" [ref=e167]:
+                  - button "确认" [ref=e168] [cursor=pointer]
+              - row "知识跳跃 严格遵循大纲 基于语义关联跨级 高风险 驳回 强制更新" [ref=e169]:
+                - cell "知识跳跃" [ref=e170]
+                - cell "严格遵循大纲" [ref=e171]
+                - cell "基于语义关联跨级" [ref=e172]
+                - cell "高风险" [ref=e173]
+                - cell "驳回 强制更新" [ref=e174]:
+                  - button "驳回" [ref=e175] [cursor=pointer]
+                  - button "强制更新" [ref=e176] [cursor=pointer]
+              - row "交互偏好 文本+图形 沉浸式 3D 模拟 中风险 确认" [ref=e177]:
+                - cell "交互偏好" [ref=e178]
+                - cell "文本+图形" [ref=e179]
+                - cell "沉浸式 3D 模拟" [ref=e180]
+                - cell "中风险" [ref=e181]
+                - cell "确认" [ref=e182]:
+                  - button "确认" [ref=e183] [cursor=pointer]
+          - generic [ref=e184]:
+            - generic [ref=e185]:
+              - generic [ref=e186]: info
+              - text: 高风险策略可能显著改变学习节奏，建议查看
+              - link "证据链路" [ref=e187] [cursor=pointer]:
+                - /url: "#"
+              - text: 后操作。
+            - paragraph [ref=e188]: "上次自进化时间: 10分钟前"
+      - button "auto_fix_high 生成路径优化建议" [ref=e190] [cursor=pointer]:
+        - generic [ref=e191]: auto_fix_high
+        - generic [ref=e192]: 生成路径优化建议
+  - generic [ref=e193]: 请先登录后再操作
