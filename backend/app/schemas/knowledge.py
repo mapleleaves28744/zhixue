@@ -34,6 +34,8 @@ class KnowledgePointRead(BaseModel):
 
     id: UUID
     course_id: UUID
+    owner_id: UUID | None = None
+    scope: str = "personal"
     name: str
     chapter: str | None = None
     description: str | None = None

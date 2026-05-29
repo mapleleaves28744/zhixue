@@ -9,6 +9,7 @@ from app.agents.registry import AgentRegistry
 from app.llm import ChatMessage, get_llm_provider
 from app.models.wiki import WikiPage
 from app.rag.retriever import VectorRetriever
+from app.repositories.course_repository import CourseRepository
 from app.repositories.wiki_repository import WikiRepository
 from app.services.memory_service import MemoryService
 from app.services.prompt_service import PromptService
@@ -21,9 +22,53 @@ class TutorAgent(BaseAgent):
     description = "基于 RAG、Wiki、画像和记忆的课程问答"
 
     async def run(self, context: AgentContext) -> AgentResult:
-        question = context.params.get("question", "")
-        if not question:
+        try:
+            prepared = await self.prepare_chat_context(context)
+        except ValueError:
             return self.error_result(message="缺少 question 参数")
+
+        llm = get_llm_provider(
+            db=self.db,
+            user_id=context.user_id,
+            course_id=context.course_id,
+            agent_run_id=context.run_id,
+        )
+        response = await llm.chat(
+            [ChatMessage(role="user", content=prepared["prompt"])],
+            temperature=0.7,
+            max_tokens=2048,
+            prompt_version_id=prepared["prompt_version_id"],
+        )
+        response_meta = response.raw or {}
+
+        answer = self.finalize_answer(response.content, prepared["citations"])
+
+        return self.success_result(
+            data={
+                "answer": answer,
+                "model": response.model,
+                "citations": prepared["citations"],
+                "related_knowledge_points": prepared["related_knowledge_points"],
+                "follow_up_questions": prepared["follow_up_questions"],
+                "save_to_wiki_candidate": self._save_candidate(prepared["question"], answer),
+                "agent_run_id": str(context.run_id) if context.run_id else None,
+                "provider": response.provider,
+                "fallback_used": bool(response_meta.get("fallback_used")),
+                "failed_provider": response_meta.get("failed_provider"),
+                "fallback_reason": response_meta.get("fallback_reason"),
+                "memory_update_suggestion": {
+                    "should_reflect": True,
+                    "reason": "本次问答可作为学生关注知识点和解释偏好的证据。",
+                },
+            },
+            message="问答完成",
+            evidence=prepared["evidence"],
+        )
+
+    async def prepare_chat_context(self, context: AgentContext) -> dict[str, Any]:
+        question = str(context.params.get("question") or "").strip()
+        if not question:
+            raise ValueError("缺少 question 参数")
 
         use_rag = bool(context.params.get("use_rag", True))
         use_wiki = bool(context.params.get("use_wiki", True))
@@ -39,6 +84,7 @@ class TutorAgent(BaseAgent):
                 results = await retriever.search(
                     course_id=context.course_id,
                     query=question,
+                    user_id=context.user_id,
                     top_k=context.params.get("top_k", 5),
                     knowledge_id=knowledge_id,
                 )
@@ -70,8 +116,7 @@ class TutorAgent(BaseAgent):
         related_knowledge_points = self._related_knowledge_points(question, wiki_pages)
         follow_up_questions = self._follow_up_questions(related_knowledge_points)
 
-        prompts = PromptService(self.db)
-        rendered = await prompts.render_prompt(
+        rendered = await PromptService(self.db).render_prompt(
             agent_name="TutorAgent",
             scene="tutor.qa",
             params={
@@ -82,44 +127,24 @@ class TutorAgent(BaseAgent):
                 "memory_context": memory_context[:1200],
             },
         )
-
-        llm = get_llm_provider(
-            db=self.db,
-            user_id=context.user_id,
-            course_id=context.course_id,
-            agent_run_id=context.run_id,
-        )
-        response = await llm.chat(
-            [ChatMessage(role="user", content=rendered.content)],
-            temperature=0.7,
-            max_tokens=2048,
-            prompt_version_id=rendered.prompt_version_id,
-        )
-
-        answer = response.content.strip()
-        if citations and citations[0]["source_type"] == "inference" and "AI 推断内容" not in answer:
-            answer = f"{answer}\n\n依据说明：AI 推断内容，建议核对课程资料。"
-
-        return self.success_result(
-            data={
-                "answer": answer,
-                "model": response.model,
-                "citations": citations,
-                "related_knowledge_points": related_knowledge_points,
-                "follow_up_questions": follow_up_questions,
-                "save_to_wiki_candidate": self._save_candidate(question, answer),
-                "agent_run_id": str(context.run_id) if context.run_id else None,
-                "memory_update_suggestion": {
-                    "should_reflect": True,
-                    "reason": "本次问答可作为学生关注知识点和解释偏好的证据。",
-                },
-            },
-            message="问答完成",
-            evidence=[
+        return {
+            "question": question,
+            "prompt": rendered.content,
+            "prompt_version_id": rendered.prompt_version_id,
+            "citations": citations,
+            "related_knowledge_points": related_knowledge_points,
+            "follow_up_questions": follow_up_questions,
+            "evidence": [
                 f"基于 {len(results)} 个文档片段检索",
                 f"关联 {len(wiki_pages)} 个 Wiki 页面",
             ],
-        )
+        }
+
+    def finalize_answer(self, content: str, citations: list[dict[str, Any]]) -> str:
+        answer = content.strip()
+        if citations and citations[0]["source_type"] == "inference" and "AI 推断内容" not in answer:
+            answer = f"{answer}\n\n依据说明：AI 推断内容，建议核对课程资料。"
+        return answer
 
     async def _load_wiki_pages(
         self,
@@ -133,13 +158,29 @@ class TutorAgent(BaseAgent):
         if not enabled:
             return []
         repo = WikiRepository(self.db)
+        course = await CourseRepository(self.db).get_by_id(course_id)
+        public_owner_id = None
+        if course and course.visibility == "public_template" and course.status == "active":
+            public_owner_id = course.owner_id
         if wiki_page_id is not None:
             page = await repo.get_by_id_simple(wiki_page_id)
-            if page and page.owner_id == user_id and page.course_id == course_id and page.status == "active":
+            is_visible = (
+                page is not None
+                and page.course_id == course_id
+                and page.status == "active"
+                and (
+                    page.owner_id == user_id
+                    or (public_owner_id is not None and page.owner_id == public_owner_id)
+                )
+            )
+            if is_visible and page is not None:
                 return [page]
             return []
 
-        pages, _ = await repo.list_by_owner(user_id, course_id, page_size=20)
+        owner_ids = [user_id]
+        if public_owner_id is not None and public_owner_id != user_id:
+            owner_ids.append(public_owner_id)
+        pages, _ = await repo.list_by_owners(owner_ids, course_id, page_size=20)
         scored: list[tuple[int, WikiPage]] = []
         question_lower = question.lower()
         for page in pages:

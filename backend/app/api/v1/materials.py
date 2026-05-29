@@ -100,7 +100,7 @@ async def chunk_material(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    material = await MaterialService(db)._get_accessible_material(material_id, current_user)
+    material = await MaterialService(db).get_writable_material(material_id, current_user)
     chunks = await ChunkService(db).chunk_material(material)
     return success_response(
         {
@@ -118,7 +118,7 @@ async def embed_material(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    await MaterialService(db)._get_accessible_material(material_id, current_user)
+    await MaterialService(db).get_writable_material(material_id, current_user)
     count = await EmbeddingService(db).generate_embeddings(material_id)
     return success_response(
         {

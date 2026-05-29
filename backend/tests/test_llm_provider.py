@@ -6,7 +6,14 @@ import pytest
 
 from app.llm.adapters.base import BaseLLMProvider
 from app.llm.adapters.mock_provider import MockLLMProvider
-from app.llm.provider import LoggingLLMProvider, get_llm_provider
+from app.llm.embedding import (
+    BaseEmbeddingProvider,
+    FallbackEmbeddingProvider,
+    MockEmbeddingProvider,
+    OpenAICompatibleEmbeddingProvider,
+    get_embedding_provider,
+)
+from app.llm.provider import FallbackLLMProvider, LoggingLLMProvider, get_llm_provider
 from app.llm.schemas import ChatMessage, ChatResponse
 
 
@@ -77,6 +84,84 @@ async def _test_mock_embedding_is_stable_and_distinguishes_texts() -> None:
     assert first.embeddings[0] != first.embeddings[1]
 
 
+def test_embedding_provider_prefers_embedding_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    from types import SimpleNamespace
+
+    import app.llm.embedding as embedding_module
+
+    monkeypatch.setattr(
+        embedding_module,
+        "settings",
+        SimpleNamespace(
+            embedding_provider="openai_compatible",
+            embedding_api_key="embedding-key",
+            embedding_base_url="https://embedding.example/v1",
+            llm_api_key="llm-key",
+            llm_base_url="https://llm.example/v1",
+            embedding_model="text-embedding-test",
+            embedding_dimension=1024,
+        ),
+    )
+
+    provider = get_embedding_provider()
+
+    assert isinstance(provider, FallbackEmbeddingProvider)
+    assert isinstance(provider.primary, OpenAICompatibleEmbeddingProvider)
+    assert provider.primary._api_key == "embedding-key"
+    assert provider.primary._base_url == "https://embedding.example/v1"
+
+
+def test_embedding_provider_uses_mock_without_any_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    from types import SimpleNamespace
+
+    import app.llm.embedding as embedding_module
+
+    monkeypatch.setattr(
+        embedding_module,
+        "settings",
+        SimpleNamespace(
+            embedding_provider="openai_compatible",
+            embedding_api_key="",
+            embedding_base_url="",
+            llm_api_key="",
+            llm_base_url="",
+            embedding_model="text-embedding-test",
+            embedding_dimension=1024,
+        ),
+    )
+
+    provider = get_embedding_provider()
+
+    assert isinstance(provider, MockEmbeddingProvider)
+
+
+def test_embedding_provider_keeps_legacy_llm_key_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
+    from types import SimpleNamespace
+
+    import app.llm.embedding as embedding_module
+
+    monkeypatch.setattr(
+        embedding_module,
+        "settings",
+        SimpleNamespace(
+            embedding_provider="openai_compatible",
+            embedding_api_key="",
+            embedding_base_url="",
+            llm_api_key="legacy-llm-key",
+            llm_base_url="https://legacy.example/v1",
+            embedding_model="text-embedding-test",
+            embedding_dimension=1024,
+        ),
+    )
+
+    provider = get_embedding_provider()
+
+    assert isinstance(provider, FallbackEmbeddingProvider)
+    assert isinstance(provider.primary, OpenAICompatibleEmbeddingProvider)
+    assert provider.primary._api_key == "legacy-llm-key"
+    assert provider.primary._base_url == "https://legacy.example/v1"
+
+
 def test_compatible_without_api_key_falls_back_to_mock(monkeypatch: pytest.MonkeyPatch) -> None:
     from types import SimpleNamespace
 
@@ -141,3 +226,43 @@ async def _test_logging_provider_records_failed_calls_safely() -> None:
     log = db.items[0]
     assert getattr(log, "status") == "failed"
     assert "should-not-leak" not in str(getattr(log, "error_message"))
+
+
+def test_llm_fallback_provider_uses_mock_when_primary_fails() -> None:
+    asyncio.run(_test_llm_fallback_provider_uses_mock_when_primary_fails())
+
+
+async def _test_llm_fallback_provider_uses_mock_when_primary_fails() -> None:
+    provider = FallbackLLMProvider(FailingProvider(), MockLLMProvider())
+
+    response = await provider.chat([ChatMessage(role="user", content="请解释栈与队列")])
+
+    assert response.provider == "mock"
+    assert response.raw["fallback_used"] is True
+    assert "栈" in response.content
+
+
+class FailingEmbeddingProvider(BaseEmbeddingProvider):
+    @property
+    def dimension(self) -> int:
+        return 1024
+
+    async def embed_texts(self, texts: list[str]) -> list[list[float]]:
+        raise RuntimeError("embedding failed")
+
+
+def test_embedding_fallback_provider_uses_mock_vectors() -> None:
+    asyncio.run(_test_embedding_fallback_provider_uses_mock_vectors())
+
+
+async def _test_embedding_fallback_provider_uses_mock_vectors() -> None:
+    provider = FallbackEmbeddingProvider(
+        FailingEmbeddingProvider(),
+        MockEmbeddingProvider(1024),
+    )
+
+    vectors = await provider.embed_texts(["栈", "队列"])
+
+    assert len(vectors) == 2
+    assert len(vectors[0]) == 1024
+    assert vectors[0] != vectors[1]

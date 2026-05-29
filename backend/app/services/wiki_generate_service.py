@@ -59,7 +59,7 @@ class WikiGenerateService:
                 status_code=400,
             )
 
-        knowledge_points = await self.knowledge.list_by_course(course_id)
+        knowledge_points = await self.knowledge.list_by_owner(course_id, owner_id)
         if not knowledge_points:
             raise BusinessException(
                 code=ErrorCode.PARAM_ERROR,

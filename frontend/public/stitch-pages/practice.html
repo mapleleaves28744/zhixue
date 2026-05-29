@@ -4,98 +4,8 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>练习与诊断 - 智学工坊</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-  tailwind.config = {
-    darkMode: "class",
-    theme: {
-      extend: {
-        "colors": {
-                "on-tertiary-fixed": "#151c22",
-                "surface": "#fcf9f8",
-                "primary-container": "#f9a826",
-                "inverse-on-surface": "#f3f0ef",
-                "surface-container-lowest": "#ffffff",
-                "primary-fixed": "#ffddb5",
-                "on-surface-variant": "#524434",
-                "surface-tint": "#835400",
-                "surface-container-highest": "#e5e2e1",
-                "tertiary": "#585f66",
-                "on-secondary-fixed": "#301214",
-                "tertiary-fixed-dim": "#c0c7cf",
-                "surface-container-high": "#eae7e7",
-                "inverse-primary": "#ffb957",
-                "surface-variant": "#e5e2e1",
-                "on-surface": "#1c1b1b",
-                "surface-bright": "#fcf9f8",
-                "on-secondary-fixed-variant": "#633c3d",
-                "outline-variant": "#d7c3ae",
-                "background": "#fcf9f8",
-                "on-primary": "#ffffff",
-                "on-primary-container": "#674100",
-                "inverse-surface": "#313030",
-                "error": "#ba1a1a",
-                "secondary-fixed-dim": "#efb9b9",
-                "outline": "#857462",
-                "on-tertiary-fixed-variant": "#40484e",
-                "secondary-container": "#fec7c7",
-                "secondary-fixed": "#ffdad9",
-                "tertiary-fixed": "#dce3eb",
-                "tertiary-container": "#b3bac2",
-                "on-primary-fixed-variant": "#643f00",
-                "surface-container-low": "#f6f3f2",
-                "secondary": "#7d5354",
-                "primary": "#835400",
-                "on-primary-fixed": "#2a1800",
-                "error-container": "#ffdad6",
-                "surface-container": "#f0eded",
-                "on-secondary-container": "#7a5051",
-                "on-error": "#ffffff",
-                "primary-fixed-dim": "#ffb957",
-                "on-background": "#1c1b1b",
-                "surface-dim": "#dcd9d9",
-                "on-secondary": "#ffffff",
-                "on-error-container": "#93000a",
-                "on-tertiary": "#ffffff",
-                "on-tertiary-container": "#434a51"
-        },
-        "borderRadius": {
-                "DEFAULT": "0.25rem",
-                "lg": "0.5rem",
-                "xl": "0.75rem",
-                "full": "9999px"
-        },
-        "spacing": {
-                "unit": "8px",
-                "card-gap": "24px",
-                "container-padding-desktop": "48px",
-                "container-padding-mobile": "20px",
-                "gutter": "16px"
-        },
-        "fontFamily": {
-                "display-lg": ["Plus Jakarta Sans"],
-                "label-md": ["Manrope"],
-                "headline-sm": ["Plus Jakarta Sans"],
-                "body-lg": ["Manrope"],
-                "label-sm": ["Manrope"],
-                "body-md": ["Manrope"],
-                "headline-md": ["Plus Jakarta Sans"]
-        },
-        "fontSize": {
-                "display-lg": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
-                "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
-                "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "500"}],
-                "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "700"}],
-                "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
-                "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
-        }
-      },
-    },
-  }
-</script>
+<link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
+<link href="/fonts/material-symbols.css" rel="stylesheet"/>
 <style>
         body {
             background-color: #fcf9f8;
@@ -134,8 +44,8 @@
 <div class="flex h-screen overflow-hidden">
 <!-- SideNavBar -->
 <nav class="fixed h-screen w-20 left-0 top-0 bg-white/40 backdrop-blur-xl border-r border-outline-variant/30 flex flex-col items-center py-6 gap-4 z-50 hidden md:flex">
-<div class="mb-6 w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center bg-primary/10">
-<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSTPmeLbPWX_qVTQ5CJBuSdz5pF8Uzv31LiZpnpFLz661UFTMeV4ybk_4b7boUcEo6pH54TwBNycTiWNes0xQTyVbATpXOD7Nn3vxjAg5KLDdlzDIPP6JT2yxQbPvgVHL20k2eITrLP5wVeLm-8aYYav8WK5XasdqT2L64x_9H-OsT1w-guVqQ28yrdr-tYCPBMabrnkkHkuuTxWqWKVzoJEAmsGbHn3JU8plVHQBGXTj6_FZg9BDLj-QeYWJZ8svnr2EBh3R2Qro"/>
+<div class="mb-6 w-12 h-12 rounded-full border-2 border-white shadow-sm flex items-center justify-center bg-primary text-on-primary" title="当前用户">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">school</span>
 </div>
 <a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/home" target="_parent" title="主页">
 <span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
@@ -437,6 +347,11 @@
         let originalPracticeHTML = null;
         let isGenerating = false;
         let isSubmitting = false;
+        const rightColumn = document.querySelector('.col-span-12.lg\\:col-span-4');
+        const sideSections = rightColumn ? rightColumn.querySelectorAll('section.glass-card') : [];
+        const sideDiagnosisSection = sideSections[0];
+        const sideRecommendationSection = sideSections[1];
+        const sideProgressCard = rightColumn ? rightColumn.querySelector(':scope > .relative.glass-card') : null;
 
         // Tab switching
         const tabButtons = document.querySelectorAll('.flex.gap-10 button');
@@ -494,6 +409,7 @@
             }
             const container = document.querySelector('.col-span-12.lg\\:col-span-8');
             if (container) originalPracticeHTML = container.innerHTML;
+            await loadSideRecommendations();
         }
         init();
 
@@ -736,6 +652,101 @@
             `;
         }
 
+        function renderSideDiagnosis(report) {
+            if (!sideDiagnosisSection) return;
+            const weakText = (report.weaknesses || [])[0] || (report.weak_points || [])[0]?.knowledge_name || '暂无明显薄弱点';
+            const evidence = report.total_questions
+                ? `基于 ${report.total_questions} 道真实练习，正确率 ${Math.round((report.accuracy || 0) * 100)}%。`
+                : '等待更多答题记录形成稳定诊断。';
+            sideDiagnosisSection.innerHTML = `
+                <h3 class="font-bold mb-6 flex items-center gap-2 text-headline-sm">
+                    <span class="material-symbols-outlined text-primary">analytics</span>
+                    掌握度矩阵
+                </h3>
+                <div class="grid grid-cols-3 gap-3 mb-5">
+                    <div class="rounded-xl bg-white/50 p-3 text-center border border-white/60">
+                        <p class="text-xl font-bold text-primary">${Math.round((report.accuracy || 0) * 100)}%</p>
+                        <p class="text-[11px] text-outline">正确率</p>
+                    </div>
+                    <div class="rounded-xl bg-white/50 p-3 text-center border border-white/60">
+                        <p class="text-xl font-bold text-primary">${report.total_questions || 0}</p>
+                        <p class="text-[11px] text-outline">题数</p>
+                    </div>
+                    <div class="rounded-xl bg-white/50 p-3 text-center border border-white/60">
+                        <p class="text-xl font-bold text-primary">${(report.recommended_actions || report.recommendations || []).length}</p>
+                        <p class="text-[11px] text-outline">建议</p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="p-3 bg-error-container/20 border border-error/10 rounded-lg">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-label-sm font-bold text-error">薄弱知识点</span>
+                            <span class="text-[10px] text-error font-bold px-1.5 py-0.5 bg-white/50 rounded">真实诊断</span>
+                        </div>
+                        <p class="text-sm font-semibold text-on-surface">${escapeHtml(weakText)}</p>
+                    </div>
+                    <div class="p-3 bg-surface-container-high rounded-lg border border-outline-variant/20">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-label-sm font-bold text-on-surface-variant">诊断证据</span>
+                        </div>
+                        <p class="text-[11px] text-on-surface-variant leading-tight">${escapeHtml(evidence)}</p>
+                    </div>
+                </div>
+            `;
+            if (sideProgressCard) {
+                sideProgressCard.innerHTML = `
+                    <div class="relative z-10 w-full">
+                        <p class="text-label-sm font-bold text-on-surface-variant mb-2">${escapeHtml(report.summary || '继续积累练习数据，诊断会越来越稳定。')}</p>
+                        <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden shadow-inner">
+                            <div class="bg-primary h-full" style="width:${Math.max(8, Math.round((report.accuracy || 0) * 100))}%"></div>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 w-20 h-20 bg-primary-container/10 rounded-full blur-2xl"></div>
+                `;
+            }
+        }
+
+        function renderSideRecommendations(items) {
+            if (!sideRecommendationSection) return;
+            const recommendations = (items || []).slice(0, 3);
+            sideRecommendationSection.innerHTML = `
+                <h3 class="font-bold mb-5 flex items-center gap-2 text-headline-sm">
+                    <span class="material-symbols-outlined text-primary">auto_fix_high</span>
+                    智能下一步
+                </h3>
+                <div class="space-y-4">
+                    ${recommendations.length ? recommendations.map((item) => `
+                        <div class="bg-white/60 rounded-xl p-4 border border-outline-variant/30 hover:shadow-md transition-shadow group">
+                            <div class="flex items-start gap-3 mb-3">
+                                <div class="w-9 h-9 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined text-xl">task_alt</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h5 class="text-sm font-bold group-hover:text-primary transition-colors">${escapeHtml(item.title)}</h5>
+                                    <p class="text-[11px] text-outline">${escapeHtml(item.reason || '基于诊断、路径和练习记录生成')}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('') : `
+                        <div class="bg-white/60 rounded-xl p-4 border border-outline-variant/30">
+                            <h5 class="text-sm font-bold text-on-surface">继续完成一组当前课程练习</h5>
+                            <p class="text-[11px] text-outline mt-1">完成答题后会生成更精准的推荐。</p>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        async function loadSideRecommendations() {
+            if (!currentCourseId || !api.listRecommendations) return;
+            try {
+                const result = await api.listRecommendations(currentCourseId, { pageSize: 3 });
+                renderSideRecommendations(result.items || []);
+            } catch (_) {
+                renderSideRecommendations([]);
+            }
+        }
+
         function normalizeOptions(options) {
             if (Array.isArray(options)) {
                 return options.reduce((acc, item, index) => {
@@ -790,6 +801,11 @@
         async function loadDiagnosis() {
             try {
                 const result = await api.request('/diagnosis/analyze' + (currentCourseId ? `?course_id=${currentCourseId}` : ''), { method: 'POST' });
+                if (currentCourseId && api.refreshRecommendations) {
+                    await api.refreshRecommendations(currentCourseId).catch(() => null);
+                }
+                renderSideDiagnosis(result);
+                await loadSideRecommendations();
                 const container = document.querySelector('.col-span-12.lg\\:col-span-8');
                 if (!container) return;
                 container.innerHTML = `

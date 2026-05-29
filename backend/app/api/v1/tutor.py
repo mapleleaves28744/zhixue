@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import json
 from collections.abc import AsyncIterator
 from typing import Any
@@ -37,12 +36,12 @@ async def chat_tutor(
     current_user: User = Depends(require_student),
     db: AsyncSession = Depends(get_db),
 ) -> Any:
-    data = await TutorService(db).chat(payload=body, current_user=current_user)
     if body.stream:
         return StreamingResponse(
-            _stream_chat_response(data.model_dump(mode="json")),
+            _stream_tutor_chat(TutorService(db), body, current_user),
             media_type="text/event-stream",
         )
+    data = await TutorService(db).chat(payload=body, current_user=current_user)
     return success_response(data.model_dump(mode="json"), request=request)
 
 
@@ -89,20 +88,18 @@ async def submit_feedback(
     return success_response(data, request=request)
 
 
-async def _stream_chat_response(payload: dict[str, object]) -> AsyncIterator[str]:
-    answer = str(payload.get("answer") or "")
-    if not answer:
-        yield "event: delta\ndata: {\"content\": \"\"}\n\n"
-    for start in range(0, len(answer), 48):
-        chunk = answer[start:start + 48]
-        yield f"event: delta\ndata: {json.dumps({'content': chunk}, ensure_ascii=False)}\n\n"
-        await asyncio.sleep(0.02)
-    done_payload = {
-        "agent_run_id": payload.get("agent_run_id"),
-        "message_id": payload.get("message_id"),
-        "citations": payload.get("citations") or [],
-        "related_knowledge_points": payload.get("related_knowledge_points") or [],
-        "follow_up_questions": payload.get("follow_up_questions") or [],
-        "review_result": payload.get("review_result") or {},
-    }
-    yield f"event: done\ndata: {json.dumps(done_payload, ensure_ascii=False)}\n\n"
+async def _stream_tutor_chat(
+    service: TutorService,
+    body: TutorChatRequest,
+    current_user: User,
+) -> AsyncIterator[str]:
+    try:
+        async for item in service.stream_chat(payload=body, current_user=current_user):
+            event_name = str(item.get("event") or "message")
+            data = item.get("data") or {}
+            if event_name == "delta" and not data.get("content"):
+                continue
+            yield f"event: {event_name}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+    except Exception as exc:
+        error_payload = {"message": str(exc) or "AI Tutor 请求失败"}
+        yield f"event: error\ndata: {json.dumps(error_payload, ensure_ascii=False)}\n\n"

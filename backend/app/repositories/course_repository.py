@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.course import Course
@@ -48,6 +48,32 @@ class CourseRepository:
 
         result = await self.db.execute(
             statement.order_by(Course.created_at.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        return list(result.scalars().all()), int(total or 0)
+
+    async def list_visible_courses(
+        self,
+        user_id: UUID,
+        status: str,
+        page: int,
+        page_size: int,
+    ) -> tuple[list[Course], int]:
+        statement = select(Course).where(
+            or_(
+                Course.owner_id == user_id,
+                Course.visibility == "public_template",
+            )
+        )
+        if status != "all":
+            statement = statement.where(Course.status == status)
+
+        total_statement = select(func.count()).select_from(statement.subquery())
+        total = await self.db.scalar(total_statement)
+
+        result = await self.db.execute(
+            statement.order_by(Course.visibility.asc(), Course.created_at.desc())
             .offset((page - 1) * page_size)
             .limit(page_size)
         )

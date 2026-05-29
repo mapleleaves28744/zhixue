@@ -41,6 +41,18 @@ register_exception_handlers(app)
 app.include_router(api_v1_router, prefix="/api/v1")
 
 
+@app.get("/")
+async def root() -> dict[str, object]:
+    return {
+        "status": "ok",
+        "service": settings.app_name,
+        "message": "Backend API is running. Open the student app at http://127.0.0.1:3000/.",
+        "api_base": "/api/v1",
+        "health": "/health",
+        "docs": "/docs",
+    }
+
+
 @app.get("/health")
 async def health_check() -> dict[str, str]:
     return {"status": "ok", "service": settings.app_name}

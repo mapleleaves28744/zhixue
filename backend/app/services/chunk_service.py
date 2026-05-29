@@ -60,6 +60,10 @@ class ChunkService:
             for cd in chunk_data_list
         ]
         created = await self.chunks.create_batch(rows)
+        material.extra_meta = {
+            **(material.extra_meta or {}),
+            "chunk_count": len(created),
+        }
         await self.db.commit()
         for chunk in created:
             await self.db.refresh(chunk)

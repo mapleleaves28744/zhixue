@@ -34,6 +34,8 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
         self._timeout = timeout
         self._embedding_model = embedding_model or "text-embedding-3-small"
         self._embedding_dimension = embedding_dimension
+        if "xiaomimimo.com" in self._base_url.lower():
+            self.provider_name = "xiaomi_mimo"
 
     async def chat(
         self,

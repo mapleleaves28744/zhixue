@@ -89,6 +89,16 @@ class MockLLMProvider(BaseLLMProvider):
 
         topic = self._detect_topic(user_input)
 
+        if self._is_provider_status_question(user_input):
+            return (
+                "当前这条回答来自 Mock Provider。系统已经优先尝试调用真实大模型；"
+                "如果页面仍显示 mock，通常说明真实 Provider 调用失败后触发了演示兜底。\n\n"
+                "最常见原因包括：API Key 无效或过期、Base URL 不匹配、模型名没有权限、接口返回 401/403，"
+                "或本地网络无法访问模型服务。\n\n"
+                "你可以查看回答下方的 Provider / failed_provider / fallback 信息来判断："
+                "若 failed_provider 是 xiaomi_mimo，说明小米 MiMo 已经被请求过，但失败后回退到了 Mock。"
+            )
+
         if "Quiz Agent" in user_input or "结构化练习题" in user_input or "error_tags" in user_input:
             return self._generate_quiz_response(user_input, topic)
 
@@ -177,6 +187,28 @@ class MockLLMProvider(BaseLLMProvider):
             if topic in user_input:
                 return topic
         return "知识点概述"
+
+    def _is_provider_status_question(self, user_input: str) -> bool:
+        normalized = user_input.lower()
+        provider_keywords = (
+            "真实ai",
+            "真实 ai",
+            "真的ai",
+            "真的 ai",
+            "真实的大模型",
+            "真正的ai",
+            "真正的 ai",
+            "调用的真",
+            "是不是mock",
+            "是不是 mock",
+            "为什么mock",
+            "为什么 mock",
+            "provider",
+            "mimo",
+            "小米",
+            "api",
+        )
+        return any(keyword in normalized for keyword in provider_keywords)
 
     def _generate_quiz_response(self, user_input: str, topic: str) -> str:
         count = self._detect_count(user_input)

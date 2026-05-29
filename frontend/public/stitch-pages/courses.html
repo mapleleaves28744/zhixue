@@ -4,101 +4,8 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Zhixue Gongfang - My Course Space</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "on-tertiary-fixed": "#151c22",
-                        "surface": "#fcf9f8",
-                        "primary-container": "#f9a826",
-                        "inverse-on-surface": "#f3f0ef",
-                        "surface-container-lowest": "#ffffff",
-                        "primary-fixed": "#ffddb5",
-                        "on-surface-variant": "#524434",
-                        "surface-tint": "#835400",
-                        "surface-container-highest": "#e5e2e1",
-                        "tertiary": "#585f66",
-                        "on-secondary-fixed": "#301214",
-                        "tertiary-fixed-dim": "#c0c7cf",
-                        "surface-container-high": "#eae7e7",
-                        "inverse-primary": "#ffb957",
-                        "surface-variant": "#e5e2e1",
-                        "on-surface": "#1c1b1b",
-                        "surface-bright": "#fcf9f8",
-                        "on-secondary-fixed-variant": "#633c3d",
-                        "outline-variant": "#d7c3ae",
-                        "background": "#fcf9f8",
-                        "on-primary": "#ffffff",
-                        "on-primary-container": "#674100",
-                        "inverse-surface": "#313030",
-                        "error": "#ba1a1a",
-                        "secondary-fixed-dim": "#efb9b9",
-                        "outline": "#857462",
-                        "on-tertiary-fixed-variant": "#40484e",
-                        "secondary-container": "#fec7c7",
-                        "secondary-fixed": "#ffdad9",
-                        "tertiary-fixed": "#dce3eb",
-                        "tertiary-container": "#b3bac2",
-                        "on-primary-fixed-variant": "#643f00",
-                        "surface-container-low": "#f6f3f2",
-                        "secondary": "#7d5354",
-                        "primary": "#835400",
-                        "on-primary-fixed": "#2a1800",
-                        "error-container": "#ffdad6",
-                        "surface-container": "#f0eded",
-                        "on-secondary-container": "#7a5051",
-                        "on-error": "#ffffff",
-                        "primary-fixed-dim": "#ffb957",
-                        "on-background": "#1c1b1b",
-                        "surface-dim": "#dcd9d9",
-                        "on-secondary": "#ffffff",
-                        "on-error-container": "#93000a",
-                        "on-tertiary": "#ffffff",
-                        "on-tertiary-container": "#434a51"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "unit": "8px",
-                        "card-gap": "24px",
-                        "container-padding-desktop": "48px",
-                        "container-padding-mobile": "20px",
-                        "gutter": "16px",
-                        "section-margin": "2.5rem"
-                    },
-                    "fontFamily": {
-                        "display-lg": ["Plus Jakarta Sans"],
-                        "label-md": ["Manrope"],
-                        "display-lg-mobile": ["Plus Jakarta Sans"],
-                        "headline-sm": ["Plus Jakarta Sans"],
-                        "body-lg": ["Manrope"],
-                        "label-sm": ["Manrope"],
-                        "body-md": ["Manrope"],
-                        "headline-md": ["Plus Jakarta Sans"]
-                    },
-                    "fontSize": {
-                        "display-lg": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
-                        "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
-                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
-                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "500"}],
-                        "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "700"}],
-                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
-                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
-                    }
-                }
-            }
-        }
-    </script>
+<link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
+<link href="/fonts/material-symbols.css" rel="stylesheet"/>
 <style>
         body { background-color: #fcf9f8; overflow-x: hidden; }
         
@@ -190,8 +97,8 @@
 <div class="ambient-orb orb-3"></div>
 <!-- SideNavBar -->
 <nav class="fixed h-screen w-20 left-0 top-0 bg-white/60 backdrop-blur-2xl border-r border-white/40 shadow-[10px_0_30px_rgba(0,0,0,0.02)] flex flex-col items-center py-6 gap-4 z-50 hidden md:flex">
-<div class="mb-6 w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center bg-primary/10">
-<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASTPmeLbPWX_qVTQ5CJBuSdz5pF8Uzv31LiZpnpFLz661UFTMeV4ybk_4b7boUcEo6pH54TwBNycTiWNes0xQTyVbATpXOD7Nn3vxjAg5KLDdlzDIPP6JT2yxQbPvgVHL20k2eITrLP5wVeLm-8aYYav8WK5XasdqT2L64x_9H-OsT1w-guVqQ28yrdr-tYCPBMabrnkkHkuuTxWqWKVzoJEAmsGbHn3JU8plVHQBGXTj6_FZg9BDLj-QeYWJZ8svnr2EBh3R2Qro"/>
+<div class="mb-6 w-12 h-12 rounded-full border-2 border-white shadow-sm flex items-center justify-center bg-primary text-on-primary" title="当前用户">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">school</span>
 </div>
 <a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/home" target="_parent" title="主页">
 <span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
@@ -268,7 +175,7 @@
 <!-- Hero Course Overview -->
 <div class="lg:col-span-8 glass-panel p-container-padding-desktop relative overflow-hidden flex flex-col justify-between min-h-[320px]">
 <div class="absolute -right-10 -bottom-10 w-64 h-64 opacity-15 pointer-events-none">
-<img alt="AI Core" class="w-full h-full object-cover mix-blend-multiply rounded-full blur-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT-IX0HfdaA2Ohin9WL-sbkEzDNH7AYlSHECL8N-r56FkYIHUn2-uXb2hm5DcmGx0F3cem2MU5bpZdTAV3wnkoxb1EvxrnNWMC84XD87s927nKr2sXr3-iXzFkrn3OpPziouuSg4TBCKfZY8zxS6FdyVRkrwKqwcr2xhWh0IgdnDFGprTgdOD2u1GXfIFkt1DVyHe3Q_gCfu8L75YHoPA-7pFe_cukyDqZuSnBYKi5XL05XQzJIAVsjKaV3UGL9IwSlnVqUZz7ktA"/>
+<img alt="AI Core" class="w-full h-full object-cover mix-blend-multiply rounded-full blur-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT-IX0HfdaA2Ohin9WL-sbkEzDNH7AYlSHECL8N-r56FkYIHUn2-uXb2hm5DcmGx0F3cem2MU5bpZdTAV3wnkoxb1EvxrnNWMC84XD87s927nKr2sXr3-iXzFkrn3OpPziouuSg4TBCKfZY8zxS6FdyVRkrwKqwcr2xhWh0IgdnDFGprTgdOD2u1GXfIFkt1DVyHe3Q_gCfu8L75YHoPA-7pFe_cukyDqZuSnBYKi5XL05XQzJIAVsjKaV3UGL9IwSlnVqUZz7ktA" loading="lazy" decoding="async" referrerpolicy="no-referrer">
 </div>
 <div class="relative z-10">
 <div class="flex items-center gap-3 mb-4">
@@ -494,6 +401,10 @@
     return course.course_code ? ` (${escapeHtml(course.course_code)})` : "";
   }
 
+  function isPublicCourse(course) {
+    return course && course.visibility === "public_template";
+  }
+
   function updateHero(course) {
     if (!course || !heroCard) {
       return;
@@ -509,13 +420,15 @@
       title.innerHTML = `${escapeHtml(course.title)} <span class="text-outline font-light text-2xl">${courseCode(course)}</span>`;
     }
     if (desc) {
-      desc.textContent = course.description || "这个课程空间已经接入真实 API，可以继续上传资料、解析文本并生成个人 Wiki。";
+      desc.textContent = course.description || (isPublicCourse(course)
+        ? "系统内置公共课程底座，所有登录学生可读取公共资料，也可以上传自己的私有扩展资料。"
+        : "这个课程空间已经接入真实 API，可以继续上传资料、解析文本并生成个人 Wiki。");
     }
     if (subjectPill) {
-      subjectPill.textContent = course.subject || "个人课程空间";
+      subjectPill.textContent = isPublicCourse(course) ? "系统内置公共课程" : (course.subject || "个人课程空间");
     }
     if (statusPill) {
-      statusPill.textContent = course.status === "archived" ? "已归档" : "进行中";
+      statusPill.textContent = isPublicCourse(course) ? "公共底座 + 个人扩展" : (course.status === "archived" ? "已归档" : "进行中");
     }
   }
 
@@ -544,8 +457,8 @@
     panel.innerHTML = `
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h4 class="font-headline-md text-headline-md text-on-surface">我的真实课程</h4>
-          <p class="font-label-sm text-label-sm text-on-surface-variant mt-1">来自 /api/v1/courses，点击进入课程知识库</p>
+          <h4 class="font-headline-md text-headline-md text-on-surface">我的课程与公共课程</h4>
+          <p class="font-label-sm text-label-sm text-on-surface-variant mt-1">公共课程提供内置底座，学生上传资料、Wiki、诊断与推荐都按当前账号隔离</p>
         </div>
         <span class="font-label-sm text-label-sm text-outline">${courses.length} 门课程</span>
       </div>
@@ -554,10 +467,11 @@
           <article class="glass-well p-5 cursor-pointer hover:bg-white/70 transition-all" data-course-id="${course.id}">
             <div class="flex justify-between gap-3 mb-4">
               <div>
-                <span class="font-label-sm text-label-sm text-primary">${escapeHtml(course.subject || "个人课程")}</span>
+                <span class="font-label-sm text-label-sm text-primary">${escapeHtml(isPublicCourse(course) ? "系统内置公共课" : (course.subject || "个人课程"))}</span>
                 <h5 class="font-headline-sm text-headline-sm text-on-surface mt-1">${escapeHtml(course.title)}</h5>
+                ${isPublicCourse(course) ? '<span class="inline-flex mt-2 text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold border border-primary/20">公共底座 · 可添加我的资料</span>' : ""}
               </div>
-              <button class="w-9 h-9 rounded-xl bg-white/70 text-outline hover:text-[#93000a] transition-colors" data-action="archive-course" data-course-id="${course.id}" title="归档课程">
+              <button class="w-9 h-9 rounded-xl bg-white/70 text-outline hover:text-[#93000a] transition-colors ${isPublicCourse(course) ? "opacity-40 cursor-not-allowed" : ""}" data-action="archive-course" data-course-id="${course.id}" data-readonly="${isPublicCourse(course) ? "true" : "false"}" title="${isPublicCourse(course) ? "公共课程不可归档" : "归档课程"}">
                 <span class="material-symbols-outlined text-[18px]">archive</span>
               </button>
             </div>
@@ -578,6 +492,10 @@
         event.preventDefault();
         event.stopPropagation();
         const id = button.dataset.courseId;
+        if (button.dataset.readonly === "true") {
+          api.toast("公共课程由系统维护，学生端不可归档。", "info");
+          return;
+        }
         try {
           await api.request(`/courses/${id}`, { method: "DELETE" });
           api.toast("课程已归档", "success");

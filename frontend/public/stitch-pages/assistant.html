@@ -4,100 +4,8 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>AI 学习助手 - 智学工坊</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "on-tertiary-fixed": "#151c22",
-                        "surface": "#fcf9f8",
-                        "primary-container": "#f9a826",
-                        "inverse-on-surface": "#f3f0ef",
-                        "surface-container-lowest": "#ffffff",
-                        "primary-fixed": "#ffddb5",
-                        "on-surface-variant": "#524434",
-                        "surface-tint": "#835400",
-                        "surface-container-highest": "#e5e2e1",
-                        "tertiary": "#585f66",
-                        "on-secondary-fixed": "#301214",
-                        "tertiary-fixed-dim": "#c0c7cf",
-                        "surface-container-high": "#eae7e7",
-                        "inverse-primary": "#ffb957",
-                        "surface-variant": "#e5e2e1",
-                        "on-surface": "#1c1b1b",
-                        "surface-bright": "#fcf9f8",
-                        "on-secondary-fixed-variant": "#633c3d",
-                        "outline-variant": "#d7c3ae",
-                        "background": "#fcf9f8",
-                        "on-primary": "#ffffff",
-                        "on-primary-container": "#674100",
-                        "inverse-surface": "#313030",
-                        "error": "#ba1a1a",
-                        "secondary-fixed-dim": "#efb9b9",
-                        "outline": "#857462",
-                        "on-tertiary-fixed-variant": "#40484e",
-                        "secondary-container": "#fec7c7",
-                        "secondary-fixed": "#ffdad9",
-                        "tertiary-fixed": "#dce3eb",
-                        "tertiary-container": "#b3bac2",
-                        "on-primary-fixed-variant": "#643f00",
-                        "surface-container-low": "#f6f3f2",
-                        "secondary": "#7d5354",
-                        "primary": "#835400",
-                        "on-primary-fixed": "#2a1800",
-                        "error-container": "#ffdad6",
-                        "surface-container": "#f0eded",
-                        "on-secondary-container": "#7a5051",
-                        "on-error": "#ffffff",
-                        "primary-fixed-dim": "#ffb957",
-                        "on-background": "#1c1b1b",
-                        "surface-dim": "#dcd9d9",
-                        "on-secondary": "#ffffff",
-                        "on-error-container": "#93000a",
-                        "on-tertiary": "#ffffff",
-                        "on-tertiary-container": "#434a51"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "unit": "8px",
-                        "card-gap": "24px",
-                        "container-padding-desktop": "48px",
-                        "container-padding-mobile": "20px",
-                        "gutter": "16px"
-                    },
-                    "fontFamily": {
-                        "display-lg": ["Plus Jakarta Sans"],
-                        "label-md": ["Manrope"],
-                        "display-lg-mobile": ["Plus Jakarta Sans"],
-                        "headline-sm": ["Plus Jakarta Sans"],
-                        "body-lg": ["Manrope"],
-                        "label-sm": ["Manrope"],
-                        "body-md": ["Manrope"],
-                        "headline-md": ["Plus Jakarta Sans"]
-                    },
-                    "fontSize": {
-                        "display-lg": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
-                        "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
-                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
-                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "500"}],
-                        "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "700"}],
-                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
-                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
-                    }
-                },
-            }
-        }
-    </script>
+<link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
+<link href="/fonts/material-symbols.css" rel="stylesheet"/>
 <style>
         body { background-color: #fcf9f8; overflow-x: hidden; }
         .glass-shell { 
@@ -145,9 +53,9 @@
 <div class="ambient-blob blob-2"></div>
 <div class="ambient-blob blob-3"></div>
 <!-- SideNavBar -->
-<nav class="fixed h-screen w-20 left-0 top-0 bg-white/60 backdrop-blur-3xl border-r border-white/80 shadow-[0_20px_50px_rgba(0,0,0,0.03)] flex flex-col items-center py-8 gap-6 z-50 hidden md:flex">
-<div class="mb-6 w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center bg-primary/10">
-<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1vcH0gXnQk5-LgcSOaXQ3PHZcBl9yadaByXi26BaKIeWyy_Wh5pj4erctZCuOv4WFz1XxEN4UH1zarwLYZOr9-FD3vSLPongUJw5sF0OQ8IY5tjzUjNdYeqpl6QZFifZ4S0PNHSxQk3mMjv45FqSTCj32AefYQfKIG-X6CMPEDyK5aj29Ld_frDE17BuXuv4E8yGZZQEuFGOBGvBc7E4aNjZpNLW36H44WeqrdwFX-Zrk-7VOJQKQAhyjHoR-aXePsvJ2RfAvF9c"/>
+<nav class="fixed h-screen w-20 left-0 top-0 bg-white/60 backdrop-blur-3xl border-r border-white/80 shadow-[0_20px_50px_rgba(0,0,0,0.03)] flex flex-col items-center py-6 gap-4 z-50 hidden md:flex">
+<div class="mb-6 w-12 h-12 rounded-full border-2 border-white shadow-sm flex items-center justify-center bg-primary text-on-primary" title="当前用户">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">school</span>
 </div>
 <a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/" target="_parent" title="首页">
 <span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
@@ -192,8 +100,8 @@
 <button class="bg-white/70 border border-white/80 hover:bg-white rounded-full p-2.5 transition-all hover:-translate-y-0.5 shadow-sm text-outline hover:text-primary group">
 <span class="material-symbols-outlined">help_outline</span>
 </button>
-<div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm ml-2">
-<img alt="User avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1vcH0gXnQk5-LgcSOaXQ3PHZcBl9yadaByXi26BaKIeWyy_Wh5pj4erctZCuOv4WFz1XxEN4UH1zarwLYZOr9-FD3vSLPongUJw5sF0OQ8IY5tjzUjNdYeqpl6QZFifZ4S0PNHSxQk3mMjv45FqSTCj32AefYQfKIG-X6CMPEDyK5aj29Ld_frDE17BuXuv4E8yGZZQEuFGOBGvBc7E4aNjZpNLW36H44WeqrdwFX-Zrk-7VOJQKQAhyjHoR-aXePsvJ2RfAvF9c"/>
+<div class="w-12 h-12 rounded-full border-2 border-white shadow-sm ml-2 flex items-center justify-center bg-primary text-on-primary" title="当前用户">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">school</span>
 </div>
 </div>
 </header>
@@ -248,8 +156,8 @@
 </div>
 <!-- User Message -->
 <div class="flex items-start gap-4 flex-row-reverse">
-<div class="w-10 h-10 rounded-full overflow-hidden shrink-0 border-2 border-white shadow-sm">
-<img alt="User" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH3cezIwv8_iskIwtlt9PvocbJtBp2Jmq1y2NHhWUMbIu3AKlNq4LmEywZExfqJGyo2lFbfXKIelY41ZBlMdbi2tfV5J2gC1vxYOXOsl8_3EHGxjwSdUS-Lrim7Yy6BG-7_5F99Qy_9CC8scMqI31mA_rkTD9dOQrgkiHxIdwlX_PgHMX05S4f2fzrSGk9G79voN1rv7yk4OIq7i4dU-mQcl4OCXrGf0hZbCI1TkV0zWi7ijnrwfgNApGH8p5kIFwK3ak2x1NxyDw"/>
+<div class="w-12 h-12 rounded-full shrink-0 border-2 border-white shadow-sm flex items-center justify-center bg-primary text-on-primary" title="当前用户">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">school</span>
 </div>
 <div class="chat-bubble-user rounded-[24px] rounded-tr-sm px-6 py-4 max-w-[75%] shadow-sm">
 <p class="text-body-md text-on-surface leading-relaxed">请解释一下洛必达法则的使用条件，并给出一个简单的例子。</p>
@@ -447,6 +355,7 @@
   let sending = false;
   let generatingResource = false;
   let createdDemoCourse = false;
+  let stopResourceProgress = null;
 
   function escapeHtml(value) {
     return String(value || "").replace(/[&<>"']/g, (char) => ({
@@ -468,7 +377,7 @@
     }
     chatArea.innerHTML = `
       <div class="flex justify-center">
-        <span class="px-5 py-1.5 bg-surface-container-high/40 text-outline rounded-full text-label-sm font-bold backdrop-blur-sm">Tutor API 已连接</span>
+        <span class="px-5 py-1.5 bg-surface-container-high/40 text-outline rounded-full text-label-sm font-bold backdrop-blur-sm" id="tutor-provider-status">Tutor API 已连接 · 等待模型响应</span>
       </div>
       <div class="flex items-start gap-4">
         <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20 text-primary shadow-sm backdrop-blur-md">
@@ -585,6 +494,122 @@
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 
+  function formatElapsed(startedAt) {
+    return `${Math.max(0, Math.floor((Date.now() - startedAt) / 1000))}s`;
+  }
+
+  function createTutorProgressMessage() {
+    const stages = [
+      "检索课程资料与 Wiki",
+      "整理学生画像上下文",
+      "Tutor Agent 调用真实 LLM",
+      "Review Agent 校验回答依据",
+    ];
+    const startedAt = Date.now();
+    let activeIndex = 0;
+    let streamedAnswer = "";
+    const wrapper = document.createElement("div");
+    wrapper.className = "flex items-start gap-4";
+    wrapper.innerHTML = `
+      <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20 text-primary shadow-sm backdrop-blur-md">
+        <span class="material-symbols-outlined text-xl animate-pulse" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+      </div>
+      <div class="flex flex-col gap-3 max-w-[85%]">
+        <div class="chat-bubble-ai rounded-[24px] rounded-tl-sm p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-primary font-bold text-label-md">
+              <span class="material-symbols-outlined animate-spin text-[18px]">sync</span>
+              <span data-role="stage-title">${stages[0]}</span>
+            </div>
+            <span class="text-xs font-bold text-outline" data-role="elapsed">0s</span>
+          </div>
+          <div class="h-2 rounded-full bg-surface-container-high overflow-hidden">
+            <div class="h-full rounded-full bg-primary transition-all duration-500" data-role="bar" style="width: 16%"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-2" data-role="steps"></div>
+          <p class="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap min-h-[72px]" data-role="answer">正在准备回答，真实模型响应可能需要几十秒；你可以看到当前处理阶段，不会空白等待。</p>
+        </div>
+      </div>`;
+    chatArea.appendChild(wrapper);
+    const titleNode = wrapper.querySelector("[data-role='stage-title']");
+    const elapsedNode = wrapper.querySelector("[data-role='elapsed']");
+    const barNode = wrapper.querySelector("[data-role='bar']");
+    const stepsNode = wrapper.querySelector("[data-role='steps']");
+    const answerNode = wrapper.querySelector("[data-role='answer']");
+
+    function render() {
+      if (titleNode) titleNode.textContent = stages[activeIndex] || stages[stages.length - 1];
+      if (elapsedNode) elapsedNode.textContent = formatElapsed(startedAt);
+      if (barNode) {
+        const timedProgress = Math.min(92, 16 + Math.floor((Date.now() - startedAt) / 900) * 6);
+        const stageProgress = Math.round(((activeIndex + 1) / stages.length) * 86);
+        barNode.style.width = `${Math.max(timedProgress, stageProgress)}%`;
+      }
+      if (stepsNode) {
+        stepsNode.innerHTML = stages.map((stage, index) => {
+          const done = index < activeIndex;
+          const active = index === activeIndex;
+          const icon = done ? "check_circle" : active ? "sync" : "radio_button_unchecked";
+          const color = done ? "text-green-700" : active ? "text-primary" : "text-outline";
+          return `
+            <div class="flex items-center gap-2 rounded-xl bg-white/60 border border-white/80 px-3 py-2 text-xs font-bold ${color}">
+              <span class="material-symbols-outlined text-[16px] ${active ? "animate-spin" : ""}">${icon}</span>
+              <span>${escapeHtml(stage)}</span>
+            </div>`;
+        }).join("");
+      }
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    const timer = window.setInterval(() => {
+      if (!streamedAnswer && activeIndex < stages.length - 1) {
+        activeIndex += 1;
+      }
+      render();
+    }, 2600);
+    render();
+
+    return {
+      appendDelta(chunk) {
+        if (!chunk) return;
+        streamedAnswer += chunk;
+        activeIndex = Math.max(activeIndex, 2);
+        if (answerNode) {
+          answerNode.textContent = streamedAnswer;
+        }
+        render();
+      },
+      updateStage(message) {
+        const nextIndex = stages.findIndex((stage) => stage === message);
+        if (nextIndex >= 0) {
+          activeIndex = Math.max(activeIndex, nextIndex);
+        } else if (message && titleNode) {
+          titleNode.textContent = message;
+        }
+        render();
+      },
+      complete() {
+        window.clearInterval(timer);
+        activeIndex = stages.length - 1;
+        render();
+        if (barNode) barNode.style.width = "100%";
+      },
+      remove() {
+        window.clearInterval(timer);
+        wrapper.remove();
+      },
+      fail(message) {
+        window.clearInterval(timer);
+        if (titleNode) titleNode.textContent = "生成失败";
+        if (answerNode) answerNode.textContent = message || "AI Tutor 请求失败，请稍后重试。";
+        wrapper.querySelector(".material-symbols-outlined")?.classList.remove("animate-pulse");
+      },
+      getAnswer() {
+        return streamedAnswer;
+      },
+    };
+  }
+
   function appendAiMessage(payload, sources, model) {
     if (!chatArea) {
       return;
@@ -597,6 +622,10 @@
     const related = data.related_knowledge_points || [];
     const followUps = data.follow_up_questions || [];
     const messageId = data.message_id;
+    const fallbackHtml = data.fallback_used ? `
+      <div class="rounded-2xl border border-error/20 bg-error-container/20 text-on-error-container px-4 py-3 text-label-sm font-bold">
+        真实模型 ${escapeHtml(data.failed_provider || "unknown")} 调用失败，当前已自动切换到 Mock 兜底。${data.fallback_reason ? `原因：${escapeHtml(data.fallback_reason)}` : ""}
+      </div>` : "";
     const wrapper = document.createElement("div");
     wrapper.className = "flex items-start gap-4";
     const sourceHtml = citations && citations.length
@@ -634,7 +663,8 @@
       <div class="flex flex-col gap-3 max-w-[85%]">
         <div class="chat-bubble-ai rounded-[24px] rounded-tl-sm p-6 shadow-sm space-y-4">
           <p class="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap">${escapeHtml(answer)}</p>
-          <div class="text-label-sm text-outline font-bold">Model: ${escapeHtml(data.model || model || "mock")} · Agent: ${escapeHtml(data.agent_run_id || "pending")}</div>
+          ${fallbackHtml}
+          <div class="text-label-sm text-outline font-bold">Provider: ${escapeHtml(data.provider || "unknown")} · Model: ${escapeHtml(data.model || model || "unknown")} · Agent: ${escapeHtml(data.agent_run_id || "pending")}</div>
           <div class="mt-4 pt-4 border-t border-outline-variant/30 flex gap-3 overflow-x-auto pb-2">${sourceHtml}</div>
           ${followHtml}
         </div>
@@ -728,8 +758,10 @@
     textarea.value = "";
     appendUserMessage(question);
     setSending(true);
+    const progress = createTutorProgressMessage();
     try {
-      const data = await api.chatWithTutor({
+      let finalMeta = null;
+      const payload = {
         course_id: currentCourseId,
         question,
         wiki_page_id: chapterSelect?.value || null,
@@ -737,10 +769,37 @@
         use_rag: true,
         use_wiki: true,
         use_profile: true,
-      });
+      };
+      if (api.streamTutorChat) {
+        finalMeta = await api.streamTutorChat(payload, {
+          onDelta: (chunk) => progress.appendDelta(chunk),
+          onProgress: (event) => progress.updateStage(event.message),
+          onDone: (meta) => { finalMeta = meta; },
+        });
+      } else {
+        const data = await api.chatWithTutor(payload);
+        progress.appendDelta(data.answer || "");
+        finalMeta = data;
+      }
+      const data = {
+        ...(finalMeta || {}),
+        answer: progress.getAnswer() || finalMeta?.answer || "",
+      };
+      const providerStatus = document.getElementById("tutor-provider-status");
+      if (providerStatus) {
+        if (data.fallback_used) {
+          providerStatus.textContent = `${data.failed_provider || "真实模型"} 调用失败 · 已切换 Mock 兜底`;
+          providerStatus.classList.add("text-error");
+        } else {
+          const providerName = data.provider === "xiaomi_mimo" ? "小米 MiMo" : (data.provider || "未知 Provider");
+          providerStatus.textContent = `${providerName} 已响应 · ${data.model || "未返回模型名"}`;
+        }
+      }
+      progress.complete();
+      progress.remove();
       appendAiMessage(data);
     } catch (error) {
-      appendAiMessage(error.message || "AI Tutor 请求失败，请稍后重试。", [], "error");
+      progress.fail(error.message || "AI Tutor 请求失败，请稍后重试。");
     } finally {
       setSending(false);
     }
@@ -762,7 +821,34 @@
     });
   }
 
-  function setResourceStatus(mode, message) {
+  const resourceStages = [
+    "读取课程、Wiki 与学生画像",
+    "组织资源生成 Prompt",
+    "Resource Agent 调用真实 LLM",
+    "Review Agent 校验来源与风险",
+  ];
+
+  function stopActiveResourceProgress() {
+    if (stopResourceProgress) {
+      stopResourceProgress();
+      stopResourceProgress = null;
+    }
+  }
+
+  function startResourceProgress() {
+    stopActiveResourceProgress();
+    const startedAt = Date.now();
+    let activeIndex = 0;
+    const tick = () => {
+      activeIndex = Math.min(resourceStages.length - 1, Math.floor((Date.now() - startedAt) / 3500));
+      setResourceStatus("loading", resourceStages[activeIndex], activeIndex, startedAt);
+    };
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    stopResourceProgress = () => window.clearInterval(timer);
+  }
+
+  function setResourceStatus(mode, message, activeIndex = 0, startedAt = null) {
     if (!resourceAgentStatus) {
       return;
     }
@@ -771,6 +857,7 @@
     const isError = mode === "error";
     const topColor = isError ? "text-error" : isDone ? "text-green-700" : isLoading ? "text-primary" : "text-outline";
     const dotColor = isError ? "bg-error" : isDone ? "bg-green-600" : isLoading ? "bg-primary animate-pulse" : "bg-outline";
+    const percent = isDone ? 100 : isError ? 100 : isLoading ? Math.min(92, 18 + Math.floor(((Date.now() - (startedAt || Date.now())) / 1000) * 5)) : 0;
     resourceAgentStatus.innerHTML = `
       <div class="flex justify-between items-center mb-4">
         <span class="text-label-sm font-bold text-outline">Agent 执行状态</span>
@@ -779,19 +866,21 @@
           ${escapeHtml(message || "等待生成")}
         </span>
       </div>
+      <div class="h-2 rounded-full bg-surface-container-high overflow-hidden mb-4">
+        <div class="h-full rounded-full ${isError ? "bg-error" : "bg-primary"} transition-all duration-500" style="width: ${percent}%"></div>
+      </div>
       <div class="space-y-3 font-body-md">
-        <div class="flex items-center gap-3 ${isLoading || isDone ? "text-on-surface" : "text-outline"}">
-          <span class="material-symbols-outlined text-[18px] ${isDone ? "text-green-600" : isLoading ? "text-green-600" : "text-outline"}">${isLoading || isDone ? "check_circle" : "radio_button_unchecked"}</span>
-          <span class="text-sm font-semibold">读取课程、Wiki 与画像</span>
-        </div>
-        <div class="flex items-center gap-3 ${isLoading || isDone ? "text-on-surface" : "text-outline"}">
-          <span class="material-symbols-outlined text-[18px] ${isLoading ? "animate-spin text-primary" : isDone ? "text-green-600" : "text-outline"}">${isLoading ? "sync" : isDone ? "check_circle" : "radio_button_unchecked"}</span>
-          <span class="text-sm font-semibold">Resource Agent 生成资源</span>
-        </div>
-        <div class="flex items-center gap-3 ${isDone ? "text-on-surface" : "text-outline"}">
-          <span class="material-symbols-outlined text-[18px] ${isDone ? "text-green-600" : "text-outline"}">${isDone ? "check_circle" : "radio_button_unchecked"}</span>
-          <span class="text-sm font-semibold">Review Agent 校验来源与风险</span>
-        </div>
+        ${resourceStages.map((stage, index) => {
+          const done = isDone || index < activeIndex;
+          const active = isLoading && index === activeIndex;
+          const icon = done ? "check_circle" : active ? "sync" : isError && index === activeIndex ? "error" : "radio_button_unchecked";
+          const color = done ? "text-green-700" : active ? "text-primary" : isError && index === activeIndex ? "text-error" : "text-outline";
+          return `
+            <div class="flex items-center gap-3 ${color}">
+              <span class="material-symbols-outlined text-[18px] ${active ? "animate-spin" : ""}">${icon}</span>
+              <span class="text-sm font-semibold">${escapeHtml(stage)}</span>
+            </div>`;
+        }).join("")}
       </div>`;
   }
 
@@ -912,14 +1001,23 @@
       return;
     }
     setGeneratingResource(true);
-    setResourceStatus("loading", "Resource Agent 工作中");
+    startResourceProgress();
     if (resourcePreview) {
       resourcePreview.innerHTML = `
-        <div class="animate-pulse space-y-5 opacity-60">
-          <div class="h-5 bg-outline-variant/40 rounded-full w-3/4"></div>
-          <div class="h-5 bg-outline-variant/40 rounded-full w-full"></div>
-          <div class="h-5 bg-outline-variant/40 rounded-full w-5/6"></div>
-          <div class="h-40 bg-outline-variant/20 rounded-2xl w-full mt-6"></div>
+        <div class="space-y-5">
+          <div class="rounded-2xl bg-primary/5 border border-primary/15 p-4">
+            <div class="flex items-center gap-2 text-primary font-bold text-sm">
+              <span class="material-symbols-outlined animate-spin text-[18px]">sync</span>
+              正在生成个性化资源
+            </div>
+            <p class="text-xs text-on-surface-variant mt-2">真实 LLM 生成可能需要几十秒，右侧会持续显示 Agent 阶段与进度。</p>
+          </div>
+          <div class="animate-pulse space-y-4 opacity-60">
+            <div class="h-5 bg-outline-variant/40 rounded-full w-3/4"></div>
+            <div class="h-5 bg-outline-variant/40 rounded-full w-full"></div>
+            <div class="h-5 bg-outline-variant/40 rounded-full w-5/6"></div>
+            <div class="h-40 bg-outline-variant/20 rounded-2xl w-full mt-6"></div>
+          </div>
         </div>`;
     }
     try {
@@ -932,10 +1030,12 @@
         save_to_wiki: false,
       });
       renderResource(resource);
+      stopActiveResourceProgress();
       setResourceStatus("done", "Review Agent 已校验");
       api.toast("学习资源已生成", "success");
       await loadResourceHistory();
     } catch (error) {
+      stopActiveResourceProgress();
       setResourceStatus("error", "生成失败");
       if (resourcePreview) {
         resourcePreview.innerHTML = `<div class="h-full min-h-[220px] flex items-center justify-center text-center text-error font-bold">${escapeHtml(error.message || "生成失败")}</div>`;

@@ -3,7 +3,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_current_user, require_student
+from app.core.deps import get_current_user
+from app.core.error_codes import ErrorCode
+from app.core.exceptions import BusinessException
 from app.core.response import page_response, success_response
 from app.db.session import get_db
 from app.models.user import User
@@ -16,6 +18,8 @@ from app.schemas.wiki import (
 from app.services.wiki_generate_service import WikiGenerateService
 from app.services.wiki_service import WikiService
 from app.services.wiki_update_service import WikiUpdateService
+from app.services.course_service import CourseService
+from app.services.material_service import MaterialService
 
 router = APIRouter()
 
@@ -27,12 +31,12 @@ async def list_wiki_pages(
     status: str | None = Query(default="active"),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
-    current_user: User = Depends(require_student),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     svc = WikiService(db)
-    items, total = await svc.list_pages(
-        owner_id=current_user.id,
+    items, total = await svc.list_visible_pages(
+        current_user=current_user,
         course_id=course_id,
         status=status,
         page=page,
@@ -43,6 +47,7 @@ async def list_wiki_pages(
             {
                 "id": str(p.id),
                 "course_id": str(p.course_id),
+                "owner_id": str(p.owner_id),
                 "title": p.title,
                 "slug": p.slug,
                 "summary": p.summary,
@@ -64,11 +69,11 @@ async def list_wiki_pages(
 async def get_wiki_page(
     page_id: UUID,
     request: Request,
-    current_user: User = Depends(require_student),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     svc = WikiService(db)
-    page = await svc.get_page(page_id, current_user.id)
+    page = await svc.get_readable_page(page_id, current_user)
     return success_response(
         {
             "id": str(page.id),
@@ -102,12 +107,12 @@ async def get_wiki_page(
 async def create_wiki_page(
     body: WikiPageCreate,
     request: Request,
-    current_user: User = Depends(require_student),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     svc = WikiService(db)
     page = await svc.create_page(
-        owner_id=current_user.id,
+        current_user=current_user,
         course_id=body.course_id,
         title=body.title,
         content=body.content,
@@ -129,13 +134,13 @@ async def update_wiki_page(
     page_id: UUID,
     body: WikiPageUpdate,
     request: Request,
-    current_user: User = Depends(require_student),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     svc = WikiService(db)
     page = await svc.update_page(
         page_id=page_id,
-        owner_id=current_user.id,
+        current_user=current_user,
         title=body.title,
         content=body.content,
         summary=body.summary,
@@ -156,11 +161,11 @@ async def update_wiki_page(
 async def archive_wiki_page(
     page_id: UUID,
     request: Request,
-    current_user: User = Depends(require_student),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     svc = WikiService(db)
-    await svc.archive_page(page_id, current_user.id)
+    await svc.archive_page(page_id, current_user)
     return success_response({"archived": True}, request=request)
 
 
@@ -168,11 +173,11 @@ async def archive_wiki_page(
 async def list_wiki_versions(
     page_id: UUID,
     request: Request,
-    current_user: User = Depends(require_student),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     svc = WikiService(db)
-    versions = await svc.list_versions(page_id, current_user.id)
+    versions = await svc.list_versions(page_id, current_user)
     return success_response(
         [
             {
@@ -197,19 +202,16 @@ async def get_wiki_version(
     page_id: UUID,
     version_number: int,
     request: Request,
-    current_user: User = Depends(require_student),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     svc = WikiService(db)
-    await svc.get_page(page_id, current_user.id)
+    await svc.get_readable_page(page_id, current_user)
     from app.repositories.wiki_repository import WikiRepository
 
     repo = WikiRepository(db)
     version = await repo.get_version(page_id, version_number)
     if version is None:
-        from app.core.error_codes import ErrorCode
-        from app.core.exceptions import BusinessException
-
         raise BusinessException(
             code=ErrorCode.NOT_FOUND,
             detail=f"版本 v{version_number} 不存在",
@@ -236,11 +238,11 @@ async def rollback_wiki_page(
     page_id: UUID,
     version_number: int,
     request: Request,
-    current_user: User = Depends(require_student),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     svc = WikiService(db)
-    page = await svc.rollback(page_id, current_user.id, version_number)
+    page = await svc.rollback(page_id, current_user, version_number)
     return success_response(
         {
             "id": str(page.id),
@@ -259,14 +261,23 @@ async def rollback_wiki_page(
 async def generate_wiki_from_material(
     body: GenerateFromMaterialRequest,
     request: Request,
-    current_user: User = Depends(require_student),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
+    material = await MaterialService(db).get_writable_material(body.material_id, current_user)
+    course = await CourseService(db).get_readable_course(body.course_id, current_user)
+    if material.course_id != course.id:
+        raise BusinessException(
+            code=ErrorCode.PARAM_ERROR,
+            detail="资料不属于该课程",
+            status_code=400,
+        )
+    owner_id = material.uploaded_by
     svc = WikiGenerateService(db)
     pages = await svc.generate_from_material(
         course_id=body.course_id,
         material_id=body.material_id,
-        owner_id=current_user.id,
+        owner_id=owner_id,
     )
     return success_response(
         {
@@ -289,7 +300,7 @@ async def generate_wiki_from_material(
 async def update_wiki_from_note(
     body: UpdateFromNoteRequest,
     request: Request,
-    current_user: User = Depends(require_student),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     svc = WikiUpdateService(db)
@@ -313,7 +324,7 @@ async def update_wiki_from_note(
 async def summarize_wiki_page(
     page_id: UUID,
     request: Request,
-    current_user: User = Depends(require_student),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     svc = WikiUpdateService(db)
@@ -337,24 +348,25 @@ async def summarize_wiki_page(
 async def get_wiki_graph(
     request: Request,
     course_id: UUID = Query(...),
-    current_user: User = Depends(require_student),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    from app.repositories.wiki_repository import WikiRepository
-
-    repo = WikiRepository(db)
-    pages, _ = await repo.list_by_owner(
-        owner_id=current_user.id,
+    svc = WikiService(db)
+    pages, _ = await svc.list_visible_pages(
+        current_user=current_user,
         course_id=course_id,
         status="active",
         page=1,
         page_size=200,
     )
 
+    visible_page_ids = {p.id for p in pages}
     all_links: list[dict[str, object]] = []
     for p in pages:
-        links = await repo.list_links(p.id)
+        links = await svc.repo.list_links(p.id)
         for link in links:
+            if link.source_page_id not in visible_page_ids or link.target_page_id not in visible_page_ids:
+                continue
             all_links.append(
                 {
                     "id": str(link.id),
@@ -378,6 +390,7 @@ async def get_wiki_graph(
             "nodes": [
                 {
                     "id": str(p.id),
+                    "owner_id": str(p.owner_id),
                     "title": p.title,
                     "summary": p.summary,
                     "current_version": p.current_version,

@@ -12,13 +12,16 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.course import Course
+    from app.models.user import User
 
 
 class KnowledgePoint(Base):
     __tablename__ = "knowledge_points"
     __table_args__ = (
-        UniqueConstraint("course_id", "name", name="uq_knowledge_points_course_name"),
+        UniqueConstraint("course_id", "owner_id", "name", name="uq_knowledge_points_course_owner_name"),
         Index("idx_knowledge_points_course_id", "course_id"),
+        Index("idx_knowledge_points_owner_id", "owner_id"),
+        Index("idx_knowledge_points_scope", "scope"),
         Index("idx_knowledge_points_parent_id", "parent_id"),
         Index("idx_knowledge_points_name", "name"),
     )
@@ -32,6 +35,16 @@ class KnowledgePoint(Base):
         PgUUID(as_uuid=True),
         ForeignKey("courses.id", ondelete="CASCADE"),
         nullable=False,
+    )
+    owner_id: Mapped[UUID] = mapped_column(
+        PgUUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    scope: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+        server_default=text("'personal'"),
     )
     parent_id: Mapped[UUID | None] = mapped_column(
         PgUUID(as_uuid=True),
@@ -61,4 +74,5 @@ class KnowledgePoint(Base):
     )
 
     course: Mapped[Course] = relationship("Course", back_populates="knowledge_points")
+    owner: Mapped[User] = relationship("User")
     parent: Mapped[KnowledgePoint | None] = relationship("KnowledgePoint", remote_side="KnowledgePoint.id")

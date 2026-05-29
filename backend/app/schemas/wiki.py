@@ -43,6 +43,7 @@ class WikiPageListItem(BaseModel):
 
     id: UUID
     course_id: UUID
+    owner_id: UUID
     title: str
     slug: str
     summary: str | None = None

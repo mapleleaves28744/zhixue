@@ -10,7 +10,9 @@ from app.schemas.knowledge import (
     ExtractKnowledgeRequest,
     KnowledgeSearchRequest,
 )
+from app.services.course_service import CourseService
 from app.services.knowledge_service import KnowledgeService
+from app.services.material_service import MaterialService
 
 router = APIRouter()
 
@@ -22,9 +24,11 @@ async def search_knowledge(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
+    await CourseService(db).get_course(body.course_id, current_user)
     results = await VectorRetriever(db).search(
         course_id=body.course_id,
         query=body.query,
+        user_id=None if current_user.role == "admin" else current_user.id,
         top_k=body.top_k,
         knowledge_id=body.knowledge_id,
     )
@@ -51,6 +55,7 @@ async def extract_knowledge(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
+    await MaterialService(db).get_writable_material(body.material_id, current_user)
     points = await KnowledgeService(db).extract_from_material(body.material_id)
     return success_response(
         {
@@ -58,6 +63,8 @@ async def extract_knowledge(
             "points": [
                 {
                     "id": str(p.id),
+                    "owner_id": str(p.owner_id),
+                    "scope": p.scope,
                     "name": p.name,
                     "chapter": p.chapter,
                     "description": p.description,

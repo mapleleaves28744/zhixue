@@ -23,6 +23,130 @@ from app.llm.schemas import (
 logger = logging.getLogger(__name__)
 
 
+class FallbackLLMProvider(BaseLLMProvider):
+    provider_name = "fallback"
+
+    def __init__(self, primary: BaseLLMProvider, fallback: BaseLLMProvider) -> None:
+        self.primary = primary
+        self.fallback = fallback
+
+    async def chat(
+        self,
+        messages: list[ChatMessage],
+        *,
+        model: str | None = None,
+        temperature: float = 0.7,
+        max_tokens: int = 2048,
+        model_config: LLMModelConfig | None = None,
+        **kwargs: object,
+    ) -> ChatResponse:
+        try:
+            return await self.primary.chat(
+                messages,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                model_config=model_config,
+                **kwargs,
+            )
+        except Exception as exc:
+            logger.warning(
+                "LLM provider %s failed, falling back to %s: %s",
+                self.primary.provider_name,
+                self.fallback.provider_name,
+                exc,
+            )
+            response = await self.fallback.chat(
+                messages,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                model_config=model_config,
+                **kwargs,
+            )
+            response.raw = {
+                **(response.raw or {}),
+                "fallback_used": True,
+                "failed_provider": self.primary.provider_name,
+                "fallback_provider": self.fallback.provider_name,
+                "fallback_reason": str(exc),
+            }
+            return response
+
+    async def stream_chat(
+        self,
+        messages: list[ChatMessage],
+        *,
+        model: str | None = None,
+        temperature: float = 0.7,
+        max_tokens: int = 2048,
+        model_config: LLMModelConfig | None = None,
+        **kwargs: object,
+    ) -> AsyncIterator[str]:
+        try:
+            async for chunk in self.primary.stream_chat(
+                messages,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                model_config=model_config,
+                **kwargs,
+            ):
+                yield chunk
+        except Exception as exc:
+            logger.warning(
+                "LLM stream provider %s failed, falling back to %s: %s",
+                self.primary.provider_name,
+                self.fallback.provider_name,
+                exc,
+            )
+            async for chunk in self.fallback.stream_chat(
+                messages,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                model_config=model_config,
+                **kwargs,
+            ):
+                yield chunk
+
+    async def embedding(
+        self,
+        texts: list[str],
+        *,
+        model: str | None = None,
+        model_config: LLMModelConfig | None = None,
+        **kwargs: object,
+    ) -> EmbeddingResponse:
+        try:
+            return await self.primary.embedding(
+                texts,
+                model=model,
+                model_config=model_config,
+                **kwargs,
+            )
+        except Exception as exc:
+            logger.warning(
+                "LLM embedding provider %s failed, falling back to %s: %s",
+                self.primary.provider_name,
+                self.fallback.provider_name,
+                exc,
+            )
+            response = await self.fallback.embedding(
+                texts,
+                model=model,
+                model_config=model_config,
+                **kwargs,
+            )
+            response.raw = {
+                **(response.raw or {}),
+                "fallback_used": True,
+                "failed_provider": self.primary.provider_name,
+                "fallback_provider": self.fallback.provider_name,
+            }
+            return response
+
+
 class LoggingLLMProvider(BaseLLMProvider):
     provider_name = "logged"
 
@@ -270,15 +394,15 @@ class LoggingLLMProvider(BaseLLMProvider):
 
 
 def build_llm_provider() -> BaseLLMProvider:
-    provider = settings.llm_provider.lower()
-    if provider in ("openai", "compatible", "openai_compatible"):
-        if not settings.llm_api_key:
-            from app.llm.adapters.mock_provider import MockLLMProvider
+    provider = settings.llm_provider.lower().replace("-", "_")
+    if provider in ("openai", "compatible", "openai_compatible", "mimo", "xiaomi_mimo"):
+        from app.llm.adapters.mock_provider import MockLLMProvider
 
+        if not settings.llm_api_key:
             return MockLLMProvider()
         from app.llm.adapters.openai_compatible import OpenAICompatibleLLMProvider
 
-        return OpenAICompatibleLLMProvider(
+        primary = OpenAICompatibleLLMProvider(
             api_key=settings.llm_api_key,
             base_url=settings.llm_base_url or "https://api.openai.com/v1",
             model=settings.llm_model_name,
@@ -286,6 +410,7 @@ def build_llm_provider() -> BaseLLMProvider:
             embedding_model=settings.embedding_model,
             embedding_dimension=settings.embedding_dimension,
         )
+        return FallbackLLMProvider(primary, MockLLMProvider())
 
     from app.llm.adapters.mock_provider import MockLLMProvider
 

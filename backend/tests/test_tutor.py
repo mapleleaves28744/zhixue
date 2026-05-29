@@ -1,9 +1,12 @@
 """Phase 14 tests: tutor schemas and formatting helpers."""
 from __future__ import annotations
 
+import asyncio
+import json
 from types import SimpleNamespace
 from uuid import uuid4
 
+from app.api.v1.tutor import _stream_tutor_chat
 from app.agents.tutor_agent import TutorAgent
 from app.schemas.tutor import (
     TutorChatRequest,
@@ -74,3 +77,59 @@ def test_tutor_service_formats_citations() -> None:
 
     assert "[wiki] 递归调用栈" in text
     assert "递归调用会保存每层函数现场" in text
+
+
+def test_tutor_sse_uses_real_stream_events_without_calling_chat() -> None:
+    asyncio.run(_test_tutor_sse_uses_real_stream_events_without_calling_chat())
+
+
+async def _test_tutor_sse_uses_real_stream_events_without_calling_chat() -> None:
+    class FakeStreamingService:
+        chat_called = False
+
+        async def chat(self, *args, **kwargs):
+            self.chat_called = True
+            raise AssertionError("streaming endpoint must not call complete chat")
+
+        async def stream_chat(self, *args, **kwargs):
+            yield {"event": "progress", "data": {"stage": "llm_generation", "message": "真实流式生成"}}
+            yield {"event": "delta", "data": {"content": "第一段来自 provider"}}
+            yield {"event": "done", "data": {"message_id": str(uuid4()), "citations": []}}
+
+    service = FakeStreamingService()
+    chunks = [
+        chunk
+        async for chunk in _stream_tutor_chat(
+            service,  # type: ignore[arg-type]
+            TutorChatRequest(course_id=uuid4(), question="递归为什么和栈有关？", stream=True),
+            SimpleNamespace(id=uuid4(), role="student"),
+        )
+    ]
+
+    assert service.chat_called is False
+    assert any("第一段来自 provider" in chunk for chunk in chunks)
+    assert not any('data: {"content": ""}' in chunk for chunk in chunks)
+    assert chunks[-1].startswith("event: done")
+
+
+def test_tutor_sse_empty_answer_emits_error_not_empty_delta() -> None:
+    asyncio.run(_test_tutor_sse_empty_answer_emits_error_not_empty_delta())
+
+
+async def _test_tutor_sse_empty_answer_emits_error_not_empty_delta() -> None:
+    class EmptyStreamingService:
+        async def stream_chat(self, *args, **kwargs):
+            yield {"event": "error", "data": {"message": "Tutor 回答为空"}}
+
+    chunks = [
+        chunk
+        async for chunk in _stream_tutor_chat(
+            EmptyStreamingService(),  # type: ignore[arg-type]
+            TutorChatRequest(course_id=uuid4(), question="递归为什么和栈有关？", stream=True),
+            SimpleNamespace(id=uuid4(), role="student"),
+        )
+    ]
+
+    assert chunks == [
+        f"event: error\ndata: {json.dumps({'message': 'Tutor 回答为空'}, ensure_ascii=False)}\n\n"
+    ]

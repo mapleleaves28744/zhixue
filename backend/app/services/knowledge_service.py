@@ -11,6 +11,7 @@ from app.core.exceptions import BusinessException
 from app.models.knowledge import KnowledgePoint
 from app.models.material import CourseMaterial
 from app.repositories.chunk_repository import ChunkRepository
+from app.repositories.course_repository import CourseRepository
 from app.repositories.knowledge_repository import KnowledgeRepository
 from app.repositories.material_repository import MaterialRepository
 
@@ -21,6 +22,7 @@ class KnowledgeService:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
         self.materials = MaterialRepository(db)
+        self.courses = CourseRepository(db)
         self.chunks = ChunkRepository(db)
         self.knowledge = KnowledgeRepository(db)
 
@@ -54,9 +56,24 @@ class KnowledgeService:
                 for i, c in enumerate(chunks[:10])
             ]
 
-        # Deduplicate and persist
+        course = await self.courses.get_by_id(material.course_id)
+        if course is None:
+            raise BusinessException(
+                code=ErrorCode.NOT_FOUND,
+                detail="课程不存在",
+                status_code=404,
+            )
+        scope = (
+            "public"
+            if course.visibility == "public_template" and material.uploaded_by == course.owner_id
+            else "personal"
+        )
+
+        # Deduplicate and persist within the material owner's knowledge overlay.
         points, new_count = await self.knowledge.create_batch_if_not_exists(
             course_id=material.course_id,
+            owner_id=material.uploaded_by,
+            scope=scope,
             items=extracted,
         )
         await self.db.commit()

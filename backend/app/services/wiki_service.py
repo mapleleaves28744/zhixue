@@ -9,6 +9,8 @@ from app.core.error_codes import ErrorCode
 from app.core.exceptions import BusinessException
 from app.models.wiki import WikiPage, WikiPageVersion
 from app.repositories.wiki_repository import WikiRepository
+from app.models.user import User
+from app.services.course_service import CourseService
 
 logger = logging.getLogger(__name__)
 
@@ -20,12 +22,18 @@ class WikiService:
 
     async def create_page(
         self,
-        owner_id: UUID,
+        current_user: User,
         course_id: UUID,
         title: str,
         content: str,
         summary: str | None = None,
     ) -> WikiPage:
+        course = await CourseService(self.db).get_readable_course(course_id, current_user)
+        owner_id = (
+            course.owner_id
+            if current_user.role == "admin" or current_user.id == course.owner_id
+            else current_user.id
+        )
         page = await self.repo.create_page(
             course_id=course_id,
             owner_id=owner_id,
@@ -36,6 +44,52 @@ class WikiService:
         await self.db.commit()
         await self.db.refresh(page)
         return page
+
+    async def get_readable_page(self, page_id: UUID, current_user: User) -> WikiPage:
+        page = await self.repo.get_by_id(page_id)
+        if page is None:
+            raise BusinessException(
+                code=ErrorCode.NOT_FOUND,
+                detail="Wiki 页面不存在",
+                status_code=404,
+            )
+
+        course = await CourseService(self.db).get_readable_course(page.course_id, current_user)
+        is_public_course_page = (
+            course.visibility == "public_template"
+            and course.status == "active"
+            and page.owner_id == course.owner_id
+        )
+        if current_user.role != "admin" and page.owner_id != current_user.id and not is_public_course_page:
+            raise BusinessException(
+                code=ErrorCode.NOT_FOUND,
+                detail="Wiki 页面不存在",
+                status_code=404,
+            )
+        return page
+
+    async def get_writable_page(self, page_id: UUID, current_user: User) -> WikiPage:
+        page = await self.repo.get_by_id(page_id)
+        if page is None:
+            raise BusinessException(
+                code=ErrorCode.NOT_FOUND,
+                detail="Wiki 页面不存在",
+                status_code=404,
+            )
+        course = await CourseService(self.db).get_readable_course(page.course_id, current_user)
+        if current_user.role == "admin" or page.owner_id == current_user.id:
+            return page
+        if page.owner_id == course.owner_id and course.visibility == "public_template":
+            raise BusinessException(
+                code=ErrorCode.FORBIDDEN,
+                detail="公共 Wiki 只读，请先保存为个人 Wiki 后再编辑",
+                status_code=403,
+            )
+        raise BusinessException(
+            code=ErrorCode.FORBIDDEN,
+            detail="无权编辑此 Wiki 页面",
+            status_code=403,
+        )
 
     async def get_page(self, page_id: UUID, owner_id: UUID) -> WikiPage:
         page = await self.repo.get_by_id(page_id)
@@ -69,16 +123,44 @@ class WikiService:
             page_size=page_size,
         )
 
+    async def list_visible_pages(
+        self,
+        current_user: User,
+        course_id: UUID,
+        status: str | None = "active",
+        page: int = 1,
+        page_size: int = 20,
+    ) -> tuple[list[WikiPage], int]:
+        course = await CourseService(self.db).get_readable_course(course_id, current_user)
+        if current_user.role == "admin":
+            return await self.repo.list_by_course(
+                course_id=course_id,
+                status=status,
+                page=page,
+                page_size=page_size,
+            )
+
+        owner_ids = [current_user.id]
+        if course.visibility == "public_template" and course.owner_id != current_user.id:
+            owner_ids.append(course.owner_id)
+        return await self.repo.list_by_owners(
+            owner_ids=owner_ids,
+            course_id=course_id,
+            status=status,
+            page=page,
+            page_size=page_size,
+        )
+
     async def update_page(
         self,
         page_id: UUID,
-        owner_id: UUID,
+        current_user: User,
         title: str | None = None,
         content: str | None = None,
         summary: str | None = None,
         change_message: str | None = None,
     ) -> WikiPage:
-        page = await self.get_page(page_id, owner_id)
+        page = await self.get_writable_page(page_id, current_user)
         if page.status == "archived":
             raise BusinessException(
                 code=ErrorCode.PARAM_ERROR,
@@ -105,27 +187,27 @@ class WikiService:
             content=new_content,
             summary=new_summary,
             change_message=change_message or f"v{new_version} 更新",
-            created_by=owner_id,
+            created_by=current_user.id,
         )
         await self.db.commit()
         await self.db.refresh(page)
         return page
 
-    async def archive_page(self, page_id: UUID, owner_id: UUID) -> None:
-        page = await self.get_page(page_id, owner_id)
+    async def archive_page(self, page_id: UUID, current_user: User) -> None:
+        page = await self.get_writable_page(page_id, current_user)
         await self.repo.update_page(page, status="archived")
         await self.db.commit()
 
     async def list_versions(
-        self, page_id: UUID, owner_id: UUID
+        self, page_id: UUID, current_user: User
     ) -> list[WikiPageVersion]:
-        await self.get_page(page_id, owner_id)
+        await self.get_readable_page(page_id, current_user)
         return await self.repo.list_versions(page_id)
 
     async def rollback(
-        self, page_id: UUID, owner_id: UUID, version_number: int
+        self, page_id: UUID, current_user: User, version_number: int
     ) -> WikiPage:
-        page = await self.get_page(page_id, owner_id)
+        page = await self.get_writable_page(page_id, current_user)
         version = await self.repo.get_version(page_id, version_number)
         if version is None:
             raise BusinessException(
@@ -149,7 +231,7 @@ class WikiService:
             content=version.content,
             summary=version.summary,
             change_message=f"回滚到 v{version_number}",
-            created_by=owner_id,
+            created_by=current_user.id,
         )
         await self.db.commit()
         await self.db.refresh(page)

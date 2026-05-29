@@ -52,6 +52,32 @@ class MaterialRepository:
         )
         return list(result.scalars().all()), int(total or 0)
 
+    async def list_visible_by_course(
+        self,
+        *,
+        course_id: UUID,
+        current_user_id: UUID,
+        public_owner_id: UUID | None,
+        include_all: bool = False,
+        page: int,
+        page_size: int,
+    ) -> tuple[list[CourseMaterial], int]:
+        statement = select(CourseMaterial).where(CourseMaterial.course_id == course_id)
+        if not include_all:
+            visible_owner_ids = [current_user_id]
+            if public_owner_id is not None and public_owner_id != current_user_id:
+                visible_owner_ids.append(public_owner_id)
+            statement = statement.where(CourseMaterial.uploaded_by.in_(visible_owner_ids))
+
+        total_statement = select(func.count()).select_from(statement.subquery())
+        total = await self.db.scalar(total_statement)
+        result = await self.db.execute(
+            statement.order_by(CourseMaterial.created_at.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        return list(result.scalars().all()), int(total or 0)
+
     async def get_by_id(self, material_id: UUID) -> CourseMaterial | None:
         result = await self.db.execute(
             select(CourseMaterial).where(CourseMaterial.id == material_id)

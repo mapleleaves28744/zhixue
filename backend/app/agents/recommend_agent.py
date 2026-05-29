@@ -23,6 +23,7 @@ class RecommendAgent(BaseAgent):
             results = await retriever.search(
                 course_id=context.course_id,
                 query=topic,
+                user_id=context.user_id,
                 top_k=5,
             )
             ref_context = "\n\n".join(r.content for r in results) if results else "无相关资料"

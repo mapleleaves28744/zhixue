@@ -7,11 +7,14 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user
+from app.core.error_codes import ErrorCode
+from app.core.exceptions import BusinessException
 from app.core.response import page_response, success_response
 from app.db.session import get_db
 from app.models.user import User
 from app.services.agent_log_service import AgentLogService
 from app.services.agent_service import AgentService
+from app.services.course_service import CourseService
 
 router = APIRouter()
 
@@ -34,6 +37,7 @@ async def run_agent(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
+    await CourseService(db).get_readable_course(body.course_id, current_user)
     service = AgentService(db)
     result = await service.run_task(
         task_type=body.task_type,
@@ -66,7 +70,7 @@ async def list_runs(
 ) -> dict[str, object]:
     log_service = AgentLogService(db)
     items, total = await log_service.list_runs(
-        user_id=current_user.id,
+        user_id=None if current_user.role == "admin" else current_user.id,
         task_type=task_type,
         status=status,
         page=page,
@@ -101,10 +105,7 @@ async def get_run(
 ) -> dict[str, object]:
     log_service = AgentLogService(db)
     run = await log_service.get_run(run_id)
-    if run is None:
-        from app.core.error_codes import ErrorCode
-        from app.core.exceptions import BusinessException
-
+    if run is None or (current_user.role != "admin" and run.user_id != current_user.id):
         raise BusinessException(
             code=ErrorCode.NOT_FOUND,
             detail="运行记录不存在",

@@ -4,9 +4,8 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>课程知识库 - 智学工坊</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
+<link href="/fonts/material-symbols.css" rel="stylesheet"/>
 <style>
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined';
@@ -83,163 +82,6 @@
             background: rgba(133, 116, 98, 0.4);
         }
     </style>
-<script id="tailwind-config">
-  tailwind.config = {
-    darkMode: "class",
-    theme: {
-      extend: {
-        "colors": {
-                "on-tertiary-fixed": "#151c22",
-                "surface": "#fcf9f8",
-                "primary-container": "#f9a826",
-                "inverse-on-surface": "#f3f0ef",
-                "surface-container-lowest": "#ffffff",
-                "primary-fixed": "#ffddb5",
-                "on-surface-variant": "#524434",
-                "surface-tint": "#835400",
-                "surface-container-highest": "#e5e2e1",
-                "tertiary": "#585f66",
-                "on-secondary-fixed": "#301214",
-                "tertiary-fixed-dim": "#c0c7cf",
-                "surface-container-high": "#eae7e7",
-                "inverse-primary": "#ffb957",
-                "surface-variant": "#e5e2e1",
-                "on-surface": "#1c1b1b",
-                "surface-bright": "#fcf9f8",
-                "on-secondary-fixed-variant": "#633c3d",
-                "outline-variant": "#d7c3ae",
-                "background": "#fcf9f8",
-                "on-primary": "#ffffff",
-                "on-primary-container": "#674100",
-                "inverse-surface": "#313030",
-                "error": "#ba1a1a",
-                "secondary-fixed-dim": "#efb9b9",
-                "outline": "#857462",
-                "on-tertiary-fixed-variant": "#40484e",
-                "secondary-container": "#fec7c7",
-                "secondary-fixed": "#ffdad9",
-                "tertiary-fixed": "#dce3eb",
-                "tertiary-container": "#b3bac2",
-                "on-primary-fixed-variant": "#643f00",
-                "surface-container-low": "#f6f3f2",
-                "secondary": "#7d5354",
-                "primary": "#835400",
-                "on-primary-fixed": "#2a1800",
-                "error-container": "#ffdad6",
-                "surface-container": "#f0eded",
-                "on-secondary-container": "#7a5051",
-                "on-error": "#ffffff",
-                "primary-fixed-dim": "#ffb957",
-                "on-background": "#1c1b1b",
-                "surface-dim": "#dcd9d9",
-                "on-secondary": "#ffffff",
-                "on-error-container": "#93000a",
-                "on-tertiary": "#ffffff",
-                "on-tertiary-container": "#434a51"
-        },
-        "borderRadius": {
-                "DEFAULT": "0.25rem",
-                "lg": "0.5rem",
-                "xl": "0.75rem",
-                "full": "9999px"
-        },
-        "spacing": {
-                "unit": "8px",
-                "card-gap": "24px",
-                "container-padding-desktop": "48px",
-                "container-padding-mobile": "20px",
-                "gutter": "16px"
-        },
-        "fontFamily": {
-                "display-lg": [
-                        "Plus Jakarta Sans"
-                ],
-                "label-md": [
-                        "Manrope"
-                ],
-                "display-lg-mobile": [
-                        "Plus Jakarta Sans"
-                ],
-                "headline-sm": [
-                        "Plus Jakarta Sans"
-                ],
-                "body-lg": [
-                        "Manrope"
-                ],
-                "label-sm": [
-                        "Manrope"
-                ],
-                "body-md": [
-                        "Manrope"
-                ],
-                "headline-md": [
-                        "Plus Jakarta Sans"
-                ]
-        },
-        "fontSize": {
-                "display-lg": [
-                        "40px",
-                        {
-                                "lineHeight": "1.2",
-                                "letterSpacing": "-0.02em",
-                                "fontWeight": "700"
-                        }
-                ],
-                "label-md": [
-                        "14px",
-                        {
-                                "lineHeight": "1.2",
-                                "letterSpacing": "0.01em",
-                                "fontWeight": "600"
-                        }
-                ],
-                "display-lg-mobile": [
-                        "32px",
-                        {
-                                "lineHeight": "1.2",
-                                "fontWeight": "700"
-                        }
-                ],
-                "headline-sm": [
-                        "20px",
-                        {
-                                "lineHeight": "1.4",
-                                "fontWeight": "600"
-                        }
-                ],
-                "body-lg": [
-                        "18px",
-                        {
-                                "lineHeight": "1.6",
-                                "fontWeight": "500"
-                        }
-                ],
-                "label-sm": [
-                        "12px",
-                        {
-                                "lineHeight": "1.2",
-                                "fontWeight": "700"
-                        }
-                ],
-                "body-md": [
-                        "16px",
-                        {
-                                "lineHeight": "1.6",
-                                "fontWeight": "400"
-                        }
-                ],
-                "headline-md": [
-                        "24px",
-                        {
-                                "lineHeight": "1.3",
-                                "fontWeight": "600"
-                        }
-                ]
-        }
-},
-    },
-  }
-</script>
 </head>
 <body class="text-on-background font-body-md text-body-md min-h-screen bg-background">
 <!-- Ambient Background Blobs -->
@@ -248,8 +90,8 @@
 <div class="ambient-blob blob-3"></div>
 <!-- SideNavBar -->
 <nav class="fixed h-screen w-20 left-0 top-0 bg-white/40 backdrop-blur-2xl border-r border-white/60 shadow-[0_25px_65px_rgba(131,84,0,0.03)] flex flex-col items-center py-6 gap-4 z-50 hidden md:flex">
-<div class="mb-6 w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center bg-primary/10">
-<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1EZ4-_OqvLolrIYsVavZ41LOfIffnec98XBc0EYVq62ylT7CK9vnL3PqRZLE7u_qUV2tt2HWiZKHStzAVqpeH9M4qHvsvV-qXIrCKIWJAF5e4iThmFdhho-TcvjQdZtfeBR0obiutEJYp3DIkMJa4Ey5XQ-eOI2BP10hciIBR4Yir3WE0fSxgEXE6N-ZoOOiMlNDXnbteoYU8ShR-oqJc07NOd5nHfKA5AxsrY11VWKNF_HJymUnKG1STvetjzPPMhjMfZ7H94PE"/>
+<div class="mb-6 w-12 h-12 rounded-full border-2 border-white shadow-sm flex items-center justify-center bg-primary text-on-primary" title="当前用户">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">school</span>
 </div>
 <a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/home" target="_parent" title="主页">
 <span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
@@ -461,15 +303,21 @@
   const countLabel = document.querySelector(".glass-card.p-4 h3 + p");
   const detailTitle = document.querySelector(".glass-card.p-6 h2");
   const detailMeta = document.querySelector(".glass-card.p-6 .flex.gap-4.text-sm");
+  const detailChunkBadge = document.querySelector(".glass-card.p-6 .flex.gap-2 span");
   const sliceGrid = document.querySelector(".grid.grid-cols-2.gap-4");
   const topActions = document.querySelector(".flex.justify-end.gap-3");
+  const searchInput = document.querySelector('input[placeholder="搜索知识点、文档..."]');
   const input = document.createElement("input");
   let currentCourseId = null;
+  let currentCourse = null;
+  let currentUser = null;
   let selectedMaterial = null;
   let materials = [];
   let wikiPages = [];
   let lastExtractedPoints = [];
   let lastSearchResults = [];
+  let pipelineBusy = false;
+  let stopPipelineProgress = null;
 
   input.type = "file";
   input.accept = ".pdf,.docx,.md,.txt";
@@ -525,24 +373,168 @@
     return fileType === "pdf" ? "picture_as_pdf" : fileType === "docx" ? "article" : "description";
   }
 
+  function isPublicCourse() {
+    return currentCourse && currentCourse.visibility === "public_template";
+  }
+
+  function isPrivilegedCourseUser() {
+    return currentUser && (
+      currentUser.role === "admin"
+      || (currentCourse && currentCourse.owner_id === currentUser.id)
+    );
+  }
+
+  function isPublicBuiltInMaterial(material) {
+    return Boolean(
+      material
+      && isPublicCourse()
+      && currentCourse
+      && material.uploaded_by === currentCourse.owner_id
+      && !isPrivilegedCourseUser()
+    );
+  }
+
+  function materialScopeLabel(material) {
+    if (!material) {
+      return "";
+    }
+    if (isPublicBuiltInMaterial(material) || (isPublicCourse() && currentCourse && material.uploaded_by === currentCourse.owner_id)) {
+      return "公共资料";
+    }
+    return "我的资料";
+  }
+
+  function guardWritableMaterial(material = selectedMaterial) {
+    if (!isPublicBuiltInMaterial(material)) {
+      return true;
+    }
+    api.toast("公共内置资料只读。你可以上传自己的资料，并在个人知识库中解析、切片、生成 Wiki。", "info");
+    return false;
+  }
+
   function makeActionButton(id, icon, label, className) {
     const button = document.createElement("button");
     button.id = id;
-    button.className = className || "bg-white/60 border border-white/80 hover:bg-white/90 px-4 py-2 rounded-xl font-label-md text-on-surface-variant hover:text-primary flex items-center gap-2 transition-all shadow-sm";
+    button.className = className || "bg-white/60 border border-white/80 hover:bg-white/90 px-4 py-2 rounded-xl font-label-md text-on-surface-variant hover:text-primary flex items-center gap-2 transition-all shadow-sm whitespace-nowrap";
     button.innerHTML = `<span class="material-symbols-outlined text-[18px]">${icon}</span>${label}`;
     return button;
+  }
+
+  function formatElapsed(startedAt) {
+    return `${Math.max(0, Math.floor((Date.now() - startedAt) / 1000))}s`;
+  }
+
+  function setPipelineButtonsDisabled(next) {
+    topActions?.querySelectorAll("button").forEach((button) => {
+      const readonlyWriteAction = isPublicBuiltInMaterial(selectedMaterial) && button.id !== "material-search-button";
+      button.disabled = next || readonlyWriteAction;
+      button.classList.toggle("opacity-60", next || readonlyWriteAction);
+    });
+  }
+
+  function renderPipelineProgress(title, steps, activeIndex, mode = "loading", detail = "", startedAt = Date.now()) {
+    if (!sliceGrid) {
+      return;
+    }
+    const isDone = mode === "done";
+    const isError = mode === "error";
+    const percent = isDone ? 100 : isError ? 100 : Math.min(94, Math.round(((activeIndex + 1) / steps.length) * 82));
+    sliceGrid.innerHTML = `
+      <div class="bg-white/80 backdrop-blur-md rounded-xl p-5 border border-primary/20 shadow-sm col-span-2">
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <div>
+            <div class="flex items-center gap-2 text-primary font-bold">
+              <span class="material-symbols-outlined ${isError ? "" : "animate-spin"} text-[18px]">${isError ? "error" : isDone ? "check_circle" : "sync"}</span>
+              <span>${escapeHtml(title)}</span>
+            </div>
+            <p class="text-[12px] text-on-surface-variant mt-2">${escapeHtml(detail || "后端正在处理，页面会持续展示当前阶段。")}</p>
+          </div>
+          <span class="text-xs font-bold text-outline">${formatElapsed(startedAt)}</span>
+        </div>
+        <div class="h-2 rounded-full bg-surface-container-high overflow-hidden mb-4">
+          <div class="h-full rounded-full ${isError ? "bg-error" : "bg-primary"} transition-all duration-500" style="width: ${percent}%"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+          ${steps.map((step, index) => {
+            const done = isDone || index < activeIndex;
+            const active = !isDone && !isError && index === activeIndex;
+            const failed = isError && index === activeIndex;
+            const icon = done ? "check_circle" : active ? "sync" : failed ? "error" : "radio_button_unchecked";
+            const color = done ? "text-green-700" : active ? "text-primary" : failed ? "text-error" : "text-outline";
+            return `
+              <div class="flex items-center gap-2 rounded-xl bg-white/70 border border-white/90 px-3 py-2 text-xs font-bold ${color}">
+                <span class="material-symbols-outlined text-[16px] ${active ? "animate-spin" : ""}">${icon}</span>
+                <span>${escapeHtml(step)}</span>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+  }
+
+  function startPipelineProgress(title, steps, detail) {
+    if (stopPipelineProgress) {
+      stopPipelineProgress();
+    }
+    const startedAt = Date.now();
+    let activeIndex = 0;
+    const tick = () => {
+      activeIndex = Math.min(steps.length - 1, Math.floor((Date.now() - startedAt) / 2800));
+      renderPipelineProgress(title, steps, activeIndex, "loading", detail, startedAt);
+    };
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    stopPipelineProgress = () => window.clearInterval(timer);
+    return {
+      setStep(index, nextDetail) {
+        activeIndex = Math.max(0, Math.min(steps.length - 1, index));
+        renderPipelineProgress(title, steps, activeIndex, "loading", nextDetail || detail, startedAt);
+      },
+      done(nextDetail) {
+        window.clearInterval(timer);
+        renderPipelineProgress(title, steps, steps.length - 1, "done", nextDetail || "处理完成。", startedAt);
+      },
+      error(nextDetail) {
+        window.clearInterval(timer);
+        renderPipelineProgress(title, steps, activeIndex, "error", nextDetail || "处理失败，请检查错误后重试。", startedAt);
+      },
+      stop() {
+        window.clearInterval(timer);
+      },
+    };
+  }
+
+  function mergeSelectedMaterial(patch) {
+    if (!selectedMaterial) {
+      return;
+    }
+    const next = {
+      ...selectedMaterial,
+      ...patch,
+      extra_meta: {
+        ...(selectedMaterial.extra_meta || {}),
+        ...(patch.extra_meta || {}),
+      },
+    };
+    selectedMaterial = next;
+    const index = materials.findIndex((item) => item.id === next.id);
+    if (index >= 0) {
+      materials[index] = next;
+    }
   }
 
   function ensurePipelineButtons() {
     if (!topActions || document.getElementById("material-parse-button")) {
       return;
     }
+    topActions.classList.add("flex-wrap");
     const wikiButton = topActions.querySelector("button:last-child");
     if (wikiButton) {
       wikiButton.id = "material-wiki-button";
+      wikiButton.classList.add("whitespace-nowrap");
       wikiButton.addEventListener("click", generateWikiFromSelectedMaterial);
     }
     const buttons = [
+      makeActionButton("material-full-pipeline-button", "playlist_add_check", "入库并生成 Wiki", "bg-primary text-on-primary px-4 py-2 rounded-xl font-label-md flex items-center gap-2 hover:bg-primary/90 transition-all shadow-md shadow-primary/20 whitespace-nowrap"),
       makeActionButton("material-search-button", "travel_explore", "检索资料"),
       makeActionButton("material-extract-button", "account_tree", "抽取知识点"),
       makeActionButton("material-embed-button", "hub", "向量化"),
@@ -550,6 +542,7 @@
       makeActionButton("material-parse-button", "data_object", "解析资料"),
     ];
     buttons.forEach((button) => topActions.prepend(button));
+    document.getElementById("material-full-pipeline-button")?.addEventListener("click", runFullMaterialPipeline);
     document.getElementById("material-parse-button")?.addEventListener("click", parseSelectedMaterial);
     document.getElementById("material-chunk-button")?.addEventListener("click", chunkSelectedMaterial);
     document.getElementById("material-embed-button")?.addEventListener("click", embedSelectedMaterial);
@@ -566,8 +559,11 @@
       detailTitle.textContent = "暂无真实资料";
       if (detailMeta) {
         detailMeta.innerHTML = `
-          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">info</span>请先上传课程资料</span>
+          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">info</span>${isPublicCourse() ? "公共课可使用，也可添加我的资料" : "请先上传课程资料"}</span>
           <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">database</span>来自 /api/v1/materials</span>`;
+      }
+      if (detailChunkBadge) {
+        detailChunkBadge.textContent = "共 0 个切片";
       }
       if (sliceGrid) {
         sliceGrid.innerHTML = `
@@ -577,51 +573,66 @@
               <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-tertiary-container/20 text-tertiary">等待上传</span>
             </div>
             <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-              当前课程还没有真实上传资料。上传 PDF、DOCX、MD 或 TXT 后，可以继续执行解析、切片、向量化、知识点抽取和 Wiki 生成。
+              ${isPublicCourse()
+                ? "当前公共课暂无可展示资料。你可以上传自己的资料，后续解析、切片、向量化、知识点抽取和 Wiki 生成都会进入你的个人知识库。"
+                : "当前课程还没有真实上传资料。上传 PDF、DOCX、MD 或 TXT 后，可以继续执行解析、切片、向量化、知识点抽取和 Wiki 生成。"}
             </p>
           </div>`;
       }
       return;
     }
     detailTitle.textContent = material.file_name;
+    const pipelineMeta = material.extra_meta || {};
+    const readonlyMaterial = isPublicBuiltInMaterial(material);
+    if (detailChunkBadge) {
+      detailChunkBadge.textContent = `共 ${pipelineMeta.chunk_count || 0} 个切片`;
+    }
     if (detailMeta) {
       detailMeta.innerHTML = `
         <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">calendar_today</span>${api.formatDate(material.created_at)} 上传</span>
         <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">description</span>${api.formatSize(material.file_size)} · ${escapeHtml(material.file_type.toUpperCase())}</span>
-        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">tag</span>${statusLabel(material.parse_status)}</span>`;
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">tag</span>${statusLabel(material.parse_status)}</span>
+        <span class="flex items-center gap-1 ${readonlyMaterial ? "text-primary" : "text-tertiary"}"><span class="material-symbols-outlined text-[16px]">${readonlyMaterial ? "lock" : "person"}</span>${materialScopeLabel(material)}${readonlyMaterial ? "只读" : ""}</span>`;
     }
     const parseButton = document.getElementById("material-parse-button");
     if (parseButton) {
-      parseButton.disabled = material.parse_status === "processing";
+      parseButton.disabled = material.parse_status === "processing" || readonlyMaterial;
       parseButton.innerHTML = material.parse_status === "success"
         ? '<span class="material-symbols-outlined text-[18px]">refresh</span>重新解析'
         : '<span class="material-symbols-outlined text-[18px]">data_object</span>解析资料';
     }
     const wikiButton = document.getElementById("material-wiki-button");
     if (wikiButton) {
-      wikiButton.disabled = !material;
+      wikiButton.disabled = !material || readonlyMaterial;
       wikiButton.innerHTML = '<span class="material-symbols-outlined text-[18px]">auto_awesome</span>从资料生成 Wiki';
     }
     const chunkButton = document.getElementById("material-chunk-button");
     if (chunkButton) {
+      chunkButton.disabled = readonlyMaterial;
       chunkButton.innerHTML = '<span class="material-symbols-outlined text-[18px]">segment</span>切片';
     }
     const embedButton = document.getElementById("material-embed-button");
     if (embedButton) {
+      embedButton.disabled = readonlyMaterial;
       embedButton.innerHTML = '<span class="material-symbols-outlined text-[18px]">hub</span>向量化';
     }
     const extractButton = document.getElementById("material-extract-button");
     if (extractButton) {
+      extractButton.disabled = readonlyMaterial;
       extractButton.innerHTML = '<span class="material-symbols-outlined text-[18px]">account_tree</span>抽取知识点';
     }
     const searchButton = document.getElementById("material-search-button");
     if (searchButton) {
       searchButton.innerHTML = '<span class="material-symbols-outlined text-[18px]">travel_explore</span>检索资料';
     }
+    const fullPipelineButton = document.getElementById("material-full-pipeline-button");
+    if (fullPipelineButton) {
+      fullPipelineButton.disabled = readonlyMaterial;
+      fullPipelineButton.innerHTML = '<span class="material-symbols-outlined text-[18px]">playlist_add_check</span>入库并生成 Wiki';
+    }
     if (sliceGrid) {
       const textLength = material.extra_meta && material.extra_meta.text_length;
       const parsedPath = material.extra_meta && material.extra_meta.parsed_text_path;
-      const pipelineMeta = material.extra_meta || {};
       sliceGrid.innerHTML = `
         <div class="bg-white/70 backdrop-blur-md rounded-xl p-4 border border-white/90 shadow-sm col-span-2">
           <div class="flex items-center justify-between mb-3">
@@ -682,8 +693,8 @@
     if (!materials.length) {
       docList.innerHTML = `
         <div class="glass-card p-5 border-l-[6px] border-l-tertiary-container/50">
-          <p class="font-label-md text-label-md text-on-surface">暂无真实资料</p>
-          <p class="font-body-md text-body-md text-on-surface-variant mt-2">点击“上传资料”添加 PDF、DOCX、MD 或 TXT 文件。</p>
+          <p class="font-label-md text-label-md text-on-surface">${isPublicCourse() ? "公共课暂无可见资料" : "暂无真实资料"}</p>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-2">${isPublicCourse() ? "公共底座会参与检索；你上传的新资料只进入自己的个人知识库。" : "点击“上传资料”添加 PDF、DOCX、MD 或 TXT 文件。"}</p>
         </div>`;
       updateDetail(null);
       return;
@@ -701,6 +712,9 @@
           <span>${api.formatSize(material.file_size)} · ${escapeHtml(material.file_type.toUpperCase())}</span>
           <span>${api.formatDate(material.created_at)}</span>
         </div>
+        <div class="mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${isPublicBuiltInMaterial(material) ? "bg-primary/10 text-primary border border-primary/20" : "bg-tertiary-container/30 text-tertiary border border-tertiary-container/60"}">
+          <span class="material-symbols-outlined text-[14px]">${isPublicBuiltInMaterial(material) ? "school" : "person"}</span>${materialScopeLabel(material)}
+        </div>
       </div>`).join("");
     docList.querySelectorAll("[data-material-id]").forEach((card) => {
       card.addEventListener("click", () => {
@@ -717,6 +731,7 @@
     }
     uploadButton.disabled = isUploading;
     uploadButton.classList.toggle("opacity-70", isUploading);
+    uploadButton.title = isPublicCourse() ? "上传后只对当前账号可见" : "";
     uploadButton.innerHTML = isUploading
       ? '<span class="material-symbols-outlined text-[18px]">hourglass_top</span>上传中...'
       : '<span class="material-symbols-outlined text-[18px]">upload</span>上传资料';
@@ -724,64 +739,99 @@
 
   async function loadMaterials() {
     currentCourseId = await api.resolveCourseId();
-    const [materialPage, wikiPage] = await Promise.all([
+    const [course, me, materialPage, wikiPage] = await Promise.all([
+      api.getCourse(currentCourseId).catch(() => null),
+      api.getMe().catch(() => null),
       api.request(`/materials?course_id=${encodeURIComponent(currentCourseId)}&page=1&page_size=50`),
       api.listWikiPages(currentCourseId, { pageSize: 50 }).catch(() => ({ items: [] })),
     ]);
+    currentCourse = course;
+    currentUser = me;
     materials = materialPage.items || [];
     wikiPages = wikiPage.items || [];
+    setUploading(false);
     renderMaterials();
   }
 
   async function parseSelectedMaterial() {
+    if (!guardWritableMaterial()) {
+      return;
+    }
     if (!selectedMaterial) {
       api.toast("请先选择一个资料。", "info");
       return;
     }
     const parseButton = document.getElementById("material-parse-button");
+    if (pipelineBusy) {
+      return;
+    }
+    const progress = startPipelineProgress(
+      "资料解析",
+      ["读取上传文件", "提取纯文本", "保存解析缓存"],
+      "解析结果会作为切片、检索和 Wiki 生成的输入。"
+    );
     try {
+      pipelineBusy = true;
+      setPipelineButtonsDisabled(true);
       parseButton.disabled = true;
       parseButton.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">sync</span>解析中...';
       const result = await api.request(`/materials/${selectedMaterial.id}/parse`, { method: "POST" });
-      const index = materials.findIndex((item) => item.id === selectedMaterial.id);
-      if (index >= 0) {
-        materials[index] = {
-          ...materials[index],
-          parse_status: result.parse_status,
-          parse_error: result.parse_error,
-          text_hash: result.text_hash,
-          extra_meta: {
-            ...(materials[index].extra_meta || {}),
-            parsed_text_path: result.parsed_text_path,
-            text_length: result.text_length,
-          },
-        };
-      }
+      mergeSelectedMaterial({
+        parse_status: result.parse_status,
+        parse_error: result.parse_error,
+        text_hash: result.text_hash,
+        extra_meta: {
+          parsed_text_path: result.parsed_text_path,
+          text_length: result.text_length,
+        },
+      });
+      progress.done(`解析完成，文本长度约 ${result.text_length || 0} 字符。`);
       api.toast(result.parse_status === "success" ? "资料解析完成" : "资料解析失败", result.parse_status === "success" ? "success" : "error");
       renderMaterials();
     } catch (error) {
+      progress.error(error.message || "解析失败");
       api.toast(error.message || "解析失败", "error");
       updateDetail(selectedMaterial);
+    } finally {
+      progress.stop();
+      pipelineBusy = false;
+      setPipelineButtonsDisabled(false);
     }
   }
 
-  async function runMaterialAction(buttonId, loadingText, action) {
+  async function runMaterialAction(buttonId, loadingText, action, progressConfig) {
+    if (buttonId !== "material-search-button" && !guardWritableMaterial()) {
+      return null;
+    }
     if (!selectedMaterial) {
       api.toast("请先选择一个资料。", "info");
       return null;
     }
+    if (pipelineBusy) {
+      return null;
+    }
     const button = document.getElementById(buttonId);
+    const progress = progressConfig
+      ? startPipelineProgress(progressConfig.title, progressConfig.steps, progressConfig.detail)
+      : null;
     try {
+      pipelineBusy = true;
+      setPipelineButtonsDisabled(true);
       if (button) {
         button.disabled = true;
         button.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">sync</span>${loadingText}`;
       }
       const result = await action();
+      progress?.done(progressConfig?.doneDetail || "处理完成。");
       return result;
     } catch (error) {
+      progress?.error(error.message || "操作失败");
       api.toast(error.message || "操作失败", "error");
       return null;
     } finally {
+      progress?.stop();
+      pipelineBusy = false;
+      setPipelineButtonsDisabled(false);
       if (button) {
         button.disabled = false;
       }
@@ -792,12 +842,13 @@
   async function chunkSelectedMaterial() {
     const result = await runMaterialAction("material-chunk-button", "切片中...", () => (
       api.request(`/materials/${selectedMaterial.id}/chunk`, { method: "POST" })
-    ));
+    ), {
+      title: "文档切片",
+      steps: ["读取解析文本", "按语义窗口切片", "写入 chunk 索引"],
+      detail: "切片完成后，RAG 检索和向量化会基于这些 chunks 继续处理。",
+    });
     if (!result) return;
-    selectedMaterial.extra_meta = {
-      ...(selectedMaterial.extra_meta || {}),
-      chunk_count: result.chunk_count,
-    };
+    mergeSelectedMaterial({ extra_meta: { chunk_count: result.chunk_count } });
     api.toast(`切片完成：${result.chunk_count} 个 chunks`, "success");
     renderMaterials();
   }
@@ -805,12 +856,13 @@
   async function embedSelectedMaterial() {
     const result = await runMaterialAction("material-embed-button", "向量化中...", () => (
       api.request(`/materials/${selectedMaterial.id}/embed`, { method: "POST" })
-    ));
+    ), {
+      title: "向量化入库",
+      steps: ["读取文档切片", "调用 Embedding Provider", "写入向量检索索引"],
+      detail: "当前配置可使用 Mock 或真实 Embedding；完成后可立即进行 RAG 检索。",
+    });
     if (!result) return;
-    selectedMaterial.extra_meta = {
-      ...(selectedMaterial.extra_meta || {}),
-      embedded_count: result.embedded_count,
-    };
+    mergeSelectedMaterial({ extra_meta: { embedded_count: result.embedded_count } });
     api.toast(`向量化完成：${result.embedded_count} 个 chunks`, "success");
     renderMaterials();
   }
@@ -821,7 +873,11 @@
         method: "POST",
         body: { material_id: selectedMaterial.id },
       })
-    ));
+    ), {
+      title: "知识点抽取",
+      steps: ["读取资料与切片", "Knowledge Agent 抽取概念", "保存知识点与关系"],
+      detail: "抽取结果会在 Knowledge / Wiki 区域展示，并用于后续 Wiki 生成。",
+    });
     if (!result) return;
     lastExtractedPoints = result.points || [];
     api.toast(`抽取完成：新增 ${result.extracted_count} 个知识点`, "success");
@@ -837,7 +893,11 @@
           material_id: selectedMaterial.id,
         },
       })
-    ));
+    ), {
+      title: "LLM Wiki 生成",
+      steps: ["收集资料来源", "Wiki Agent 组织页面结构", "调用真实/Mock LLM 生成内容", "写入页面版本与来源"],
+      detail: "生成过程会保留来源、版本和 AI 推断标记，避免长时间白屏等待。",
+    });
     if (!result) return;
     const page = await api.listWikiPages(currentCourseId, { pageSize: 50 });
     wikiPages = page.items || [];
@@ -845,12 +905,89 @@
     updateDetail(selectedMaterial);
   }
 
+  async function runFullMaterialPipeline() {
+    if (!guardWritableMaterial()) {
+      return;
+    }
+    if (!selectedMaterial) {
+      api.toast("请先选择一个资料。", "info");
+      return;
+    }
+    if (pipelineBusy) {
+      return;
+    }
+    const steps = ["解析资料", "生成切片", "向量化入库", "抽取知识点", "生成 LLM Wiki"];
+    const progress = startPipelineProgress(
+      "知识库入库流水线",
+      steps,
+      "正在把资料转成可检索知识库，并生成可追溯 Wiki 页面。"
+    );
+    const button = document.getElementById("material-full-pipeline-button");
+    try {
+      pipelineBusy = true;
+      setPipelineButtonsDisabled(true);
+      if (button) {
+        button.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">sync</span>入库中...';
+      }
+
+      progress.setStep(0, "正在解析资料文本。");
+      const parseResult = await api.request(`/materials/${selectedMaterial.id}/parse`, { method: "POST" });
+      mergeSelectedMaterial({
+        parse_status: parseResult.parse_status,
+        parse_error: parseResult.parse_error,
+        text_hash: parseResult.text_hash,
+        extra_meta: {
+          parsed_text_path: parseResult.parsed_text_path,
+          text_length: parseResult.text_length,
+        },
+      });
+
+      progress.setStep(1, "正在切分文档，准备 RAG 检索单元。");
+      const chunkResult = await api.request(`/materials/${selectedMaterial.id}/chunk`, { method: "POST" });
+      mergeSelectedMaterial({ extra_meta: { chunk_count: chunkResult.chunk_count } });
+
+      progress.setStep(2, "正在写入向量索引。");
+      const embedResult = await api.request(`/materials/${selectedMaterial.id}/embed`, { method: "POST" });
+      mergeSelectedMaterial({ extra_meta: { embedded_count: embedResult.embedded_count } });
+
+      progress.setStep(3, "Knowledge Agent 正在抽取知识点。");
+      const extractResult = await api.request("/knowledge/extract-from-material", {
+        method: "POST",
+        body: { material_id: selectedMaterial.id },
+      });
+      lastExtractedPoints = extractResult.points || [];
+
+      progress.setStep(4, "Wiki Agent 正在生成可追溯页面与版本。");
+      const wikiResult = await api.request("/wiki/pages/generate-from-material", {
+        method: "POST",
+        body: {
+          course_id: currentCourseId,
+          material_id: selectedMaterial.id,
+        },
+      });
+      const page = await api.listWikiPages(currentCourseId, { pageSize: 50 });
+      wikiPages = page.items || [];
+      progress.done(`入库完成：${chunkResult.chunk_count} 个 chunks，${embedResult.embedded_count} 个 embeddings，${wikiResult.generated_count} 个 Wiki 页面。`);
+      api.toast("知识库入库与 Wiki 生成完成", "success");
+      renderMaterials();
+    } catch (error) {
+      progress.error(error.message || "知识库入库失败");
+      api.toast(error.message || "知识库入库失败", "error");
+    } finally {
+      progress.stop();
+      pipelineBusy = false;
+      setPipelineButtonsDisabled(false);
+      updateDetail(selectedMaterial);
+    }
+  }
+
   async function searchCurrentCourse() {
     if (!currentCourseId) {
       api.toast("请先选择课程。", "info");
       return;
     }
-    const query = prompt("请输入要检索的知识点或问题", selectedMaterial ? selectedMaterial.file_name : "栈和队列");
+    const query = (searchInput && searchInput.value && searchInput.value.trim())
+      || (selectedMaterial ? selectedMaterial.file_name : "栈与队列");
     if (!query) {
       return;
     }

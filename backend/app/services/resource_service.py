@@ -25,6 +25,7 @@ from app.schemas.resource import (
     ResourceSaveToWikiRequest,
 )
 from app.services.agent_service import AgentService
+from app.services.course_service import CourseService
 
 
 class ResourceService:
@@ -50,8 +51,8 @@ class ResourceService:
                 status_code=400,
             )
 
-        knowledge = await self._get_knowledge(payload.knowledge_id, course.id)
-        wiki_page = await self._get_wiki_page(payload.wiki_page_id, current_user.id, course.id)
+        knowledge = await self._get_knowledge(payload.knowledge_id, course, current_user)
+        wiki_page = await self._get_readable_wiki_page(payload.wiki_page_id, course, current_user)
 
         result = await AgentService(self.db).run_task(
             task_type="generate_resource",
@@ -194,7 +195,8 @@ class ResourceService:
                 detail="缺少目标 Wiki 页面 ID",
                 status_code=400,
             )
-        page = await self._get_wiki_page(target_page_id, current_user.id, resource.course_id)
+        course = await self._get_accessible_course(resource.course_id, current_user)
+        page = await self._get_writable_or_personal_copy(target_page_id, course, current_user)
         if page.status == "archived":
             raise BusinessException(
                 code=ErrorCode.PARAM_ERROR,
@@ -271,23 +273,22 @@ class ResourceService:
         }
 
     async def _get_accessible_course(self, course_id: UUID, current_user: User) -> Course:
-        course = await self.courses.get_by_id(course_id)
-        if course is None or (current_user.role != "admin" and course.owner_id != current_user.id):
-            raise BusinessException(
-                code=ErrorCode.NOT_FOUND,
-                detail="课程不存在",
-                status_code=404,
-            )
-        return course
+        return await CourseService(self.db).get_readable_course(course_id, current_user)
 
     async def _get_knowledge(
         self,
         knowledge_id: UUID | None,
-        course_id: UUID,
+        course: Course,
+        current_user: User,
     ) -> KnowledgePoint | None:
         if knowledge_id is None:
             return None
-        items = await self.knowledge.list_by_course(course_id)
+        items = await self.knowledge.list_visible_by_course(
+            course_id=course.id,
+            current_user_id=current_user.id,
+            public_owner_id=course.owner_id if course.visibility == "public_template" else None,
+            include_all=current_user.role == "admin",
+        )
         for item in items:
             if item.id == knowledge_id:
                 return item
@@ -297,22 +298,76 @@ class ResourceService:
             status_code=404,
         )
 
-    async def _get_wiki_page(
+    async def _get_readable_wiki_page(
         self,
         wiki_page_id: UUID | None,
-        owner_id: UUID,
-        course_id: UUID,
+        course: Course,
+        current_user: User,
     ) -> WikiPage | None:
         if wiki_page_id is None:
             return None
         page = await self.wiki.get_by_id_simple(wiki_page_id)
-        if page is None or page.owner_id != owner_id or page.course_id != course_id:
+        if page is None or page.course_id != course.id:
             raise BusinessException(
                 code=ErrorCode.NOT_FOUND,
                 detail="Wiki 页面不存在",
                 status_code=404,
             )
-        return page
+        if page.status == "archived":
+            raise BusinessException(
+                code=ErrorCode.PARAM_ERROR,
+                detail="已归档的 Wiki 页面不可使用",
+                status_code=400,
+            )
+        if current_user.role == "admin" or page.owner_id == current_user.id:
+            return page
+        is_public_page = (
+            course.visibility == "public_template"
+            and page.owner_id == course.owner_id
+        )
+        if is_public_page:
+            return page
+        raise BusinessException(
+            code=ErrorCode.NOT_FOUND,
+            detail="Wiki 页面不存在",
+            status_code=404,
+        )
+
+    async def _get_writable_or_personal_copy(
+        self,
+        wiki_page_id: UUID,
+        course: Course,
+        current_user: User,
+    ) -> WikiPage:
+        page = await self._get_readable_wiki_page(wiki_page_id, course, current_user)
+        if current_user.role == "admin" or page.owner_id == current_user.id:
+            return page
+
+        is_public_page = (
+            course.visibility == "public_template"
+            and page.owner_id == course.owner_id
+        )
+        if not is_public_page:
+            raise BusinessException(
+                code=ErrorCode.FORBIDDEN,
+                detail="无权编辑此 Wiki 页面",
+                status_code=403,
+            )
+        copied = await self.wiki.create_page(
+            course_id=course.id,
+            owner_id=current_user.id,
+            title=page.title,
+            content=page.content,
+            summary=page.summary,
+        )
+        await self.wiki.create_source(
+            page_id=copied.id,
+            source_type="manual",
+            source_id=page.id,
+            source_title=f"个人副本来源：{page.title}",
+            quote_text=(page.summary or page.content[:200]),
+        )
+        return copied
 
     async def _get_owned_resource(
         self,

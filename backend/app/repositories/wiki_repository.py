@@ -105,6 +105,54 @@ class WikiRepository:
         result = await self.db.execute(items_q)
         return list(result.scalars().all()), total
 
+    async def list_by_owners(
+        self,
+        owner_ids: list[UUID],
+        course_id: UUID,
+        status: str | None = "active",
+        page: int = 1,
+        page_size: int = 20,
+    ) -> tuple[list[WikiPage], int]:
+        query = select(WikiPage).where(
+            WikiPage.owner_id.in_(owner_ids),
+            WikiPage.course_id == course_id,
+        )
+        if status:
+            query = query.where(WikiPage.status == status)
+
+        count_q = select(func.count()).select_from(query.subquery())
+        total = (await self.db.execute(count_q)).scalar() or 0
+
+        items_q = (
+            query.order_by(WikiPage.updated_at.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        result = await self.db.execute(items_q)
+        return list(result.scalars().all()), total
+
+    async def list_by_course(
+        self,
+        course_id: UUID,
+        status: str | None = "active",
+        page: int = 1,
+        page_size: int = 20,
+    ) -> tuple[list[WikiPage], int]:
+        query = select(WikiPage).where(WikiPage.course_id == course_id)
+        if status:
+            query = query.where(WikiPage.status == status)
+
+        count_q = select(func.count()).select_from(query.subquery())
+        total = (await self.db.execute(count_q)).scalar() or 0
+
+        items_q = (
+            query.order_by(WikiPage.updated_at.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        result = await self.db.execute(items_q)
+        return list(result.scalars().all()), total
+
     async def update_page(self, page: WikiPage, **fields: object) -> WikiPage:
         for key, value in fields.items():
             setattr(page, key, value)

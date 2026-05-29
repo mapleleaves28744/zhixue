@@ -40,17 +40,24 @@ class CourseService:
         page_size: int,
         status: str,
     ) -> tuple[list[CourseRead], int]:
-        owner_id = None if current_user.role == "admin" else current_user.id
-        courses, total = await self.courses.list_courses(
-            owner_id=owner_id,
-            status=status,
-            page=page,
-            page_size=page_size,
-        )
+        if current_user.role == "admin":
+            courses, total = await self.courses.list_courses(
+                owner_id=None,
+                status=status,
+                page=page,
+                page_size=page_size,
+            )
+        else:
+            courses, total = await self.courses.list_visible_courses(
+                user_id=current_user.id,
+                status=status,
+                page=page,
+                page_size=page_size,
+            )
         return [CourseRead.model_validate(course) for course in courses], total
 
     async def get_course(self, course_id: UUID, current_user: User) -> CourseRead:
-        course = await self._get_accessible_course(course_id, current_user)
+        course = await self.get_readable_course(course_id, current_user)
         return CourseRead.model_validate(course)
 
     async def update_course(
@@ -59,7 +66,7 @@ class CourseService:
         payload: CourseUpdate,
         current_user: User,
     ) -> CourseRead:
-        course = await self._get_accessible_course(course_id, current_user)
+        course = await self.get_writable_course(course_id, current_user)
         values = payload.model_dump(exclude_unset=True)
         values = {
             key: self._clean_optional_text(value) if isinstance(value, str) else value
@@ -87,13 +94,33 @@ class CourseService:
         return CourseRead.model_validate(course)
 
     async def archive_course(self, course_id: UUID, current_user: User) -> CourseRead:
-        course = await self._get_accessible_course(course_id, current_user)
+        course = await self.get_writable_course(course_id, current_user)
         course = await self.courses.archive(course)
         await self.db.commit()
         await self.db.refresh(course)
         return CourseRead.model_validate(course)
 
-    async def _get_accessible_course(self, course_id: UUID, current_user: User) -> Course:
+    async def get_readable_course(self, course_id: UUID, current_user: User) -> Course:
+        course = await self._get_course_or_404(course_id)
+        if not self.can_read_course(course, current_user):
+            raise BusinessException(
+                code=ErrorCode.NOT_FOUND,
+                detail="课程不存在",
+                status_code=404,
+            )
+        return course
+
+    async def get_writable_course(self, course_id: UUID, current_user: User) -> Course:
+        course = await self._get_course_or_404(course_id)
+        if not self.can_write_course_content(course, current_user):
+            raise BusinessException(
+                code=ErrorCode.FORBIDDEN,
+                detail="公共课程只读，或当前用户无权修改该课程",
+                status_code=403,
+            )
+        return course
+
+    async def _get_course_or_404(self, course_id: UUID) -> Course:
         course = await self.courses.get_by_id(course_id)
         if course is None:
             raise BusinessException(
@@ -101,14 +128,23 @@ class CourseService:
                 detail="课程不存在",
                 status_code=404,
             )
-
-        if current_user.role != "admin" and course.owner_id != current_user.id:
-            raise BusinessException(
-                code=ErrorCode.NOT_FOUND,
-                detail="课程不存在",
-                status_code=404,
-            )
         return course
+
+    async def _get_accessible_course(self, course_id: UUID, current_user: User) -> Course:
+        return await self.get_readable_course(course_id, current_user)
+
+    def can_read_course(self, course: Course, current_user: User) -> bool:
+        return (
+            current_user.role == "admin"
+            or course.owner_id == current_user.id
+            or (course.visibility == "public_template" and course.status == "active")
+        )
+
+    def can_write_course_content(self, course: Course, current_user: User) -> bool:
+        return current_user.role == "admin" or course.owner_id == current_user.id
+
+    def can_write_personal_learning_data(self, course: Course, current_user: User) -> bool:
+        return self.can_read_course(course, current_user)
 
     def _clean_optional_text(self, value: str | None) -> str | None:
         if value is None:

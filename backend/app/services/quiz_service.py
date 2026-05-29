@@ -27,6 +27,7 @@ from app.schemas.quiz import (
     QuizSubmitResponse,
 )
 from app.services.agent_service import AgentService
+from app.services.course_service import CourseService
 from app.services.learning_record_service import LearningRecordService
 
 
@@ -44,7 +45,7 @@ class QuizService:
         current_user: User,
     ) -> QuizGenerateResponse:
         course = await self._get_accessible_course(payload.course_id, current_user)
-        knowledge = await self._get_knowledge(payload.knowledge_id, course.id)
+        knowledge = await self._get_knowledge(payload.knowledge_id, course, current_user)
         topic = self._topic(payload.topic, knowledge, course)
 
         result = await AgentService(self.db).run_task(
@@ -257,23 +258,22 @@ class QuizService:
         return record, mistake
 
     async def _get_accessible_course(self, course_id: UUID, current_user: User) -> Course:
-        course = await self.courses.get_by_id(course_id)
-        if course is None or (current_user.role != "admin" and course.owner_id != current_user.id):
-            raise BusinessException(
-                code=ErrorCode.NOT_FOUND,
-                detail="课程不存在",
-                status_code=404,
-            )
-        return course
+        return await CourseService(self.db).get_readable_course(course_id, current_user)
 
     async def _get_knowledge(
         self,
         knowledge_id: UUID | None,
-        course_id: UUID,
+        course: Course,
+        current_user: User,
     ) -> KnowledgePoint | None:
         if knowledge_id is None:
             return None
-        items = await self.knowledge.list_by_course(course_id)
+        items = await self.knowledge.list_visible_by_course(
+            course_id=course.id,
+            current_user_id=current_user.id,
+            public_owner_id=course.owner_id if course.visibility == "public_template" else None,
+            include_all=current_user.role == "admin",
+        )
         for item in items:
             if item.id == knowledge_id:
                 return item

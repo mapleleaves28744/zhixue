@@ -68,7 +68,7 @@ class LearningPathService:
         payload: LearningPathGenerateRequest,
         current_user: User,
     ) -> LearningPathRead:
-        await CourseService(self.db)._get_accessible_course(payload.course_id, current_user)
+        await CourseService(self.db).get_readable_course(payload.course_id, current_user)
 
         knowledge_points = await self._list_knowledge_points(payload.course_id)
         if not knowledge_points:

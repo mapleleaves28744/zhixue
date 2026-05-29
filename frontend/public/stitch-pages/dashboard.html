@@ -4,109 +4,8 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>智学工坊 - Learning Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-  tailwind.config = {
-    darkMode: "class",
-    theme: {
-      extend: {
-        "colors": {
-                "on-tertiary-fixed": "#151c22",
-                "surface": "#fcf9f8",
-                "primary-container": "#f9a826",
-                "inverse-on-surface": "#f3f0ef",
-                "surface-container-lowest": "#ffffff",
-                "primary-fixed": "#ffddb5",
-                "on-surface-variant": "#524434",
-                "surface-tint": "#835400",
-                "surface-container-highest": "#e5e2e1",
-                "tertiary": "#585f66",
-                "on-secondary-fixed": "#301214",
-                "tertiary-fixed-dim": "#c0c7cf",
-                "surface-container-high": "#eae7e7",
-                "inverse-primary": "#ffb957",
-                "surface-variant": "#e5e2e1",
-                "on-surface": "#1c1b1b",
-                "surface-bright": "#fcf9f8",
-                "on-secondary-fixed-variant": "#633c3d",
-                "outline-variant": "#d7c3ae",
-                "background": "#fcf9f8",
-                "on-primary": "#ffffff",
-                "on-primary-container": "#674100",
-                "inverse-surface": "#313030",
-                "error": "#ba1a1a",
-                "secondary-fixed-dim": "#efb9b9",
-                "outline": "#857462",
-                "on-tertiary-fixed-variant": "#40484e",
-                "secondary-container": "#fec7c7",
-                "secondary-fixed": "#ffdad9",
-                "tertiary-fixed": "#dce3eb",
-                "tertiary-container": "#b3bac2",
-                "on-primary-fixed-variant": "#643f00",
-                "surface-container-low": "#f6f3f2",
-                "secondary": "#7d5354",
-                "primary": "#835400",
-                "on-primary-fixed": "#2a1800",
-                "error-container": "#ffdad6",
-                "surface-container": "#f0eded",
-                "on-secondary-container": "#7a5051",
-                "on-error": "#ffffff",
-                "primary-fixed-dim": "#ffb957",
-                "on-background": "#1c1b1b",
-                "surface-dim": "#dcd9d9",
-                "on-secondary": "#ffffff",
-                "on-error-container": "#93000a",
-                "on-tertiary": "#ffffff",
-                "on-tertiary-container": "#434a51"
-        },
-        "borderRadius": {
-                "DEFAULT": "0.25rem",
-                "lg": "0.5rem",
-                "xl": "0.75rem",
-                "full": "9999px",
-                "2xl": "1rem",
-                "3xl": "1.5rem"
-        },
-        "spacing": {
-                "unit": "8px",
-                "card-gap": "24px",
-                "container-padding-desktop": "48px",
-                "container-padding-mobile": "20px",
-                "gutter": "16px",
-                "section-margin": "2.5rem"
-        },
-        "fontFamily": {
-                "display-lg": ["Plus Jakarta Sans"],
-                "label-md": ["Manrope"],
-                "display-lg-mobile": ["Plus Jakarta Sans"],
-                "headline-sm": ["Plus Jakarta Sans"],
-                "body-lg": ["Manrope"],
-                "label-sm": ["Manrope"],
-                "body-md": ["Manrope"],
-                "headline-md": ["Plus Jakarta Sans"],
-                "body-sm": ["Manrope"],
-                "label-caps": ["Manrope"]
-        },
-        "fontSize": {
-                "display-lg": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
-                "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
-                "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
-                "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "500"}],
-                "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "700"}],
-                "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
-                "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
-                "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
-                "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}]
-        }
-},
-    },
-  }
-</script>
+<link href="/fonts/material-symbols.css" rel="stylesheet"/>
+<link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
 <style>
         body { background-color: #fcf9f8; overflow-x: hidden; }
         .glass-shell { background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px); border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 36px; box-shadow: 0 40px 100px -20px rgba(131, 84, 0, 0.05); }
@@ -135,8 +34,8 @@
 <div class="ambient-blob blob-3"></div>
 <!-- SideNavBar -->
 <nav class="fixed h-screen w-20 left-0 top-0 bg-white/50 backdrop-blur-3xl border-r border-white/60 shadow-[0_15px_45px_rgba(131,84,0,0.04)] flex flex-col items-center py-6 gap-4 z-50 hidden md:flex">
-<div class="mb-6 w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center bg-primary/10">
-<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSTPmeLbPWX_qVTQ5CJBuSdz5pF8Uzv31LiZpnpFLz661UFTMeV4ybk_4b7boUcEo6pH54TwBNycTiWNes0xQTyVbATpXOD7Nn3vxjAg5KLDdlzDIPP6JT2yxQbPvgVHL20k2eITrLP5wVeLm-8aYYav8WK5XasdqT2L64x_9H-OsT1w-guVqQ28yrdr-tYCPBMabrnkkHkuuTxWqWKVzoJEAmsGbHn3JU8plVHQBGXTj6_FZg9BDLj-QeYWJZ8svnr2EBh3R2Qro"/>
+<div class="mb-6 w-12 h-12 rounded-full border-2 border-white shadow-sm flex items-center justify-center bg-primary text-on-primary" title="当前用户">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">school</span>
 </div>
 <a class="flex items-center justify-center w-12 h-12 text-outline hover:text-primary transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-white/60" href="/home" target="_parent" title="主页">
 <span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
@@ -520,13 +419,17 @@
     });
   }
 
-  function setTasksAndReminders(courses, wikiPages, runs) {
+  function setTasksAndReminders(courses, wikiPages, runs, recommendations) {
     const taskCard = [...document.querySelectorAll(".glass-card")].find((card) => card.innerText.includes("今日任务"));
     if (taskCard) {
       const labels = taskCard.querySelectorAll("label p.font-body-sm");
-      if (labels[0]) labels[0].textContent = courses.length ? `进入《${courses[0].title}》课程空间` : "创建第一门课程";
-      if (labels[1]) labels[1].textContent = wikiPages.length ? `复习 Wiki：${wikiPages[0].title}` : "上传资料并生成 Wiki";
-      if (labels[2]) labels[2].textContent = runs.length ? `查看 ${runs[0].agent_name || "Agent"} 最近运行` : "向 AI 助手提一个问题";
+      if (labels[0]) labels[0].textContent = recommendations[0]?.title || (courses.length ? `进入《${courses[0].title}》课程空间` : "创建第一门课程");
+      if (labels[1]) labels[1].textContent = recommendations[1]?.title || (wikiPages.length ? `复习 Wiki：${wikiPages[0].title}` : "上传资料并生成 Wiki");
+      if (labels[2]) labels[2].textContent = recommendations[2]?.title || (runs.length ? `查看 ${runs[0].agent_name || "Agent"} 最近运行` : "向 AI 助手提一个问题");
+      const subtitles = taskCard.querySelectorAll("label p.font-label-caps");
+      if (subtitles[0]) subtitles[0].textContent = courses[0]?.title || "课程空间";
+      if (subtitles[1]) subtitles[1].textContent = wikiPages[0]?.title || "课程 Wiki";
+      if (subtitles[2]) subtitles[2].textContent = runs[0]?.task_type || "Agent 日志";
       const count = taskCard.querySelector("span.font-label-sm");
       if (count) count.textContent = `${courses.length ? 1 : 0}/3 已完成`;
     }
@@ -534,11 +437,13 @@
     if (reminderCard) {
       const list = reminderCard.querySelector("ul");
       if (list) {
-        const reminders = [
-          wikiPages[0] ? `Wiki - ${wikiPages[0].title}` : "资料库 - 等待生成 Wiki",
-          courses[0] ? `课程 - ${courses[0].title}` : "课程空间 - 创建课程",
-          runs[0] ? `Agent - ${runs[0].task_type}` : "AI 助手 - 完成一次问答",
-        ];
+        const reminders = recommendations.length
+          ? recommendations.slice(0, 3).map((item) => `推荐 - ${item.title}`)
+          : [
+              wikiPages[0] ? `Wiki - ${wikiPages[0].title}` : "资料库 - 等待生成 Wiki",
+              courses[0] ? `课程 - ${courses[0].title}` : "课程空间 - 创建课程",
+              runs[0] ? `Agent - ${runs[0].task_type}` : "AI 助手 - 完成一次问答",
+            ];
         list.innerHTML = reminders.map((item, index) => `
           <li class="flex items-center gap-3 ${index === 0 ? "bg-white/50 p-3 rounded-xl border border-white/60" : "p-3 px-4"}">
             <div class="${index === 0 ? "w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(131,84,0,0.4)]" : "w-2 h-2 rounded-full bg-outline-variant"}"></div>
@@ -567,14 +472,16 @@
       const courses = coursePage.items || [];
       const courseId = courses[0]?.id || await api.resolveCourseId().catch(() => null);
       const wikiPage = courseId ? await api.listWikiPages(courseId, { pageSize: 20 }).catch(() => ({ items: [] })) : { items: [] };
+      const recommendationPage = courseId && api.listRecommendations ? await api.listRecommendations(courseId, { pageSize: 5 }).catch(() => ({ items: [] })) : { items: [] };
       const wikiPages = wikiPage.items || [];
+      const recommendations = recommendationPage.items || [];
       const masteryItems = normalizeList(profile.mastery_snapshot);
       const mastery = Math.round(firstNumber(masteryItems.map((item) => item.score || item.mastery || item.value), 68));
       const runs = runsPage.items || [];
       setStatCards({ courses: courses.length, mastery, wiki: wikiPages.length, agents: runs.length });
       setKnowledgeCards(profile, wikiPages);
       setProfileCard(profile, preferences);
-      setTasksAndReminders(courses, wikiPages, runs);
+      setTasksAndReminders(courses, wikiPages, runs, recommendations);
       bindQuickActions(courseId);
     } catch (error) {
       api.toast(error.message || "仪表盘数据加载失败", "error");

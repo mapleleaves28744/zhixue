@@ -1,13 +1,18 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
     app_name: str = Field(default="zhixue-workshop", alias="APP_NAME")
     app_env: str = Field(default="development", alias="APP_ENV")
     debug: bool = Field(default=True, alias="DEBUG")
+    sql_echo: bool = Field(default=False, alias="SQL_ECHO")
 
     database_url: str = Field(
         default="postgresql+asyncpg://zhixue:zhixue_password@localhost:5432/zhixue",
@@ -25,14 +30,31 @@ class Settings(BaseSettings):
     llm_provider: str = Field(default="mock", alias="LLM_PROVIDER")
     llm_model_name: str = Field(
         default="mock-learning-model",
-        validation_alias=AliasChoices("LLM_MODEL_NAME", "LLM_MODEL"),
+        validation_alias=AliasChoices("LLM_MODEL_NAME", "LLM_MODEL", "OPENAI_MODEL"),
     )
-    llm_api_key: str = Field(default="", alias="LLM_API_KEY")
-    llm_base_url: str = Field(default="", alias="LLM_BASE_URL")
+    llm_api_key: str = Field(
+        default="",
+        validation_alias=AliasChoices("LLM_API_KEY", "OPENAI_API_KEY"),
+    )
+    llm_base_url: str = Field(
+        default="",
+        validation_alias=AliasChoices("LLM_BASE_URL", "OPENAI_BASE_URL", "OPENAI_API_BASE"),
+    )
     llm_timeout_seconds: int = Field(default=60, alias="LLM_TIMEOUT_SECONDS")
 
     embedding_provider: str = Field(default="mock", alias="EMBEDDING_PROVIDER")
-    embedding_model: str = Field(default="text-embedding-3-small", alias="EMBEDDING_MODEL")
+    embedding_api_key: str = Field(
+        default="",
+        validation_alias=AliasChoices("EMBEDDING_API_KEY", "OPENAI_EMBEDDING_API_KEY"),
+    )
+    embedding_base_url: str = Field(
+        default="",
+        validation_alias=AliasChoices("EMBEDDING_BASE_URL", "OPENAI_EMBEDDING_BASE_URL"),
+    )
+    embedding_model: str = Field(
+        default="text-embedding-3-small",
+        validation_alias=AliasChoices("EMBEDDING_MODEL", "OPENAI_EMBEDDING_MODEL"),
+    )
     embedding_dimension: int = Field(default=1024, alias="EMBEDDING_DIMENSION")
 
     storage_provider: str = Field(default="local", alias="STORAGE_PROVIDER")
@@ -45,7 +67,7 @@ class Settings(BaseSettings):
     )
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(PROJECT_ROOT / "backend" / ".env", PROJECT_ROOT / ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
         case_sensitive=False,

@@ -25,6 +25,7 @@ class WikiAgent(BaseAgent):
             results = await retriever.search(
                 course_id=context.course_id,
                 query=context.params.get("title", ""),
+                user_id=context.user_id,
                 top_k=5,
             )
             chunk_text = "\n\n".join(r.content for r in results) if results else "无相关资料"

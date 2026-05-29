@@ -17,7 +17,7 @@ if sys.platform == "win32":
 
 async_engine = create_async_engine(
     settings.database_url,
-    echo=settings.debug,
+    echo=settings.sql_echo,
     pool_pre_ping=True,
 )
 

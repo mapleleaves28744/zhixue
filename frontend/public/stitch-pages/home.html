@@ -4,101 +4,9 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>主页 - 智学工坊</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "on-primary": "#ffffff",
-                        "surface-variant": "#e5e2e1",
-                        "inverse-surface": "#313030",
-                        "on-tertiary": "#ffffff",
-                        "on-primary-fixed-variant": "#643f00",
-                        "surface-container-lowest": "#ffffff",
-                        "on-error": "#ffffff",
-                        "error-container": "#ffdad6",
-                        "surface-container-high": "#eae7e7",
-                        "tertiary-fixed-dim": "#c0c7cf",
-                        "on-secondary-fixed": "#301214",
-                        "surface-tint": "#835400",
-                        "primary": "#835400",
-                        "secondary-container": "#fec7c7",
-                        "surface-dim": "#dcd9d9",
-                        "tertiary-fixed": "#dce3eb",
-                        "surface-container-highest": "#e5e2e1",
-                        "inverse-on-surface": "#f3f0ef",
-                        "surface-container-low": "#f6f3f2",
-                        "on-tertiary-fixed-variant": "#40484e",
-                        "on-primary-container": "#674100",
-                        "background": "#fcf9f8",
-                        "on-background": "#1c1b1b",
-                        "inverse-primary": "#ffb957",
-                        "tertiary": "#585f66",
-                        "on-error-container": "#93000a",
-                        "secondary-fixed-dim": "#efb9b9",
-                        "on-secondary": "#ffffff",
-                        "on-secondary-fixed-variant": "#633c3d",
-                        "primary-container": "#f9a826",
-                        "tertiary-container": "#b3bac2",
-                        "on-surface-variant": "#524434",
-                        "on-surface": "#1c1b1b",
-                        "surface": "#fcf9f8",
-                        "primary-fixed-dim": "#ffb957",
-                        "on-tertiary-container": "#434a51",
-                        "primary-fixed": "#ffddb5",
-                        "outline-variant": "#d7c3ae",
-                        "outline": "#857462",
-                        "on-secondary-container": "#7a5051",
-                        "error": "#ba1a1a",
-                        "surface-bright": "#fcf9f8",
-                        "secondary-fixed": "#ffdad9",
-                        "on-primary-fixed": "#2a1800",
-                        "on-tertiary-fixed": "#151c22",
-                        "surface-container": "#f0eded",
-                        "secondary": "#7d5354"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "container-padding-mobile": "20px",
-                        "unit": "8px",
-                        "gutter": "16px",
-                        "card-gap": "24px",
-                        "container-padding-desktop": "48px"
-                    },
-                    "fontFamily": {
-                        "headline-sm": ["Plus Jakarta Sans"],
-                        "headline-md": ["Plus Jakarta Sans"],
-                        "display-lg-mobile": ["Plus Jakarta Sans"],
-                        "label-md": ["Manrope"],
-                        "body-lg": ["Manrope"],
-                        "display-lg": ["Plus Jakarta Sans"],
-                        "label-sm": ["Manrope"],
-                        "body-md": ["Manrope"]
-                    },
-                    "fontSize": {
-                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
-                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
-                        "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
-                        "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
-                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "500"}],
-                        "display-lg": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "700"}],
-                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
-                    }
-                },
-            },
-        }
-    </script>
+<link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
+<link href="/fonts/material-symbols.css" rel="stylesheet"/>
+
 <style>
         body {
             background-color: #fcf9f8;
@@ -253,35 +161,35 @@
 </div>
 </div>
 <!-- 3. Knowledge Base -->
-<div class="col-span-4 glass-card rounded-[32px] p-8">
+<div class="col-span-4 glass-card rounded-[32px] p-8" id="home-knowledge-card">
 <div class="flex items-center gap-3 mb-6">
 <span class="material-symbols-outlined text-primary">menu_book</span>
 <h3 class="font-headline-sm text-headline-sm">知识库更新</h3>
 </div>
 <div class="space-y-4">
-<div class="p-4 rounded-2xl bg-surface-container-low/40 border border-outline-variant/10 group cursor-pointer">
+<div class="p-4 rounded-2xl bg-surface-container-low/40 border border-outline-variant/10 group cursor-pointer" id="home-latest-wiki-card">
 <p class="text-xs text-on-surface-variant font-label-md uppercase mb-1">最近更新百科</p>
-<p class="font-label-md text-label-md group-hover:text-primary transition-colors">红黑树 (Red-Black Trees)</p>
+<p class="font-label-md text-label-md group-hover:text-primary transition-colors" id="home-latest-wiki-title">正在同步 Wiki...</p>
 </div>
-<div class="p-4 rounded-2xl bg-surface-container-low/40 border border-outline-variant/10 group cursor-pointer">
+<div class="p-4 rounded-2xl bg-surface-container-low/40 border border-outline-variant/10 group cursor-pointer" id="home-latest-material-card">
 <p class="text-xs text-on-surface-variant font-label-md uppercase mb-1">最新上传资料</p>
-<p class="font-label-md text-label-md group-hover:text-primary transition-colors">Lecture_05_Graphs.pdf</p>
+<p class="font-label-md text-label-md group-hover:text-primary transition-colors" id="home-latest-material-title">正在同步资料...</p>
 </div>
 </div>
 </div>
 <!-- 4. Exercise & Diagnosis -->
-<div class="col-span-4 glass-card rounded-[32px] p-8">
+<div class="col-span-4 glass-card rounded-[32px] p-8 cursor-pointer group" id="home-practice-diagnosis-card" role="button" tabindex="0">
 <div class="flex justify-between items-start mb-6">
 <h3 class="font-headline-sm text-headline-sm">练习与诊断</h3>
-<span class="material-symbols-outlined text-tertiary">analytics</span>
+<span class="material-symbols-outlined text-tertiary group-hover:text-primary transition-colors">analytics</span>
 </div>
 <div class="mb-6">
 <div class="flex justify-between text-xs font-bold uppercase mb-2">
-<span>今日目标 (3/10)</span>
-<span class="text-primary">30%</span>
+<span id="home-practice-goal-label">练习进度同步中</span>
+<span class="text-primary" id="home-practice-goal-percent">--</span>
 </div>
 <div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
-<div class="h-full bg-primary w-[30%]"></div>
+<div class="h-full bg-primary transition-all duration-500" id="home-practice-goal-bar" style="width: 0%"></div>
 </div>
 </div>
 <div class="p-4 rounded-2xl bg-error-container/20 border border-error/10">
@@ -289,7 +197,7 @@
 <span class="material-symbols-outlined text-error text-sm">warning</span>
 <p class="text-xs text-error font-bold uppercase">薄弱知识点</p>
 </div>
-<p class="font-label-md text-label-md text-on-error-container">图论算法：最短路径优化</p>
+<p class="font-label-md text-label-md text-on-error-container" id="home-weak-point-title">正在同步诊断...</p>
 </div>
 </div>
 <!-- 5. Dashboard / Stats -->
@@ -342,7 +250,7 @@
 </div>
 <!-- Background Image Decoration -->
 <div class="absolute right-0 top-0 h-full w-1/3 opacity-20 pointer-events-none">
-<img class="w-full h-full object-cover mask-gradient" data-alt="A sophisticated abstract technological landscape featuring glowing circuit-like lines and floating nodes, captured in high-key warm light mode. The color palette emphasizes soft ambers, golden hues, and warm grays, creating a premium academic and futuristic atmosphere that feels luminous and welcoming." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFkORPmdhwk0qSI2kPeeRA564ae01kCoBR8mXXLESabAbqv83UbW6Nwo1o4NS1kXbENVEMx3XHoELNfp-t9D8zXPs4uSD3KOe_VLNCbGarQxUSfQcD8FwQyhoHZk-dPr6PQeOoBCCzNoOZh4-UAWJakD9wBTkzPYypcHNXK5AUvQ02Kcix4BAMvVpG-Ammk1hEXB5SO28BoCfUhKTfAPeGER3joEn1jCrBIXNMCTuJZUGkuYzB82SY576NAn028G3FXgP7Z2KuDW4"/>
+<img class="w-full h-full object-cover mask-gradient" data-alt="A sophisticated abstract technological landscape featuring glowing circuit-like lines and floating nodes, captured in high-key warm light mode. The color palette emphasizes soft ambers, golden hues, and warm grays, creating a premium academic and futuristic atmosphere that feels luminous and welcoming." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFkORPmdhwk0qSI2kPeeRA564ae01kCoBR8mXXLESabAbqv83UbW6Nwo1o4NS1kXbENVEMx3XHoELNfp-t9D8zXPs4uSD3KOe_VLNCbGarQxUSfQcD8FwQyhoHZk-dPr6PQeOoBCCzNoOZh4-UAWJakD9wBTkzPYypcHNXK5AUvQ02Kcix4BAMvVpG-Ammk1hEXB5SO28BoCfUhKTfAPeGER3joEn1jCrBIXNMCTuJZUGkuYzB82SY576NAn028G3FXgP7Z2KuDW4" loading="lazy" decoding="async" referrerpolicy="no-referrer">
 </div>
 <style>
                     .mask-gradient {
@@ -359,32 +267,23 @@
 <h3 class="font-headline-sm text-headline-sm">最近活动</h3>
 <p class="text-on-surface-variant text-body-md">记录你在智学工坊的点滴成长</p>
 </div>
-<button class="text-primary font-label-md text-label-md hover:underline">查看全部日志</button>
+<button class="text-primary font-label-md text-label-md hover:underline" id="home-view-all-logs">查看全部日志</button>
 </div>
-<div class="space-y-4">
+<div class="space-y-4" id="home-activity-feed">
 <div class="glass-card rounded-2xl p-6 flex items-center gap-6">
 <div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-container">
-<span class="material-symbols-outlined">history_edu</span>
+<span class="material-symbols-outlined">sync</span>
 </div>
 <div class="flex-1">
-<p class="font-label-md text-label-md">完成了《贪心算法》章节的巩固练习</p>
-<p class="text-xs text-on-surface-variant/60">2 小时前 • 正确率 95%</p>
+<p class="font-label-md text-label-md">正在同步最近学习活动...</p>
+<p class="text-xs text-on-surface-variant/60">登录后展示真实 Tutor、练习、诊断与 Agent 日志</p>
 </div>
-<div class="text-primary font-bold">+250 XP</div>
-</div>
-<div class="glass-card rounded-2xl p-6 flex items-center gap-6">
-<div class="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-container">
-<span class="material-symbols-outlined">auto_stories</span>
-</div>
-<div class="flex-1">
-<p class="font-label-md text-label-md">查阅了《B树与B+树》深度解析</p>
-<p class="text-xs text-on-surface-variant/60">昨天 16:45 • 学习时长 45min</p>
-</div>
-<div class="text-primary font-bold">+120 XP</div>
+<div class="text-primary font-bold">--</div>
 </div>
 </div>
 </section>
 </main>
+<script src="/stitch-pages/zhixue-static-api.js"></script>
 <script>
         // Micro-interaction for input fields
         const inputs = document.querySelectorAll('input');
@@ -403,5 +302,236 @@
             const y = e.clientY;
             // You could apply this to a custom cursor or a subtle radial gradient overlay
         });
+
+        const api = window.ZhixueStatic;
+        const latestWikiTitle = document.getElementById("home-latest-wiki-title");
+        const latestMaterialTitle = document.getElementById("home-latest-material-title");
+        const latestWikiCard = document.getElementById("home-latest-wiki-card");
+        const latestMaterialCard = document.getElementById("home-latest-material-card");
+        const practiceDiagnosisCard = document.getElementById("home-practice-diagnosis-card");
+        const practiceGoalLabel = document.getElementById("home-practice-goal-label");
+        const practiceGoalPercent = document.getElementById("home-practice-goal-percent");
+        const practiceGoalBar = document.getElementById("home-practice-goal-bar");
+        const weakPointTitle = document.getElementById("home-weak-point-title");
+        const activityFeed = document.getElementById("home-activity-feed");
+        const viewAllLogsButton = document.getElementById("home-view-all-logs");
+
+        function setText(node, value) {
+            if (node) {
+                node.textContent = value;
+            }
+        }
+
+        function pickHomeCourse(courses) {
+            const preferredCourseId = window.localStorage.getItem("zhixue_current_course_id");
+            return courses.find((course) => course.id === preferredCourseId)
+                || courses.find((course) => course.visibility === "public_template")
+                || courses[0];
+        }
+
+        function bindCardNavigation(node, path) {
+            if (!node || !api) {
+                return;
+            }
+            if (node.dataset.boundNavigation === path) {
+                return;
+            }
+            node.dataset.boundNavigation = path;
+            node.addEventListener("click", () => api.navigate(path));
+            node.addEventListener("keydown", (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    api.navigate(path);
+                }
+            });
+        }
+
+        function relativeTime(value) {
+            if (!value) return "刚刚";
+            const date = new Date(value);
+            const diff = Date.now() - date.getTime();
+            if (!Number.isFinite(diff)) return api?.formatDate ? api.formatDate(value) : "刚刚";
+            const minutes = Math.max(0, Math.floor(diff / 60000));
+            if (minutes < 1) return "刚刚";
+            if (minutes < 60) return `${minutes} 分钟前`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} 小时前`;
+            const days = Math.floor(hours / 24);
+            if (days < 7) return `${days} 天前`;
+            return api?.formatDate ? api.formatDate(value) : "较早";
+        }
+
+        function activityIcon(type, source) {
+            if (type === "quiz_submit") return "history_edu";
+            if (type === "chat") return "smart_toy";
+            if (type === "save_tutor_answer") return "auto_stories";
+            if (type === "feedback") return "thumb_up";
+            if (source === "agent") return "account_tree";
+            return "school";
+        }
+
+        function activityTitle(record) {
+            const payload = record.event_payload || {};
+            if (record.event_type === "quiz_submit") {
+                const correct = Number(payload.correct_count || 0);
+                const total = Number(payload.submitted_count || payload.total_questions || 0);
+                return `完成了一次练习提交${total ? `，正确 ${correct}/${total}` : ""}`;
+            }
+            if (record.event_type === "chat") {
+                return `向 AI Tutor 提问：${String(payload.question || "课程问题").slice(0, 32)}`;
+            }
+            if (record.event_type === "save_tutor_answer") {
+                return `沉淀到个人 Wiki：${payload.wiki_page_title || "AI Tutor 问答"}`;
+            }
+            if (record.agent_name) {
+                return `${record.agent_name} 完成 ${record.task_type || "学习任务"}`;
+            }
+            return record.event_type || "学习活动";
+        }
+
+        function renderActivityFeed(records, agentRuns) {
+            if (!activityFeed) return;
+            const activityItems = (records || []).map((record) => ({
+                title: activityTitle(record),
+                subtitle: `${relativeTime(record.created_at)} • ${record.event_source || "learning"}`,
+                icon: activityIcon(record.event_type, record.event_source),
+                score: record.event_type === "quiz_submit" ? "+250 XP" : "+80 XP",
+                created_at: record.created_at,
+            }));
+            const runItems = (agentRuns || []).map((run) => ({
+                title: activityTitle(run),
+                subtitle: `${relativeTime(run.created_at)} • ${run.status || "unknown"}${run.duration_ms ? ` • ${run.duration_ms}ms` : ""}`,
+                icon: "account_tree",
+                score: run.status === "success" ? "已完成" : run.status || "--",
+                created_at: run.created_at,
+            }));
+            const items = [...activityItems, ...runItems]
+                .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+                .slice(0, 3);
+            if (!items.length) {
+                activityFeed.innerHTML = `
+                    <div class="glass-card rounded-2xl p-6 flex items-center gap-6">
+                        <div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+                            <span class="material-symbols-outlined">hourglass_empty</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-label-md text-label-md">暂无真实活动记录</p>
+                            <p class="text-xs text-on-surface-variant/60">完成一次问答、练习或诊断后，这里会自动更新。</p>
+                        </div>
+                        <div class="text-primary font-bold">0</div>
+                    </div>`;
+                return;
+            }
+            activityFeed.innerHTML = items.map((item) => `
+                <div class="glass-card rounded-2xl p-6 flex items-center gap-6">
+                    <div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-container">
+                        <span class="material-symbols-outlined">${item.icon}</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-label-md text-label-md">${item.title}</p>
+                        <p class="text-xs text-on-surface-variant/60">${item.subtitle}</p>
+                    </div>
+                    <div class="text-primary font-bold">${item.score}</div>
+                </div>`).join("");
+        }
+
+        function renderPracticeSummary({ quizzes = [], reports = [], mastery = {}, mistakes = [] }) {
+            const submitted = quizzes.filter((quiz) => quiz.status === "submitted").length;
+            const total = Math.max(quizzes.length, 1);
+            const percent = Math.min(100, Math.round((submitted / total) * 100));
+            setText(practiceGoalLabel, `练习进度 (${submitted}/${quizzes.length || 0})`);
+            setText(practiceGoalPercent, `${percent}%`);
+            if (practiceGoalBar) practiceGoalBar.style.width = `${percent}%`;
+
+            const latestReport = reports[0];
+            const reportWeak = latestReport && (latestReport.weak_points || [])[0];
+            const masteryWeak = (mastery.items || [])
+                .slice()
+                .sort((a, b) => Number(a.mastery_level || 1) - Number(b.mastery_level || 1))[0];
+            const mistakeWeak = mistakes[0];
+            const weakName = reportWeak?.knowledge_name
+                || masteryWeak?.knowledge_name
+                || mistakeWeak?.question?.question_text?.slice(0, 24)
+                || "暂无明显薄弱点";
+            const weakExtra = reportWeak?.mastery_level !== undefined
+                ? `（掌握度 ${Math.round(Number(reportWeak.mastery_level || 0) * 100)}%）`
+                : "";
+            setText(weakPointTitle, `${weakName}${weakExtra}`);
+        }
+
+        function safeApiCall(fn, fallback) {
+            if (typeof fn !== "function") {
+                return Promise.resolve(fallback);
+            }
+            return fn().catch(() => fallback);
+        }
+
+        async function loadKnowledgeUpdates() {
+            if (!api || !api.getToken()) {
+                setText(latestWikiTitle, "登录后同步你的 Wiki");
+                setText(latestMaterialTitle, "登录后同步你的资料");
+                return;
+            }
+
+            try {
+                const coursePage = await api.listCourses({ pageSize: 20 });
+                const courses = coursePage.items || [];
+                const course = pickHomeCourse(courses);
+                if (!course) {
+                    setText(latestWikiTitle, "暂无课程 Wiki");
+                    setText(latestMaterialTitle, "暂无课程资料");
+                    bindCardNavigation(latestWikiCard, "/courses");
+                    bindCardNavigation(latestMaterialCard, "/courses");
+                    return;
+                }
+
+                window.localStorage.setItem("zhixue_current_course_id", course.id);
+                const knowledgePath = `/knowledge?course_id=${course.id}`;
+                const practicePath = `/practice?course_id=${course.id}`;
+                const pathProfilePath = `/path-profile?course_id=${course.id}`;
+                bindCardNavigation(latestWikiCard, knowledgePath);
+                bindCardNavigation(latestMaterialCard, knowledgePath);
+                bindCardNavigation(practiceDiagnosisCard, practicePath);
+                if (viewAllLogsButton) {
+                    viewAllLogsButton.addEventListener("click", () => api.navigate(pathProfilePath));
+                }
+
+                const [wikiPage, materialPage, quizzes, reports, mastery, mistakes, records, agentRuns] = await Promise.all([
+                    api.listWikiPages(course.id, { pageSize: 1 }).catch(() => ({ items: [] })),
+                    api.listMaterials(course.id, { pageSize: 1 }).catch(() => ({ items: [] })),
+                    safeApiCall(() => api.listQuizzes(course.id, { pageSize: 20 }), { items: [] }),
+                    safeApiCall(() => api.listDiagnosisReports(course.id, { pageSize: 3 }), { items: [] }),
+                    safeApiCall(() => api.getMastery(course.id), { items: [] }),
+                    safeApiCall(() => api.listMistakes(course.id, { pageSize: 3 }), { items: [] }),
+                    safeApiCall(() => api.listLearningRecords(course.id, { limit: 8 }), { items: [] }),
+                    safeApiCall(() => api.listAgentRuns({ pageSize: 5 }), { items: [] }),
+                ]);
+
+                const latestWiki = (wikiPage.items || [])[0];
+                const latestMaterial = (materialPage.items || [])[0];
+                setText(latestWikiTitle, latestWiki ? latestWiki.title : "暂无更新 Wiki");
+                setText(latestMaterialTitle, latestMaterial ? latestMaterial.file_name : "暂无上传资料");
+                renderPracticeSummary({
+                    quizzes: quizzes.items || [],
+                    reports: reports.items || [],
+                    mastery,
+                    mistakes: mistakes.items || [],
+                });
+                renderActivityFeed(records.items || [], agentRuns.items || []);
+            } catch (error) {
+                setText(latestWikiTitle, "同步失败，点击进入知识库");
+                setText(latestMaterialTitle, "同步失败，点击进入知识库");
+                setText(practiceGoalLabel, "练习诊断同步失败");
+                setText(practiceGoalPercent, "--");
+                setText(weakPointTitle, "点击进入练习诊断页查看");
+                bindCardNavigation(latestWikiCard, "/knowledge");
+                bindCardNavigation(latestMaterialCard, "/knowledge");
+                bindCardNavigation(practiceDiagnosisCard, "/practice");
+                renderActivityFeed([], []);
+                console.warn("[home] 知识库更新同步失败", error);
+            }
+        }
+
+        loadKnowledgeUpdates();
     </script>
 </body></html>

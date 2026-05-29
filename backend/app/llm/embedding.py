@@ -5,6 +5,8 @@ import math
 import struct
 from abc import ABC, abstractmethod
 
+from app.core.config import settings
+
 
 class BaseEmbeddingProvider(ABC):
     @abstractmethod
@@ -18,11 +20,14 @@ class BaseEmbeddingProvider(ABC):
 
 
 class MockEmbeddingProvider(BaseEmbeddingProvider):
-    """Deterministic mock: same text always produces the same 1024-d vector."""
+    """Deterministic mock: same text always produces the same vector."""
+
+    def __init__(self, dimension: int = 1024) -> None:
+        self._dimension = dimension
 
     @property
     def dimension(self) -> int:
-        return 1024
+        return self._dimension
 
     async def embed_texts(self, texts: list[str]) -> list[list[float]]:
         return [_text_to_vec(text, self.dimension) for text in texts]
@@ -62,6 +67,22 @@ class OpenAICompatibleEmbeddingProvider(BaseEmbeddingProvider):
         return [item["embedding"] for item in sorted_items]
 
 
+class FallbackEmbeddingProvider(BaseEmbeddingProvider):
+    def __init__(self, primary: BaseEmbeddingProvider, fallback: BaseEmbeddingProvider) -> None:
+        self.primary = primary
+        self.fallback = fallback
+
+    @property
+    def dimension(self) -> int:
+        return self.primary.dimension
+
+    async def embed_texts(self, texts: list[str]) -> list[list[float]]:
+        try:
+            return await self.primary.embed_texts(texts)
+        except Exception:
+            return await self.fallback.embed_texts(texts)
+
+
 def _text_to_vec(text: str, dim: int) -> list[float]:
     """Convert text to a deterministic pseudo-random vector of *dim* floats."""
     h = hashlib.sha256(text.encode("utf-8")).digest()
@@ -78,18 +99,23 @@ def _text_to_vec(text: str, dim: int) -> list[float]:
 
 
 def get_embedding_provider() -> BaseEmbeddingProvider:
-    from app.core.config import settings
-
-    provider = settings.embedding_provider.lower()
+    provider = settings.embedding_provider.lower().replace("-", "_")
     if provider == "mock":
-        return MockEmbeddingProvider()
-    if provider in ("openai", "compatible"):
-        if not settings.llm_api_key:
-            return MockEmbeddingProvider()
-        return OpenAICompatibleEmbeddingProvider(
-            api_key=settings.llm_api_key,
-            base_url=settings.llm_base_url or "https://api.openai.com/v1",
+        return MockEmbeddingProvider(settings.embedding_dimension)
+    if provider in ("openai", "compatible", "openai_compatible"):
+        api_key = settings.embedding_api_key or settings.llm_api_key
+        base_url = (
+            settings.embedding_base_url
+            or settings.llm_base_url
+            or "https://api.openai.com/v1"
+        )
+        if not api_key:
+            return MockEmbeddingProvider(settings.embedding_dimension)
+        primary = OpenAICompatibleEmbeddingProvider(
+            api_key=api_key,
+            base_url=base_url,
             model=settings.embedding_model,
             dimension=settings.embedding_dimension,
         )
-    return MockEmbeddingProvider()
+        return FallbackEmbeddingProvider(primary, MockEmbeddingProvider(settings.embedding_dimension))
+    return MockEmbeddingProvider(settings.embedding_dimension)

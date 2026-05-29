@@ -1,13 +1,33 @@
 (function () {
   const DEFAULT_API_BASE_URL = "http://localhost:8000/api/v1";
   const ACCESS_TOKEN_KEY = "access_token";
+  const REFRESH_TOKEN_KEY = "refresh_token";
+  const AUTH_USER_KEY = "auth_user";
+  const AUTH_ROLE_KEY = "auth_role";
 
   function getApiBaseUrl() {
+    const queryBase = getParentSearchParams().get("api_base") || new URLSearchParams(window.location.search).get("api_base");
+    if (queryBase) {
+      return queryBase;
+    }
     return window.localStorage.getItem("zhixue_api_base") || DEFAULT_API_BASE_URL;
   }
 
   function getToken() {
     return window.localStorage.getItem(ACCESS_TOKEN_KEY);
+  }
+
+  function deleteCookie(name) {
+    document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
+  }
+
+  function clearAuthSession() {
+    window.localStorage.removeItem(ACCESS_TOKEN_KEY);
+    window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+    window.localStorage.removeItem(AUTH_USER_KEY);
+    window.localStorage.removeItem(AUTH_ROLE_KEY);
+    deleteCookie(ACCESS_TOKEN_KEY);
+    deleteCookie(AUTH_ROLE_KEY);
   }
 
   function getParentSearchParams() {
@@ -27,6 +47,26 @@
       return;
     }
     window.location.href = path;
+  }
+
+  function logout() {
+    clearAuthSession();
+    navigate("/login");
+  }
+
+  function mountLogoutButton() {
+    const sideNav = document.querySelector("nav.fixed.h-screen");
+    if (!sideNav || document.getElementById("zhixue-static-logout")) {
+      return;
+    }
+    const button = document.createElement("button");
+    button.id = "zhixue-static-logout";
+    button.type = "button";
+    button.title = "退出登录";
+    button.className = "mt-auto flex items-center justify-center w-12 h-12 text-outline hover:text-[#93000a] transition-all duration-200 scale-95 active:scale-90 rounded-2xl group hover:bg-[#ffdad6]/70";
+    button.innerHTML = '<span class="material-symbols-outlined group-hover:scale-110 transition-transform">logout</span>';
+    button.addEventListener("click", logout);
+    sideNav.appendChild(button);
   }
 
   function getCourseIdFromUrl() {
@@ -141,6 +181,10 @@
     });
   }
 
+  async function getCourse(courseId) {
+    return request(`/courses/${courseId}`);
+  }
+
   async function getMe() {
     return request("/users/me");
   }
@@ -153,6 +197,15 @@
       status: params.status || "active",
     });
     return request(`/wiki/pages?${query}`);
+  }
+
+  async function listMaterials(courseId, params = {}) {
+    const query = new URLSearchParams({
+      course_id: courseId,
+      page: String(params.page || 1),
+      page_size: String(params.pageSize || 20),
+    });
+    return request(`/materials?${query}`);
   }
 
   async function createWikiPage(payload) {
@@ -191,11 +244,175 @@
     });
   }
 
+  async function listRecommendations(courseId, params = {}) {
+    const query = new URLSearchParams({
+      page: String(params.page || 1),
+      page_size: String(params.pageSize || 10),
+      status: params.status || "pending",
+    });
+    if (courseId) {
+      query.set("course_id", courseId);
+    }
+    return request(`/recommendations?${query}`);
+  }
+
+  async function listQuizzes(courseId, params = {}) {
+    const query = new URLSearchParams({
+      page: String(params.page || 1),
+      page_size: String(params.pageSize || 10),
+    });
+    if (courseId) {
+      query.set("course_id", courseId);
+    }
+    return request(`/quizzes?${query}`);
+  }
+
+  async function listMistakes(courseId, params = {}) {
+    const query = new URLSearchParams({
+      page: String(params.page || 1),
+      page_size: String(params.pageSize || 10),
+    });
+    if (courseId) {
+      query.set("course_id", courseId);
+    }
+    if (params.status !== undefined) {
+      query.set("status", params.status);
+    }
+    return request(`/quizzes/mistakes?${query}`);
+  }
+
+  async function listDiagnosisReports(courseId, params = {}) {
+    const query = new URLSearchParams({
+      page: String(params.page || 1),
+      page_size: String(params.pageSize || 10),
+    });
+    if (courseId) {
+      query.set("course_id", courseId);
+    }
+    return request(`/diagnosis/reports?${query}`);
+  }
+
+  async function getMastery(courseId) {
+    const query = new URLSearchParams();
+    if (courseId) {
+      query.set("course_id", courseId);
+    }
+    return request(`/diagnosis/mastery?${query}`);
+  }
+
+  async function listLearningRecords(courseId, params = {}) {
+    const query = new URLSearchParams({
+      limit: String(params.limit || 10),
+    });
+    if (courseId) {
+      query.set("course_id", courseId);
+    }
+    if (params.eventType) {
+      query.set("event_type", params.eventType);
+    }
+    return request(`/learning-records?${query}`);
+  }
+
+  async function listAgentRuns(params = {}) {
+    const query = new URLSearchParams({
+      page: String(params.page || 1),
+      page_size: String(params.pageSize || 10),
+    });
+    if (params.taskType) {
+      query.set("task_type", params.taskType);
+    }
+    if (params.status) {
+      query.set("status", params.status);
+    }
+    return request(`/agents/runs?${query}`);
+  }
+
+  async function refreshRecommendations(courseId) {
+    const query = new URLSearchParams({ course_id: courseId });
+    return request(`/recommendations/refresh?${query}`, { method: "POST" });
+  }
+
   async function chatWithTutor(payload) {
     return request("/tutor/chat", {
       method: "POST",
       body: payload,
     });
+  }
+
+  async function streamTutorChat(payload, handlers = {}) {
+    const token = getToken();
+    if (!token) {
+      throw new Error("请先登录后再操作");
+    }
+
+    const response = await fetch(`${getApiBaseUrl()}/tutor/chat`, {
+      method: "POST",
+      headers: {
+        Accept: "text/event-stream",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ ...payload, stream: true }),
+    });
+    if (!response.ok) {
+      const errorPayload = await response.json().catch(() => null);
+      const detailText = normalizeErrorDetail(errorPayload && errorPayload.detail);
+      throw new Error(detailText || (errorPayload && errorPayload.message) || "AI Tutor 请求失败");
+    }
+    if (!response.body) {
+      const data = await chatWithTutor(payload);
+      if (data.answer) {
+        handlers.onDelta?.(data.answer);
+      }
+      handlers.onDone?.(data);
+      return data;
+    }
+
+    handlers.onOpen?.();
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+    let finalPayload = null;
+
+    function consumeEvent(rawEvent) {
+      const lines = rawEvent.split("\n").map((line) => line.trimEnd());
+      const eventName = (lines.find((line) => line.startsWith("event:")) || "event: message").slice(6).trim();
+      const dataLines = lines.filter((line) => line.startsWith("data:")).map((line) => line.slice(5).trimStart());
+      if (!dataLines.length) {
+        return;
+      }
+      const dataText = dataLines.join("\n");
+      const eventData = JSON.parse(dataText);
+      if (eventName === "delta") {
+        handlers.onDelta?.(eventData.content || "");
+      } else if (eventName === "done") {
+        finalPayload = eventData;
+        handlers.onDone?.(eventData);
+      } else if (eventName === "progress") {
+        handlers.onProgress?.(eventData);
+      } else if (eventName === "error") {
+        throw new Error(eventData.message || "AI Tutor 请求失败");
+      }
+    }
+
+    while (true) {
+      const { value, done } = await reader.read();
+      buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+      const events = buffer.split("\n\n");
+      buffer = events.pop() || "";
+      for (const eventText of events) {
+        if (eventText.trim()) {
+          consumeEvent(eventText);
+        }
+      }
+      if (done) {
+        break;
+      }
+    }
+    if (buffer.trim()) {
+      consumeEvent(buffer);
+    }
+    return finalPayload;
   }
 
   async function saveTutorAnswerToWiki(messageId, payload) {
@@ -229,22 +446,40 @@
     formatDate,
     formatSize,
     chatWithTutor,
+    streamTutorChat,
     createCourse,
     createWikiPage,
     generateResource,
+    getCourse,
     getMe,
+    getMastery,
     getCourseIdFromUrl,
     getParentSearchParams,
     getToken,
+    logout,
     listCourses,
+    listAgentRuns,
+    listDiagnosisReports,
+    listLearningRecords,
+    listMaterials,
+    listMistakes,
+    listQuizzes,
+    listRecommendations,
     listResources,
     listWikiPages,
     navigate,
     request,
     resolveCourseId,
+    refreshRecommendations,
     saveResourceToWiki,
     saveTutorAnswerToWiki,
     submitTutorFeedback,
     toast,
   };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mountLogoutButton, { once: true });
+  } else {
+    mountLogoutButton();
+  }
 })();

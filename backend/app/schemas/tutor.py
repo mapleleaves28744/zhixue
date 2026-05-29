@@ -46,6 +46,10 @@ class TutorChatResponse(BaseModel):
     memory_update_suggestion: dict[str, Any] = Field(default_factory=dict)
     message_id: UUID | None = None
     model: str | None = None
+    provider: str | None = None
+    fallback_used: bool = False
+    failed_provider: str | None = None
+    fallback_reason: str | None = None
 
 
 class TutorSaveToWikiRequest(BaseModel):

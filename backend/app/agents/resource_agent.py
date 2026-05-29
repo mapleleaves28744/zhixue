@@ -9,6 +9,7 @@ from app.agents.base_agent import BaseAgent
 from app.agents.context import AgentContext, AgentResult
 from app.agents.registry import AgentRegistry
 from app.llm import ChatMessage, get_llm_provider
+from app.models.course import Course
 from app.models.knowledge import KnowledgePoint
 from app.models.wiki import WikiPage
 from app.rag.retriever import VectorRetriever
@@ -42,7 +43,7 @@ class ResourceAgent(BaseAgent):
         knowledge_id = self._uuid(context.params.get("knowledge_id"))
         wiki_page_id = self._uuid(context.params.get("wiki_page_id"))
 
-        knowledge = await self._get_knowledge(context.course_id, knowledge_id)
+        knowledge = await self._get_knowledge(context.user_id, context.course_id, knowledge_id)
         wiki_page = await self._get_wiki_page(context.user_id, context.course_id, wiki_page_id)
 
         knowledge_name = (
@@ -59,6 +60,7 @@ class ResourceAgent(BaseAgent):
             results = await retriever.search(
                 course_id=context.course_id,
                 query=knowledge_name,
+                user_id=context.user_id,
                 top_k=3,
                 knowledge_id=knowledge_id,
             )
@@ -139,15 +141,21 @@ class ResourceAgent(BaseAgent):
 
     async def _get_knowledge(
         self,
+        user_id: UUID,
         course_id: UUID,
         knowledge_id: UUID | None,
     ) -> KnowledgePoint | None:
         if knowledge_id is None:
             return None
+        course = await self._get_course(course_id)
+        owner_ids = [user_id]
+        if course and course.visibility == "public_template" and course.owner_id != user_id:
+            owner_ids.append(course.owner_id)
         result = await self.db.execute(
             select(KnowledgePoint).where(
                 KnowledgePoint.id == knowledge_id,
                 KnowledgePoint.course_id == course_id,
+                KnowledgePoint.owner_id.in_(owner_ids),
             )
         )
         return result.scalar_one_or_none()
@@ -160,14 +168,22 @@ class ResourceAgent(BaseAgent):
     ) -> WikiPage | None:
         if wiki_page_id is None:
             return None
+        course = await self._get_course(course_id)
+        owner_ids = [user_id]
+        if course and course.visibility == "public_template" and course.owner_id != user_id:
+            owner_ids.append(course.owner_id)
         result = await self.db.execute(
             select(WikiPage).where(
                 WikiPage.id == wiki_page_id,
-                WikiPage.owner_id == user_id,
+                WikiPage.owner_id.in_(owner_ids),
                 WikiPage.course_id == course_id,
                 WikiPage.status == "active",
             )
         )
+        return result.scalar_one_or_none()
+
+    async def _get_course(self, course_id: UUID) -> Course | None:
+        result = await self.db.execute(select(Course).where(Course.id == course_id))
         return result.scalar_one_or_none()
 
     def _normalize_resource_type(self, value: str) -> str:
