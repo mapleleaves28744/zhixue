@@ -1,0 +1,204 @@
+{
+  "course_id": "5e3b20bd-184b-4b8e-829a-5177e28391f9",
+  "users": {
+    "admin": {
+      "id": "f996f03b-84e2-4fda-9570-8351e44bcd7f",
+      "username": "codex_overlay_admin",
+      "email": "codex_overlay_admin@example.local",
+      "role": "admin",
+      "status": "active"
+    },
+    "a": {
+      "id": "5fe7ee09-4f04-414f-818d-29b0338a958a",
+      "username": "codex_student_a",
+      "email": "codex_student_a@example.local",
+      "role": "student",
+      "status": "active"
+    },
+    "b": {
+      "id": "f8ede08a-670b-4478-b71b-0823a8c4de6e",
+      "username": "codex_student_b",
+      "email": "codex_student_b@example.local",
+      "role": "student",
+      "status": "active"
+    }
+  },
+  "tokens": {
+    "admin": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTk2ZjAzYi04NGUyLTRmZGEtOTU3MC04MzUxZTQ0YmNkN2YiLCJ1c2VybmFtZSI6ImNvZGV4X292ZXJsYXlfYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJ0eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgwMDI3MzQyLCJpYXQiOjE3Nzk5NDA5NDJ9.K55MdLEdKPqjLm5ezJHx_GqUVL8erC0USlJtqTtw53Y",
+    "a": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZmU3ZWUwOS00ZjA0LTQxNGYtODE4ZC0yOWIwMzM4YTk1OGEiLCJ1c2VybmFtZSI6ImNvZGV4X3N0dWRlbnRfYSIsInJvbGUiOiJzdHVkZW50IiwidHlwZSI6ImFjY2VzcyIsImV4cCI6MTc4MDAyNzM0MiwiaWF0IjoxNzc5OTQwOTQyfQ.mSXFpJy70CSYYGjW3vxvzw_WXfe-LwmILm5eUuO9B1s",
+    "b": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOGVkZTA4YS02NzBiLTQ0NzgtYjcxYi0wODIzYThjNGRlNmUiLCJ1c2VybmFtZSI6ImNvZGV4X3N0dWRlbnRfYiIsInJvbGUiOiJzdHVkZW50IiwidHlwZSI6ImFjY2VzcyIsImV4cCI6MTc4MDAyNzM0MiwiaWF0IjoxNzc5OTQwOTQyfQ.aRYPUhJfoOXIKjLudc9OT6a8c43rqt_5qw7-Oz31Z7w"
+  },
+  "markers": {
+    "public": "PUBLIC_BASE_1779940941",
+    "a": "ALPHA_A_ONLY_1779940941",
+    "b": "BETA_B_ONLY_1779940941"
+  },
+  "created": {
+    "public": {
+      "material": {
+        "id": "200e5715-1090-4e91-8e35-0b80e8c2973f",
+        "course_id": "5e3b20bd-184b-4b8e-829a-5177e28391f9",
+        "uploaded_by": "f996f03b-84e2-4fda-9570-8351e44bcd7f",
+        "file_name": "public-baseline-1779940941.txt",
+        "file_type": "txt",
+        "file_size": 147,
+        "storage_path": "storage\\materials\\5e3b20bd-184b-4b8e-829a-5177e28391f9\\200e5715-1090-4e91-8e35-0b80e8c2973f.txt",
+        "parse_status": "pending",
+        "parse_error": null,
+        "text_hash": null,
+        "extra_meta": {},
+        "created_at": "2026-05-28T04:02:22.580660Z",
+        "updated_at": "2026-05-28T04:02:22.580660Z"
+      },
+      "extracted": {
+        "extracted_count": 2,
+        "points": [
+          {
+            "id": "8ba76954-5d89-4ea3-ba22-bb5f6a6d11d2",
+            "owner_id": "f996f03b-84e2-4fda-9570-8351e44bcd7f",
+            "scope": "public",
+            "name": "公共数据结构底座",
+            "chapter": "公共数据结构底座",
+            "description": ""
+          },
+          {
+            "id": "a9e92b66-cc95-4c7f-a907-56930253481b",
+            "owner_id": "f996f03b-84e2-4fda-9570-8351e44bcd7f",
+            "scope": "public",
+            "name": "队列",
+            "chapter": "公共数据结构底座",
+            "description": "先进先出的线性表"
+          }
+        ]
+      },
+      "wiki": {
+        "generated_count": 2,
+        "pages": [
+          {
+            "id": "49004110-024b-4be6-981c-f6692dfc3db4",
+            "title": "公共数据结构底座",
+            "slug": "公共数据结构底座",
+            "current_version": 1
+          },
+          {
+            "id": "52fd4ca0-c094-440a-94fe-6cf818d035ad",
+            "title": "队列",
+            "slug": "队列",
+            "current_version": 1
+          }
+        ]
+      }
+    },
+    "a": {
+      "material": {
+        "id": "5428b248-8b7a-4804-8399-03f5294203aa",
+        "course_id": "5e3b20bd-184b-4b8e-829a-5177e28391f9",
+        "uploaded_by": "5fe7ee09-4f04-414f-818d-29b0338a958a",
+        "file_name": "a-overlay-1779940941.txt",
+        "file_type": "txt",
+        "file_size": 144,
+        "storage_path": "storage\\materials\\5e3b20bd-184b-4b8e-829a-5177e28391f9\\5428b248-8b7a-4804-8399-03f5294203aa.txt",
+        "parse_status": "pending",
+        "parse_error": null,
+        "text_hash": null,
+        "extra_meta": {},
+        "created_at": "2026-05-28T04:02:23.961215Z",
+        "updated_at": "2026-05-28T04:02:23.961215Z"
+      },
+      "extracted": {
+        "extracted_count": 1,
+        "points": [
+          {
+            "id": "8fb9be95-875b-4225-97e9-78085b3a4a9d",
+            "owner_id": "5fe7ee09-4f04-414f-818d-29b0338a958a",
+            "scope": "personal",
+            "name": "A同学个人扩展",
+            "chapter": "A同学个人扩展",
+            "description": ""
+          }
+        ]
+      },
+      "wiki": {
+        "generated_count": 1,
+        "pages": [
+          {
+            "id": "dbd47cc9-a797-47a8-a3ec-460986fc5e27",
+            "title": "A同学个人扩展",
+            "slug": "a同学个人扩展",
+            "current_version": 1
+          }
+        ]
+      }
+    },
+    "b": {
+      "material": {
+        "id": "d61a71a4-3813-417f-9dfe-c70720451f08",
+        "course_id": "5e3b20bd-184b-4b8e-829a-5177e28391f9",
+        "uploaded_by": "f8ede08a-670b-4478-b71b-0823a8c4de6e",
+        "file_name": "b-overlay-1779940941.txt",
+        "file_type": "txt",
+        "file_size": 134,
+        "storage_path": "storage\\materials\\5e3b20bd-184b-4b8e-829a-5177e28391f9\\d61a71a4-3813-417f-9dfe-c70720451f08.txt",
+        "parse_status": "pending",
+        "parse_error": null,
+        "text_hash": null,
+        "extra_meta": {},
+        "created_at": "2026-05-28T04:02:25.108834Z",
+        "updated_at": "2026-05-28T04:02:25.108834Z"
+      },
+      "extracted": {
+        "extracted_count": 1,
+        "points": [
+          {
+            "id": "9396e7eb-b9b4-4165-80e6-54543941fd8e",
+            "owner_id": "f8ede08a-670b-4478-b71b-0823a8c4de6e",
+            "scope": "personal",
+            "name": "B同学个人扩展",
+            "chapter": "B同学个人扩展",
+            "description": ""
+          }
+        ]
+      },
+      "wiki": {
+        "generated_count": 1,
+        "pages": [
+          {
+            "id": "dd3df15d-dd3b-46d5-8a8b-5afeca57728b",
+            "title": "B同学个人扩展",
+            "slug": "b同学个人扩展",
+            "current_version": 1
+          }
+        ]
+      }
+    }
+  },
+  "visibility": {
+    "a_material_filenames": [
+      "a-overlay-1779940941.txt",
+      "public-baseline-1779940941.txt"
+    ],
+    "b_material_filenames": [
+      "b-overlay-1779940941.txt",
+      "public-baseline-1779940941.txt"
+    ],
+    "a_wiki_titles": [
+      "A同学个人扩展",
+      "公共数据结构底座",
+      "队列"
+    ],
+    "b_wiki_titles": [
+      "B同学个人扩展",
+      "公共数据结构底座",
+      "队列"
+    ],
+    "a_search_a_contains_a": true,
+    "b_search_a_contains_a": false,
+    "b_search_b_contains_b": true,
+    "b_search_a_sources": [
+      "b-overlay-1779940941.txt",
+      "public-baseline-1779940941.txt",
+      "b-overlay-1779940941.txt",
+      "public-baseline-1779940941.txt"
+    ]
+  }
+}
