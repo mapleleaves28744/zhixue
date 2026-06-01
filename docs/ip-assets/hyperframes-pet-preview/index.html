@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #111427;
+        color: #f6f4ff;
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 20% 12%, rgba(125, 221, 210, 0.18), transparent 28%),
+          radial-gradient(circle at 78% 20%, rgba(183, 164, 255, 0.16), transparent 30%),
+          linear-gradient(145deg, #111427 0%, #171b34 52%, #0e1124 100%);
+      }
+
+      .scene-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 100%;
+        height: 100%;
+        padding: 72px 92px;
+        gap: 42px;
+      }
+
+      .back-grid {
+        position: absolute;
+        inset: 0;
+        opacity: 0.28;
+        background-image:
+          linear-gradient(rgba(246, 244, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(246, 244, 255, 0.05) 1px, transparent 1px);
+        background-size: 72px 72px;
+      }
+
+      .orb {
+        position: absolute;
+        width: 420px;
+        height: 420px;
+        border-radius: 50%;
+        filter: blur(18px);
+        opacity: 0.16;
+      }
+
+      .orb-a {
+        right: 160px;
+        top: 70px;
+        background: #7dddd2;
+      }
+
+      .orb-b {
+        left: 120px;
+        bottom: 80px;
+        background: #b7a4ff;
+      }
+
+      .header {
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        z-index: 2;
+      }
+
+      .eyebrow {
+        color: #7dddd2;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .title {
+        margin-top: 12px;
+        font-size: 74px;
+        line-height: 0.98;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .subtitle {
+        max-width: 620px;
+        color: #aeb6d8;
+        font-size: 28px;
+        line-height: 1.35;
+        text-align: right;
+      }
+
+      .pet-grid {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 34px;
+        z-index: 2;
+      }
+
+      .pet-card {
+        position: relative;
+        height: 704px;
+        overflow: hidden;
+        border: 1px solid rgba(246, 244, 255, 0.16);
+        border-radius: 34px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
+          #1b2140;
+        box-shadow: 0 28px 70px rgba(3, 6, 22, 0.35);
+      }
+
+      .pet-card::before {
+        position: absolute;
+        inset: 24px;
+        content: "";
+        border: 1px dashed rgba(246, 244, 255, 0.14);
+        border-radius: 24px;
+      }
+
+      .pet-stage {
+        position: relative;
+        display: grid;
+        place-items: center;
+        height: 455px;
+        margin: 46px 34px 0;
+        border-radius: 30px;
+        background:
+          radial-gradient(circle at center, rgba(246, 244, 255, 0.16), transparent 58%),
+          rgba(17, 20, 39, 0.55);
+      }
+
+      .pet-img {
+        position: absolute;
+        width: 330px;
+        height: 330px;
+        object-fit: contain;
+        opacity: 0;
+        filter: drop-shadow(0 20px 28px rgba(0, 0, 0, 0.26));
+        transform-origin: 50% 82%;
+      }
+
+      .pet-img.idle {
+        opacity: 1;
+      }
+
+      .halo {
+        position: absolute;
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        opacity: 0.26;
+        filter: blur(16px);
+      }
+
+      .zhizhi .halo {
+        background: #7dddd2;
+      }
+
+      .lulu .halo {
+        background: #f5c96b;
+      }
+
+      .diandian .halo {
+        background: #b7a4ff;
+      }
+
+      .pet-meta {
+        position: relative;
+        padding: 30px 36px 34px;
+      }
+
+      .pet-name-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+      }
+
+      .pet-name {
+        font-size: 38px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .status-pill {
+        min-width: 132px;
+        border-radius: 999px;
+        padding: 10px 18px;
+        background: rgba(125, 221, 210, 0.12);
+        color: #f6f4ff;
+        font-size: 21px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .pet-copy {
+        margin-top: 18px;
+        color: #aeb6d8;
+        font-size: 24px;
+        line-height: 1.34;
+      }
+
+      .state-bar {
+        position: absolute;
+        left: 36px;
+        right: 36px;
+        bottom: 28px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      .state-chip {
+        border-radius: 14px;
+        padding: 10px 8px;
+        background: rgba(246, 244, 255, 0.08);
+        color: #aeb6d8;
+        font-size: 18px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .state-chip.active {
+        background: rgba(245, 201, 107, 0.22);
+        color: #fff7db;
+      }
+
+      .spark {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #f5c96b;
+        opacity: 0.6;
+      }
+
+      .spark.s1 {
+        left: 18%;
+        top: 20%;
+      }
+
+      .spark.s2 {
+        right: 18%;
+        top: 30%;
+        background: #7dddd2;
+      }
+
+      .spark.s3 {
+        left: 26%;
+        bottom: 26%;
+        background: #b7a4ff;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="16"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div class="back-grid" data-layout-ignore></div>
+      <div class="orb orb-a" data-layout-ignore></div>
+      <div class="orb orb-b" data-layout-ignore></div>
+
+      <main class="scene-content">
+        <header class="header">
+          <div>
+            <div class="eyebrow">Zhixue Workshop Pet System</div>
+            <h1 class="title">Desktop Pet State Preview</h1>
+          </div>
+          <p class="subtitle">
+            Three consistent mascots cycling through idle, remind, focus, and done states for task status and learning interaction.
+          </p>
+        </header>
+
+        <section class="pet-grid">
+          <article class="pet-card zhizhi">
+            <div class="pet-stage">
+              <div class="halo" data-layout-ignore></div>
+              <span class="spark s1" data-layout-ignore></span>
+              <span class="spark s2" data-layout-ignore></span>
+              <span class="spark s3" data-layout-ignore></span>
+              <img class="pet-img idle" src="assets/pets/zhizhi/idle.png" alt="ZhiZhi idle" />
+              <img class="pet-img remind" src="assets/pets/zhizhi/remind.png" alt="ZhiZhi remind" />
+              <img class="pet-img focus" src="assets/pets/zhizhi/focus.png" alt="ZhiZhi focus" />
+              <img class="pet-img done" src="assets/pets/zhizhi/done.png" alt="ZhiZhi done" />
+            </div>
+            <div class="pet-meta">
+              <div class="pet-name-row">
+                <h2 class="pet-name">ZhiZhi</h2>
+                <div class="status-pill">idle</div>
+              </div>
+              <p class="pet-copy">Wiki companion for source tracing, page updates, and knowledge organization.</p>
+            </div>
+            <div class="state-bar">
+              <div class="state-chip active">idle</div>
+              <div class="state-chip">remind</div>
+              <div class="state-chip">focus</div>
+              <div class="state-chip">done</div>
+            </div>
+          </article>
+
+          <article class="pet-card lulu">
+            <div class="pet-stage">
+              <div class="halo" data-layout-ignore></div>
+              <span class="spark s1" data-layout-ignore></span>
+              <span class="spark s2" data-layout-ignore></span>
+              <span class="spark s3" data-layout-ignore></span>
+              <img class="pet-img idle" src="assets/pets/lulu/idle.png" alt="LuLu idle" />
+              <img class="pet-img remind" src="assets/pets/lulu/remind.png" alt="LuLu remind" />
+              <img class="pet-img focus" src="assets/pets/lulu/focus.png" alt="LuLu focus" />
+              <img class="pet-img done" src="assets/pets/lulu/done.png" alt="LuLu done" />
+            </div>
+            <div class="pet-meta">
+              <div class="pet-name-row">
+                <h2 class="pet-name">LuLu</h2>
+                <div class="status-pill">idle</div>
+              </div>
+              <p class="pet-copy">Path companion for task reminders, deadlines, route updates, and progress.</p>
+            </div>
+            <div class="state-bar">
+              <div class="state-chip active">idle</div>
+              <div class="state-chip">remind</div>
+              <div class="state-chip">focus</div>
+              <div class="state-chip">done</div>
+            </div>
+          </article>
+
+          <article class="pet-card diandian">
+            <div class="pet-stage">
+              <div class="halo" data-layout-ignore></div>
+              <span class="spark s1" data-layout-ignore></span>
+              <span class="spark s2" data-layout-ignore></span>
+              <span class="spark s3" data-layout-ignore></span>
+              <img class="pet-img idle" src="assets/pets/diandian/idle.png" alt="DianDian idle" />
+              <img class="pet-img remind" src="assets/pets/diandian/remind.png" alt="DianDian remind" />
+              <img class="pet-img focus" src="assets/pets/diandian/focus.png" alt="DianDian focus" />
+              <img class="pet-img done" src="assets/pets/diandian/done.png" alt="DianDian done" />
+            </div>
+            <div class="pet-meta">
+              <div class="pet-name-row">
+                <h2 class="pet-name">DianDian</h2>
+                <div class="status-pill">idle</div>
+              </div>
+              <p class="pet-copy">Practice companion for quiz prompts, mistakes, diagnosis, and review plans.</p>
+            </div>
+            <div class="state-bar">
+              <div class="state-chip active">idle</div>
+              <div class="state-chip">remind</div>
+              <div class="state-chip">focus</div>
+              <div class="state-chip">done</div>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const states = ["idle", "remind", "focus", "done"];
+      const labels = {
+        idle: "idle",
+        remind: "remind",
+        focus: "focus",
+        done: "done",
+      };
+
+      tl.from(".header", { y: 34, opacity: 0, duration: 0.7, ease: "power3.out" }, 0);
+      tl.from(".pet-card", { y: 56, opacity: 0, scale: 0.96, duration: 0.7, stagger: 0.14, ease: "power3.out" }, 0.18);
+
+      for (let i = 0; i < states.length; i += 1) {
+        const state = states[i];
+        const at = i * 4;
+        tl.set(".pet-img", { opacity: 0 }, at);
+        tl.set(`.pet-img.${state}`, { opacity: 1 }, at);
+        tl.set(".state-chip", { className: "state-chip" }, at);
+        tl.set(`.state-chip:nth-child(${i + 1})`, { className: "state-chip active" }, at);
+        tl.set(".status-pill", { innerText: labels[state] }, at);
+        tl.fromTo(`.pet-img.${state}`, { y: 10, scale: 0.95 }, { y: -6, scale: 1.02, duration: 0.7, ease: "back.out(1.7)" }, at + 0.05);
+        tl.to(`.pet-img.${state}`, { y: 8, scale: 1, duration: 2.6, ease: "sine.inOut" }, at + 0.75);
+        tl.fromTo(".halo", { scale: 0.86, opacity: 0.16 }, { scale: 1.08, opacity: 0.28, duration: 1.4, ease: "sine.inOut" }, at + 0.1);
+        tl.fromTo(".spark", { scale: 0.6, opacity: 0.2 }, { scale: 1.18, opacity: 0.75, duration: 0.55, stagger: 0.06, ease: "power2.out" }, at + 0.18);
+      }
+
+      tl.to(".pet-card", { y: -12, duration: 0.6, ease: "power2.inOut" }, 15.2);
+      tl.to(".scene-content", { opacity: 0, duration: 0.55, ease: "power2.in" }, 15.45);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

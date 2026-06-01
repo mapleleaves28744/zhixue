@@ -1,0 +1,11 @@
+{
+  "name": "hyperframes-pet-preview",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.6.62 preview",
+    "check": "npx --yes hyperframes@0.6.62 lint && npx --yes hyperframes@0.6.62 validate && npx --yes hyperframes@0.6.62 inspect",
+    "render": "npx --yes hyperframes@0.6.62 render",
+    "publish": "npx --yes hyperframes@0.6.62 publish"
+  }
+}
