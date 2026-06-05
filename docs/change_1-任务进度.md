@@ -79,7 +79,7 @@
 
 ## Sprint 4：IP 与演示抛光
 
-- [ ] `brand-home.html` 使用 `public/brand` IP 图，去除外链占位图
+- [x] `brand-home.html` 使用 `public/brand` IP 图，去除外链占位图
 - [ ] 各页空状态使用 `ZhixueUI.emptyState` + 贴纸
 - [ ] 编写或更新 `docs/ip-assets/UI集成规范.md`（可选）
 - [ ] **Sprint 4 总验**：390/768/1024 三档目视 + 全链路演示
@@ -88,7 +88,8 @@
 
 | 任务 | 核验 | 结果 |
 |------|------|------|
-| （完成后填写） | | |
+| 品牌页 IP 图 | `rg -n "googleusercontent|aida-public" frontend/public/stitch-pages --glob "*.html"` | 通过；`brand-home.html` 主视觉改用本地 IP 单体图，知识图谱图位恢复旧视觉并本地化到 `public/brand` |
+| 其余外链图清理 | 同上 + 代码审阅 | 通过；`home.html`、`courses.html` 残留外链装饰图已替换为本地品牌 IP 资产 |
 
 ---
 
@@ -97,3 +98,4 @@
 | 日期 | Commit | 说明 |
 |------|--------|------|
 | 2026-06-02 | `978fd45` | Sprint 1：共享设计层 + 贴纸 + 8 页引用 |
+| 2026-06-05 | `fdbf630` | Sprint 2：课程编辑、Wiki 详情、历史诊断总验链路 |
