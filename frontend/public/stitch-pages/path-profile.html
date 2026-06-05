@@ -6,41 +6,9 @@
 <title>智学工坊 - 学习路径与个人模型</title>
 <link href="/fonts/material-symbols.css" rel="stylesheet"/>
 <link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
-<style>
-        body {
-            background-color: #fcf9f8;
-            background-image: radial-gradient(at 0% 0%, rgba(249, 168, 38, 0.05) 0px, transparent 50%),
-                              radial-gradient(at 100% 100%, rgba(125, 83, 84, 0.05) 0px, transparent 50%);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 8px 32px -4px rgba(131, 84, 0, 0.04);
-        }
-        .sidebar-glass {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(24px);
-            border-right: 1px solid rgba(215, 195, 174, 0.3);
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(133, 116, 98, 0.2);
-            border-radius: 10px;
-        }
-    </style>
+<link href="/stitch-pages/stitch-shared.css" rel="stylesheet"/>
 </head>
-<body class="font-body-md text-on-surface">
+<body class="font-body-md text-on-surface mesh-gradient min-h-screen">
 <div class="flex min-h-screen">
 <!-- Sidebar Navigation -->
 <nav class="fixed h-screen w-20 left-0 top-0 sidebar-glass flex flex-col items-center py-6 gap-4 z-50 hidden md:flex">
@@ -383,6 +351,7 @@
         });
     });
 </script>
+<script src="/stitch-pages/zhixue-ui.js"></script>
 <script src="/stitch-pages/zhixue-static-api.js"></script>
 <script>
 (() => {

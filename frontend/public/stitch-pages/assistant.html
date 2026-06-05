@@ -5,47 +5,8 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>AI 学习助手 - 智学工坊</title>
 <link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
+<link href="/stitch-pages/stitch-shared.css" rel="stylesheet"/>
 <link href="/fonts/material-symbols.css" rel="stylesheet"/>
-<style>
-        body { background-color: #fcf9f8; overflow-x: hidden; }
-        .glass-shell { 
-            background: rgba(255, 255, 255, 0.45); 
-            backdrop-filter: blur(40px); 
-            -webkit-backdrop-filter: blur(40px); 
-            border: 1px solid rgba(255, 255, 255, 0.8); 
-            border-radius: 40px; 
-            box-shadow: 0 40px 100px -20px rgba(131, 84, 0, 0.05), 0 30px 60px -30px rgba(0, 0, 0, 0.02); 
-        }
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.7); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.9); 
-            border-radius: 24px; 
-            box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.04); 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        .glass-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.06); border-color: rgba(255, 255, 255, 1); }
-        .ambient-blob { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.5; pointer-events: none; }
-        .blob-1 { top: -10%; left: -5%; width: 45vw; height: 45vw; background: rgba(249, 168, 38, 0.12); }
-        .blob-2 { bottom: -10%; right: -5%; width: 55vw; height: 55vw; background: rgba(255, 221, 181, 0.25); }
-        .blob-3 { top: 35%; left: 25%; width: 35vw; height: 35vw; background: rgba(125, 83, 84, 0.08); }
-        
-        .chat-bubble-ai {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(255, 255, 255, 1);
-            box-shadow: 0 4px 20px -4px rgba(0,0,0,0.03);
-        }
-        .chat-bubble-user {
-            background: linear-gradient(135deg, rgba(249, 168, 38, 0.08) 0%, rgba(249, 168, 38, 0.04) 100%);
-            border: 1px solid rgba(249, 168, 38, 0.15);
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(215, 195, 174, 0.5); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(133, 116, 98, 0.5); }
-    </style>
 </head>
 <body class="text-on-background font-body-md min-h-screen">
 <!-- Ambient Background Blobs -->
@@ -333,6 +294,7 @@
 </div>
 </main>
 </div>
+<script src="/stitch-pages/zhixue-ui.js"></script>
 <script src="/stitch-pages/zhixue-static-api.js"></script>
 <script>
 (() => {

@@ -101,6 +101,13 @@ const config: Config = {
       boxShadow: {
         glass: "0 24px 70px rgba(131, 84, 0, 0.08)",
         glow: "0 16px 34px rgba(249, 168, 38, 0.22)"
+      },
+      spacing: {
+        unit: "8px",
+        gutter: "16px",
+        "card-gap": "24px",
+        "container-padding-mobile": "20px",
+        "container-padding-desktop": "48px"
       }
     }
   },

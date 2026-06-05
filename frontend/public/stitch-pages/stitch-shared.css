@@ -511,6 +511,33 @@ body {
 .zhixue-auth-message[data-kind="error"] { color: var(--zhixue-on-error-container); }
 .zhixue-auth-message[data-kind="success"] { color: var(--zhixue-primary); }
 
+.zhixue-field {
+  width: 100%;
+  border: 1px solid rgba(133, 116, 98, 0.32);
+  border-radius: 16px;
+  background: rgba(252, 249, 248, 0.82);
+  padding: 12px 14px;
+  color: var(--zhixue-on-surface);
+  outline: none;
+  transition: border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
+}
+
+.zhixue-field:focus {
+  border-color: var(--zhixue-primary);
+  box-shadow: 0 0 0 4px rgba(131, 84, 0, 0.12);
+}
+
+.mask-gradient {
+  mask-image: linear-gradient(to left, black 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to left, black 0%, transparent 100%);
+}
+
+.body-practice-bg {
+  background-color: var(--zhixue-surface);
+  background-image: radial-gradient(circle at 10% 20%, rgba(131, 84, 0, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(125, 83, 84, 0.03) 0%, transparent 40%);
+}
+
 .mascot-badge {
   display: inline-flex;
   align-items: center;

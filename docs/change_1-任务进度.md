@@ -13,18 +13,23 @@
 
 ## Sprint 1：设计基座统一
 
-- [ ] 确认 `frontend/public/stitch-pages/stitch-shared.css` 内容完整
-- [ ] 确认 `frontend/public/stitch-pages/zhixue-ui.js` 内容完整
-- [ ] 复制 IP 贴纸至 `frontend/public/stickers/{zhizhi,lulu,diandian}/`
-- [ ] 8 个 Stitch HTML 引用 `stitch-shared.css` + `zhixue-ui.js`，删除重复 glass `<style>`
-- [ ] `tailwind.config.ts` 补充 spacing token（gutter、card-gap）
-- [ ] **Sprint 1 总验**：`cd frontend; npm run typecheck; npm run build`
+- [x] 确认 `frontend/public/stitch-pages/stitch-shared.css` 内容完整
+- [x] 确认 `frontend/public/stitch-pages/zhixue-ui.js` 内容完整
+- [x] 复制 IP 贴纸至 `frontend/public/stickers/{zhizhi,lulu,diandian}/`
+- [x] 8 个 Stitch HTML 引用 `stitch-shared.css` + `zhixue-ui.js`，删除重复 glass `<style>`
+- [x] `tailwind.config.ts` 补充 spacing token（gutter、card-gap）
+- [x] **Sprint 1 总验**：`cd frontend; npm run typecheck; npm run build`
 
 ### Sprint 1 核验记录
 
 | 任务 | 核验 | 结果 |
 |------|------|------|
-| （完成后填写） | | |
+| stitch-shared.css | 人工审阅：含 glass、动效、auth/modal、empty、agent-timeline 等 | 通过；补充 `.zhixue-field`、`.mask-gradient`、`.body-practice-bg` |
+| zhixue-ui.js | 人工审阅：skeleton、emptyState、toast、scrollReveal、getPageMascot | 通过 |
+| IP 贴纸 | `Get-ChildItem frontend/public/stickers -Recurse -Filter *.png` | 36 个 PNG（每角色 12 张） |
+| 8 页引用共享层 | `rg stitch-shared.css frontend/public/stitch-pages/*.html` | 8/8 命中；已移除页内重复 `<style>` |
+| tailwind spacing | `npm run typecheck` | 通过 |
+| Sprint 1 总验 | `npm run typecheck` + `npm run build` | 均通过（Next.js 14.2.35） |
 
 ---
 
@@ -78,4 +83,4 @@
 
 | 日期 | Commit | 说明 |
 |------|--------|------|
-| | | |
+| 2026-06-02 | （待提交） | Sprint 1：共享设计层 + 贴纸 + 8 页引用 |

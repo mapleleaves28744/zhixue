@@ -5,42 +5,10 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>练习与诊断 - 智学工坊</title>
 <link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
+<link href="/stitch-pages/stitch-shared.css" rel="stylesheet"/>
 <link href="/fonts/material-symbols.css" rel="stylesheet"/>
-<style>
-        body {
-            background-color: #fcf9f8;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(131, 84, 0, 0.03) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(125, 83, 84, 0.03) 0%, transparent 40%);
-            overflow-x: hidden;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 4px 20px rgba(131, 84, 0, 0.05);
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .active-tab {
-            position: relative;
-        }
-        .active-tab::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 24px;
-            height: 3px;
-            background: #835400;
-            border-radius: 99px;
-        }
-    </style>
 </head>
-<body class="font-body-md text-on-surface">
+<body class="font-body-md text-on-surface body-practice-bg">
 <div class="flex h-screen overflow-hidden">
 <!-- SideNavBar -->
 <nav class="fixed h-screen w-20 left-0 top-0 bg-white/40 backdrop-blur-xl border-r border-outline-variant/30 flex flex-col items-center py-6 gap-4 z-50 hidden md:flex">
@@ -334,6 +302,7 @@
 <button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
 <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
 </button>
+<script src="/stitch-pages/zhixue-ui.js"></script>
 <script src="/stitch-pages/zhixue-static-api.js"></script>
     <script>
         const api = window.ZhixueStatic;

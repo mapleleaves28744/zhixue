@@ -5,90 +5,8 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Zhixue Gongfang - My Course Space</title>
 <link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
+<link href="/stitch-pages/stitch-shared.css" rel="stylesheet"/>
 <link href="/fonts/material-symbols.css" rel="stylesheet"/>
-<style>
-        body { background-color: #fcf9f8; overflow-x: hidden; }
-        
-        /* New Glassmorphism Styles */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 24px;
-            box-shadow: 0 4px 20px -2px rgba(131, 84, 0, 0.04);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .glass-panel:hover {
-            background: rgba(255, 255, 255, 0.85);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px -4px rgba(131, 84, 0, 0.08);
-            border-color: rgba(255, 255, 255, 0.8);
-        }
-        
-        .glass-well {
-            background: rgba(240, 237, 237, 0.4);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .glass-button-primary {
-            background: #835400;
-            color: white;
-            box-shadow: 0 4px 12px rgba(131, 84, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-        }
-        
-        .glass-button-secondary {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(131, 84, 0, 0.2);
-            color: #835400;
-            border-radius: 12px;
-        }
-
-        /* Ambient Orbs - Updated for warm theme */
-        .ambient-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(120px);
-            z-index: -1;
-            opacity: 0.4;
-            pointer-events: none;
-        }
-        .orb-1 { top: -5%; left: -5%; width: 35vw; height: 35vw; background: rgba(249, 168, 38, 0.12); }
-        .orb-2 { bottom: -10%; right: -5%; width: 45vw; height: 45vw; background: rgba(125, 83, 84, 0.08); }
-        .orb-3 { top: 30%; left: 25%; width: 25vw; height: 25vw; background: rgba(131, 84, 0, 0.05); }
-        .zhixue-modal {
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            background: rgba(49, 48, 48, 0.28);
-            backdrop-filter: blur(18px);
-        }
-        .zhixue-modal[data-open="true"] {
-            display: flex;
-        }
-        .zhixue-field {
-            width: 100%;
-            border: 1px solid rgba(133, 116, 98, 0.32);
-            border-radius: 16px;
-            background: rgba(252, 249, 248, 0.82);
-            padding: 12px 14px;
-            color: #1c1b1b;
-            outline: none;
-        }
-        .zhixue-field:focus {
-            border-color: #835400;
-            box-shadow: 0 0 0 4px rgba(131, 84, 0, 0.12);
-        }
-    </style>
 </head>
 <body class="font-body-md text-on-surface antialiased min-h-screen overflow-x-hidden">
 <!-- Ambient Background Elements -->
@@ -355,6 +273,7 @@
 </form>
 </div>
 </div>
+<script src="/stitch-pages/zhixue-ui.js"></script>
 <script src="/stitch-pages/zhixue-static-api.js"></script>
 <script>
 (() => {
