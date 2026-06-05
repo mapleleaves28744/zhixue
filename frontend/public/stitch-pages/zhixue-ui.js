@@ -22,7 +22,18 @@
     "/path-profile": "lulu",
   };
 
+  const DEFAULT_REVEAL_SELECTORS = [
+    "main > section",
+    "main > .grid",
+    "main > .glass-shell",
+    "main .glass-card",
+    "main .glass-panel",
+    "[data-reveal]",
+  ];
+
   const skeletonRegistry = new WeakMap();
+  let revealObserver = null;
+  let revealMutationObserver = null;
 
   function ensureToastHost() {
     let host = document.getElementById("zhixue-toast-host");
@@ -158,26 +169,79 @@
     window.setTimeout(() => node.remove(), 3200);
   }
 
+  function isElementNode(node) {
+    return Boolean(node && node.nodeType === Node.ELEMENT_NODE);
+  }
+
+  function collectRevealTargets(selector) {
+    const selectors = selector ? [selector] : DEFAULT_REVEAL_SELECTORS;
+    const targets = new Set();
+    selectors.forEach((item) => {
+      document.querySelectorAll(item).forEach((node) => {
+        if (!isElementNode(node)) {
+          return;
+        }
+        if (node.closest(".zhixue-auth-modal, .zhixue-modal, [aria-modal='true']")) {
+          return;
+        }
+        targets.add(node);
+      });
+    });
+    return Array.from(targets);
+  }
+
   function scrollReveal(selector) {
-    const targets = selector
-      ? document.querySelectorAll(selector)
-      : document.querySelectorAll(".reveal-on-scroll, [data-reveal]");
-    if (!targets.length || !("IntersectionObserver" in window)) {
+    const targets = collectRevealTargets(selector).filter((el) => !el.classList.contains("is-visible"));
+    if (!targets.length) {
+      return;
+    }
+    targets.forEach((el) => {
+      el.classList.add("reveal-on-scroll");
+    });
+    if (!("IntersectionObserver" in window)) {
       targets.forEach((el) => el.classList.add("is-visible"));
       return;
     }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
-    );
-    targets.forEach((el) => observer.observe(el));
+    if (!revealObserver) {
+      revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+      );
+    }
+    targets.forEach((el) => {
+      if (isElementNode(el)) {
+        revealObserver.observe(el);
+      }
+    });
+  }
+
+  function initScrollReveal() {
+    scrollReveal();
+    if (!("MutationObserver" in window) || revealMutationObserver || !isElementNode(document.body)) {
+      return;
+    }
+    let pending = false;
+    revealMutationObserver = new MutationObserver((mutations) => {
+      const hasNewElement = mutations.some((mutation) =>
+        Array.from(mutation.addedNodes || []).some(isElementNode)
+      );
+      if (!hasNewElement || pending) {
+        return;
+      }
+      pending = true;
+      window.requestAnimationFrame(() => {
+        pending = false;
+        scrollReveal();
+      });
+    });
+    revealMutationObserver.observe(document.body, { childList: true, subtree: true });
   }
 
   function mascotBadge(mascot, label) {
@@ -205,7 +269,7 @@
   }
 
   function initPage() {
-    scrollReveal();
+    initScrollReveal();
     const mascot = getPageMascot();
     if (mascot) {
       document.body.dataset.zhixueMascot = mascot;
@@ -215,12 +279,14 @@
   window.ZhixueUI = {
     STICKER_SCENES,
     PAGE_MASCOT_MAP,
+    DEFAULT_REVEAL_SELECTORS,
     emptyState,
     renderEmptyState,
     getPageMascot,
     getPagePath,
     hideSkeleton,
     mascotBadge,
+    initScrollReveal,
     scrollReveal,
     showSkeleton,
     sourceDisclaimer,

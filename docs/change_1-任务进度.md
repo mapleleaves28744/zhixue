@@ -65,15 +65,19 @@
 
 ## Sprint 3：动效与壳层
 
-- [ ] `StitchFrame` 安装 `framer-motion`，路由淡入 ~200ms
-- [ ] `scrollReveal` / 区块进入动效在关键页启用
-- [ ] **Sprint 3 总验**：路由切换无白屏闪烁；build 通过
+- [x] `StitchFrame` 安装 `framer-motion`，路由淡入 ~200ms
+- [x] `scrollReveal` / 区块进入动效在关键页启用
+- [x] **Sprint 3 总验**：路由切换无白屏闪烁；build 通过
 
 ### Sprint 3 核验记录
 
 | 任务 | 核验 | 结果 |
 |------|------|------|
-| （完成后填写） | | |
+| Sprint 3 静态检查 | `node scripts/check-sprint3-ui.mjs` | 通过；校验 Framer 壳层、200ms 过渡、scrollReveal 防御逻辑与 reduced motion |
+| 类型检查 | `npm run typecheck` | 通过 |
+| 前端构建 | `npm run build` | 通过（Next.js 14.2.35） |
+| Stitch 动效烟测 | 浏览器直开 `/stitch-pages/{practice,knowledge,dashboard,courses}.html` | 通过；`reveal-on-scroll` 已注入，当前时间之后无新增 console error |
+| 路由切换烟测 | 浏览器依次访问 `/practice`、`/knowledge`、`/dashboard`、`/courses`、`/practice` | 通过；iframe 尺寸稳定，shell opacity 最终为 1，当前时间之后无新增 console error |
 
 ---
 
@@ -99,3 +103,4 @@
 |------|--------|------|
 | 2026-06-02 | `978fd45` | Sprint 1：共享设计层 + 贴纸 + 8 页引用 |
 | 2026-06-05 | `fdbf630` | Sprint 2：课程编辑、Wiki 详情、历史诊断总验链路 |
+| 2026-06-05 | `1098ac0` | Sprint 3/4 前置视觉小修：外链图本地化、知识图谱旧图恢复 |
