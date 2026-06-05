@@ -341,7 +341,7 @@
             } else if (activeLabel === '错题本') {
                 loadWrongQuestions();
             } else if (activeLabel === '诊断报告') {
-                loadDiagnosis();
+                loadDiagnosisReports();
             } else if (activeLabel === '答题竞技') {
                 loadQuizList();
             }
@@ -764,6 +764,87 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
+        }
+
+        function renderDiagnosisReportList(reports) {
+            const container = document.querySelector('.col-span-12.lg\\:col-span-8');
+            if (!container) return;
+            container.innerHTML = `
+                <section class="glass-card rounded-xl p-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                        <div>
+                            <h3 class="font-bold flex items-center gap-2 text-headline-sm">
+                                <span class="material-symbols-outlined text-primary">analytics</span> 历史诊断报告
+                            </h3>
+                            <p class="text-sm text-outline mt-2">来自 GET /diagnosis/reports，按当前账号和课程隔离。</p>
+                        </div>
+                        <button class="glass-button-primary px-5 py-3 text-sm font-bold flex items-center gap-2" data-action="run-diagnosis">
+                            <span class="material-symbols-outlined text-[18px]">psychology</span> 运行新诊断
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        ${reports.length ? reports.map((report, index) => `
+                            <article class="rounded-xl bg-white/60 border ${index === 0 ? 'border-primary/30 ring-4 ring-primary/5' : 'border-white/80'} p-5">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">v${reports.length - index}</span>
+                                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-bold">${escapeHtml(report.report_type || 'practice')}</span>
+                                            ${report.generated_by_agent_run_id ? '<span class="text-[11px] px-2 py-0.5 rounded-full bg-tertiary-container/30 text-tertiary font-bold">Agent 生成</span>' : ''}
+                                        </div>
+                                        <h4 class="font-bold text-on-surface">${escapeHtml(report.summary || '学习诊断报告')}</h4>
+                                        <p class="text-xs text-outline mt-2">${api.formatDate(report.created_at)}</p>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 min-w-[220px]">
+                                        <div class="rounded-lg bg-white/70 p-2 text-center">
+                                            <p class="text-lg font-bold text-primary">${Math.round((report.accuracy || 0) * 100)}%</p>
+                                            <p class="text-[10px] text-outline">正确率</p>
+                                        </div>
+                                        <div class="rounded-lg bg-white/70 p-2 text-center">
+                                            <p class="text-lg font-bold text-primary">${report.total_questions || 0}</p>
+                                            <p class="text-[10px] text-outline">题数</p>
+                                        </div>
+                                        <div class="rounded-lg bg-white/70 p-2 text-center">
+                                            <p class="text-lg font-bold text-primary">${(report.recommended_actions || report.recommendations || []).length}</p>
+                                            <p class="text-[10px] text-outline">建议</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                                    <div class="rounded-xl bg-error-container/20 border border-error/10 p-3">
+                                        <p class="text-xs font-bold text-error mb-2">薄弱点</p>
+                                        ${(report.weaknesses || []).slice(0, 3).map((item) => `<p class="text-xs text-on-surface-variant">- ${escapeHtml(item)}</p>`).join('') || '<p class="text-xs text-on-surface-variant">暂无明显薄弱点</p>'}
+                                    </div>
+                                    <div class="rounded-xl bg-white/70 border border-white/80 p-3">
+                                        <p class="text-xs font-bold text-primary mb-2">下一步建议</p>
+                                        ${(report.recommendations || report.recommended_actions || []).slice(0, 3).map((item) => `<p class="text-xs text-on-surface-variant">- ${escapeHtml(typeof item === 'string' ? item : item.title || item.action || '继续复习')}</p>`).join('') || '<p class="text-xs text-on-surface-variant">继续完成练习以形成更稳定建议。</p>'}
+                                    </div>
+                                </div>
+                            </article>
+                        `).join('') : `
+                            <div class="rounded-xl bg-white/60 border border-white/80 p-8 text-center">
+                                <span class="material-symbols-outlined text-primary text-4xl mb-3">history</span>
+                                <h4 class="font-bold text-headline-sm mb-2">暂无历史诊断</h4>
+                                <p class="text-sm text-outline">完成练习后运行一次诊断，系统会保存报告并用于推荐与自进化分析。</p>
+                            </div>
+                        `}
+                    </div>
+                </section>
+            `;
+            container.querySelector("[data-action='run-diagnosis']")?.addEventListener('click', loadDiagnosis);
+            if (reports[0]) {
+                renderSideDiagnosis(reports[0]);
+            }
+        }
+
+        async function loadDiagnosisReports() {
+            try {
+                const result = await api.listDiagnosisReports(currentCourseId, { pageSize: 10 });
+                renderDiagnosisReportList(result.items || []);
+            } catch (e) {
+                api.toast(e.message || '历史诊断加载失败', 'error');
+                renderErrorState('历史诊断加载失败', e.message || '请确认后端服务可用。');
+            }
         }
 
         // Diagnosis

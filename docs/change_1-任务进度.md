@@ -35,18 +35,31 @@
 
 ## Sprint 2：API 与 P0 功能
 
-- [ ] 扩展 `zhixue-static-api.js`：`getPageMascot`、401 跳转、与 `ZhixueUI` 协作
-- [ ] `/knowledge`：Wiki 详情 `GET /wiki/pages/{id}`，替换静态正文
-- [ ] `/knowledge`：Wiki 列表点击切换详情（最小可用）
-- [ ] `/practice`：历史诊断 `GET /diagnosis/reports`
-- [ ] `/courses`：课程编辑 `PUT /courses/{id}`
-- [ ] **Sprint 2 总验**：主链路手动点检 + `npm run typecheck` + `npm run build`
+- [x] 扩展 `zhixue-static-api.js`：`getPageMascot`、`getWikiPage`、`updateCourse`、401 品牌页登录跳转、与 `ZhixueUI` 协作
+- [x] `/knowledge`：Wiki 详情 `GET /wiki/pages/{id}`，替换静态正文并展示来源、版本、AI 推断提示
+- [x] `/knowledge`：Wiki 列表点击切换详情（最小可用），无页面时展示真实空状态
+- [x] `/practice`：历史诊断 `GET /diagnosis/reports` 优先展示；无历史时再引导运行分析
+- [x] `/courses`：课程编辑 `PUT /courses/{id}`，公共课程保持只读提示
+- [x] **Sprint 2 总验**：主链路手动点检 + `npm run typecheck` + `npm run build`
+
+### Sprint 2 执行口径修正
+
+1. 本 Sprint 优先补真实 API 联动，不做全站重排和大范围动效。
+2. `StitchFrame` 的 `framer-motion` 路由淡入、品牌页 IP 海报和外链图清理后移到 Sprint 3/4。
+3. 每个勾选项必须至少满足：真实接口已调用、空状态/错误态可见、构建检查通过；涉及页面交互的项还需浏览器点检。
+4. 若后端接口存在但 Stitch 页面未接，不得宣称对应功能完成。
 
 ### Sprint 2 核验记录
 
 | 任务 | 核验 | 结果 |
 |------|------|------|
-| （完成后填写） | | |
+| 共享 API | 代码审阅 + 内联脚本语法检查 | 通过；新增 Wiki 详情、版本、课程更新、401 品牌页登录跳转 |
+| `/knowledge` Wiki 详情 | 浏览器未登录烟测 + DOM 检查 | 通过基础加载；点击 Wiki Tab 可进入真实空状态。完整详情需登录态与真实 Wiki 数据继续点检 |
+| `/practice` 历史诊断 | 浏览器未登录烟测 | 通过基础加载；未登录时展示“历史诊断加载失败”，登录后应显示 `GET /diagnosis/reports` 历史列表 |
+| `/courses` 编辑课程 | 浏览器未登录烟测 + 创建弹窗检查 | 创建/编辑共用弹窗脚本通过；无课程数据时未出现编辑按钮，需登录后用真实课程点检 PUT |
+| Sprint 2 登录态总验 | 浏览器 E2E：注册临时学生账号 → 创建课程 → 编辑课程 → API 上传资料并生成 Wiki → 页面点击 Wiki 详情 → 生成练习 → 提交答案 → 运行诊断 → 回到历史诊断列表 | 通过；课程标题更新为“已编辑”，Wiki 详情显示正文/来源/版本/AI 核对提示，诊断历史显示新报告、100% 正确率和 Agent 生成标记 |
+| 前端构建 | `npm run build` | 通过（Next.js 14.2.35；普通沙箱因 worker spawn EPERM，提升权限后通过） |
+| 类型检查 | `npm run typecheck` | 通过 |
 
 ---
 

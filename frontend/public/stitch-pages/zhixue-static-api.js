@@ -49,9 +49,20 @@
     window.location.href = path;
   }
 
+  function getCurrentRouteForRedirect() {
+    try {
+      if (window.parent && window.parent.location) {
+        return `${window.parent.location.pathname}${window.parent.location.search || ""}`;
+      }
+    } catch {
+      // Keep iframe pages resilient if parent access is unavailable.
+    }
+    return `${window.location.pathname}${window.location.search || ""}`;
+  }
+
   function logout() {
     clearAuthSession();
-    navigate("/login");
+    navigate("/?auth=login");
   }
 
   function mountLogoutButton() {
@@ -116,7 +127,8 @@
     if (!response.ok || !payload || payload.code !== 0) {
       const detailText = normalizeErrorDetail(payload && payload.detail);
       if (response.status === 401) {
-        navigate(`/login?redirect=${encodeURIComponent(getParentSearchParams().toString() ? `${window.parent.location.pathname}?${getParentSearchParams()}` : "/courses")}`);
+        clearAuthSession();
+        navigate(`/?auth=login&redirect=${encodeURIComponent(getCurrentRouteForRedirect() || "/courses")}`);
       }
       throw new Error(detailText || (payload && payload.message) || "请求失败，请稍后重试");
     }
@@ -124,6 +136,15 @@
   }
 
   function toast(message, type = "info") {
+    if (window.ZhixueUI && typeof window.ZhixueUI.toast === "function" && !toast.__usingSharedUi) {
+      try {
+        toast.__usingSharedUi = true;
+        window.ZhixueUI.toast(message, type);
+        return;
+      } finally {
+        toast.__usingSharedUi = false;
+      }
+    }
     let node = document.getElementById("zhixue-static-toast");
     if (!node) {
       node = document.createElement("div");
@@ -181,6 +202,13 @@
     });
   }
 
+  async function updateCourse(courseId, payload) {
+    return request(`/courses/${courseId}`, {
+      method: "PUT",
+      body: payload,
+    });
+  }
+
   async function getCourse(courseId) {
     return request(`/courses/${courseId}`);
   }
@@ -197,6 +225,14 @@
       status: params.status || "active",
     });
     return request(`/wiki/pages?${query}`);
+  }
+
+  async function getWikiPage(pageId) {
+    return request(`/wiki/pages/${pageId}`);
+  }
+
+  async function listWikiVersions(pageId) {
+    return request(`/wiki/pages/${pageId}/versions`);
   }
 
   async function listMaterials(courseId, params = {}) {
@@ -442,6 +478,13 @@
     return firstCourse.id;
   }
 
+  function getPageMascot() {
+    if (window.ZhixueUI && typeof window.ZhixueUI.getPageMascot === "function") {
+      return window.ZhixueUI.getPageMascot();
+    }
+    return null;
+  }
+
   window.ZhixueStatic = {
     formatDate,
     formatSize,
@@ -451,6 +494,8 @@
     createWikiPage,
     generateResource,
     getCourse,
+    getPageMascot,
+    getWikiPage,
     getMe,
     getMastery,
     getCourseIdFromUrl,
@@ -466,6 +511,7 @@
     listQuizzes,
     listRecommendations,
     listResources,
+    listWikiVersions,
     listWikiPages,
     navigate,
     request,
@@ -475,6 +521,7 @@
     saveTutorAnswerToWiki,
     submitTutorFeedback,
     toast,
+    updateCourse,
   };
 
   if (document.readyState === "loading") {
