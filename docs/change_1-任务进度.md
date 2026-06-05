@@ -84,9 +84,9 @@
 ## Sprint 4：IP 与演示抛光
 
 - [x] `brand-home.html` 使用 `public/brand` IP 图，去除外链占位图
-- [ ] 各页空状态使用 `ZhixueUI.emptyState` + 贴纸
-- [ ] 编写或更新 `docs/ip-assets/UI集成规范.md`（可选）
-- [ ] **Sprint 4 总验**：390/768/1024 三档目视 + 全链路演示
+- [x] 各页空状态使用 `ZhixueUI.emptyState` + 贴纸
+- [x] 编写或更新 `docs/ip-assets/UI集成规范.md`（可选）
+- [x] **Sprint 4 总验**：390/768/1024 三档目视 + 全链路演示
 
 ### Sprint 4 核验记录
 
@@ -94,6 +94,9 @@
 |------|------|------|
 | 品牌页 IP 图 | `rg -n "googleusercontent|aida-public" frontend/public/stitch-pages --glob "*.html"` | 通过；`brand-home.html` 主视觉改用本地 IP 单体图，知识图谱图位恢复旧视觉并本地化到 `public/brand` |
 | 其余外链图清理 | 同上 + 代码审阅 | 通过；`home.html`、`courses.html` 残留外链装饰图已替换为本地品牌 IP 资产 |
+| 空状态 IP 化 | `node scripts/check-sprint4-ip.mjs` | 通过；课程、练习、助手、首页、路径画像等关键空状态已接 `ZhixueUI.emptyState` / `renderEmptyState` |
+| IP 集成规范 | 人工审阅 `docs/ip-assets/UI集成规范.md` | 已补页面 mascot 映射、贴纸 scene 用途、实现约定和当前接入范围 |
+| Sprint 4 视口总验 | Playwright CLI：390/768/1024 视口截图 `/`、`/practice`、`/path-profile` | 通过；截图保存在 `%TEMP%/zhixue-sprint4-viewports`，抽检未见白屏、图片缺失或明显文字压缩 |
 
 ---
 
@@ -104,3 +107,4 @@
 | 2026-06-02 | `978fd45` | Sprint 1：共享设计层 + 贴纸 + 8 页引用 |
 | 2026-06-05 | `fdbf630` | Sprint 2：课程编辑、Wiki 详情、历史诊断总验链路 |
 | 2026-06-05 | `1098ac0` | Sprint 3/4 前置视觉小修：外链图本地化、知识图谱旧图恢复 |
+| 2026-06-05 | `21809c2` | Sprint 3：StitchFrame 路由淡入、scrollReveal 与壳层稳定性 |

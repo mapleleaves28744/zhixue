@@ -405,6 +405,25 @@ body {
   object-fit: contain;
 }
 
+.zhixue-empty-state--compact {
+  padding: 20px 16px;
+  gap: 10px;
+  border-radius: 18px;
+}
+
+.zhixue-empty-state--compact .zhixue-empty-state__img {
+  width: 64px;
+  height: 64px;
+}
+
+.zhixue-empty-state--compact .zhixue-empty-state__title {
+  font-size: 15px;
+}
+
+.zhixue-empty-state--compact .zhixue-empty-state__desc {
+  font-size: 12px;
+}
+
 .zhixue-empty-state__title {
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 20px;

@@ -379,17 +379,20 @@
       mainGrid.prepend(panel);
     }
     if (!courses.length) {
-      panel.innerHTML = `
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h4 class="font-headline-md text-headline-md text-on-surface">我的真实课程</h4>
-            <p class="font-body-md text-body-md text-on-surface-variant mt-2">还没有课程。点击右上角“创建课程”，这里会显示真实课程卡片。</p>
-          </div>
-          <button data-action="create-course-empty" class="glass-button-primary font-label-md text-label-md px-6 py-3 flex items-center gap-2 justify-center">
-            <span class="material-symbols-outlined text-sm">add</span>创建第一门课程
-          </button>
-        </div>`;
-      panel.querySelector("[data-action='create-course-empty']").addEventListener("click", openModal);
+      panel.innerHTML = '<h4 class="font-headline-md text-headline-md text-on-surface mb-4">我的真实课程</h4>';
+      const emptyNode = window.ZhixueUI?.emptyState?.({
+        mascot: "zhizhi",
+        scene: "greeting",
+        title: "还没有课程",
+        description: "创建第一门课程后，这里会显示资料、Wiki、练习诊断与推荐入口。",
+        actionLabel: "创建第一门课程",
+        actionOnClick: openModal,
+      });
+      if (emptyNode) {
+        panel.appendChild(emptyNode);
+      } else {
+        panel.innerHTML += '<p class="font-body-md text-body-md text-on-surface-variant mt-2">还没有课程。点击右上角“创建课程”，这里会显示真实课程卡片。</p>';
+      }
       return;
     }
     panel.innerHTML = `

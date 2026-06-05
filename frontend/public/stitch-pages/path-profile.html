@@ -367,6 +367,20 @@
     }[char]));
   }
 
+  function profileEmptyStateHtml(title, description, scene = "empty", compact = false) {
+    return window.ZhixueUI?.emptyState?.({
+      mascot: "lulu",
+      scene,
+      title,
+      description,
+      compact,
+    })?.outerHTML || `
+      <div class="p-5 bg-surface-container-low rounded-xl border border-outline-variant/20 text-center">
+        <p class="font-bold text-body-md">${escapeHtml(title)}</p>
+        <p class="text-label-sm text-on-surface-variant mt-1">${escapeHtml(description)}</p>
+      </div>`;
+  }
+
   function findSectionByTitle(title) {
     return [...document.querySelectorAll("section")].find((section) => section.innerText.includes(title));
   }
@@ -464,10 +478,7 @@
             </div>
           </div>
         `).join("") : `
-          <div class="p-5 bg-surface-container-low rounded-xl border border-outline-variant/20">
-            <p class="font-bold text-body-md">暂无长期记忆</p>
-            <p class="text-label-sm text-on-surface-variant mt-1">点击下方按钮，让 Memory Agent 基于学习行为生成第一批记忆。</p>
-          </div>`}
+          ${profileEmptyStateHtml("暂无长期记忆", "点击下方按钮，让 Memory Agent 基于学习行为生成第一批记忆。", "reminder", true)}`}
       </div>
       <button id="memory-reflect-button" class="w-full mt-6 py-3 rounded-xl border-2 border-dashed border-outline-variant/50 text-on-surface-variant text-label-md hover:border-primary hover:text-primary hover:bg-primary/5 transition-all">
         触发 Memory Agent 反思
@@ -522,11 +533,7 @@
         </div>
       </div>
       ${displayStrategies.length === 0 ? `
-        <div class="flex flex-col items-center justify-center py-12 text-on-surface-variant">
-          <span class="material-symbols-outlined text-4xl mb-3 opacity-40">psychology</span>
-          <p class="text-body-md mb-2">暂无策略建议</p>
-          <p class="text-label-md text-outline">点击"触发分析"，让 EvolutionAgent 基于学习数据生成策略建议</p>
-        </div>
+        ${profileEmptyStateHtml("暂无策略建议", "点击“触发分析”，让 Evolution Agent 基于学习数据生成策略建议。", "thinking")}
       ` : `
         <div class="overflow-x-auto">
           <table class="w-full text-left border-separate border-spacing-y-2">
@@ -627,11 +634,7 @@
         </div>
       </div>
       ${!path ? `
-        <div class="flex flex-col items-center justify-center py-14 text-center text-on-surface-variant">
-          <span class="material-symbols-outlined text-5xl mb-4 text-primary/40">route</span>
-          <p class="text-body-lg font-bold text-on-surface mb-2">暂无学习路径</p>
-          <p class="text-label-md max-w-xl">点击生成路径，PlannerAgent 会基于课程知识点、画像薄弱点和 Wiki 线索生成第一条可执行路径。</p>
-        </div>
+        ${profileEmptyStateHtml("暂无学习路径", "点击生成路径，Planner Agent 会基于课程知识点、画像薄弱点和 Wiki 线索生成第一条可执行路径。", "searching")}
       ` : `
         <div class="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>

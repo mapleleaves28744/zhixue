@@ -279,6 +279,20 @@
         const activityFeed = document.getElementById("home-activity-feed");
         const viewAllLogsButton = document.getElementById("home-view-all-logs");
 
+        function homeEmptyStateHtml(title, description) {
+            return window.ZhixueUI?.emptyState?.({
+                mascot: "lulu",
+                scene: "reminder",
+                title,
+                description,
+                compact: true,
+            })?.outerHTML || `
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <p class="font-label-md text-label-md">${title}</p>
+                    <p class="text-xs text-on-surface-variant/60 mt-1">${description}</p>
+                </div>`;
+        }
+
         function setText(node, value) {
             if (node) {
                 node.textContent = value;
@@ -372,17 +386,10 @@
                 .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
                 .slice(0, 3);
             if (!items.length) {
-                activityFeed.innerHTML = `
-                    <div class="glass-card rounded-2xl p-6 flex items-center gap-6">
-                        <div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
-                            <span class="material-symbols-outlined">hourglass_empty</span>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-label-md text-label-md">暂无真实活动记录</p>
-                            <p class="text-xs text-on-surface-variant/60">完成一次问答、练习或诊断后，这里会自动更新。</p>
-                        </div>
-                        <div class="text-primary font-bold">0</div>
-                    </div>`;
+                activityFeed.innerHTML = homeEmptyStateHtml(
+                    "暂无真实活动记录",
+                    "完成一次问答、练习或诊断后，这里会自动更新。"
+                );
                 return;
             }
             activityFeed.innerHTML = items.map((item) => `

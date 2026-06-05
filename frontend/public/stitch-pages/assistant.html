@@ -278,15 +278,7 @@
 <span class="material-symbols-outlined text-lg text-outline cursor-pointer hover:text-primary transition-all">history</span>
 </div>
 <div id="resource-history" class="space-y-3">
-<div class="group flex items-center gap-4 p-3.5 bg-white/30 rounded-2xl border border-transparent shadow-sm">
-<div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shrink-0 border border-primary/20 group-hover:scale-105 transition-transform">
-<span class="material-symbols-outlined text-xl">auto_fix_high</span>
-</div>
-<div class="flex-1 min-w-0">
-<p class="font-bold text-on-surface truncate text-label-md">暂无生成记录</p>
-<p class="text-xs text-outline font-semibold mt-0.5">生成后会显示在这里</p>
-</div>
-</div>
+<div class="text-xs text-outline font-semibold bg-white/30 rounded-2xl p-4">生成后会显示在这里</div>
 </div>
 </div>
 </div>
@@ -934,6 +926,16 @@
     updateSaveButton();
   }
 
+  function resourceHistoryEmptyHtml() {
+    return window.ZhixueUI?.emptyState?.({
+      mascot: "zhizhi",
+      scene: "thinking",
+      title: "暂无生成记录",
+      description: "生成学习资源后，会在这里保留最近记录。",
+      compact: true,
+    })?.outerHTML || '<div class="text-xs font-bold text-outline bg-white/50 rounded-xl p-3">暂无生成记录</div>';
+  }
+
   function updateSaveButton() {
     if (!saveResourceButton) {
       return;
@@ -1038,16 +1040,7 @@
       const page = await api.listResources(currentCourseId, { pageSize: 4, status: "all" });
       const items = page.items || [];
       if (!items.length) {
-        resourceHistory.innerHTML = `
-          <div class="group flex items-center gap-4 p-3.5 bg-white/30 rounded-2xl border border-transparent shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shrink-0 border border-primary/20">
-              <span class="material-symbols-outlined text-xl">auto_fix_high</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-bold text-on-surface truncate text-label-md">暂无生成记录</p>
-              <p class="text-xs text-outline font-semibold mt-0.5">生成后会显示在这里</p>
-            </div>
-          </div>`;
+        resourceHistory.innerHTML = resourceHistoryEmptyHtml();
         return;
       }
       resourceHistory.innerHTML = items.map((item) => `

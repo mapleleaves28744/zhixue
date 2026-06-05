@@ -122,6 +122,9 @@
 
     const root = document.createElement("div");
     root.className = "zhixue-empty-state glass-card";
+    if (opts.compact) {
+      root.classList.add("zhixue-empty-state--compact");
+    }
     root.innerHTML = `
       <img class="zhixue-empty-state__img" src="${stickerUrl(mascot, scene)}" alt="${title}" loading="lazy"/>
       <div class="zhixue-empty-state__title">${title}</div>
@@ -143,6 +146,10 @@
       }
     }
     return root;
+  }
+
+  function emptyStateHtml(options) {
+    return emptyState(options).outerHTML;
   }
 
   function renderEmptyState(container, options) {
@@ -281,6 +288,7 @@
     PAGE_MASCOT_MAP,
     DEFAULT_REVEAL_SELECTORS,
     emptyState,
+    emptyStateHtml,
     renderEmptyState,
     getPageMascot,
     getPagePath,

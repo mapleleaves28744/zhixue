@@ -561,7 +561,7 @@
                             <span class="text-label-sm text-outline ml-auto">${items.length} 道错题</span>
                         </h3>
                         <div class="space-y-4">
-                            ${items.length === 0 ? '<p class="text-outline text-center py-8">暂无错题。完成几道练习后，这里会展示错因和订正建议。</p>' :
+                            ${items.length === 0 ? emptyState('暂无错题', '完成几道练习后，这里会展示错因和订正建议。', 'success') :
                             items.map(m => `
                                 <div class="p-4 bg-white/40 rounded-xl border border-outline-variant/30">
                                     <div class="flex items-center gap-2 mb-2">
@@ -729,17 +729,16 @@
         function renderErrorState(title, detail) {
             const container = document.querySelector('.col-span-12.lg\\:col-span-8');
             if (!container) return;
-            container.innerHTML = `
-                <section class="glass-card rounded-xl p-8 text-center">
-                    <span class="material-symbols-outlined text-error text-4xl mb-3">error</span>
-                    <h3 class="font-bold text-headline-sm mb-2">${escapeHtml(title)}</h3>
-                    <p class="text-outline text-sm">${escapeHtml(detail)}</p>
-                </section>
-            `;
+            container.innerHTML = emptyState(title, detail, 'unsure');
         }
 
-        function emptyState(title, detail) {
-            return `
+        function emptyState(title, detail, scene = 'empty') {
+            return window.ZhixueUI?.emptyState?.({
+                mascot: 'diandian',
+                scene,
+                title,
+                description: detail,
+            })?.outerHTML || `
                 <section class="glass-card rounded-xl p-8 text-center">
                     <span class="material-symbols-outlined text-primary text-4xl mb-3">quiz</span>
                     <h3 class="font-bold text-headline-sm mb-2">${escapeHtml(title)}</h3>
@@ -822,11 +821,7 @@
                                 </div>
                             </article>
                         `).join('') : `
-                            <div class="rounded-xl bg-white/60 border border-white/80 p-8 text-center">
-                                <span class="material-symbols-outlined text-primary text-4xl mb-3">history</span>
-                                <h4 class="font-bold text-headline-sm mb-2">暂无历史诊断</h4>
-                                <p class="text-sm text-outline">完成练习后运行一次诊断，系统会保存报告并用于推荐与自进化分析。</p>
-                            </div>
+                            ${emptyState('暂无历史诊断', '完成练习后运行一次诊断，系统会保存报告并用于推荐与自进化分析。', 'reminder')}
                         `}
                     </div>
                 </section>
