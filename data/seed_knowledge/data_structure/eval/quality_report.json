@@ -1,5 +1,5 @@
 {
-  "source_root": "C:\\Users\\28744\\Desktop\\zhixue\\data\\seed_knowledge\\data_structure",
+  "source_root": "data\\seed_knowledge\\data_structure",
   "raw_document_count": 21,
   "source_count": 6,
   "approved_source_count": 6,
@@ -14,6 +14,45 @@
     "entity_count": 10,
     "relation_count": 8,
     "claim_count": 6
+  },
+  "public_kb": {
+    "course_id": "0b41dca8-3e7d-420b-9769-b4fe623e482f",
+    "course_code": "DS-PUBLIC",
+    "course_visibility": "public_template",
+    "corpus_stats": {
+      "materials": 32,
+      "chunks": 1608,
+      "embedded_chunks": 1608,
+      "knowledge_points": 125
+    },
+    "embedding": {
+      "provider": "sentence_transformers",
+      "model": "BAAI/bge-large-zh-v1.5",
+      "dimension": 1024,
+      "allow_mock_fallback": false
+    },
+    "indexes": [
+      "document_chunks_pkey",
+      "idx_document_chunks_chapter_id_expr",
+      "idx_document_chunks_chunk_index",
+      "idx_document_chunks_chunk_type_expr",
+      "idx_document_chunks_content_trgm",
+      "idx_document_chunks_course_id",
+      "idx_document_chunks_embedding_hnsw",
+      "idx_document_chunks_extra_meta_gin",
+      "idx_document_chunks_knowledge_id",
+      "idx_document_chunks_material_id",
+      "idx_document_chunks_source_id_expr"
+    ],
+    "metrics": {
+      "question_count": 30,
+      "retrieval_recall": 0.9667,
+      "answer_accuracy": 0.9667,
+      "hallucination_rate": 0.0333,
+      "citation_rate": 1.0
+    },
+    "llm_sample_count": 3,
+    "real_llm_sample_count": 3
   },
   "pipeline_stages": [
     {
@@ -47,59 +86,59 @@
     {
       "stage_id": "embedding",
       "name": "Embedding",
-      "status": "ready_for_build",
-      "evidence": "build_data_structure_kb.py 调用 EmbeddingService；--use-mock-embedding 可无 Key 演示。",
-      "next_action": "执行非 dry-run 构建后生成 document_chunks.embedding。"
+      "status": "ready",
+      "evidence": "1608/1608 chunks 已使用 sentence_transformers / BAAI/bge-large-zh-v1.5 / 1024 维真实向量化；allow_mock_fallback=False。",
+      "next_action": "保持模型、维度和 pgvector 字段一致；更换模型时重新构建和评测。"
     },
     {
       "stage_id": "indexing",
       "name": "索引",
-      "status": "partial",
-      "evidence": "当前 DB 支持向量检索与 extra_meta 元数据；关键词检索仍是文本兜底，未建正式关键词索引。",
-      "next_action": "Phase 1.1 可补 PostgreSQL tsvector/BM25-like keyword index and hybrid score config。"
+      "status": "ready",
+      "evidence": "pgvector HNSW、内容 pg_trgm 关键词索引和 extra_meta GIN 元数据索引均已建立。",
+      "next_action": "持续用 EXPLAIN ANALYZE 观察查询计划；数据量增大后调优索引参数。"
     },
     {
       "stage_id": "retrieval",
       "name": "检索",
-      "status": "ready_for_query_after_build",
-      "evidence": "POST /api/v1/knowledge/search 使用 VectorRetriever，并带文本兜底与课程/用户可见性校验。",
-      "next_action": "构建入库后用 standard_questions.yml 做来源命中率评测。"
+      "status": "ready",
+      "evidence": "HybridRetriever 已完成向量、关键词、metadata 混合检索；30 个标准问题检索召回率 97%。",
+      "next_action": "持续记录漏召回问题并优化切片、关键词权重和来源多样性。"
     },
     {
       "stage_id": "rerank",
       "name": "Rerank",
-      "status": "planned",
-      "evidence": "Phase 1 暂无独立 reranker；当前按向量距离或文本分数排序。",
-      "next_action": "Phase 1.1 可加 lightweight lexical rerank；Phase 5 可接 cross-encoder/LLM rerank。"
+      "status": "ready",
+      "evidence": "HybridRetriever 已执行向量分数、关键词分数、metadata 与来源多样性的轻量规则 rerank。",
+      "next_action": "Phase 5 可在规则 rerank 后增加 cross-encoder/LLM rerank。"
     },
     {
       "stage_id": "llm_answer",
       "name": "LLM 回答",
-      "status": "ready_for_query_after_build",
-      "evidence": "Tutor/Wiki/Resource Agent 通过 LLM Provider 消费检索片段；Mock Provider 保证可演示。",
-      "next_action": "用标准问题集验证回答是否严格基于来源。"
+      "status": "ready",
+      "evidence": "已通过真实 LLM 完成 3 个 RAG 样例回答，fallback_used=false。",
+      "next_action": "扩大真实 LLM 抽样规模，并持续审查回答依据。"
     },
     {
       "stage_id": "citations",
       "name": "引用来源",
-      "status": "ready_for_query_after_build",
-      "evidence": "Tutor/Resource 输出 citations；WikiSource 记录 source_type/source_id/quote_text。",
+      "status": "ready",
+      "evidence": "标准问题评测引用率 100%；Tutor 输出可追溯 citations。",
       "next_action": "PDF/网页导入时继续补页码、URL fragment、段落定位。"
     },
     {
       "stage_id": "feedback_optimization",
       "name": "反馈优化",
-      "status": "partial",
-      "evidence": "已有 Tutor/推荐反馈表；知识库专用漏召回/错答评估闭环尚未完成。",
+      "status": "ready",
+      "evidence": "已生成标准问题逐题命中记录；回答准确率 97%，幻觉率 3%。",
       "next_action": "记录标准问题的漏召回、错答和低质量引用，反哺 chunking/rerank/source review。"
     }
   ],
   "pipeline_summary": {
-    "ready": 4,
-    "ready_for_build": 1,
-    "ready_for_query_after_build": 3,
-    "partial": 2,
-    "planned": 1,
+    "ready": 11,
+    "ready_for_build": 0,
+    "ready_for_query_after_build": 0,
+    "partial": 0,
+    "planned": 0,
     "missing": 0
   },
   "graphrag_ready": true

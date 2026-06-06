@@ -139,7 +139,7 @@ docs 中有改造路线、参考项目、协议说明、阶段顺序。
 
 ### 目标
 
-先补赛题硬门槛：自行构造至少一门完整高校专业课程的初始知识库/文档集。当前 `data/seed_knowledge/data_structure` 只有 `.gitkeep`，必须优先补真实资料、结构、图谱和评测。
+先补赛题硬门槛：自行构造至少一门完整高校专业课程的初始知识库/文档集。当前 `data/seed_knowledge/data_structure` 已包含真实资料、normalized corpus、GraphRAG-ready v0 图谱和标准问题评测，并已完成公有课程真实入库与 Phase 1 阶段验收。验收记录见 `docs/19_测试方案/14_Phase1数据结构知识库阶段验收记录.md`。
 
 ### 5.1 标准目录
 
@@ -334,19 +334,22 @@ chunk_index
 3. 代码块不能从中间截断，Python 缩进不能被破坏。
 4. 表格和公式不能被无意义拆散；无法结构化解析时保留 Markdown 原文或占位符。
 5. 每个 chunk 必须可追溯到资料源，不允许无 `source_id` 的正式 chunk 进入课程知识库。
-6. 后续真实入库前，应把当前字符近似切片升级为真正 token-aware 切片。
+6. 当前已实现 token-aware 层级切片；后续更换 tokenizer 或模型时必须重新做切片质量评测。
 
 ### 5.5.1 Embedding 模型与维度约束
 
 Phase 1 真实向量化默认使用：
 
 ```text
-EMBEDDING_PROVIDER=openai_compatible
-EMBEDDING_MODEL=text-embedding-3-small
+EMBEDDING_PROVIDER=sentence_transformers
+EMBEDDING_MODEL=BAAI/bge-large-zh-v1.5
 EMBEDDING_DIMENSION=1024
+EMBEDDING_ALLOW_MOCK_FALLBACK=false
 ```
 
-必须注意：当前数据库 `document_chunks.embedding` 维度为 `Vector(1024)`。`text-embedding-3-small` 默认输出不是 1024 维，因此真实调用 OpenAI-compatible embedding 接口时必须显式传：
+当前 Phase 1 已使用本地真实中文 Embedding 模型 `BAAI/bge-large-zh-v1.5` 完成公有《数据结构》知识库入库。模型原生输出 1024 维，与当前数据库 `document_chunks.embedding = Vector(1024)` 一致，并禁止 Mock fallback。
+
+若后续改用 OpenAI-compatible `text-embedding-3-small`，其默认输出不是 1024 维，调用时必须显式传：
 
 ```json
 {
@@ -361,7 +364,7 @@ EMBEDDING_DIMENSION=1024
 1. 禁止在未修改数据库 migration 的情况下把 embedding 维度改成 1536 或 3072。
 2. 禁止用真实 embedding 默认维度直接写入 `Vector(1024)`。
 3. 禁止用 Mock Embedding 的效果冒充真实检索质量。
-4. 若要改用 `text-embedding-3-large` 或其他模型，必须同步修改 `EMBEDDING_DIMENSION`、pgvector 维度、migration、检索评测记录和文档。
+4. 若要改用 `text-embedding-3-small`、`text-embedding-3-large` 或其他模型，必须同步修改 `EMBEDDING_DIMENSION`、pgvector 维度、migration、检索评测记录和文档。
 5. 真实构建前必须先 dry-run，再执行非 dry-run 入库。
 
 Mock 模式仅用于无 API Key 演示：

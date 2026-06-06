@@ -49,10 +49,11 @@ async def evaluate_public_kb(
     top_k: int = 8,
     run_llm_sample: int = 0,
 ) -> dict[str, Any]:
-    from sqlalchemy import select
+    from sqlalchemy import select, text
 
     from app.agents.context import AgentContext
     from app.agents.tutor_agent import TutorAgent
+    from app.core.config import settings
     from app.db.session import AsyncSessionLocal
     from app.models.course import Course
     from app.rag.hybrid_retriever import HybridRetriever
@@ -60,6 +61,8 @@ async def evaluate_public_kb(
     questions = _load_questions(source_root)
     rows: list[dict[str, Any]] = []
     llm_answers: list[dict[str, Any]] = []
+    corpus_stats: dict[str, int] = {}
+    index_names: list[str] = []
     async with AsyncSessionLocal() as db:
         course = None
         if course_id is not None:
@@ -71,6 +74,35 @@ async def evaluate_public_kb(
         if course is None:
             raise RuntimeError("Public Data Structure course not found. Run init_public_data_structure_kb.py first.")
 
+        corpus_stats = dict(
+            (
+                await db.execute(
+                    text(
+                        """
+                        select
+                          (select count(*) from course_materials where course_id=:course_id) as materials,
+                          (select count(*) from document_chunks where course_id=:course_id) as chunks,
+                          (select count(*) from document_chunks where course_id=:course_id and embedding is not null) as embedded_chunks,
+                          (select count(*) from knowledge_points where course_id=:course_id) as knowledge_points
+                        """
+                    ),
+                    {"course_id": course.id},
+                )
+            ).mappings().one()
+        )
+        index_names = [
+            row[0]
+            for row in await db.execute(
+                text(
+                    """
+                    select indexname
+                    from pg_indexes
+                    where tablename='document_chunks'
+                    order by indexname
+                    """
+                )
+            )
+        ]
         retriever = HybridRetriever(db)
         for index, item in enumerate(questions):
             question = str(item["question"])
@@ -139,6 +171,14 @@ async def evaluate_public_kb(
         "course_code": course.course_code,
         "course_visibility": course.visibility,
         "top_k": top_k,
+        "corpus_stats": corpus_stats,
+        "embedding": {
+            "provider": settings.embedding_provider,
+            "model": settings.embedding_model,
+            "dimension": settings.embedding_dimension,
+            "allow_mock_fallback": settings.embedding_allow_mock_fallback,
+        },
+        "indexes": index_names,
         "metrics": metrics,
         "rows": rows,
         "llm_answers": llm_answers,
@@ -172,11 +212,21 @@ def _markdown_report(report: dict[str, Any]) -> str:
 - course_id：{report['course_id']}
 - course_code：{report['course_code']}
 - visibility：{report['course_visibility']}
+- 资料数：{report['corpus_stats']['materials']}
+- chunks：{report['corpus_stats']['chunks']}
+- 已向量化 chunks：{report['corpus_stats']['embedded_chunks']}
+- 知识点数：{report['corpus_stats']['knowledge_points']}
+- Embedding：{report['embedding']['provider']} / {report['embedding']['model']} / {report['embedding']['dimension']} 维
+- 禁止 Mock fallback：{not report['embedding']['allow_mock_fallback']}
 - 标准问题数：{metrics['question_count']}
 - 检索召回率：{metrics['retrieval_recall']:.0%}
 - 回答准确率：{metrics['answer_accuracy']:.0%}
 - 幻觉率：{metrics['hallucination_rate']:.0%}
 - 引用率：{metrics['citation_rate']:.0%}
+
+## 索引
+
+{chr(10).join(f"- {name}" for name in report.get('indexes', []))}
 
 ## RAG 样例回答
 

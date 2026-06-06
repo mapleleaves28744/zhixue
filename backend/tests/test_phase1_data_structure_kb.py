@@ -175,6 +175,70 @@ license: self-curated
     assert stage_by_id["rerank"]["status"] == "planned"
 
 
+def test_quality_report_marks_real_public_kb_pipeline_ready(tmp_path: Path) -> None:
+    evaluate = importlib.import_module("scripts.evaluate_course_kb")
+    source_root = tmp_path / "data_structure"
+    (source_root / "normalized").mkdir(parents=True)
+    (source_root / "graph").mkdir()
+    (source_root / "eval").mkdir()
+    (source_root / "course_outline.yml").write_text("chapters: []", encoding="utf-8")
+    (source_root / "eval" / "standard_questions.yml").write_text("questions: []", encoding="utf-8")
+    (source_root / "eval" / "public_kb_eval_report.json").write_text(
+        json.dumps(
+            {
+                "course_id": "course-1",
+                "course_code": "DS-PUBLIC",
+                "course_visibility": "public_template",
+                "corpus_stats": {
+                    "materials": 32,
+                    "chunks": 1608,
+                    "embedded_chunks": 1608,
+                    "knowledge_points": 125,
+                },
+                "embedding": {
+                    "provider": "sentence_transformers",
+                    "model": "BAAI/bge-large-zh-v1.5",
+                    "dimension": 1024,
+                    "allow_mock_fallback": False,
+                },
+                "indexes": [
+                    "idx_document_chunks_embedding_hnsw",
+                    "idx_document_chunks_content_trgm",
+                    "idx_document_chunks_extra_meta_gin",
+                ],
+                "metrics": {
+                    "question_count": 30,
+                    "retrieval_recall": 0.9667,
+                    "answer_accuracy": 0.9667,
+                    "hallucination_rate": 0.0333,
+                    "citation_rate": 1.0,
+                },
+                "llm_answers": [
+                    {
+                        "success": True,
+                        "provider": "xiaomi_mimo",
+                        "fallback_used": False,
+                    }
+                ],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    report = evaluate.evaluate_seed_knowledge(source_root)
+    stage_by_id = {stage["stage_id"]: stage for stage in report["pipeline_stages"]}
+
+    assert report["public_kb"]["corpus_stats"]["embedded_chunks"] == 1608
+    assert stage_by_id["embedding"]["status"] == "ready"
+    assert stage_by_id["indexing"]["status"] == "ready"
+    assert stage_by_id["retrieval"]["status"] == "ready"
+    assert stage_by_id["rerank"]["status"] == "ready"
+    assert stage_by_id["llm_answer"]["status"] == "ready"
+    assert stage_by_id["citations"]["status"] == "ready"
+    assert stage_by_id["feedback_optimization"]["status"] == "ready"
+
+
 def test_seed_quality_service_returns_report_and_source_risks(tmp_path: Path) -> None:
     service_module = importlib.import_module("app.services.seed_knowledge_service")
     source_root = tmp_path / "data_structure"

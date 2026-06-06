@@ -248,7 +248,12 @@
         scrollReveal();
       });
     });
-    revealMutationObserver.observe(document.body, { childList: true, subtree: true });
+    try {
+      revealMutationObserver.observe(document.body, { childList: true, subtree: true });
+    } catch {
+      revealMutationObserver.disconnect();
+      revealMutationObserver = null;
+    }
   }
 
   function mascotBadge(mascot, label) {

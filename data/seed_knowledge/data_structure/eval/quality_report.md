@@ -10,6 +10,13 @@
 - normalized 文档：32
 - 来源可追溯率：100%
 - 标准问题数：30
+- 公有课程：DS-PUBLIC / public_template
+- 实际入库：32 份资料 / 1608 chunks / 1608 embeddings / 125 知识点
+- Embedding：sentence_transformers / BAAI/bge-large-zh-v1.5 / 1024 维 / allow_mock_fallback=False
+- 标准问题检索召回率：97%
+- 标准问题回答准确率：97%
+- 标准问题幻觉率：3%
+- 标准问题引用率：100%
 
 ## GraphRAG-ready v0
 
@@ -24,12 +31,12 @@
 - 文档解析：ready；ingest_course_materials.py 已支持 HTML/Markdown/RST/PDF 到 normalized Markdown。
 - 清洗与格式统一：ready；normalized docs: 32; source traceability: 100%
 - 层级切片：ready；backend/app/rag/chunking.py 保留 heading_path，并保护代码块。
-- Embedding：ready_for_build；build_data_structure_kb.py 调用 EmbeddingService；--use-mock-embedding 可无 Key 演示。
-- 索引：partial；当前 DB 支持向量检索与 extra_meta 元数据；关键词检索仍是文本兜底，未建正式关键词索引。
-- 检索：ready_for_query_after_build；POST /api/v1/knowledge/search 使用 VectorRetriever，并带文本兜底与课程/用户可见性校验。
-- Rerank：planned；Phase 1 暂无独立 reranker；当前按向量距离或文本分数排序。
-- LLM 回答：ready_for_query_after_build；Tutor/Wiki/Resource Agent 通过 LLM Provider 消费检索片段；Mock Provider 保证可演示。
-- 引用来源：ready_for_query_after_build；Tutor/Resource 输出 citations；WikiSource 记录 source_type/source_id/quote_text。
-- 反馈优化：partial；已有 Tutor/推荐反馈表；知识库专用漏召回/错答评估闭环尚未完成。
+- Embedding：ready；1608/1608 chunks 已使用 sentence_transformers / BAAI/bge-large-zh-v1.5 / 1024 维真实向量化；allow_mock_fallback=False。
+- 索引：ready；pgvector HNSW、内容 pg_trgm 关键词索引和 extra_meta GIN 元数据索引均已建立。
+- 检索：ready；HybridRetriever 已完成向量、关键词、metadata 混合检索；30 个标准问题检索召回率 97%。
+- Rerank：ready；HybridRetriever 已执行向量分数、关键词分数、metadata 与来源多样性的轻量规则 rerank。
+- LLM 回答：ready；已通过真实 LLM 完成 3 个 RAG 样例回答，fallback_used=false。
+- 引用来源：ready；标准问题评测引用率 100%；Tutor 输出可追溯 citations。
+- 反馈优化：ready；已生成标准问题逐题命中记录；回答准确率 97%，幻觉率 3%。
 
 > Phase 1 仅建设 GraphRAG-ready v0，不执行完整 Microsoft GraphRAG community summaries。
