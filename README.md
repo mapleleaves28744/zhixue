@@ -17,6 +17,14 @@
 
 当前版本聚焦**学生端可演示主链路**。教师端、管理员端和 AI 重新美化前端阶段已冻结/跳过；前端保留 Stitch 静态视觉原型，并通过真实后端 API 接入数据。
 
+判断当前项目实际能力时，优先阅读：
+
+- `docs/当前实现基线.md`
+- `docs/11_API接口设计/16_当前实现API清单.md`
+- `docs/10_数据库设计/15_当前实现数据库清单.md`
+
+早期 PRD 和设计方案用于表达目标与约束，不代表其中所有接口、页面或增强能力均已实现。
+
 ## 当前状态
 
 - 学生端主链路已用真实本地数据库、后端、前端跑通过。
@@ -45,6 +53,10 @@ npm run build
 
 npm audit --audit-level=moderate
 # 0 vulnerabilities
+
+cd ..
+python scripts/export_implementation_docs.py
+# 同步当前 API 与数据库文档
 ```
 
 真实 LLM 主链路专项记录见 `docs/19_测试方案/13_真实LLM主链路与Next安全专项验收记录.md`。

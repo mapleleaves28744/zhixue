@@ -121,6 +121,27 @@
 
 ---
 
+## 文档事实源校准专项
+
+- [x] 建立当前实现基线和文档状态优先级
+- [x] 从 FastAPI OpenAPI 自动生成当前 API 文档与接口清单
+- [x] 从 SQLAlchemy metadata 自动生成当前数据库清单
+- [x] 按当前 Stitch 页面架构更新前端页面与路由文档
+- [x] 更新功能完成度、系统架构与各目标设计文档的状态说明
+- [x] 在 `AGENTS.md` 中加入事实源读取和文档同步规则
+
+### 专项核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| API 文档同步 | `python scripts/export_implementation_docs.py` | 通过；导出 89 个 HTTP 操作与 OpenAPI 当前快照 |
+| 数据库文档同步 | 同上 | 通过；导出 28 张 ORM 表 |
+| 同步脚本语法 | `python -m py_compile scripts/export_implementation_docs.py` | 通过 |
+| 文档格式检查 | `git diff --check` | 通过 |
+| 项目回归 | `scripts/local_check.ps1 -All` | 通过；Alembic head、91 个后端测试、FastAPI import、前端 typecheck/build 均通过 |
+
+---
+
 ## 提交记录（change_1）
 
 | 日期 | Commit | 说明 |
@@ -129,3 +150,4 @@
 | 2026-06-05 | `fdbf630` | Sprint 2：课程编辑、Wiki 详情、历史诊断总验链路 |
 | 2026-06-05 | `1098ac0` | Sprint 3/4 前置视觉小修：外链图本地化、知识图谱旧图恢复 |
 | 2026-06-05 | `21809c2` | Sprint 3：StitchFrame 路由淡入、scrollReveal 与壳层稳定性 |
+| 2026-06-06 | `aab1343` | 真实 LLM 整链验收与 Next.js 安全升级 |
