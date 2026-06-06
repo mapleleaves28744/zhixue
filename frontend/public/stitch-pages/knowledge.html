@@ -48,9 +48,9 @@
 <div class="flex items-center gap-6">
 <h2 class="font-headline-md text-headline-md text-on-surface">课程知识库</h2>
 <div class="flex gap-4 items-center">
-<button class="text-primary font-bold border-b-2 border-primary py-2 px-2 font-label-md transition-all">资料库</button>
-<button class="text-on-surface-variant hover:text-primary py-2 px-2 font-label-md transition-all border-b-2 border-transparent hover:border-primary/30">课程 Wiki</button>
-<button class="text-on-surface-variant hover:text-primary py-2 px-2 font-label-md transition-all border-b-2 border-transparent hover:border-primary/30">图谱视图</button>
+<button data-knowledge-tab="资料库" class="text-primary font-bold border-b-2 border-primary py-2 px-2 font-label-md transition-all">资料库</button>
+<button data-knowledge-tab="课程 Wiki" class="text-on-surface-variant hover:text-primary py-2 px-2 font-label-md transition-all border-b-2 border-transparent hover:border-primary/30">课程 Wiki</button>
+<button data-knowledge-tab="图谱视图" class="text-on-surface-variant hover:text-primary py-2 px-2 font-label-md transition-all border-b-2 border-transparent hover:border-primary/30">图谱视图</button>
 </div>
 </div>
 <div class="flex items-center gap-6">
@@ -245,6 +245,7 @@
   let pipelineBusy = false;
   let stopPipelineProgress = null;
   let selectedWikiPageId = null;
+  const knowledgeTabs = Array.from(document.querySelectorAll("[data-knowledge-tab]"));
 
   input.type = "file";
   input.accept = ".pdf,.docx,.md,.txt";
@@ -277,10 +278,26 @@
     return page.owner_id === currentUser.id ? "我的 Wiki" : "公共 Wiki";
   }
 
+  function setKnowledgeTab(activeLabel) {
+    knowledgeTabs.forEach((button) => {
+      const isActive = button.dataset.knowledgeTab === activeLabel;
+      button.classList.toggle("text-primary", isActive);
+      button.classList.toggle("font-bold", isActive);
+      button.classList.toggle("border-primary", isActive);
+      button.classList.toggle("text-on-surface-variant", !isActive);
+      button.classList.toggle("border-transparent", !isActive);
+    });
+    if (topActions) {
+      topActions.classList.toggle("invisible", activeLabel !== "资料库");
+    }
+  }
+
   function renderWikiPageList() {
     if (!sliceGrid) {
       return;
     }
+    setKnowledgeTab("课程 Wiki");
+    selectedWikiPageId = null;
     detailTitle.textContent = "课程 Wiki 页面";
     if (detailMeta) {
       detailMeta.innerHTML = `
@@ -326,6 +343,7 @@
   }
 
   function renderWikiPageDetail(page, versions = []) {
+    setKnowledgeTab("课程 Wiki");
     selectedWikiPageId = page.id;
     if (detailTitle) {
       detailTitle.textContent = page.title || "Wiki 页面";
@@ -351,8 +369,8 @@
             <h3 class="font-headline-md text-headline-md text-on-surface mt-3">${escapeHtml(page.title)}</h3>
             <p class="text-sm text-on-surface-variant mt-2">${escapeHtml(page.summary || "暂无摘要。")}</p>
           </div>
-          <button type="button" class="glass-button-secondary px-4 py-2 text-sm font-bold whitespace-nowrap" data-action="back-to-wiki-list">
-            <span class="material-symbols-outlined text-[16px] align-middle">list</span> 页面列表
+          <button type="button" class="glass-button-secondary px-4 py-2 text-sm font-bold whitespace-nowrap flex items-center gap-1.5" data-action="back-to-wiki-list">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span> 返回 Wiki 列表
           </button>
         </div>
         <div class="zhixue-source-disclaimer mb-4">
@@ -421,6 +439,83 @@
     } catch (error) {
       api.toast(error.message || "Wiki 详情加载失败", "error");
       renderWikiPageList();
+    }
+  }
+
+  async function renderWikiGraph() {
+    if (!sliceGrid) return;
+    setKnowledgeTab("图谱视图");
+    detailTitle.textContent = "课程 Wiki 知识图谱";
+    if (detailMeta) {
+      detailMeta.innerHTML = `
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">hub</span>来自 /api/v1/wiki/graph</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">touch_app</span>点击节点打开 Wiki 详情</span>`;
+    }
+    if (detailChunkBadge) detailChunkBadge.textContent = "加载中";
+    sliceGrid.innerHTML = `
+      <div class="col-span-2 bg-white/80 rounded-xl border border-primary/15 p-6">
+        <div class="ai-thinking-indicator">
+          <img src="${window.ZhixueUI?.stickerUrl?.("zhizhi", "searching") || "/stickers/zhizhi/08_searching.png"}" alt="加载图谱"/>
+          <span class="text-sm text-on-surface-variant font-label-md">正在读取真实 Wiki 节点与关系…</span>
+        </div>
+      </div>`;
+    try {
+      currentCourseId = currentCourseId || await api.resolveCourseId();
+      const graph = await api.request(`/wiki/graph?course_id=${encodeURIComponent(currentCourseId)}`);
+      const nodes = graph.nodes || [];
+      const links = graph.links || [];
+      if (detailChunkBadge) detailChunkBadge.textContent = `${nodes.length} 节点 · ${links.length} 关系`;
+      if (!nodes.length) {
+        sliceGrid.innerHTML = "";
+        window.ZhixueUI?.renderEmptyState?.(sliceGrid, {
+          mascot: "zhizhi",
+          title: "还没有可展示的 Wiki 图谱",
+          description: "先从课程资料生成 Wiki 页面，图谱会展示真实页面节点与关系。",
+        });
+        return;
+      }
+      const nodeById = new Map(nodes.map((node) => [node.id, node]));
+      sliceGrid.innerHTML = `
+        <section class="col-span-2 bg-white/75 rounded-xl border border-primary/15 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-headline-sm text-on-surface">真实 Wiki 关系网络</h3>
+              <p class="text-xs text-on-surface-variant mt-1">节点来自 Wiki 页面，连线来自 wiki_links。</p>
+            </div>
+            <span class="text-xs font-bold text-primary">${nodes.length} 节点 · ${links.length} 关系</span>
+          </div>
+          <div class="rounded-xl bg-surface-container-low/55 border border-white/90 p-4" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
+            ${nodes.map((node) => `
+              <button type="button" data-wiki-page-id="${node.id}" class="rounded-xl bg-white/95 border border-primary/25 shadow-sm hover:border-primary transition-all p-3 text-left" style="min-height:96px">
+                <span class="material-symbols-outlined text-primary text-[20px]">hub</span>
+                <strong class="block text-xs text-on-surface mt-1" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escapeHtml(node.title)}</strong>
+                <span class="text-[10px] text-on-surface-variant">v${node.current_version || 1}</span>
+              </button>`).join("")}
+          </div>
+          <div class="mt-4 space-y-2">
+            ${links.map((link) => {
+              const source = nodeById.get(link.source_page_id);
+              const target = nodeById.get(link.target_page_id);
+              if (!source || !target) return "";
+              return `<div class="rounded-lg border border-primary/10 bg-white/70 px-3 py-2 text-xs text-on-surface-variant flex items-center gap-2">
+                <span class="font-bold text-on-surface">${escapeHtml(source.title)}</span>
+                <span class="material-symbols-outlined text-primary text-[16px]">arrow_forward</span>
+                <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">${escapeHtml(link.relation_type || "related")}</span>
+                <span class="material-symbols-outlined text-primary text-[16px]">arrow_forward</span>
+                <span class="font-bold text-on-surface">${escapeHtml(target.title)}</span>
+              </div>`;
+            }).join("") || '<p class="text-xs text-on-surface-variant">当前已有 Wiki 节点，但尚未生成页面关系；后续生成带层级的知识点后会出现关系记录。</p>'}
+          </div>
+        </section>`;
+      bindWikiPageButtons();
+    } catch (error) {
+      api.toast(error.message || "知识图谱加载失败", "error");
+      sliceGrid.innerHTML = "";
+      window.ZhixueUI?.renderEmptyState?.(sliceGrid, {
+        mascot: "zhizhi",
+        title: "知识图谱加载失败",
+        description: error.message || "请确认后端服务与登录状态正常。",
+      });
     }
   }
 
@@ -1137,10 +1232,18 @@
     }
   });
 
-  Array.from(document.querySelectorAll("header button")).forEach((button) => {
-    if (button.textContent.includes("课程 Wiki")) {
-      button.addEventListener("click", renderWikiPageList);
-    }
+  knowledgeTabs.forEach((button) => {
+    button.addEventListener("click", () => {
+      const label = button.dataset.knowledgeTab;
+      if (label === "课程 Wiki") {
+        renderWikiPageList();
+      } else if (label === "图谱视图") {
+        renderWikiGraph();
+      } else {
+        setKnowledgeTab("资料库");
+        renderMaterials();
+      }
+    });
   });
 
   ensurePipelineButtons();

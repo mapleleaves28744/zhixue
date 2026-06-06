@@ -1,0 +1,22 @@
+import fs from "node:fs";
+
+const practice = fs.readFileSync("frontend/public/stitch-pages/practice.html", "utf8");
+const knowledge = fs.readFileSync("frontend/public/stitch-pages/knowledge.html", "utf8");
+
+const checks = [
+  ["练习配置表单有稳定容器", practice.includes('id="practice-config-section"')],
+  ["生成题目渲染到表单下方", practice.includes("const resultSection = container.querySelector('#quiz-result-section')")],
+  ["生成后保持练习生成高亮", practice.includes("setPracticeTabActive('练习生成')")],
+  ["答题竞技保留独立答题模式", practice.includes("quizRenderMode = 'standalone'")],
+  ["知识库 Tab 使用显式状态标识", knowledge.includes('data-knowledge-tab="课程 Wiki"')],
+  ["Wiki 详情有明确返回按钮", knowledge.includes("返回 Wiki 列表")],
+  ["知识图谱调用真实接口", knowledge.includes("/wiki/graph?course_id=")],
+  ["知识图谱节点可打开 Wiki", knowledge.includes('data-wiki-page-id="${node.id}"')],
+  ["图谱 Tab 已绑定渲染", knowledge.includes('label === "图谱视图"') && knowledge.includes("renderWikiGraph()")],
+];
+
+const failed = checks.filter(([, passed]) => !passed);
+for (const [name, passed] of checks) {
+  console.log(`${passed ? "PASS" : "FAIL"}: ${name}`);
+}
+if (failed.length) process.exit(1);

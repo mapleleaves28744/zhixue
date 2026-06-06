@@ -81,7 +81,7 @@
 <!-- Left Column: Config & Practice -->
 <div class="col-span-12 lg:col-span-8 space-y-8">
 <!-- Section 1: Practice Configuration -->
-<section class="glass-card rounded-xl p-6">
+<section id="practice-config-section" class="glass-card rounded-xl p-6">
 <div class="flex items-center gap-2 mb-6">
 <span class="material-symbols-outlined text-primary">tune</span>
 <h3 class="text-headline-sm font-bold">定制您的练习计划</h3>
@@ -119,7 +119,7 @@
 </div>
 </section>
 <!-- Section 2: Active Quiz Interface -->
-<section class="glass-card rounded-xl p-8 relative overflow-hidden">
+<section id="quiz-result-section" class="glass-card rounded-xl p-8 relative overflow-hidden">
 <div class="absolute top-0 right-0 p-4">
 <div class="text-label-sm text-outline">题号: 12 / 20</div>
 </div>
@@ -316,6 +316,7 @@
         let originalPracticeHTML = null;
         let isGenerating = false;
         let isSubmitting = false;
+        let quizRenderMode = 'inline';
         const rightColumn = document.querySelector('.col-span-12.lg\\:col-span-4');
         const sideSections = rightColumn ? rightColumn.querySelectorAll('section.glass-card') : [];
         const sideDiagnosisSection = sideSections[0];
@@ -325,7 +326,7 @@
         // Tab switching
         const tabButtons = document.querySelectorAll('.flex.gap-10 button');
 
-        function switchTab(activeLabel) {
+        function setPracticeTabActive(activeLabel) {
             tabButtons.forEach(btn => {
                 btn.classList.remove('text-primary', 'active-tab');
                 btn.classList.add('text-on-surface-variant');
@@ -334,6 +335,10 @@
                     btn.classList.remove('text-on-surface-variant');
                 }
             });
+        }
+
+        function switchTab(activeLabel) {
+            setPracticeTabActive(activeLabel);
             const container = document.querySelector('.col-span-12.lg\\:col-span-8');
             if (!container) return;
             if (activeLabel === '练习生成') {
@@ -406,6 +411,7 @@
                 currentQuizId = result.quiz_id || result.id;
                 currentQuestions = result.questions || result.items || [];
                 currentQuestionIndex = 0;
+                quizRenderMode = 'inline';
                 renderQuiz(currentQuestions[0]);
                 api.toast(`已生成 ${currentQuestions.length} 道题目`, 'success');
             } catch (e) {
@@ -420,8 +426,22 @@
         function renderQuiz(question) {
             const container = document.querySelector('.col-span-12.lg\\:col-span-8');
             if (!container) return;
+            if (quizRenderMode === 'inline') {
+                setPracticeTabActive('练习生成');
+            }
+            if (quizRenderMode === 'inline' && !document.getElementById('practice-config-section') && originalPracticeHTML) {
+                container.innerHTML = originalPracticeHTML;
+            }
+            if (quizRenderMode === 'standalone' && (document.getElementById('practice-config-section') || !container.querySelector('#quiz-result-section'))) {
+                container.innerHTML = `
+                    <section id="quiz-result-section" class="glass-card rounded-xl p-8 relative overflow-hidden"></section>
+                    <section class="glass-card rounded-xl p-8 bg-surface-container-low/80 border-primary-container/20 hidden" id="analysis-panel"></section>
+                `;
+            }
+            const resultSection = container.querySelector('#quiz-result-section');
+            if (!resultSection) return;
             if (!question) {
-                container.innerHTML = emptyState('还没有练习题', '选择知识点、题型和难度后，AI 可以生成一组可批改练习。');
+                resultSection.innerHTML = emptyState('还没有练习题', '选择知识点、题型和难度后，AI 可以生成一组可批改练习。');
                 return;
             }
             selectedAnswer = null;
@@ -441,8 +461,7 @@
                 : `
                     <textarea id="short-answer-input" class="w-full min-h-32 rounded-xl border-outline-variant bg-white/50 p-4 text-body-md focus:ring-primary focus:border-primary mb-8" placeholder="写下你的答案..."></textarea>
                 `;
-            container.innerHTML = `
-                <section class="glass-card rounded-xl p-8 relative overflow-hidden">
+            resultSection.innerHTML = `
                 <div class="absolute top-0 right-0 p-4">
                     <div class="text-label-sm text-outline">题号: ${currentQuestionIndex + 1} / ${currentQuestions.length}</div>
                 </div>
@@ -461,13 +480,16 @@
                         </button>
                     </div>
                 </div>
-                </section>
-                <section class="glass-card rounded-xl p-8 bg-surface-container-low/80 border-primary-container/20 hidden" id="analysis-panel"></section>
             `;
-            container.querySelectorAll('#quiz-options label').forEach(label => {
+            const analysisPanel = document.getElementById('analysis-panel');
+            if (analysisPanel) {
+                analysisPanel.classList.add('hidden');
+                analysisPanel.innerHTML = '';
+            }
+            resultSection.querySelectorAll('#quiz-options label').forEach(label => {
                 label.addEventListener('click', () => {
                     selectedAnswer = label.dataset.answer;
-                    container.querySelectorAll('#quiz-options label').forEach(l => {
+                    resultSection.querySelectorAll('#quiz-options label').forEach(l => {
                         l.classList.remove('bg-primary/5', 'border-primary', 'ring-1', 'ring-primary/20');
                         l.querySelector('div').classList.remove('bg-primary', 'text-white');
                     });
@@ -539,6 +561,7 @@
                 currentQuizId = quiz.id;
                 currentQuestions = quiz.questions || [];
                 currentQuestionIndex = 0;
+                quizRenderMode = 'standalone';
                 renderQuiz(currentQuestions[0]);
             } catch (e) {
                 api.toast(e.message || '题目列表加载失败', 'error');
