@@ -142,6 +142,26 @@
 
 ---
 
+## 文档目录整合专项
+
+- [x] 25 个编号目录建立同名总文档和目录导读
+- [x] 删除并吸收 232 份空白、占位或重复文档
+- [x] 保留 API/数据库事实清单、验收记录和本地启动指南
+- [x] 更新文档索引、引用与 API 自动生成目标
+- [x] 新增文档结构、占位和断链检查脚本
+- [x] 对照当前代码逐目录核验文档事实
+
+### 专项核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| 目录入口 | `python scripts/check_docs.py` | 通过；25 个编号目录、73 份 Markdown，无占位模板和本地断链 |
+| 当前事实 | FastAPI OpenAPI、SQLAlchemy metadata、前端路由、Agent、migration 清点 | 89 API、28 表、10 Next 页面、8 Stitch 页面、13 Agent、16 migration |
+| 逐目录事实核验 | `docs/文档整理核验报告.md` | 25 个编号目录均已记录核验结论 |
+| 项目回归 | `scripts/local_check.ps1 -All` | 通过；Alembic head、91 个后端测试、FastAPI import、前端 typecheck/build 均通过 |
+
+---
+
 ## 提交记录（change_1）
 
 | 日期 | Commit | 说明 |

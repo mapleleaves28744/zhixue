@@ -50,7 +50,7 @@
 1. `T08-01` 统一 LLM Provider 基类和 Mock Provider 必须早于所有真实生成类任务，至少早于 `T07-03`、`T13-01`、`T14-01`、`T15-01`、`T16-01`、`T11-02`。
 2. `T08-03` Prompt 版本读取和渲染应早于需要 Prompt 的 Agent 任务，至少早于 Wiki 生成、资源生成、Tutor、诊断和自进化分析。
 3. `T09-01` 到 `T09-03` 的 Agent 基础框架应在具体 Agent 深度实现前完成；业务接口可以先直连 Service，但最终必须能写入 `agent_runs`。
-4. 数据库表名以 `docs/10_数据库设计/数据库设计.md` 为准：资料表使用 `course_materials`，Wiki 关系使用 `wiki_links`，自进化策略使用 `evolution_strategies`。
+4. 数据库表名以 `docs/10_数据库设计/10_数据库设计.md` 为准：资料表使用 `course_materials`，Wiki 关系使用 `wiki_links`，自进化策略使用 `evolution_strategies`。
 
 ## 1.2 前端实现路线修正：保留 Stitch 静态页并接入后端
 
@@ -126,7 +126,7 @@
 - **优先级**：P0
 - **任务目标**：让已有设计文档能被团队和 Codex 快速定位。
 - **涉及目录**：`docs/`
-- **涉及文件**：`docs/README.md, docs/index.md`
+- **涉及文件**：`docs/README.md`、`docs/index.md`
 - **前置依赖**：T01-01
 - **具体实现要求**：输入：已有 docs 文档。输出：docs 文档索引。创建 docs/README.md，按 PRD、系统架构、数据库、API、前端、UI、自进化、LLM Wiki、多智能体、部署、测试、比赛材料分类列出文档用途。
 - **验收标准**：打开 docs/README.md 能快速找到各设计文档；文档路径与实际目录一致。
@@ -192,7 +192,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请为 frontend 配置 Tailwind CSS 和 shadcn/ui。按照 docs/UI设计规范.md 中的品牌色、圆角、阴影和渐变配置 tailwind.config.ts，并安装 Button、Card、Input、Dialog、Tabs、Badge、Textarea、Toast 等基础组件。不要写业务页面。
+请为 frontend 配置 Tailwind CSS 和 shadcn/ui。按照 docs/13_UI设计规范/13_UI设计规范.md 中的品牌色、圆角、阴影和渐变配置 tailwind.config.ts，并安装 Button、Card、Input、Dialog、Tabs、Badge、Textarea、Toast 等基础组件。不要写业务页面。
 ```
 
 ## T02-03 实现学生端与管理员端 Layout
@@ -210,7 +210,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请实现学生端和管理员端 Layout。创建 app/student/layout.tsx、app/admin/layout.tsx 和对应 Sidebar/Topbar 组件。侧边栏按 docs/前端页面设计.md 配置导航。先使用静态路由，不接 API。
+请实现学生端和管理员端 Layout。创建 app/student/layout.tsx、app/admin/layout.tsx 和对应 Sidebar/Topbar 组件。侧边栏按 docs/12_前端页面设计/12_前端页面设计.md 配置导航。先使用静态路由，不接 API。
 ```
 
 ## T02-04 实现前端请求封装与 Auth Store
@@ -281,7 +281,7 @@
 - **涉及文件**：`response.py, exceptions.py, error_codes.py`
 - **前置依赖**：T03-01
 - **具体实现要求**：输入：API 设计文档。输出：ApiResponse、分页响应、业务异常类、全局异常处理。统一返回 code、message、data、request_id。
-- **验收标准**：正常和异常接口返回格式一致；错误码与 docs/API接口设计.md 对齐。
+- **验收标准**：正常和异常接口返回格式一致；错误码与 docs/11_API接口设计/11_API接口设计.md 对齐。
 - **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
@@ -356,13 +356,13 @@
 - **涉及目录**：`backend/app/models, backend/alembic/versions`
 - **涉及文件**：`models/user.py, course.py, profile.py, prompt.py, migration`
 - **前置依赖**：T04-01
-- **具体实现要求**：输入：数据库设计。输出：users、courses、student_profiles、learning_preferences、prompt_versions 模型和迁移。字段与 docs/数据库设计.md 对齐。
+- **具体实现要求**：输入：数据库设计。输出：users、courses、student_profiles、learning_preferences、prompt_versions 模型和迁移。字段与 docs/10_数据库设计/10_数据库设计.md 对齐。
 - **验收标准**：迁移能成功执行；数据库中生成对应表；外键和索引正确。
 - **Stitch 前端联动规范**：本任务如涉及前端或用户可见能力，必须优先保留现有 Stitch 静态页视觉与导航，在 `frontend/public/stitch-pages/*.html` 和 `zhixue-static-api.js` 中接入真实 `/api/v1` 后端；不得默认重做 React 页面。若本任务只涉及后端/数据库/文档，也必须在完成说明中明确对应 Stitch 页面是否需要同步联动；后端能力完成但页面未接入时，不得宣称阶段完成。
 - **给 Codex 的提示词**：
 
 ```text
-请根据 docs/数据库设计.md 实现首批 SQLAlchemy 模型：users、courses、student_profiles、learning_preferences、prompt_versions，并生成 Alembic 迁移。字段、索引、外键尽量与文档一致。不要实现 API。
+请根据 docs/10_数据库设计/10_数据库设计.md 实现首批 SQLAlchemy 模型：users、courses、student_profiles、learning_preferences、prompt_versions，并生成 Alembic 迁移。字段、索引、外键尽量与文档一致。不要实现 API。
 ```
 
 ## T04-03 实现 JWT 注册登录接口
@@ -380,7 +380,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请实现 JWT 注册登录。按 docs/API接口设计.md 实现 POST /api/v1/auth/register 和 POST /api/v1/auth/login，使用密码哈希，登录返回 access_token、refresh_token 和用户信息。注册学生时自动创建 student_profiles。
+请实现 JWT 注册登录。按 docs/11_API接口设计/11_API接口设计.md 实现 POST /api/v1/auth/register 和 POST /api/v1/auth/login，使用密码哈希，登录返回 access_token、refresh_token 和用户信息。注册学生时自动创建 student_profiles。
 ```
 
 ## T04-04 实现当前用户与权限依赖
@@ -420,7 +420,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请实现课程 CRUD 后端接口。按 docs/API接口设计.md 实现 /api/v1/courses 的创建、列表、详情、更新、删除/归档。学生只能操作自己的课程，管理员可查看全部。
+请实现课程 CRUD 后端接口。按 docs/11_API接口设计/11_API接口设计.md 实现 /api/v1/courses 的创建、列表、详情、更新、删除/归档。学生只能操作自己的课程，管理员可查看全部。
 ```
 
 ## T05-02 实现课程页面前端
@@ -438,7 +438,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请实现学生端课程展示与创建功能。在 dashboard 页面展示课程卡片，新增创建课程弹窗，调用 /api/v1/courses。遵守 docs/UI设计规范.md，不要做普通后台表格。
+请实现学生端课程展示与创建功能。在 dashboard 页面展示课程卡片，新增创建课程弹窗，调用 /api/v1/courses。遵守 docs/13_UI设计规范/13_UI设计规范.md，不要做普通后台表格。
 ```
 
 ## T05-03 实现资料上传与本地存储
@@ -608,7 +608,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请根据 docs/数据库设计.md 实现 Wiki 相关模型：wiki_pages、wiki_page_versions、wiki_links、wiki_sources，并生成 Alembic 迁移。字段、外键、索引保持与文档一致。
+请根据 docs/10_数据库设计/10_数据库设计.md 实现 Wiki 相关模型：wiki_pages、wiki_page_versions、wiki_links、wiki_sources，并生成 Alembic 迁移。字段、外键、索引保持与文档一致。
 ```
 
 ## T07-02 实现 Wiki 页面 CRUD 和版本
@@ -680,7 +680,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请实现学生端 Wiki 列表页和详情页。调用 Wiki API 展示页面列表、详情、来源、版本，支持编辑保存。UI 遵守 docs/UI设计规范.md 的 Wiki 页面视觉规范。
+请实现学生端 Wiki 列表页和详情页。调用 Wiki API 展示页面列表、详情、来源、版本，支持编辑保存。UI 遵守 docs/13_UI设计规范/13_UI设计规范.md 的 Wiki 页面视觉规范。
 ```
 
 ## T07-06 实现 Wiki 知识图谱基础页
@@ -948,7 +948,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请实现自进化相关 SQLAlchemy 模型：evolution_strategies 和 evolution_events，并生成 Alembic 迁移。字段与 docs/数据库设计.md 对齐。
+请实现自进化相关 SQLAlchemy 模型：evolution_strategies 和 evolution_events，并生成 Alembic 迁移。字段与 docs/10_数据库设计/10_数据库设计.md 对齐。
 ```
 
 ## T11-02 实现 Evolution Analyze 接口
@@ -1234,7 +1234,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请实现 quizzes 和 questions 模型及基础 API：创建/生成入口占位、列表、详情。字段与 docs/数据库设计.md 对齐。
+请实现 quizzes 和 questions 模型及基础 API：创建/生成入口占位、列表、详情。字段与 docs/10_数据库设计/10_数据库设计.md 对齐。
 ```
 
 ## T15-02 实现 Quiz Agent 生成题目
@@ -1416,7 +1416,7 @@
 - **优先级**：P2
 - **任务目标**：避免评审认为教师端缺失是漏洞。
 - **涉及目录**：`docs/`
-- **涉及文件**：`docs/教师端范围说明.md`
+- **涉及文件**：`docs/01_赛题解读/01_赛题解读.md`
 - **前置依赖**：T17-01
 - **具体实现要求**：输入：产品定位。输出：说明文档。解释为什么不做完整教师端，教师相关能力如何由管理员和课程模板维护支撑。
 - **验收标准**：文档清楚说明范围，和 PRD 一致。
@@ -1424,7 +1424,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请新增 docs/教师端范围说明.md，说明本项目核心是学生个性化学习端，教师端仅作为课程内容维护能力预留，不做班级管理、作业发布、教师批改。
+请新增 docs/01_赛题解读/01_赛题解读.md，说明本项目核心是学生个性化学习端，教师端仅作为课程内容维护能力预留，不做班级管理、作业发布、教师批改。
 ```
 
 ---
@@ -1542,7 +1542,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请根据 docs/UI设计规范.md 统一 Tailwind token 和公共组件。新增 AppCard、GradientCard、SectionHeader、EmptyState、LoadingState 等组件，并替换关键页面中的杂乱样式。
+请根据 docs/13_UI设计规范/13_UI设计规范.md 统一 Tailwind token 和公共组件。新增 AppCard、GradientCard、SectionHeader、EmptyState、LoadingState 等组件，并替换关键页面中的杂乱样式。
 ```
 
 ## T19-02 美化五个重点页面
@@ -1560,7 +1560,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请重点美化五个页面：/student/dashboard、/student/wiki/[id]、/student/tutor、/student/diagnosis、/student/evolution。严格遵守 docs/UI设计规范.md，使用卡片式布局、柔和渐变、大圆角、轻微动效和清晰信息层级。
+请重点美化五个页面：/student/dashboard、/student/wiki/[id]、/student/tutor、/student/diagnosis、/student/evolution。严格遵守 docs/13_UI设计规范/13_UI设计规范.md，使用卡片式布局、柔和渐变、大圆角、轻微动效和清晰信息层级。
 ```
 
 ## T19-03 添加 Framer Motion 轻量动效
@@ -1740,7 +1740,7 @@
 - **优先级**：P1
 - **任务目标**：团队和评委可复现运行。
 - **涉及目录**：`docs/`
-- **涉及文件**：`docs/部署方案.md`
+- **涉及文件**：`docs/20_部署方案/20_部署方案.md`
 - **前置依赖**：T21-03
 - **具体实现要求**：输入：Docker Compose 配置。输出：部署步骤。包含本地运行、环境变量、数据库迁移、演示数据初始化、常见问题。
 - **验收标准**：按文档可完成启动；命令准确。
@@ -1748,7 +1748,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请编写 docs/部署方案.md。说明如何配置 .env、启动 docker compose、执行数据库迁移、初始化演示数据、访问前端和后端接口，并列出常见错误排查。
+请编写 docs/20_部署方案/20_部署方案.md。说明如何配置 .env、启动 docker compose、执行数据库迁移、初始化演示数据、访问前端和后端接口，并列出常见错误排查。
 ```
 
 ---
@@ -1816,7 +1816,7 @@
 - **优先级**：P1
 - **任务目标**：保证答辩演示有明确流程。
 - **涉及目录**：`docs/`
-- **涉及文件**：`docs/演示数据说明.md`
+- **涉及文件**：`docs/21_演示数据设计/21_演示数据设计.md`
 - **前置依赖**：T22-02
 - **具体实现要求**：输入：演示数据。输出：账号、课程、演示路径说明。列出登录账号、演示问题、演示错题、自进化触发步骤。
 - **验收标准**：文档能指导队员完整演示。
@@ -1824,7 +1824,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请编写 docs/演示数据说明.md，说明演示账号、课程、初始 Wiki、推荐问题、练习题、自进化触发条件和完整演示流程。
+请编写 docs/21_演示数据设计/21_演示数据设计.md，说明演示账号、课程、初始 Wiki、推荐问题、练习题、自进化触发条件和完整演示流程。
 ```
 
 ---
@@ -1856,7 +1856,7 @@
 - **优先级**：P1
 - **任务目标**：准备答辩陈述材料。
 - **涉及目录**：`docs/`
-- **涉及文件**：`docs/答辩稿.md`
+- **涉及文件**：`docs/24_答辩稿/24_答辩稿.md`
 - **前置依赖**：T23-01
 - **具体实现要求**：输入：项目文档。输出：5-8 分钟答辩稿。突出赛题契合、创新点、系统闭环、可控自进化、LLM Wiki。
 - **验收标准**：语言自然；逻辑清楚；不过度夸大。
@@ -1864,7 +1864,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请编写 docs/答辩稿.md，面向中国软件杯 A3 赛题，控制在 5-8 分钟讲述。重点说明项目背景、核心功能、技术架构、LLM Wiki、自进化、多智能体、演示流程和创新价值。
+请编写 docs/24_答辩稿/24_答辩稿.md，面向中国软件杯 A3 赛题，控制在 5-8 分钟讲述。重点说明项目背景、核心功能、技术架构、LLM Wiki、自进化、多智能体、演示流程和创新价值。
 ```
 
 ## T23-03 编写演示视频脚本
@@ -1874,7 +1874,7 @@
 - **优先级**：P1
 - **任务目标**：准备录屏视频流程。
 - **涉及目录**：`docs/`
-- **涉及文件**：`docs/演示视频脚本.md`
+- **涉及文件**：`docs/23_演示视频脚本/23_演示视频脚本.md`
 - **前置依赖**：T22-04
 - **具体实现要求**：输入：演示数据说明。输出：分镜脚本。按登录、上传资料、生成 Wiki、答疑、资源、练习、诊断、自进化、管理员日志排序。
 - **验收标准**：每个镜头有操作、旁白、预期画面。
@@ -1882,7 +1882,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请编写 docs/演示视频脚本.md。按 3-5 分钟视频设计分镜，包含操作步骤、旁白和展示重点，覆盖登录、Wiki、AI 答疑、资源生成、练习诊断、自进化和 Agent 日志。
+请编写 docs/23_演示视频脚本/23_演示视频脚本.md。按 3-5 分钟视频设计分镜，包含操作步骤、旁白和展示重点，覆盖登录、Wiki、AI 答疑、资源生成、练习诊断、自进化和 Agent 日志。
 ```
 
 ## T23-04 整理支撑材料说明
@@ -1892,7 +1892,7 @@
 - **优先级**：P1
 - **任务目标**：解释提交材料和系统支撑点。
 - **涉及目录**：`docs/`
-- **涉及文件**：`docs/支撑材料说明.md`
+- **涉及文件**：`docs/22_比赛材料规划/22_比赛材料规划.md`
 - **前置依赖**：T23-01
 - **具体实现要求**：输入：项目文档和代码结构。输出：支撑材料说明。列出源码、文档、演示数据、部署方案、测试材料、视频脚本。
 - **验收标准**：可直接放入比赛提交材料。
@@ -1900,7 +1900,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请编写 docs/支撑材料说明.md，说明本项目提交材料包含哪些内容：源码、设计文档、数据库设计、API 文档、演示数据、部署脚本、测试说明、演示视频脚本和答辩稿。
+请编写 docs/22_比赛材料规划/22_比赛材料规划.md，说明本项目提交材料包含哪些内容：源码、设计文档、数据库设计、API 文档、演示数据、部署脚本、测试说明、演示视频脚本和答辩稿。
 ```
 
 ## T23-05 编写评委可能质疑问题 FAQ
@@ -1910,7 +1910,7 @@
 - **优先级**：P2
 - **任务目标**：提前准备答辩追问。
 - **涉及目录**：`docs/`
-- **涉及文件**：`docs/答辩FAQ.md`
+- **涉及文件**：`docs/24_答辩稿/24_答辩稿.md`
 - **前置依赖**：T23-02
 - **具体实现要求**：输入：项目创新点和风险点。输出：FAQ。覆盖自进化是否安全、和普通 RAG 区别、为什么不做完整教师端、如何避免概念堆砌、数据来源。
 - **验收标准**：FAQ 回答具体、克制、可信。
@@ -1918,7 +1918,7 @@
 - **给 Codex 的提示词**：
 
 ```text
-请编写 docs/答辩FAQ.md，整理评委可能追问的问题和回答，包括自进化边界、LLM Wiki 与 RAG 区别、多智能体是否概念堆砌、教师端范围、数据隐私、系统可落地性、演示数据真实性。
+请编写 docs/24_答辩稿/24_答辩稿.md，整理评委可能追问的问题和回答，包括自进化边界、LLM Wiki 与 RAG 区别、多智能体是否概念堆砌、教师端范围、数据隐私、系统可落地性、演示数据真实性。
 ```
 
 ---

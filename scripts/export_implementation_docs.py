@@ -138,7 +138,16 @@ def write_api_docs(spec: dict[str, Any], rows: list[dict[str, Any]]) -> None:
         for tag in row["tags"] or ["untagged"]:
             grouped[tag].append(row)
 
-    overview = f"""# 当前实现 API 接口总览
+    overview = f"""# 11_API接口设计
+
+## 目录导读
+
+> 本文是当前 API 文档入口，由 FastAPI OpenAPI 自动生成。模块级接口摘要和完整清单保留为独立事实文档；未出现在 OpenAPI 中的旧设计接口均视为未实现。
+
+- 当前模块与接口数量：见“当前模块”。
+- 精确端点清单：`16_当前实现API清单.md`。
+- 请求和响应 Schema：`docs/assets/api/openapi-current.json` 或运行时 Swagger。
+- 文档重新生成：`python scripts/export_implementation_docs.py`。
 
 > 文档状态：**当前实现事实源**
 >
@@ -178,7 +187,7 @@ def write_api_docs(spec: dict[str, Any], rows: list[dict[str, Any]]) -> None:
 - 完整端点表：`docs/11_API接口设计/16_当前实现API清单.md`
 - 重新生成：`python scripts/export_implementation_docs.py`
 """
-    write_markdown(api_dir / "API接口设计.md", overview)
+    write_markdown(api_dir / "11_API接口设计.md", overview)
 
     full = f"""# 16_当前实现 API 清单
 
