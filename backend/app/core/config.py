@@ -56,6 +56,10 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("EMBEDDING_MODEL", "OPENAI_EMBEDDING_MODEL"),
     )
     embedding_dimension: int = Field(default=1024, alias="EMBEDDING_DIMENSION")
+    embedding_allow_mock_fallback: bool = Field(
+        default=True,
+        alias="EMBEDDING_ALLOW_MOCK_FALLBACK",
+    )
 
     storage_provider: str = Field(default="local", alias="STORAGE_PROVIDER")
     local_storage_root: str = Field(default="./storage", alias="LOCAL_STORAGE_ROOT")

@@ -13,7 +13,7 @@
 >
 > 生成方式：`python scripts/export_implementation_docs.py`
 >
-> 生成依据：FastAPI `app.openapi()`，共 **89** 个 HTTP 操作。
+> 生成依据：FastAPI `app.openapi()`，共 **90** 个 HTTP 操作。
 > 最后同步：2026-06-06
 
 ## 使用规则
@@ -30,7 +30,7 @@
 |---|---|---:|---|
 | 认证与用户 | `auth`, `users` | 8 | `02_认证与用户接口.md` |
 | 课程空间 | `courses` | 6 | `03_课程空间接口.md` |
-| 资料、知识抽取与检索 | `materials`, `knowledge` | 10 | `04_资料上传与解析接口.md` |
+| 资料、知识抽取与检索 | `materials`, `knowledge` | 11 | `04_资料上传与解析接口.md` |
 | AI Tutor | `tutor` | 5 | `05_智能问答接口.md` |
 | LLM Wiki | `wiki` | 12 | `06_Wiki接口.md` |
 | 个性化资源 | `resources` | 6 | `07_资源生成接口.md` |

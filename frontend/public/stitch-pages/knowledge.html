@@ -51,6 +51,7 @@
 <button data-knowledge-tab="资料库" class="text-primary font-bold border-b-2 border-primary py-2 px-2 font-label-md transition-all">资料库</button>
 <button data-knowledge-tab="课程 Wiki" class="text-on-surface-variant hover:text-primary py-2 px-2 font-label-md transition-all border-b-2 border-transparent hover:border-primary/30">课程 Wiki</button>
 <button data-knowledge-tab="图谱视图" class="text-on-surface-variant hover:text-primary py-2 px-2 font-label-md transition-all border-b-2 border-transparent hover:border-primary/30">图谱视图</button>
+<button data-knowledge-tab="质量报告" class="text-on-surface-variant hover:text-primary py-2 px-2 font-label-md transition-all border-b-2 border-transparent hover:border-primary/30">质量报告</button>
 </div>
 </div>
 <div class="flex items-center gap-6">
@@ -245,6 +246,7 @@
   let pipelineBusy = false;
   let stopPipelineProgress = null;
   let selectedWikiPageId = null;
+  let seedQualityReport = null;
   const knowledgeTabs = Array.from(document.querySelectorAll("[data-knowledge-tab]"));
 
   input.type = "file";
@@ -515,6 +517,146 @@
         mascot: "zhizhi",
         title: "知识图谱加载失败",
         description: error.message || "请确认后端服务与登录状态正常。",
+      });
+    }
+  }
+
+  function riskBadgeClass(riskLevel) {
+    if (riskLevel === "low") {
+      return "bg-primary/10 text-primary border-primary/20";
+    }
+    if (riskLevel === "medium") {
+      return "bg-tertiary-container/30 text-tertiary border-tertiary/20";
+    }
+    return "bg-error-container text-on-error-container border-error/20";
+  }
+
+  function pipelineStatusClass(status) {
+    if (status === "ready" || status === "ready_for_build" || status === "ready_for_query_after_build") {
+      return "bg-primary/10 text-primary border-primary/20";
+    }
+    if (status === "partial") {
+      return "bg-tertiary-container/30 text-tertiary border-tertiary/20";
+    }
+    if (status === "planned") {
+      return "bg-secondary-container/30 text-secondary border-secondary/20";
+    }
+    return "bg-error-container text-on-error-container border-error/20";
+  }
+
+  function pipelineStatusLabel(status) {
+    return {
+      ready: "已具备",
+      ready_for_build: "构建可用",
+      ready_for_query_after_build: "入库后可用",
+      partial: "部分具备",
+      planned: "待实现",
+      missing: "缺失",
+    }[status] || status || "缺失";
+  }
+
+  async function renderSeedQualityReport() {
+    if (!sliceGrid) return;
+    setKnowledgeTab("质量报告");
+    if (detailTitle) detailTitle.textContent = "数据结构 GraphRAG-ready 质量报告";
+    if (detailMeta) {
+      detailMeta.innerHTML = `
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">fact_check</span>来自 /api/v1/knowledge/seed-quality-report</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">verified_user</span>展示资料源风险、章节覆盖与图谱 v0 指标</span>`;
+    }
+    if (detailChunkBadge) detailChunkBadge.textContent = "加载中";
+    sliceGrid.innerHTML = `
+      <div class="col-span-2 bg-white/80 rounded-xl border border-primary/15 p-6">
+        <div class="ai-thinking-indicator">
+          <img src="${window.ZhixueUI?.stickerUrl?.("zhizhi", "searching") || "/stickers/zhizhi/08_searching.png"}" alt="读取质量报告"/>
+          <span class="text-sm text-on-surface-variant font-label-md">正在读取 Phase 1 知识库质量报告…</span>
+        </div>
+      </div>`;
+    try {
+      seedQualityReport = seedQualityReport || await api.request("/knowledge/seed-quality-report");
+      const report = seedQualityReport.report || {};
+      const graph = report.graph || {};
+      const sources = seedQualityReport.sources || [];
+      const pipelineStages = report.pipeline_stages || [];
+      if (detailChunkBadge) {
+        detailChunkBadge.textContent = report.graphrag_ready ? "GraphRAG-ready" : "待补强";
+      }
+      const percent = Math.round(Number(report.chapter_coverage_rate || 0) * 100);
+      sliceGrid.innerHTML = `
+        <section class="col-span-2 bg-white/75 rounded-xl border border-primary/15 p-5">
+          <div class="flex items-center justify-between gap-4 mb-5">
+            <div>
+              <span class="font-label-sm text-label-sm text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">Phase 1 Quality</span>
+              <h3 class="font-headline-sm text-on-surface mt-3">《数据结构》GraphRAG-ready v0</h3>
+              <p class="text-xs text-on-surface-variant mt-1">资料治理、normalized corpus、图谱实体/关系/声明和标准问题评估。</p>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 rounded-full ${report.graphrag_ready ? "bg-primary/10 text-primary" : "bg-tertiary-container/30 text-tertiary"}">
+              ${report.graphrag_ready ? "ready" : "needs more data"}
+            </span>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+            ${[
+              ["章节覆盖", `${report.covered_chapter_count || 0}/${report.chapter_count || 0}`, `${percent}%`],
+              ["原始文档", `${report.raw_document_count || 0}`, "raw"],
+              ["资料源", `${report.approved_source_count || 0}`, "已审核"],
+              ["normalized", `${report.normalized_document_count || 0}`, "文档"],
+              ["标准问题", `${report.standard_question_count || 0}`, "道"],
+              ["实体", `${graph.entity_count || 0}`, "Graph v0"],
+              ["关系", `${graph.relation_count || 0}`, "Graph v0"],
+              ["声明", `${graph.claim_count || 0}`, "Claims"],
+              ["可追溯率", `${Math.round(Number(report.source_traceability_rate || 0) * 100)}%`, "source_id"],
+            ].map(([label, value, hint]) => `
+              <div class="rounded-xl bg-white/80 border border-white/90 p-3">
+                <p class="text-[11px] text-on-surface-variant font-bold">${label}</p>
+                <strong class="block text-xl text-on-surface mt-1">${value}</strong>
+                <span class="text-[10px] text-outline">${hint}</span>
+              </div>`).join("")}
+          </div>
+          <div class="rounded-xl bg-surface-container-low/60 border border-white/90 p-4 mb-4">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="font-bold text-on-surface text-sm">知识库构建流水线</h4>
+              <span class="text-[11px] text-outline">从原始资料到反馈优化的 Phase 1 状态</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${pipelineStages.map((stage, index) => `
+                <div class="rounded-xl bg-white/75 border border-white/90 p-3">
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <p class="text-[11px] text-outline font-bold">${String(index + 1).padStart(2, "0")}</p>
+                      <strong class="text-xs text-on-surface">${escapeHtml(stage.name || stage.stage_id)}</strong>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full border ${pipelineStatusClass(stage.status)}">${escapeHtml(pipelineStatusLabel(stage.status))}</span>
+                  </div>
+                  <p class="text-[11px] text-on-surface-variant mt-2 line-clamp-2">${escapeHtml(stage.evidence || "")}</p>
+                  <p class="text-[11px] text-outline mt-1 line-clamp-2">${escapeHtml(stage.next_action || "")}</p>
+                </div>`).join("")}
+            </div>
+          </div>
+          <div class="rounded-xl bg-surface-container-low/60 border border-white/90 p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="font-bold text-on-surface text-sm">资料源与许可证风险</h4>
+              <span class="text-[11px] text-outline">approved_importable 会进入 raw/normalized，link-only 不复制全文</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${sources.map((source) => `
+                <div class="rounded-xl bg-white/75 border border-white/90 p-3">
+                  <div class="flex items-center justify-between gap-2">
+                    <strong class="text-xs text-on-surface line-clamp-1">${escapeHtml(source.name || source.source_id)}</strong>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full border ${riskBadgeClass(source.risk_level)}">${escapeHtml(source.risk_level || "unknown")}</span>
+                  </div>
+                  <p class="text-[11px] text-on-surface-variant mt-2">${escapeHtml(source.source_id)} · ${escapeHtml(source.license || "")}</p>
+                  <p class="text-[11px] text-outline mt-1">${escapeHtml(source.import_status || "")} / ${escapeHtml(source.review_status || "")}</p>
+                </div>`).join("")}
+            </div>
+          </div>
+        </section>`;
+    } catch (error) {
+      api.toast(error.message || "质量报告加载失败", "error");
+      sliceGrid.innerHTML = "";
+      window.ZhixueUI?.renderEmptyState?.(sliceGrid, {
+        mascot: "zhizhi",
+        title: "质量报告加载失败",
+        description: error.message || "请先运行 Phase 1 评估脚本，或确认后端服务正常。",
       });
     }
   }
@@ -1239,6 +1381,8 @@
         renderWikiPageList();
       } else if (label === "图谱视图") {
         renderWikiGraph();
+      } else if (label === "质量报告") {
+        renderSeedQualityReport();
       } else {
         setKnowledgeTab("资料库");
         renderMaterials();

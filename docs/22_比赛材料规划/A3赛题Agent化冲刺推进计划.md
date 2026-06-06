@@ -267,9 +267,9 @@ scripts/evaluate_course_kb.py
   → 清洗文本
   → 识别章节
   → 生成 normalized/chapter_x.md
-  → 生成 chunk
+  → 按“标题层级 + 语义块 + token-aware + overlap + metadata”生成 chunk
   → 写入 document_chunks
-  → 生成 embedding
+  → 使用 text-embedding-3-small 生成 1024 维 embedding
   → 抽取 knowledge_points
   → 抽取 knowledge_edges
   → 生成题库/代码案例草稿
@@ -294,16 +294,86 @@ MVP 不新增复杂后台任务系统，不依赖 Docker，不要求真实 LLM K
 
 ### 5.5 改造 chunking
 
-当前 `backend/app/rag/chunking.py` 只按段落切，后续应增强为：
+Phase 1 的切片策略必须写死为：
 
 ```text
-按标题层级切分
-保留章节路径
-保留页码
-保留代码块
-保留表格/公式标记
-支持 chunk overlap
-写入 metadata
+标题层级 + 语义块 + token-aware + overlap + metadata
+```
+
+不得退化为单纯按字符长度、固定行数或固定段落粗暴切分。
+
+推荐参数：
+
+| 类型 | 建议 chunk 大小 | overlap | 说明 |
+|---|---:|---:|---|
+| 普通知识解释 | 500-700 tokens | 80-120 tokens | 保留上下文连续性 |
+| 定义/定理/复杂度结论 | 尽量整体保留 | 0-80 tokens | 不从关键结论中间切断 |
+| Python 代码示例 | 整个代码块优先保留 | 0-80 tokens | 不切断函数、类、缩进块 |
+| 表格/公式 | 整体保留或以占位符绑定原文 | 0-80 tokens | 避免破坏结构 |
+| 超长章节 | 先按标题/小节拆，再 token-aware | 80-120 tokens | 不直接硬切全文 |
+
+必须保留的切片信息：
+
+```text
+heading_path
+chapter_id
+source_id
+source_url
+license
+attribution
+page_no 或 url_fragment（有则必须写）
+chunk_type: definition|concept|example|code|table|formula|complexity|misconception|exercise
+text_hash
+chunk_index
+```
+
+切片质量要求：
+
+1. 同一 chunk 应尽量表达一个完整概念、操作、复杂度结论或例子。
+2. 标题路径必须进入 `document_chunks.extra_meta.heading_path`。
+3. 代码块不能从中间截断，Python 缩进不能被破坏。
+4. 表格和公式不能被无意义拆散；无法结构化解析时保留 Markdown 原文或占位符。
+5. 每个 chunk 必须可追溯到资料源，不允许无 `source_id` 的正式 chunk 进入课程知识库。
+6. 后续真实入库前，应把当前字符近似切片升级为真正 token-aware 切片。
+
+### 5.5.1 Embedding 模型与维度约束
+
+Phase 1 真实向量化默认使用：
+
+```text
+EMBEDDING_PROVIDER=openai_compatible
+EMBEDDING_MODEL=text-embedding-3-small
+EMBEDDING_DIMENSION=1024
+```
+
+必须注意：当前数据库 `document_chunks.embedding` 维度为 `Vector(1024)`。`text-embedding-3-small` 默认输出不是 1024 维，因此真实调用 OpenAI-compatible embedding 接口时必须显式传：
+
+```json
+{
+  "model": "text-embedding-3-small",
+  "input": ["..."],
+  "dimensions": 1024
+}
+```
+
+禁止事项：
+
+1. 禁止在未修改数据库 migration 的情况下把 embedding 维度改成 1536 或 3072。
+2. 禁止用真实 embedding 默认维度直接写入 `Vector(1024)`。
+3. 禁止用 Mock Embedding 的效果冒充真实检索质量。
+4. 若要改用 `text-embedding-3-large` 或其他模型，必须同步修改 `EMBEDDING_DIMENSION`、pgvector 维度、migration、检索评测记录和文档。
+5. 真实构建前必须先 dry-run，再执行非 dry-run 入库。
+
+Mock 模式仅用于无 API Key 演示：
+
+```powershell
+python scripts/build_data_structure_kb.py --dry-run --use-mock-embedding
+```
+
+真实入库示例：
+
+```powershell
+python scripts/build_data_structure_kb.py --course-id <course_id> --user-id <owner_user_id>
 ```
 
 ### 5.6 质量评估

@@ -1,0 +1,41 @@
+entities:
+  - entity_id: ch05_stack
+    name: 栈
+    entity_type: data_structure
+    chapter_id: ch05
+  - entity_id: ch06_queue
+    name: 队列
+    entity_type: data_structure
+    chapter_id: ch06
+  - entity_id: ch07_recursion
+    name: 递归
+    entity_type: algorithm
+    chapter_id: ch07
+  - entity_id: ch09_binary_tree
+    name: 二叉树
+    entity_type: data_structure
+    chapter_id: ch09
+  - entity_id: ch11_hash_table
+    name: 哈希表
+    entity_type: data_structure
+    chapter_id: ch11
+  - entity_id: ch12_graph
+    name: 图
+    entity_type: data_structure
+    chapter_id: ch12
+  - entity_id: ch13_bfs
+    name: BFS
+    entity_type: algorithm
+    chapter_id: ch13
+  - entity_id: ch14_dfs
+    name: DFS
+    entity_type: algorithm
+    chapter_id: ch14
+  - entity_id: ch15_dijkstra
+    name: Dijkstra
+    entity_type: algorithm
+    chapter_id: ch15
+  - entity_id: ch17_sorting
+    name: 排序稳定性
+    entity_type: concept
+    chapter_id: ch17

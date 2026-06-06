@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import math
+import os
 import struct
 from abc import ABC, abstractmethod
 
@@ -58,13 +59,57 @@ class OpenAICompatibleEmbeddingProvider(BaseEmbeddingProvider):
             resp = await client.post(
                 url,
                 headers=headers,
-                json={"model": self._model, "input": texts},
+                json={"model": self._model, "input": texts, "dimensions": self._dimension},
             )
             resp.raise_for_status()
             data = resp.json()
         # Sort by index to guarantee ordering
         sorted_items = sorted(data["data"], key=lambda x: x["index"])
         return [item["embedding"] for item in sorted_items]
+
+
+class SentenceTransformerEmbeddingProvider(BaseEmbeddingProvider):
+    """Local real embedding provider backed by sentence-transformers."""
+
+    def __init__(self, model_name: str, dimension: int = 1024) -> None:
+        self.model_name = model_name
+        self._dimension = dimension
+        self._model = None
+
+    @property
+    def dimension(self) -> int:
+        return self._dimension
+
+    async def embed_texts(self, texts: list[str]) -> list[list[float]]:
+        model = self._load_model()
+        vectors = model.encode(
+            texts,
+            normalize_embeddings=True,
+            convert_to_numpy=True,
+            show_progress_bar=False,
+        )
+        result = [vector.tolist() for vector in vectors]
+        for vector in result:
+            if len(vector) != self._dimension:
+                raise RuntimeError(
+                    f"Embedding dimension mismatch: expected {self._dimension}, got {len(vector)}"
+                )
+        return result
+
+    def _load_model(self):
+        if self._model is None:
+            os.environ.setdefault("USE_TF", "0")
+            os.environ.setdefault("TRANSFORMERS_NO_TF", "1")
+            os.environ.setdefault("TRANSFORMERS_NO_FLAX", "1")
+            os.environ.setdefault("TRANSFORMERS_NO_TORCHVISION", "1")
+            try:
+                from sentence_transformers import SentenceTransformer
+            except ImportError as exc:
+                raise RuntimeError(
+                    "sentence-transformers is required for EMBEDDING_PROVIDER=sentence_transformers"
+                ) from exc
+            self._model = SentenceTransformer(self.model_name)
+        return self._model
 
 
 class FallbackEmbeddingProvider(BaseEmbeddingProvider):
@@ -102,6 +147,11 @@ def get_embedding_provider() -> BaseEmbeddingProvider:
     provider = settings.embedding_provider.lower().replace("-", "_")
     if provider == "mock":
         return MockEmbeddingProvider(settings.embedding_dimension)
+    if provider in ("sentence_transformers", "sentence_transformer", "local_bge"):
+        return SentenceTransformerEmbeddingProvider(
+            model_name=settings.embedding_model,
+            dimension=settings.embedding_dimension,
+        )
     if provider in ("openai", "compatible", "openai_compatible"):
         api_key = settings.embedding_api_key or settings.llm_api_key
         base_url = (
@@ -110,6 +160,10 @@ def get_embedding_provider() -> BaseEmbeddingProvider:
             or "https://api.openai.com/v1"
         )
         if not api_key:
+            if not settings.embedding_allow_mock_fallback:
+                raise RuntimeError(
+                    "Real embedding provider is required, but no EMBEDDING_API_KEY/LLM_API_KEY is configured."
+                )
             return MockEmbeddingProvider(settings.embedding_dimension)
         primary = OpenAICompatibleEmbeddingProvider(
             api_key=api_key,
@@ -117,5 +171,7 @@ def get_embedding_provider() -> BaseEmbeddingProvider:
             model=settings.embedding_model,
             dimension=settings.embedding_dimension,
         )
+        if not settings.embedding_allow_mock_fallback:
+            return primary
         return FallbackEmbeddingProvider(primary, MockEmbeddingProvider(settings.embedding_dimension))
     return MockEmbeddingProvider(settings.embedding_dimension)

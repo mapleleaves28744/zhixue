@@ -5,7 +5,7 @@ from app.core.deps import get_current_user
 from app.core.response import success_response
 from app.db.session import get_db
 from app.models.user import User
-from app.rag.retriever import VectorRetriever
+from app.rag.hybrid_retriever import HybridRetriever
 from app.schemas.knowledge import (
     ExtractKnowledgeRequest,
     KnowledgeSearchRequest,
@@ -13,8 +13,18 @@ from app.schemas.knowledge import (
 from app.services.course_service import CourseService
 from app.services.knowledge_service import KnowledgeService
 from app.services.material_service import MaterialService
+from app.services.seed_knowledge_service import load_seed_quality_report
 
 router = APIRouter()
+
+
+@router.get("/seed-quality-report")
+async def get_seed_quality_report(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+) -> dict[str, object]:
+    _ = current_user
+    return success_response(load_seed_quality_report(), request=request)
 
 
 @router.post("/search")
@@ -25,7 +35,7 @@ async def search_knowledge(
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     await CourseService(db).get_course(body.course_id, current_user)
-    results = await VectorRetriever(db).search(
+    results = await HybridRetriever(db).search(
         course_id=body.course_id,
         query=body.query,
         user_id=None if current_user.role == "admin" else current_user.id,
@@ -41,6 +51,11 @@ async def search_knowledge(
                 "source_title": r.source_title,
                 "page_no": r.page_no,
                 "material_id": str(r.material_id),
+                "retrieval_mode": r.retrieval_mode,
+                "vector_score": round(r.vector_score, 4),
+                "keyword_score": round(r.keyword_score, 4),
+                "rerank_score": round(r.rerank_score, 4),
+                "extra_meta": r.extra_meta,
             }
             for r in results
         ],

@@ -12,7 +12,7 @@ from app.llm import ChatMessage, get_llm_provider
 from app.models.course import Course
 from app.models.knowledge import KnowledgePoint
 from app.models.wiki import WikiPage
-from app.rag.retriever import VectorRetriever
+from app.rag.hybrid_retriever import HybridRetriever as VectorRetriever
 from app.schemas.resource import RESOURCE_TYPE_ALIASES, VALID_RESOURCE_TYPES
 from app.services.memory_service import MemoryService
 from app.services.prompt_service import PromptService

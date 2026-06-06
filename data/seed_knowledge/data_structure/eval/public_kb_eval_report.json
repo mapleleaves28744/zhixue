@@ -1,0 +1,1849 @@
+{
+  "course_id": "0b41dca8-3e7d-420b-9769-b4fe623e482f",
+  "course_code": "DS-PUBLIC",
+  "course_visibility": "public_template",
+  "top_k": 8,
+  "metrics": {
+    "question_count": 30,
+    "retrieval_recall": 0.9667,
+    "answer_accuracy": 0.9667,
+    "hallucination_rate": 0.0333,
+    "citation_rate": 1.0
+  },
+  "rows": [
+    {
+      "question": "数据结构和算法之间是什么关系？",
+      "expected_sources": [
+        "self-curated-draft",
+        "mit-ocw-6006"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "cb72f357-fee8-4db7-a284-08337530dcb3",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.2354,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "09f836b8-650c-4b54-882b-4d3156cd71e7",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.2198,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "d460f735-a454-4476-a8c0-9db03a03e12e",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.2141,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "e702defb-1f3a-4fa8-a31d-b0cb0cb92552",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.2077,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "151cbb97-89e7-4274-b8ab-9d841956fc95",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.2076,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "什么是抽象数据类型 ADT？",
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "opendsa",
+        "self-curated-draft",
+        "opendsa",
+        "opendsa",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "25b50d00-6303-4f5a-976e-bdcbafd73fe9",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.3558,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "e7a2949f-0690-41c3-88c6-5dd77fb7d964",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.2845,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "672a8e8d-f946-476b-ac31-199f716c42de",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.2737,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "7c3515f5-f922-47ff-85b1-ecc5a02acfb7",
+          "source_id": "opendsa",
+          "source_title": "ch12-opendsa-graph-implementations.md",
+          "score": 0.2674,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "c38805ab-73ba-4ceb-950a-7cb3032c4107",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.263,
+          "mode": "hybrid"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "如何区分逻辑结构和存储结构？",
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "463ff540-317d-4326-a082-1090d3ebe068",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.2067,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "151cbb97-89e7-4274-b8ab-9d841956fc95",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.2066,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "f47ffcd8-2d09-49d6-ba49-ecb26a9a22a2",
+          "source_id": "self-curated-draft",
+          "source_title": "04_串与模式匹配.md",
+          "score": 0.2064,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "54aee35b-4f20-4367-8544-6f1ec41fc42f",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.2062,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "54052a72-f70f-4807-bd4f-694cbb1eaec6",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.2061,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "时间复杂度 O(n) 和 O(log n) 的直观差异是什么？",
+      "expected_sources": [
+        "self-curated-draft",
+        "mit-ocw-6006"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "opendsa",
+        "opendsa",
+        "opendsa",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "5ec1372b-beb0-4202-a5db-d5c3ea42c645",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.57,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "f1675614-f69a-4c0f-9f44-cf5674881fee",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.5417,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "a943096d-2584-430d-864f-fcb5245e454a",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.535,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "e9622adb-ea03-47ec-be90-386a1e66dc2f",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.5334,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "46edaea2-a3e7-4f06-aa96-604d8c6d133c",
+          "source_id": "opendsa",
+          "source_title": "ch05-opendsa-array-based-stack.md",
+          "score": 0.4722,
+          "mode": "keyword"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "递归算法的复杂度如何分析？",
+      "expected_sources": [
+        "runestone-pythonds",
+        "mit-ocw-6006"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "b349ad27-72f2-436e-bbbc-e49dec13ac21",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.3488,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "be9786b1-07e1-4b12-a99d-7749198f3977",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.3412,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "576833e0-f2de-4a76-a93d-b4614d121b23",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.3405,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "194e82e1-4791-4917-94e3-8809e60329f5",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.3396,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "31f10324-6bd3-4b8f-bcb2-5bae5065aa7f",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.1908,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "顺序表为什么支持随机访问？",
+      "expected_sources": [
+        "open-data-structures",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "ec995da5-d542-4215-b9ce-936bdd83fb6a",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.2075,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "1efe3915-97eb-41f4-a010-57b04a0c830b",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.1952,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "e8ed4ca6-c709-44ba-8070-c962eebdc1f6",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.1944,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "243c44d0-20b6-4b59-bc5c-c41e558e8ade",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.1903,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "40af6487-3873-4194-9cea-7f8dbb61cba8",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.1785,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "链表插入删除为什么通常不需要移动大量元素？",
+      "expected_sources": [
+        "open-data-structures",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "open-data-structures",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "opendsa",
+        "opendsa",
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "9009070f-87bd-4b5a-9df8-6b9d2a7a78e8",
+          "source_id": "open-data-structures",
+          "source_title": "ch03-array-based-lists.md",
+          "score": 0.203,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "ec995da5-d542-4215-b9ce-936bdd83fb6a",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.1996,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "ce7ab200-cfb6-41ee-9dd6-7594971c86e7",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.1946,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "1efe3915-97eb-41f4-a010-57b04a0c830b",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.1927,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "06847870-3a8e-4deb-9c41-a22758161b71",
+          "source_id": "opendsa",
+          "source_title": "ch05-opendsa-array-based-stack.md",
+          "score": 0.1917,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "单链表删除结点时最容易出错的边界条件有哪些？",
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "4f04ec61-26fe-4af8-a2c7-05e2316b6a96",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.216,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "aee4ed74-fa97-4daf-ac9b-ed4a8ffb4b77",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.213,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "1d4e2135-277a-49ad-98e3-554c320742b2",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.207,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "ce7ab200-cfb6-41ee-9dd6-7594971c86e7",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.2052,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "46ecdb2a-a654-4a1e-90f4-cf548c0d29cc",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch09-binary-heap-implementation.md",
+          "score": 0.1937,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "栈为什么适合括号匹配？",
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "opendsa",
+        "opendsa",
+        "opendsa",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "f8ebd645-72f5-44d3-be2c-fc14ee267b71",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.3601,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9b7b5057-94d9-4491-9c16-83b3f1661658",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.3383,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9b86b157-10f0-41fd-9d62-a267cbe56bf0",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.3376,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "7bdfecd6-6b7a-4431-ad06-b750d4059ca4",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.3322,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "a970b4dd-7416-413c-9819-bd9989336e2a",
+          "source_id": "opendsa",
+          "source_title": "ch05-opendsa-linked-stack.md",
+          "score": 0.1874,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "递归和调用栈之间有什么关系？",
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "opendsa",
+        "opendsa",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "6d8eaa47-3fc4-4dc5-817c-68e3a55b4e7b",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.3612,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "605b3bc2-7066-4bc3-ab7a-bd17a4970f55",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.349,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9b86b157-10f0-41fd-9d62-a267cbe56bf0",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.3461,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9b7b5057-94d9-4491-9c16-83b3f1661658",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.337,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "99298790-a708-4d9e-9fe5-b95c3bdd89dc",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch05-what-is-a-stack.md",
+          "score": 0.1885,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "循环队列如何判断队空和队满？",
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "19606d04-1a4e-4c37-9aca-046624ebf709",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.3257,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9b86b157-10f0-41fd-9d62-a267cbe56bf0",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.319,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "4079df9f-eacb-438f-99a5-f6e512ba224b",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.3021,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "5fd8d859-3ad4-4e4d-8cb4-fe89cfd753e1",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.2812,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "24a726b9-bd24-4d11-8b31-123d502da6ae",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch04-implementing-an-unordered-list-with-linked-lists.md",
+          "score": 0.1948,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "BFS 为什么通常使用队列？",
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "e504d129-fb00-4a36-aed6-4923d312ffc7",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.3276,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "c87bd435-f316-4368-8799-6acf277f2adc",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3258,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "5fbb7059-fd19-480b-a15e-0ab2192ecb01",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.323,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "c7af2a5c-aefd-404b-b159-a2af27dbbbf7",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.3222,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "316efabd-28e9-4655-9065-e54182620a5e",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.2547,
+          "mode": "hybrid"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "DFS 为什么可以用递归实现？",
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "opendsa",
+        "opendsa",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "399cc959-e321-4ef8-8397-63b46a4f4ae8",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3277,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "6106bf0b-89f0-422b-a4d9-9854c7229a3b",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.2393,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "c2b85cd3-39b3-47c7-b645-346f03f0281d",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.1997,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "6d8eaa47-3fc4-4dc5-817c-68e3a55b4e7b",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.188,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "316efabd-28e9-4655-9065-e54182620a5e",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.187,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "二叉树的前序、中序、后序遍历有什么区别？",
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "243c44d0-20b6-4b59-bc5c-c41e558e8ade",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.3673,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "fad990d1-869d-4a71-b15b-34540a8884cc",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.35,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "02536b61-f332-42fb-ac03-925d84938353",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.3478,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "3f9f9e46-d059-4f3f-b6a7-454e9e629865",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.3459,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "76d857e4-16ae-418b-99ba-a49253a02013",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.1915,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "完全二叉树为什么适合数组存储？",
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "opendsa",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "f21aea27-4ed6-42f2-94ac-469d5d88fba3",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.3487,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "0bec2a57-1bb8-4dc4-bacd-56a8bb1ab0f2",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.3452,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9fc76201-7574-4851-ab1c-7a08c2c168eb",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.3426,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "3f9f9e46-d059-4f3f-b6a7-454e9e629865",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.3342,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "640badc3-9da8-4299-9ac5-4bbaa0770746",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch09-binary-heap-implementation.md",
+          "score": 0.186,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "堆和二叉排序树有什么区别？",
+      "expected_sources": [
+        "open-data-structures",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "c17b7f86-8ba6-4f32-8976-e29b2fe030c1",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.4624,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "98c054bc-7454-4aec-930b-f30c88a0c570",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.4259,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "ffe6403d-f88e-434c-b714-3b03a701d0c4",
+          "source_id": "self-curated-draft",
+          "source_title": "11_高级结构与工程应用.md",
+          "score": 0.382,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "1302112c-e430-4c0f-a741-2b927a86cbf6",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.3407,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "640badc3-9da8-4299-9ac5-4bbaa0770746",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch09-binary-heap-implementation.md",
+          "score": 0.1861,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "哈希表平均 O(1) 查找依赖哪些前提？",
+      "expected_sources": [
+        "open-data-structures",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "opendsa",
+        "opendsa",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "open-data-structures",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "a6cfb3a5-9339-407e-8551-07a6cb919fb7",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.448,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "96cf5f99-67d7-42e2-b2ca-c4d68ac427e3",
+          "source_id": "opendsa",
+          "source_title": "ch11-opendsa-hashing-introduction.md",
+          "score": 0.4439,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "6711e112-871a-439f-89e9-fa4686be9515",
+          "source_id": "opendsa",
+          "source_title": "ch11-opendsa-hashing-introduction.md",
+          "score": 0.4331,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "4a85bf26-b234-426b-a732-2c704104ad20",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.3657,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "ca6cdc0f-1232-4b25-ba2f-1df6cd5c3a04",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.3599,
+          "mode": "hybrid"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "装填因子过高会带来什么问题？",
+      "expected_sources": [
+        "open-data-structures",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "open-data-structures",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "8d6ce563-bf50-4319-aa07-cff2f297e8ca",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.1934,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "397695a9-cf1b-4422-bfc2-87e24cab88ff",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.1726,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "3e801f09-9455-4f01-b0c3-7c26d87ddea3",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.1702,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "ba050d7d-1628-4407-91ee-03e88403d1e5",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.1701,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "9a0986fe-912a-4b33-b329-1af4aa73e48b",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.1601,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "邻接矩阵和邻接表各自适合什么图？",
+      "expected_sources": [
+        "open-data-structures",
+        "runestone-pythonds"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "opendsa",
+        "opendsa",
+        "opendsa",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "f58f8986-813d-4da6-b3f8-f1e71b124881",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.4679,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "40ce4ac8-1784-4358-ba6e-686f09a7940f",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.4369,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "546e7966-cf21-4760-98cf-94d7f9c69419",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.4044,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "83a9025c-f67e-4b7c-8549-06154aac5b0d",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3421,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9565e8be-2699-4815-99e8-e6273ee24b6a",
+          "source_id": "opendsa",
+          "source_title": "ch12-opendsa-graph-representations.md",
+          "score": 0.1952,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": false
+    },
+    {
+      "question": "BFS 可以解决哪类最短路径问题？",
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "c87bd435-f316-4368-8799-6acf277f2adc",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3173,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "110fff68-27bc-4373-9d20-fe34cbd9059f",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.2493,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "316efabd-28e9-4655-9065-e54182620a5e",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.2481,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "d28f3a1f-0399-4d98-af5a-48ad18533726",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.2472,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "76d857e4-16ae-418b-99ba-a49253a02013",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.2451,
+          "mode": "hybrid"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "Dijkstra 算法为什么要求边权非负？",
+      "expected_sources": [
+        "mit-ocw-6006",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "opendsa",
+        "opendsa",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "a71a6b06-b0d6-4d51-bfdb-0cbfe861cb18",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3618,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "399684c9-7a5f-453f-9adc-1a7db1133e98",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3354,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "68f84d77-cf81-4bff-87d4-2c4602441879",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.321,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "72194c16-f8c2-49ad-8bb4-3ca4ec7f5064",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.2534,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "31f10324-6bd3-4b8f-bcb2-5bae5065aa7f",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.1838,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "Floyd 算法适合解决什么问题？",
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "b1bebecd-b721-490c-aec4-df2494e97c13",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3437,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "19626119-3ed0-4376-9144-ce1f6b230612",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3171,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "a7231eb4-a3e7-4af7-adf0-afb887286db8",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.2759,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "31f10324-6bd3-4b8f-bcb2-5bae5065aa7f",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.1935,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "a71a6b06-b0d6-4d51-bfdb-0cbfe861cb18",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.1881,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "并查集的路径压缩在优化什么？",
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "open-data-structures",
+        "opendsa",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "a6b64019-67c2-49a3-8dc1-5206a5ef892d",
+          "source_id": "self-curated-draft",
+          "source_title": "07_森林与并查集.md",
+          "score": 0.2067,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "bb118234-6ca0-4629-92b8-397a0f8be8da",
+          "source_id": "self-curated-draft",
+          "source_title": "07_森林与并查集.md",
+          "score": 0.2031,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "68807ff0-a8c6-4084-946a-7c5c5c1ce533",
+          "source_id": "self-curated-draft",
+          "source_title": "05_数组、矩阵与广义表.md",
+          "score": 0.1869,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "d2072df3-cf0a-4589-b618-ce869c517546",
+          "source_id": "self-curated-draft",
+          "source_title": "07_森林与并查集.md",
+          "score": 0.1868,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "1c73488f-9759-4924-adb1-31f9086bba2e",
+          "source_id": "open-data-structures",
+          "source_title": "ch04-linked-lists.md",
+          "score": 0.1705,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "快速排序最坏情况如何出现？",
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "c2f9f6fb-78d5-4ec0-bbda-58a36207701f",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.3267,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "a2750097-6e9b-4c38-bb5a-785d1b616d3f",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.31,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "41faa5bb-b2e7-436d-bcf3-6e5493929d6e",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.3094,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9effe5c8-7fc5-49a0-81b0-421bae389175",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.3058,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9afaaefa-3690-49aa-b808-f2fc753df2da",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch05-implementing-a-queue-in-python.md",
+          "score": 0.1799,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "排序稳定性是什么意思？",
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "opendsa",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "7806f809-055d-43f6-b76d-e5f1fc48c1aa",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.3404,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "f3528094-fa0e-48e3-9f7e-4c8795345c93",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.3378,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "2ca509f3-70b4-49cd-b5be-e4b48816c794",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.33,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "34190350-36e3-42aa-8451-75378007fc50",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.3294,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "99298790-a708-4d9e-9fe5-b95c3bdd89dc",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch05-what-is-a-stack.md",
+          "score": 0.1796,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "归并排序为什么需要额外空间？",
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "open-data-structures",
+        "opendsa",
+        "opendsa",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "2ca509f3-70b4-49cd-b5be-e4b48816c794",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.3449,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "d7f9c70c-cbb1-4ddb-b732-c1a45cea64bb",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.3319,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "a2750097-6e9b-4c38-bb5a-785d1b616d3f",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.3279,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "6582e876-d4e4-46d8-af1a-25aa6e956d81",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.3244,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9009070f-87bd-4b5a-9df8-6b9d2a7a78e8",
+          "source_id": "open-data-structures",
+          "source_title": "ch03-array-based-lists.md",
+          "score": 0.1998,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "折半查找为什么要求数据有序？",
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "opendsa",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "b466d039-b40e-4d53-9947-5d25a0825c96",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.3444,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "8070417c-ae9d-4e3c-9827-4e0aa0bcf663",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.3379,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "8f36123d-d8d5-4845-94a8-766511765405",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.3309,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "07badce9-fa7b-477b-8b42-19b43572f8df",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.3189,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "6814a8a1-a555-4dc9-81f1-3d31c8ee6ed0",
+          "source_id": "opendsa",
+          "source_title": "ch11-opendsa-hashing-introduction.md",
+          "score": 0.1941,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "二叉排序树退化后复杂度会怎样？",
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "34190350-36e3-42aa-8451-75378007fc50",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.4425,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "1302112c-e430-4c0f-a741-2b927a86cbf6",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.3975,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "a2750097-6e9b-4c38-bb5a-785d1b616d3f",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.382,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "2ca509f3-70b4-49cd-b5be-e4b48816c794",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.38,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "640badc3-9da8-4299-9ac5-4bbaa0770746",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch09-binary-heap-implementation.md",
+          "score": 0.1842,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "B 树和 B+ 树为什么适合外存索引？",
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "a06792ba-ab6e-4b88-a4a7-8867b529be7e",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.4848,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "4f2a25e7-c581-4e44-8f5b-4b13a9f21100",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.4697,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "1898e492-7f10-40c5-8698-7bd8b23aec79",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.4419,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "faacda49-4ee5-4c4d-a1ef-ca4cc855b5fc",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.3701,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "640badc3-9da8-4299-9ac5-4bbaa0770746",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch09-binary-heap-implementation.md",
+          "score": 0.2455,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    },
+    {
+      "question": "如何为 LRU 缓存选择合适的数据结构？",
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "open-data-structures",
+        "runestone-pythonds",
+        "self-curated-draft",
+        "opendsa",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "aa2cb63d-d14b-4abf-9386-16a2c79b9c6c",
+          "source_id": "self-curated-draft",
+          "source_title": "11_高级结构与工程应用.md",
+          "score": 0.3576,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "039b6fa3-9f34-4d59-9e83-6fe471a17225",
+          "source_id": "self-curated-draft",
+          "source_title": "11_高级结构与工程应用.md",
+          "score": 0.3092,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "248e44db-5925-448f-88a3-f6978bc0e7a9",
+          "source_id": "self-curated-draft",
+          "source_title": "11_高级结构与工程应用.md",
+          "score": 0.2634,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "0dd8c203-8fa4-4761-ab16-2c17923e34ee",
+          "source_id": "open-data-structures",
+          "source_title": "ch03-array-based-lists.md",
+          "score": 0.1911,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "1b163a03-669e-4769-bd2e-b4e126f9b70c",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch05-implementing-a-stack-in-python.md",
+          "score": 0.1879,
+          "mode": "vector"
+        }
+      ],
+      "answer_has_citation": true,
+      "answer_grounded": true
+    }
+  ],
+  "llm_answers": [
+    {
+      "question": "数据结构和算法之间是什么关系？",
+      "success": true,
+      "answer": "你好！作为数据结构课程的AI Tutor，我将为你梳理数据结构与算法的关系。这是一个贯穿整个课程的核心问题。\n\n### 直接解答\n\n**数据结构与算法是相辅相成、不可分割的有机整体。** 它们的关系可以概括为：**数据结构是算法的基石和舞台，算法是数据结构的灵魂和生命力。**\n\n*   **数据结构**定义了数据的**逻辑关系、存储方式和基本操作集合**。它关注“数据如何组织”，为算法提供了高效处理问题的载体。\n*   **算法**是在特定数据结构上，为解决某一具体问题而设计的**有限、明确、可执行的操作序列**。它关注“如何高效处理数据”，其效能直接依赖于所选用的数据结构。\n\n一个经典的比喻是：如果把算法比作**菜谱（操作步骤）**，那么数据结构就是**厨房里的工具和食材的摆放方式**。一把锋利的刀（高效的数据结构）和清晰的步骤（优秀的算法）相结合，才能快速做出美味的菜肴（解决实际问题）。\n\n### 关键依据\n\n1.  **定义上的依存**：根据课程资料，算法被定义为“在特定数据结构上解决问题的有限步骤”。这直接点明了算法必须依托于具体的数据结构来实施。\n2.  **性能上的共生**：二者“共同决定程序的可理解性、可维护性和运行效率”。选择合适的算法能充分发挥数据结构的优势；反之，为优秀的算法匹配错误的数据结构，也会导致性能低下甚至功能错误。例如，在需要频繁插入和删除的场景下，链表（数据结构）配合遍历算法（算法）就比数组高效得多。\n3.  **实践中的统一**：在解决一个实际问题时（如查找、排序），我们必须**同时考虑**用什么样的数据结构来存储问题中的信息，以及用什么样的算法来处理这些信息。二者在设计和实现时是同步进行的。\n\n### 相关知识点\n\n理解二者的关系，是深入学习以下知识点的前提：\n*   **逻辑结构与存储结构**：算法设计通常基于逻辑结构（如线性、树形、图状），而算法的实现效率则严重依赖于物理存储结构（如顺序存储、链式存储）。课程资料也提醒我们，要避免“把逻辑结构与存储结构混为一谈”。\n*   **基本操作与算法**：数据结构定义的基本操作（如插入、删除、查找），构成了算法的基础模块。算法的效率分析（时间/空间复杂度）往往是对这些基本操作执行次数的分析。\n*   **复杂度分析**：分析一个算法的效率时，必须明确它是在什么数据结构上运行的。例如，同样的查找算法，在无序数组和有序平衡二叉搜索树上，其时间复杂度可能天差地别（O(n) vs. O(log n)）。\n*   **应用场景**：面对具体问题（如地图导航、学生成绩管理），需要根据问题特点（数据关系、操作需求）来选择合适的数据结构，并设计出匹配的高效算法。\n\n### 后续练习建议\n\n为了巩固这个核心概念，建议你进行以下思考和练习：\n1.  **对比分析**：针对“查找”和“排序”这两个经典问题，分别思考使用**数组、链表、哈希表、二叉搜索树**这几种数据结构时，可以设计哪些不同的算法？它们的时间复杂度有何区别？哪种组合最适合哪种应用场景？\n2.  **设计思考**：假设要设计一个“通讯录”程序，需要支持快速查找联系人、按姓名排序、添加和删除联系人。请描述你会如何**综合考虑**数据结构的选择（如使用哈希表实现快速查找，或使用平衡树实现有序存储）与算法设计（如查找、排序算法的具体步骤）。\n3.  **易错点辨析**：结合课程资料中的提醒，思考并举例说明“算法对适用条件判断不严格”可能导致什么问题？（例如，在一个未排序的数组上错误地使用二分查找算法）。\n\n**总结**：数据结构和算法就像计算机科学中的“矛与盾”，理解并掌握它们的辩证关系，是学好本门课程、提升编程解决实际问题能力的关键第一步。\n\n如果在后续学习具体结构或算法时遇到困惑，随时可以再来问我！",
+      "citations": [
+        {
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "cb72f357-fee8-4db7-a284-08337530dcb3",
+          "page_no": null,
+          "score": 0.2354,
+          "quote": "**定义**：数据结构研究数据元素之间的逻辑关系、存储表示和基本操作；算法是在特定数据结构上解决问题的有限步骤。二者共同决定程序的可理解性、可维护性和运行效率。"
+        },
+        {
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "09f836b8-650c-4b54-882b-4d3156cd71e7",
+          "page_no": null,
+          "score": 0.2198,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `算法与数据结构关系` 属于 `绪论与复杂度分析`。\n- `算法与数据结构关系` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”"
+        },
+        {
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "d460f735-a454-4476-a8c0-9db03a03e12e",
+          "page_no": null,
+          "score": 0.2141,
+          "quote": "基本操作；算法是在特定数据结构上解决问题的有限步骤。二者共同决定程序的可理解性、可维护性和运行效率。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂"
+        },
+        {
+          "source_type": "document",
+          "title": "10_排序.md",
+          "source_id": "a0cef358-13f7-49e0-a9f5-33040fa98fcc",
+          "chunk_id": "151cbb97-89e7-4274-b8ab-9d841956fc95",
+          "page_no": null,
+          "score": 0.2077,
+          "quote": "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂"
+        },
+        {
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "54aee35b-4f20-4367-8544-6f1ec41fc42f",
+          "page_no": null,
+          "score": 0.2076,
+          "quote": "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂"
+        }
+      ],
+      "provider": "xiaomi_mimo",
+      "fallback_used": false
+    },
+    {
+      "question": "什么是抽象数据类型 ADT？",
+      "success": true,
+      "answer": "好的，同学。作为你的数据结构 AI Tutor，我将根据课程资料为你解答关于抽象数据类型（ADT）的问题。\n\n### 直接解答\n\n**抽象数据类型（Abstract Data Type， ADT）是一种数学模型，用于描述一种数据类型及其操作，而不具体说明这些操作是如何实现的。** 简单来说，它只关心数据**“是什么”** 和能**“做什么”**，而不关心数据**“怎么存”** 和操作**“怎么做”**。\n\n你可以把它想象成一个**“黑箱”**或一份**“功能说明书”**。例如，你使用一个“栈”时，说明书告诉你它有“压入”和“弹出”的功能，你只需按说明操作，而无需知道内部是用数组还是链表实现的。\n\n一个典型的ADT包含三个核心部分：\n1.  **数据对象**：定义了该类型能存储哪些数据。\n2.  **数据关系**：定义了数据元素之间是如何组织的（例如，线性关系、树形关系等）。\n3.  **基本操作**：定义了可以对该数据对象执行的一组操作（如创建、插入、删除、查找等），以及这些操作的输入、输出和行为规范。\n\n### 关键依据\n\n本回答的核心定义与要点来源于你提供的检索资料：\n> **抽象数据类型用数据对象、数据关系和基本操作描述一种逻辑模型，强调“做什么”而不是“如何存储”。**\n\n此外，资料中给出的 `Stack` ADT 的 Java 接口代码，正是 ADT 的一个经典范例。它清晰地定义了 `push`、`pop` 等**操作接口**，但没有包含任何关于底层是数组还是链表的实现细节。\n\n### 相关知识点\n\n理解ADT需要掌握以下几个相互关联的概念：\n\n1.  **逻辑结构**：描述数据元素之间的逻辑关系，是ADT定义的核心部分。例如，栈是“后进先出”的线性关系。\n2.  **存储结构**：是ADT的**具体实现**，描述数据在计算机内存中如何存放（如顺序存储、链式存储）。ADT本身与存储结构无关。\n3.  **基本操作**：是ADT对外提供的功能接口。每个操作应明确其**前置条件、后置条件和算法复杂度**。\n4.  **复杂度分析**：是评估ADT操作效率的关键，包括时间复杂度和空间复杂度。\n5.  **ADT与数据结构的关系**：数据结构是ADT的具体实现。例如，“栈”是一个ADT，“顺序栈”和“链栈”是两种不同的数据结构，都是对“栈”这个ADT的具体实现。\n\n**一个重要的易错点**是混淆**ADT（逻辑模型）** 与**存储结构（物理实现）**。ADT定义了“是什么”，存储结构决定了“怎么存”。\n\n### 后续练习建议\n\n1.  **识别与分析**：尝试为课程中遇到的其他数据结构（如队列、列表、字典）写出它们的ADT描述，明确其数据对象、关系和核心操作。\n2.  **从接口到实现**：选取一个简单的ADT（如你资料中的Stack），尝试分别用数组和链表两种存储结构来实现它，体会“同一ADT，不同实现”的概念。\n3.  **复杂度思考**：为你实现的ADT的每个操作，分析并写下它们在最坏情况下的时间复杂度和空间复杂度。\n\n---\n**说明**：以上回答主要依据您提供的课程资料片段。资料中部分内容表述较为碎片化（例如开头的“元素结构、重复关键字或越界位置”），且“Wiki”、“学生画像”、“长期记忆”部分未启用。因此，本回答是基于现有明确知识点的整合与阐释，**AI推断内容，建议核对课程完整资料以获取更系统全面的理解**。",
+      "citations": [
+        {
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "25b50d00-6303-4f5a-976e-bdcbafd73fe9",
+          "page_no": null,
+          "score": 0.3558,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `抽象数据类型ADT` 属于 `绪论与复杂度分析`。\n- `抽象数据类型ADT` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”"
+        },
+        {
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "e7a2949f-0690-41c3-88c6-5dd77fb7d964",
+          "page_no": null,
+          "score": 0.2845,
+          "quote": "、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。### DS-01-002 抽象数据类型ADT"
+        },
+        {
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "672a8e8d-f946-476b-ac31-199f716c42de",
+          "page_no": null,
+          "score": 0.2737,
+          "quote": "**：抽象数据类型用数据对象、数据关系和基本操作描述一种逻辑模型，强调“做什么”而不是“如何存储”。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂"
+        },
+        {
+          "source_type": "document",
+          "title": "ch12-opendsa-graph-implementations.md",
+          "source_id": "1e920ece-78e2-4f66-80ee-fee6039a4bfa",
+          "chunk_id": "7c3515f5-f922-47ff-85b1-ecc5a02acfb7",
+          "page_no": null,
+          "score": 0.2674,
+          "quote": " space for the adjacency matrix or adjacency list.Vertices are defined by an integer index value.\nIn other words, there is a Vertex 0, Vertex 1, and so on throu"
+        },
+        {
+          "source_type": "document",
+          "title": "ch12-opendsa-graph-implementations.md",
+          "source_id": "1e920ece-78e2-4f66-80ee-fee6039a4bfa",
+          "chunk_id": "b1e8aa9f-fa3f-4f43-9a66-918f34be64b0",
+          "page_no": null,
+          "score": 0.2598,
+          "quote": "by using the addEdge function\nprovided by the ADT.Here is an implementation for the adjacency matrix."
+        }
+      ],
+      "provider": "xiaomi_mimo",
+      "fallback_used": false
+    },
+    {
+      "question": "如何区分逻辑结构和存储结构？",
+      "success": true,
+      "answer": "你好呀！很高兴能以数据结构 AI Tutor 的身份为你解答这个问题。\n\n**直接解答：**\n逻辑结构和存储结构是数据结构中两个不同维度的核心概念，它们的关系类似于“蓝图”和“施工方案”。\n\n*   **逻辑结构** 描述的是数据元素之间的**逻辑关系**，是从概念上抽象出来的组织方式，与数据在计算机中的具体存储无关。它回答的是“数据元素之间如何相互关联？”的问题。\n*   **存储结构**（也称为物理结构）描述的是逻辑结构在计算机内存中的**具体实现方式**，即数据元素及其关系是如何在存储器中存放的。它回答的是“数据及其关系在内存中如何布局？”的问题。\n\n**关键依据：**\n根据你提供的课程资料，其中明确指出：\n1.  “**逻辑结构**：说明数据元素之间的关系。”\n2.  “**存储结构**：说明顺序、链式、索引、散列或组合存储方式。”\n\n这直接点明了两者的根本区别：一个关注“关系”，一个关注“实现方式”。资料将它们并列提出，也暗示了这是理解任何数据结构（如线性表、树、图）都需要掌握的两个基本方面。\n\n**相关知识点：**\n为了更好地理解，我们可以将两者联系与对比：\n\n1.  **逻辑结构的四种基本类型**：\n    *   **集合结构**：数据元素之间仅存在“同属一个集合”的关系（无序）。\n    *   **线性结构**：数据元素之间存在**一对一**的线性关系（如线性表）。\n    *   **树形结构**：数据元素之间存在**一对多**的层次关系（如二叉树）。\n    *   **图状结构/网状结构**：数据元素之间存在**多对多**的任意关系（如社交网络）。\n\n2.  **存储结构的常见类型**：\n    *   **顺序存储**：用地址连续的存储单元依次存放数据元素，逻辑上相邻的元素在物理位置上也相邻（如数组）。\n    *   **链式存储**：用任意的存储单元存放数据元素，通过指针来表示元素间的逻辑关系（如链表）。\n    *   **索引存储**：在存储数据的同时，还建立附加的索引表。\n    *   **散列存储**：根据关键码通过散列函数直接计算出存储地址。\n\n3.  **两者关系**：同一种逻辑结构可以对应多种存储结构。例如，**线性表**（逻辑结构）既可以用**顺序存储**（顺序表）实现，也可以用**链式存储**（链表）实现。选择哪种存储结构通常取决于具体应用场景对时间和空间复杂度的要求。\n\n**后续练习建议：**\n为了巩固这个概念，你可以尝试以下练习：\n1.  **概念辨析**：画出一个简单的逻辑示意图（例如，一个包含 A, B, C 三个节点的线性表），然后分别用“顺序存储”和“单链表存储”的方式，在草稿纸上模拟画出它们在内存中的布局示意图。\n2.  **场景分析**：思考一下“学校的学生管理系统”中的“班级名册”数据。从逻辑上看，它是一个**线性结构**（或集合结构）。如果你需要频繁地插入和删除学生信息，应该推荐使用哪种存储结构（顺序/链式）？为什么？\n3.  **查阅资料**：找一下教材或网络资料中关于“顺序栈与链栈”的对比，分析它们分别体现了哪种逻辑结构（栈）与哪种存储结构的结合。\n\n**AI 推断内容，建议核对资料**：在回答中，我根据数据结构通用知识补充了逻辑结构的四种基本类型、存储结构的常见类型以及两者之间的关系，这部分内容在你提供的检索资料中未明确列出。建议你结合课程PPT或教材中的具体章节进行核对和深化理解。\n\n希望这个解释能帮助你清晰地区分这两个概念！如果还有其他问题，随时可以提出。",
+      "citations": [
+        {
+          "source_type": "document",
+          "title": "10_排序.md",
+          "source_id": "a0cef358-13f7-49e0-a9f5-33040fa98fcc",
+          "chunk_id": "151cbb97-89e7-4274-b8ab-9d841956fc95",
+          "page_no": null,
+          "score": 0.2067,
+          "quote": "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂"
+        },
+        {
+          "source_type": "document",
+          "title": "04_串与模式匹配.md",
+          "source_id": "c02d609b-2ed1-4b08-a9bc-5c1fcd5bcfd8",
+          "chunk_id": "f47ffcd8-2d09-49d6-ba49-ecb26a9a22a2",
+          "page_no": null,
+          "score": 0.2066,
+          "quote": "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂"
+        },
+        {
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "54aee35b-4f20-4367-8544-6f1ec41fc42f",
+          "page_no": null,
+          "score": 0.2064,
+          "quote": "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂"
+        },
+        {
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "463ff540-317d-4326-a082-1090d3ebe068",
+          "page_no": null,
+          "score": 0.2062,
+          "quote": "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂"
+        },
+        {
+          "source_type": "document",
+          "title": "03_栈与队列.md",
+          "source_id": "8f39b480-fc50-4160-92d5-502bfd0a6b47",
+          "chunk_id": "1c509dea-d400-4016-80bb-f5e12cd9a596",
+          "page_no": null,
+          "score": 0.2061,
+          "quote": "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂"
+        }
+      ],
+      "provider": "xiaomi_mimo",
+      "fallback_used": false
+    }
+  ]
+}

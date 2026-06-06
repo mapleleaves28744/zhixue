@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>5. Hash Tables</TITLE>
+<META NAME="description" CONTENT="5. Hash Tables">
+<META NAME="keywords" CONTENT="ods-python-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="6_Binary_Trees.html">
+<LINK REL="previous" HREF="4_Skiplists.html">
+<LINK REL="up" HREF="ods-python-html.html">
+<LINK REL="next" HREF="5_1_ChainedHashTable_Hashin.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html673"
+  HREF="5_1_ChainedHashTable_Hashin.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html667"
+  HREF="ods-python-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html661"
+  HREF="4_5_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html669"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html671"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html674"
+  HREF="5_1_ChainedHashTable_Hashin.html">5.1 ChainedHashTable: Hashing with</A>
+<B> Up:</B> <A NAME="tex2html668"
+  HREF="ods-python-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html662"
+  HREF="4_5_Discussion_Exercises.html">4.5 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html670"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html672"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00800000000000000000"></A>
+<A NAME="chap:hashtables"></A><A NAME="chap:hashing"></A>
+<BR>
+<SPAN CLASS="arabic">5</SPAN>. Hash Tables
+</H1>
+
+<P>
+Hash tables are an efficient method of storing a small number,
+<!-- MATH
+ $\ensuremath{\ensuremath{\mathit{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1899.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{n}}}$"></SPAN>, of integers from a large range <!-- MATH
+ $U=\{0,\ldots,2^{\ensuremath{\ensuremath{\ensuremath{\mathit{w}}}}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="125" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1900.png"
+ ALT="$ U=\{0,\ldots,2^{\ensuremath{\ensuremath{\ensuremath{\mathit{w}}}}}-1\}$"></SPAN>.
+The term <SPAN  CLASS="textit">hash table</SPAN>
+<A NAME="23194"></A>includes a broad range of data structures.  The first part of this
+chapter focuses on two of the most common implementations of hash tables:
+hashing with chaining and linear probing.
+
+<P>
+Very often hash tables store types of data that are not integers.
+In this case, an integer <SPAN  CLASS="textit">hash code</SPAN>
+<A NAME="23196"></A>is associated with each data
+item and is used in the hash table.  The second part of this chapter
+discusses how such hash codes are generated.
+
+<P>
+Some of the methods used in this chapter require random choices of
+integers in some specific range.  In the code samples, some of these
+``random'' integers are hard-coded constants.  These constants were
+obtained using random bits generated from atmospheric noise.
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html675"
+  HREF="5_1_ChainedHashTable_Hashin.html"><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">1</SPAN> ChainedHashTable: Hashing with Chaining</A>
+<LI><A NAME="tex2html676"
+  HREF="5_2_LinearHashTable_Linear_.html"><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN> LinearHashTable: Linear Probing</A>
+<LI><A NAME="tex2html677"
+  HREF="5_3_Hash_Codes.html"><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">3</SPAN> Hash Codes</A>
+<LI><A NAME="tex2html678"
+  HREF="5_4_Discussion_Exercises.html"><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">4</SPAN> Discussion and Exercises</A>
+</UL>
+<!--End of Table of Child-Links-->
+<BR><HR>
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

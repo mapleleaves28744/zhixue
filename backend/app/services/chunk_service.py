@@ -36,7 +36,17 @@ class ChunkService:
                 status_code=400,
             )
 
-        chunk_data_list = chunk_text(text)
+        source_metadata = {
+            key: value
+            for key, value in {
+                "source_id": extra_meta.get("source_id"),
+                "chapter_id": extra_meta.get("chapter_id"),
+                "license": extra_meta.get("license"),
+                "source_url": extra_meta.get("source_url"),
+            }.items()
+            if value
+        }
+        chunk_data_list = chunk_text(text, source_metadata=source_metadata)
         if not chunk_data_list:
             raise BusinessException(
                 code=ErrorCode.FILE_PARSE_FAILED,
@@ -56,6 +66,7 @@ class ChunkService:
                 "content": cd.content,
                 "token_count": cd.token_count,
                 "source_title": material.file_name,
+                "extra_meta": cd.extra_meta,
             }
             for cd in chunk_data_list
         ]

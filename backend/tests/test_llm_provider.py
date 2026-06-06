@@ -6,6 +6,7 @@ import pytest
 
 from app.llm.adapters.base import BaseLLMProvider
 from app.llm.adapters.mock_provider import MockLLMProvider
+from app.llm.adapters.openai_compatible import OpenAICompatibleLLMProvider
 from app.llm.embedding import (
     BaseEmbeddingProvider,
     FallbackEmbeddingProvider,
@@ -100,6 +101,7 @@ def test_embedding_provider_prefers_embedding_api_key(monkeypatch: pytest.Monkey
             llm_base_url="https://llm.example/v1",
             embedding_model="text-embedding-test",
             embedding_dimension=1024,
+            embedding_allow_mock_fallback=True,
         ),
     )
 
@@ -127,12 +129,68 @@ def test_embedding_provider_uses_mock_without_any_api_key(monkeypatch: pytest.Mo
             llm_base_url="",
             embedding_model="text-embedding-test",
             embedding_dimension=1024,
+            embedding_allow_mock_fallback=True,
         ),
     )
 
     provider = get_embedding_provider()
 
     assert isinstance(provider, MockEmbeddingProvider)
+
+
+def test_embedding_provider_requires_real_key_when_mock_fallback_disabled(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from types import SimpleNamespace
+
+    import app.llm.embedding as embedding_module
+
+    monkeypatch.setattr(
+        embedding_module,
+        "settings",
+        SimpleNamespace(
+            embedding_provider="openai_compatible",
+            embedding_api_key="",
+            embedding_base_url="",
+            llm_api_key="",
+            llm_base_url="",
+            embedding_model="text-embedding-3-small",
+            embedding_dimension=1024,
+            embedding_allow_mock_fallback=False,
+        ),
+    )
+
+    with pytest.raises(RuntimeError, match="Real embedding provider is required"):
+        get_embedding_provider()
+
+
+def test_embedding_provider_supports_local_sentence_transformer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from types import SimpleNamespace
+
+    import app.llm.embedding as embedding_module
+
+    monkeypatch.setattr(
+        embedding_module,
+        "settings",
+        SimpleNamespace(
+            embedding_provider="sentence_transformers",
+            embedding_api_key="",
+            embedding_base_url="",
+            llm_api_key="",
+            llm_base_url="",
+            embedding_model="BAAI/bge-large-zh-v1.5",
+            embedding_dimension=1024,
+            embedding_allow_mock_fallback=False,
+        ),
+    )
+
+    provider = get_embedding_provider()
+
+    assert isinstance(provider, embedding_module.SentenceTransformerEmbeddingProvider)
+    assert provider.dimension == 1024
+    assert provider.model_name == "BAAI/bge-large-zh-v1.5"
 
 
 def test_embedding_provider_keeps_legacy_llm_key_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -151,6 +209,7 @@ def test_embedding_provider_keeps_legacy_llm_key_fallback(monkeypatch: pytest.Mo
             llm_base_url="https://legacy.example/v1",
             embedding_model="text-embedding-test",
             embedding_dimension=1024,
+            embedding_allow_mock_fallback=True,
         ),
     )
 
@@ -160,6 +219,117 @@ def test_embedding_provider_keeps_legacy_llm_key_fallback(monkeypatch: pytest.Mo
     assert isinstance(provider.primary, OpenAICompatibleEmbeddingProvider)
     assert provider.primary._api_key == "legacy-llm-key"
     assert provider.primary._base_url == "https://legacy.example/v1"
+
+
+def test_standalone_openai_embedding_request_sends_configured_dimensions(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    asyncio.run(_test_standalone_openai_embedding_request_sends_configured_dimensions(monkeypatch))
+
+
+async def _test_standalone_openai_embedding_request_sends_configured_dimensions(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import httpx
+
+    captured: dict[str, object] = {}
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, object]:
+            return {"data": [{"index": 0, "embedding": [0.1] * 1024}]}
+
+    class FakeClient:
+        def __init__(self, timeout: int) -> None:
+            self.timeout = timeout
+
+        async def __aenter__(self) -> "FakeClient":
+            return self
+
+        async def __aexit__(self, *args: object) -> None:
+            return None
+
+        async def post(self, url: str, *, headers: dict[str, str], json: dict[str, object]):
+            captured["url"] = url
+            captured["json"] = json
+            return FakeResponse()
+
+    monkeypatch.setattr(httpx, "AsyncClient", FakeClient)
+    provider = OpenAICompatibleEmbeddingProvider(
+        api_key="test-key",
+        base_url="https://embedding.example/v1",
+        model="text-embedding-3-small",
+        dimension=1024,
+    )
+
+    vectors = await provider.embed_texts(["栈与队列"])
+
+    assert len(vectors[0]) == 1024
+    assert captured["json"] == {
+        "model": "text-embedding-3-small",
+        "input": ["栈与队列"],
+        "dimensions": 1024,
+    }
+
+
+def test_llm_openai_embedding_request_sends_configured_dimensions(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    asyncio.run(_test_llm_openai_embedding_request_sends_configured_dimensions(monkeypatch))
+
+
+async def _test_llm_openai_embedding_request_sends_configured_dimensions(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import httpx
+
+    captured: dict[str, object] = {}
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, object]:
+            return {
+                "data": [{"index": 0, "embedding": [0.2] * 1024}],
+                "model": "text-embedding-3-small",
+                "usage": {"prompt_tokens": 3, "total_tokens": 3},
+            }
+
+    class FakeClient:
+        def __init__(self, timeout: int) -> None:
+            self.timeout = timeout
+
+        async def __aenter__(self) -> "FakeClient":
+            return self
+
+        async def __aexit__(self, *args: object) -> None:
+            return None
+
+        async def post(self, url: str, *, headers: dict[str, str], json: dict[str, object]):
+            captured["url"] = url
+            captured["json"] = json
+            return FakeResponse()
+
+    monkeypatch.setattr(httpx, "AsyncClient", FakeClient)
+    provider = OpenAICompatibleLLMProvider(
+        api_key="test-key",
+        base_url="https://api.example/v1",
+        model="chat-model",
+        embedding_model="text-embedding-3-small",
+        embedding_dimension=1024,
+    )
+
+    response = await provider.embedding(["哈希表"])
+
+    assert len(response.embeddings[0]) == 1024
+    assert captured["json"] == {
+        "model": "text-embedding-3-small",
+        "input": ["哈希表"],
+        "dimensions": 1024,
+    }
 
 
 def test_compatible_without_api_key_falls_back_to_mock(monkeypatch: pytest.MonkeyPatch) -> None:

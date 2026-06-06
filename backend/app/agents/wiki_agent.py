@@ -6,7 +6,7 @@ from app.agents.base_agent import BaseAgent
 from app.agents.context import AgentContext, AgentResult
 from app.agents.registry import AgentRegistry
 from app.llm import ChatMessage, get_llm_provider
-from app.rag.retriever import VectorRetriever
+from app.rag.hybrid_retriever import HybridRetriever as VectorRetriever
 from app.services.prompt_service import PromptService
 
 

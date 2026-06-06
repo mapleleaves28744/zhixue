@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+
+
+
+
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>9.9. Linked Stacks &mdash; OpenDSA Data Structures and Algorithms Modules Collection</title>
+    
+    
+      <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../lib/normalize.css" type="text/css" />
+    <link rel="stylesheet" href="../../../lib/JSAV.css" type="text/css" />
+    <link rel="stylesheet" href="../../../lib/odsaMOD-min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../lib/jquery.ui.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../lib/odsaStyle-min.css" type="text/css" />
+    
+  <script type="text/javascript">
+    var DOCUMENTATION_OPTIONS = {
+      URL_ROOT:    './',
+      VERSION:     '0.4.1',
+      COLLAPSE_INDEX: false,
+      FILE_SUFFIX: '.html',
+      HAS_SOURCE:  true
+    };
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+      },
+      "HTML-CSS": {
+        scale: "80"
+      }
+    });
+  </script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="index" title="OpenDSA Data Structures and Algorithms Modules Collection" href="index.html" />
+    <link rel="next" title="10. Freelists" href="Freelist.html" />
+    <link rel="prev" title="8. Stacks" href="StackArray.html" />
+
+  </head>
+
+  <body>
+
+
+    <div class="header">
+      
+
+    <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../lib/jquery.migrate.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.9.0/localforage.min.js"></script>
+  <script type="text/javascript" src="../../../lib/jquery.scrolldepth.js"></script>
+  <script type="text/javascript" src="../../../lib/timeme.js"></script>
+  <script type="text/javascript" src="../../../lib/jquery.ui.min.js"></script>
+  <script type="text/javascript" src="../../../lib/jquery.transit.js"></script>
+  <script type="text/javascript" src="../../../lib/raphael.js"></script>
+  <script type="text/javascript" src="../../../lib/JSAV-min.js"></script>
+  <script type="text/javascript" src="_static/config.js"></script>
+  <script type="text/javascript" src="../../../lib/timeme-min.js"></script>
+  <script type="text/javascript" src="../../../lib/odsaUtils-min.js"></script>
+  <script type="text/javascript" src="../../../lib/odsaMOD-min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+  <script type="text/javascript" src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
+  <script type="text/javascript" src="../../../lib/dataStructures.js"></script>
+  <script type="text/javascript" src="../../../lib/conceptMap.js"></script>
+  <script type="text/javascript" src="../../../lib/splice-iframe.js"></script>
+
+      
+
+
+      
+
+
+        <img class="leftlogo" src="_static/OpenDSALogoT64.png" alt="OpenDSA Logo"/>
+      <div class="title-wrapper">
+        <div class="title-inbetween" style="display: table-cell; vertical-align: middle;">
+          <div class="title-content">
+            <h1 class="heading" ><a href="index.html">
+              <span>OpenDSA Data Structures and Algorithms Modules Collection</span></a></h1>
+            <h2 class="heading" ><span>Chapter 9 Linear Structures</span></h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="topnav">
+      <p>
+          <a class="abt" style="float:left;color:blue;" href="#" rel="nofollow">| About</a>&#160;&#160;
+
+        
+      «&#160;&#160;<a id="prevmod" href="StackArray.html">9.<span class="section-number">8. </span>Stacks</a>
+      &#160;&#160;::&#160;&#160;
+      <a  class="uplink" href="index.html">Contents</a>
+      &#160;&#160;::&#160;&#160;
+      <a  id="nextmod" href="Freelist.html">9.<span class="section-number">10. </span>Freelists</a>&#160;&#160;»
+
+
+      </p>
+    </div>
+     
+    <div class="content">
+      
+      
+  <blockquote>
+<div><script type="text/javascript">
+ $(function () {
+   var moduleName = "linked-stacks";
+   var sections = ['linked-stack-implementation', 'linked-stack-push', 'linked-stack-pop', 'comparison-of-array-based-and-linked-stacks'];
+   TimeMe.initialize({
+     idleTimeoutInSeconds: 10
+   });
+   sections.forEach(function (section, i) {
+     TimeMe.trackTimeOnElement(section);
+   });
+   var timeObj = {};
+   setInterval(function () {
+     timeObj[moduleName.substring(0, 5)] = TimeMe.getTimeOnCurrentPageInSeconds().toFixed(2);
+     sections.forEach(function (section, i) {
+       timeObj[i + "-" + section.substring(0, 5)] = TimeMe.getTimeOnElementInSeconds(section).toFixed(2);
+     });
+     for (var sec of sections) {
+     }
+   }, 2000);
+
+   // NOTE: Scroll depth tracking was investigated but not implemented
+   // Canvas LTI limitations documented in GitHub issue #523:
+   // - Cross-site scripting security limitations prevent access to Canvas parent scroller
+   // - Canvas automatically optimizes iframe height, eliminating internal scrolling
+   // - Two-scroller approach was tested but was too awkward for user experience
+   // - Future implementation would require Canvas-side cooperation
+ });
+</script></div></blockquote>
+<script>
+if (typeof ODSA === 'undefined') { window.ODSA = {}; }
+if (typeof ODSA.SETTINGS === 'undefined') { ODSA.SETTINGS = {}; }
+ODSA.SETTINGS.DISP_MOD_COMP = true;ODSA.SETTINGS.MODULE_NAME = "StackLinked";ODSA.SETTINGS.MODULE_LONG_NAME = "Linked Stacks";ODSA.SETTINGS.MODULE_CHAPTER = "Linear Structures"; ODSA.SETTINGS.BUILD_DATE = "2025-10-15 12:47:16"; ODSA.SETTINGS.BUILD_CMAP = false;JSAV_OPTIONS['lang']='en';JSAV_EXERCISE_OPTIONS['code']='java';
+</script><link href="../../../AV/List/lstackCON.css" rel="stylesheet" type="text/css" />
+<section id="linked-stacks">
+<h1>9.<span class="section-number">9. </span>Linked Stacks<a class="headerlink" href="#linked-stacks" title="Link to this heading">¶</a></h1>
+<section id="linked-stack-implementation">
+<h2>9.<span class="section-number">9.1. </span>Linked Stack Implementation<a class="headerlink" href="#linked-stack-implementation" title="Link to this heading">¶</a></h2>
+<p>The linked stack implementation is quite simple.
+Elements are inserted and removed only from the head of the list.
+A header node is not used because no special-case code is required
+for lists of zero or one elements.
+Here is the complete linked stack implementation.</p>
+<div id="LStack_LStack1_LStack2_code"><ul><li><a href="#LStack_LStack1_LStack2_code_Java">Java</a></li><li><a href="#LStack_LStack1_LStack2_code_Java_Generic">Java (Generic)</a></li></ul><div id="LStack_LStack1_LStack2_code_Java"><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="c1">// Linked stack implementation</span>
+<span class="kd">class</span> <span class="nc">LStack</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">Stack</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="n">Link</span><span class="w"> </span><span class="n">top</span><span class="p">;</span><span class="w">               </span><span class="c1">// Pointer to first element</span>
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w">               </span><span class="c1">// Number of elements</span>
+
+<span class="w">  </span><span class="c1">// Constructors</span>
+<span class="w">  </span><span class="n">LStack</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="n">LStack</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Reinitialize stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// Put &quot;it&quot; on stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">push</span><span class="p">(</span><span class="n">Object</span><span class="w"> </span><span class="n">it</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span>
+<span class="w">    </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Link</span><span class="p">(</span><span class="n">it</span><span class="p">,</span><span class="w"> </span><span class="n">top</span><span class="p">);</span>
+<span class="w">    </span><span class="n">size</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="c1">// Remove &quot;it&quot; from stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="nf">pop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">           </span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Object</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">top</span><span class="p">.</span><span class="na">element</span><span class="p">();</span>
+<span class="w">    </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">top</span><span class="p">.</span><span class="na">next</span><span class="p">();</span>
+<span class="w">    </span><span class="n">size</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">it</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="nf">topValue</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">      </span><span class="c1">// Return top value</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">top</span><span class="p">.</span><span class="na">element</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Return stack length</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">length</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">// Check if the stack is empty</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">isEmpty</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div id="LStack_LStack1_LStack2_code_Java_Generic"><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="c1">// Linked stack implementation</span>
+<span class="kd">class</span> <span class="nc">LStack</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">Stack</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="n">Link</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="w"> </span><span class="n">top</span><span class="p">;</span><span class="w">            </span><span class="c1">// Pointer to first element</span>
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w">               </span><span class="c1">// Number of elements</span>
+
+<span class="w">  </span><span class="c1">// Constructors</span>
+<span class="w">  </span><span class="n">LStack</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="n">LStack</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Reinitialize stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// Put &quot;it&quot; on stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">push</span><span class="p">(</span><span class="n">E</span><span class="w"> </span><span class="n">it</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span>
+<span class="w">    </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Link</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="p">(</span><span class="n">it</span><span class="p">,</span><span class="w"> </span><span class="n">top</span><span class="p">);</span>
+<span class="w">    </span><span class="n">size</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="c1">// Remove &quot;it&quot; from stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="nf">pop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">           </span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">top</span><span class="p">.</span><span class="na">element</span><span class="p">();</span>
+<span class="w">    </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">top</span><span class="p">.</span><span class="na">next</span><span class="p">();</span>
+<span class="w">    </span><span class="n">size</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">it</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="nf">topValue</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">      </span><span class="c1">// Return top value</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">top</span><span class="p">.</span><span class="na">element</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Return stack length</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">length</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">// Tell if the stack is empty</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">isEmpty</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></div><script>$(function() {$( "#LStack_LStack1_LStack2_code" ).tabs();});</script><p>Here is a visual representation for the linked stack.</p>
+<div class="divdgm">
+<div id="lstackDiagramCON"></div>
+</div><section id="linked-stack-push">
+<h3>9.<span class="section-number">9.1.1. </span>Linked Stack Push<a class="headerlink" href="#linked-stack-push" title="Link to this heading">¶</a></h3>
+<div>
+<div id="lstackPushCON" class="ssAV" data-points="0.0" data-threshold="1.0" data-type="ss" data-required="False" data-short-name="lstackPushCON" data-long-name="Linked stack push" data-exer-id="" alt="Linked stack push" tabIndex="-1">
+ <span class="jsavcounter"></span>
+ <a class="jsavsettings" href="#">Settings</a>
+ <div class="jsavcontrols"></div>
+ <p class="jsavoutput jsavline"></p>
+ <div class="jsavcanvas"></div>
+ <div class="prof_indicators">
+  <img id="lstackPushCON_check_mark" class="prof_check_mark" src="_static/Images/green_check.png" alt="Proficient" />
+  <span id="lstackPushCON_cm_saving_msg" class="cm_saving_msg">Saving...</span>
+  <span id="lstackPushCON_cm_error_msg" class="cm_error_msg">
+   <img id="lstackPushCON_cm_warning_icon" class="cm_warning_icon" src="_static/Images/warning.png" alt="Error Saving" /><br />
+   Server Error<br />
+   <a href="#" class="resubmit_link">Resubmit</a>
+  </span>
+ </div>
+</div>
+<p></p>
+</div>
+<div
+    id="LstackPushPRO"
+    class="embedContainer"
+    data-exer-name="LstackPushPRO"
+    data-long-name="Linked Stack Push Exercise"
+    data-short-name="LstackPushPRO"
+    data-frame-src="../../../Exercises/List/LstackPushPRO.html?localMode=true&amp;module=StackLinked&amp;selfLoggingEnabled=false&amp;JXOP-debug=true&amp;JOP-lang=en&amp;JXOP-code=java"
+    data-frame-width="950"
+    data-frame-height="750"
+    data-vertical-scrolling="no"
+    data-external="false"
+    data-points="1.0"
+    data-required="False"
+    data-showhide="show"
+    data-threshold="5"
+    data-type="ka"
+    data-exer-id="">
+  
+  <div class="center">
+    <div id="LstackPushPRO_iframe"></div>
+  </div>
+</div>
+</section>
+</section>
+<section id="linked-stack-pop">
+<h2>9.<span class="section-number">9.2. </span>Linked Stack Pop<a class="headerlink" href="#linked-stack-pop" title="Link to this heading">¶</a></h2>
+<div>
+<div id="lstackPopCON" class="ssAV" data-points="0.0" data-threshold="1.0" data-type="ss" data-required="False" data-short-name="lstackPopCON" data-long-name="Linked stack pop" data-exer-id="" alt="Linked stack pop" tabIndex="-1">
+ <span class="jsavcounter"></span>
+ <a class="jsavsettings" href="#">Settings</a>
+ <div class="jsavcontrols"></div>
+ <p class="jsavoutput jsavline"></p>
+ <div class="jsavcanvas"></div>
+ <div class="prof_indicators">
+  <img id="lstackPopCON_check_mark" class="prof_check_mark" src="_static/Images/green_check.png" alt="Proficient" />
+  <span id="lstackPopCON_cm_saving_msg" class="cm_saving_msg">Saving...</span>
+  <span id="lstackPopCON_cm_error_msg" class="cm_error_msg">
+   <img id="lstackPopCON_cm_warning_icon" class="cm_warning_icon" src="_static/Images/warning.png" alt="Error Saving" /><br />
+   Server Error<br />
+   <a href="#" class="resubmit_link">Resubmit</a>
+  </span>
+ </div>
+</div>
+<p></p>
+</div>
+<div
+    id="LstackPopPRO"
+    class="embedContainer"
+    data-exer-name="LstackPopPRO"
+    data-long-name="Linked Stack Pop Exercise"
+    data-short-name="LstackPopPRO"
+    data-frame-src="../../../Exercises/List/LstackPopPRO.html?localMode=true&amp;module=StackLinked&amp;selfLoggingEnabled=false&amp;JXOP-debug=true&amp;JOP-lang=en&amp;JXOP-code=java"
+    data-frame-width="950"
+    data-frame-height="750"
+    data-vertical-scrolling="no"
+    data-external="false"
+    data-points="1.0"
+    data-required="False"
+    data-showhide="show"
+    data-threshold="5"
+    data-type="ka"
+    data-exer-id="">
+  
+  <div class="center">
+    <div id="LstackPopPRO_iframe"></div>
+  </div>
+</div>
+<section id="comparison-of-array-based-and-linked-stacks">
+<h3>9.<span class="section-number">9.2.1. </span>Comparison of Array-Based and Linked Stacks<a class="headerlink" href="#comparison-of-array-based-and-linked-stacks" title="Link to this heading">¶</a></h3>
+<p>All operations for the array-based and linked stack implementations
+take constant time, so from a time efficiency perspective,
+neither has a significant advantage.
+Another basis for comparison is the total space
+required.
+The analysis is similar to that done for list implementations.
+The array-based stack must declare a fixed-size array initially, and
+some of that space is wasted whenever the stack is not full.
+The linked stack can shrink and grow but requires the overhead of a
+link field for every element.</p>
+<p>When implementing multiple stacks, sometimes you can take advantage of
+the one-way growth of the array-based stack
+by using a single array to store two stacks.
+One stack grows inward from each end as illustrated by the figure
+below, hopefully leading to less wasted space.
+However, this only works well when the space requirements of the two
+stacks are inversely correlated.
+In other words, ideally when one stack grows, the other will shrink.
+This is particularly effective when elements are taken from
+one stack and given to the other.
+If instead both stacks grow at the same time, then the free space
+in the middle of the array will be exhausted quickly.</p>
+<div class="divdgm">
+<div id="lstackTwostackCON"></div>
+</div><script type="text/javascript" src="../../../AV/List/llist.js"></script>
+<script type="text/javascript" src="../../../AV/List/lstackDiagramCON.js"></script>
+<script type="text/javascript" src="../../../AV/List/lstackPushCON.js"></script>
+<script type="text/javascript" src="../../../AV/List/lstackPopCON.js"></script>
+<script type="text/javascript" src="../../../AV/List/lstackTwostackCON.js"></script>
+</section>
+</section>
+</section>
+
+
+    </div>
+    <div class="bottomnav">
+    <p><span class="email_div" style="display:inline;"><a style="float:left;color:blue;" rel="nofollow" href="../../../lib/Privacy.html" target="_blank"> Privacy |</a> <a style="float:left;color:blue;" rel="nofollow" href="../../../lib/license.html" target="_blank">| License</a></span>&#160;&#160;
+    
+      «&#160;&#160;<a id="prevmod1" href="StackArray.html">9.<span class="section-number">8. </span>Stacks</a>
+      &#160;&#160;::&#160;&#160;
+      <a  class="uplink" href="index.html">Contents</a>
+      &#160;&#160;::&#160;&#160;
+      <a  id="nextmod1" href="Freelist.html">9.<span class="section-number">10. </span>Freelists</a>&#160;&#160;»
+
+</p>
+    </div>
+    <img style="float:right;" src="_static/nsf1.gif" height="62" width="62" alt=""/>
+
+
+    <div class="footer">
+      <p>
+        <span class="email_div" style="display:inline;">
+          <a id="contact_us" class="contact" style="float:left;color:blue;" rel="nofollow" href="mailto:">Contact Us |</a>
+          <a id="bugreport-link" style="float:left;color:blue;" class="bugreport-link" href="#">| Report a bug</a>
+        </span>
+      </p>
+        &copy; Copyright 2011-2025 by OpenDSA Project Contributors and distributed under an MIT license.
+      Last updated on Oct 15, 2025.
+      Created using <a target="_blank" href="http://sphinx-doc.org/">Sphinx</a> 8.2.0.
+    </div>
+    
+<div id="bugreport-box" class="bugreport-popup ">
+  <a href="#" class="close"><img src="_static/Images/close_pop.png" class="btn_close" title="Close Window" alt="Close Window" /></a>
+  <form method="post" class="report" action="https://#">
+    <fieldset class="textbox">
+      <div id="bug_error" class="error"></div>
+      <label>
+        <span>Summary*:</span>
+        <input type="text" id="b_title" placeholder="Summary" />
+
+      </label>
+
+      <label class="os">
+        <span>Operating system*:</span>
+        <select id="b_os">
+          <option value="windows">Windows</option>
+          <option value="macos">Mac OS</option>
+          <option value="linux">Linux</option>
+          <option value="ios">iOS</option>
+          <option value="android">Android</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+
+      <label class="browser">
+        <span>Browser*:</span>
+        <select id="b_browser">
+          <option value="chrome">Chrome</option>
+          <option value="safari">Safari</option>
+          <option value="internetexplorer">Internet Explorer</option>
+          <option value="opera">Opera</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+
+      <label class="description">
+        <span>Description*:</span><br>
+        <textarea id="b_description" rows="5" cols="25" placeholder="***BUG** Please enter: (1) a consice description of the problem. (2) steps to reproduce bug. (3) the version of your browser and operating system."></textarea>
+      </label>
+
+      <label class="screenshot">
+        <span>Attach a screenshot (optional):</span>
+        <input type="file" id="b_screenshot" accept="image/*" placeholder="Attach a screenshot (optional)">
+      </label>
+
+      <p>
+        <input type="submit" id="bug-submit-button" value="Submit &rarr;"/>
+      </p>
+    </fieldset>
+  </form>
+</div>
+
+  </body>
+</html>

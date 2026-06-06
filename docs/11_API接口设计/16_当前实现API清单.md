@@ -2,7 +2,7 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
-> HTTP 操作数：**89**
+> HTTP 操作数：**90**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
@@ -37,6 +37,7 @@
 | `POST` | `/api/v1/evolution/strategies/{strategy_id}/rollback` | JWT | strategy_id* | - |
 | `POST` | `/api/v1/knowledge/extract-from-material` | JWT | - | application/json: `ExtractKnowledgeRequest` |
 | `POST` | `/api/v1/knowledge/search` | JWT | - | application/json: `KnowledgeSearchRequest` |
+| `GET` | `/api/v1/knowledge/seed-quality-report` | JWT | - | - |
 | `GET` | `/api/v1/learning-paths` | JWT | course_id, status, page, page_size | - |
 | `POST` | `/api/v1/learning-paths/generate` | JWT | - | application/json: `LearningPathGenerateRequest` |
 | `PATCH` | `/api/v1/learning-paths/items/{item_id}` | JWT | item_id* | application/json: `LearningPathItemUpdate` |

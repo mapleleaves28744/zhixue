@@ -999,6 +999,34 @@
         }
       }
     },
+    "/api/v1/knowledge/seed-quality-report": {
+      "get": {
+        "tags": [
+          "knowledge"
+        ],
+        "summary": "Get Seed Quality Report",
+        "operationId": "get_seed_quality_report_api_v1_knowledge_seed_quality_report_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Seed Quality Report Api V1 Knowledge Seed Quality Report Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/knowledge/search": {
       "post": {
         "tags": [

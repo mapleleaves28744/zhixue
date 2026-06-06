@@ -8,7 +8,7 @@ from app.agents.context import AgentContext, AgentResult
 from app.agents.registry import AgentRegistry
 from app.llm import ChatMessage, get_llm_provider
 from app.models.wiki import WikiPage
-from app.rag.retriever import VectorRetriever
+from app.rag.hybrid_retriever import HybridRetriever as VectorRetriever
 from app.repositories.course_repository import CourseRepository
 from app.repositories.wiki_repository import WikiRepository
 from app.services.memory_service import MemoryService

@@ -1,0 +1,106 @@
+{
+  "source_root": "C:\\Users\\28744\\Desktop\\zhixue\\data\\seed_knowledge\\data_structure",
+  "raw_document_count": 21,
+  "source_count": 6,
+  "approved_source_count": 6,
+  "importable_source_count": 5,
+  "chapter_count": 19,
+  "covered_chapter_count": 19,
+  "chapter_coverage_rate": 1.0,
+  "normalized_document_count": 32,
+  "source_traceability_rate": 1.0,
+  "standard_question_count": 30,
+  "graph": {
+    "entity_count": 10,
+    "relation_count": 8,
+    "claim_count": 6
+  },
+  "pipeline_stages": [
+    {
+      "stage_id": "raw_documents",
+      "name": "原始文档",
+      "status": "ready",
+      "evidence": "raw 文件 21 份；normalized 文档 32 份。",
+      "next_action": "继续补充权威资料下载清单，并保留 license/source_url。"
+    },
+    {
+      "stage_id": "document_parsing",
+      "name": "文档解析",
+      "status": "ready",
+      "evidence": "ingest_course_materials.py 已支持 HTML/Markdown/RST/PDF 到 normalized Markdown。",
+      "next_action": "后续可扩展 Word/Excel 解析并记录页码、表格坐标。"
+    },
+    {
+      "stage_id": "cleaning_normalization",
+      "name": "清洗与格式统一",
+      "status": "ready",
+      "evidence": "normalized docs: 32; source traceability: 100%",
+      "next_action": "补充更严格的噪声去除、重复段落检测和表格/公式规范化。"
+    },
+    {
+      "stage_id": "hierarchy_chunking",
+      "name": "层级切片",
+      "status": "ready",
+      "evidence": "backend/app/rag/chunking.py 保留 heading_path，并保护代码块。",
+      "next_action": "构建入库时由 ChunkService 写入 source/chapter/heading/license metadata。"
+    },
+    {
+      "stage_id": "embedding",
+      "name": "Embedding",
+      "status": "ready_for_build",
+      "evidence": "build_data_structure_kb.py 调用 EmbeddingService；--use-mock-embedding 可无 Key 演示。",
+      "next_action": "执行非 dry-run 构建后生成 document_chunks.embedding。"
+    },
+    {
+      "stage_id": "indexing",
+      "name": "索引",
+      "status": "partial",
+      "evidence": "当前 DB 支持向量检索与 extra_meta 元数据；关键词检索仍是文本兜底，未建正式关键词索引。",
+      "next_action": "Phase 1.1 可补 PostgreSQL tsvector/BM25-like keyword index and hybrid score config。"
+    },
+    {
+      "stage_id": "retrieval",
+      "name": "检索",
+      "status": "ready_for_query_after_build",
+      "evidence": "POST /api/v1/knowledge/search 使用 VectorRetriever，并带文本兜底与课程/用户可见性校验。",
+      "next_action": "构建入库后用 standard_questions.yml 做来源命中率评测。"
+    },
+    {
+      "stage_id": "rerank",
+      "name": "Rerank",
+      "status": "planned",
+      "evidence": "Phase 1 暂无独立 reranker；当前按向量距离或文本分数排序。",
+      "next_action": "Phase 1.1 可加 lightweight lexical rerank；Phase 5 可接 cross-encoder/LLM rerank。"
+    },
+    {
+      "stage_id": "llm_answer",
+      "name": "LLM 回答",
+      "status": "ready_for_query_after_build",
+      "evidence": "Tutor/Wiki/Resource Agent 通过 LLM Provider 消费检索片段；Mock Provider 保证可演示。",
+      "next_action": "用标准问题集验证回答是否严格基于来源。"
+    },
+    {
+      "stage_id": "citations",
+      "name": "引用来源",
+      "status": "ready_for_query_after_build",
+      "evidence": "Tutor/Resource 输出 citations；WikiSource 记录 source_type/source_id/quote_text。",
+      "next_action": "PDF/网页导入时继续补页码、URL fragment、段落定位。"
+    },
+    {
+      "stage_id": "feedback_optimization",
+      "name": "反馈优化",
+      "status": "partial",
+      "evidence": "已有 Tutor/推荐反馈表；知识库专用漏召回/错答评估闭环尚未完成。",
+      "next_action": "记录标准问题的漏召回、错答和低质量引用，反哺 chunking/rerank/source review。"
+    }
+  ],
+  "pipeline_summary": {
+    "ready": 4,
+    "ready_for_build": 1,
+    "ready_for_query_after_build": 3,
+    "partial": 2,
+    "planned": 1,
+    "missing": 0
+  },
+  "graphrag_ready": true
+}

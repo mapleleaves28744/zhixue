@@ -157,7 +157,11 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
                 resp = await client.post(
                     f"{self._base_url}/embeddings",
                     headers=self._headers(),
-                    json={"model": selected_model, "input": texts},
+                    json={
+                        "model": selected_model,
+                        "input": texts,
+                        "dimensions": self._embedding_dimension,
+                    },
                 )
                 resp.raise_for_status()
                 data = resp.json()

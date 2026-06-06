@@ -1,0 +1,329 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>2. Array-Based Lists</TITLE>
+<META NAME="description" CONTENT="2. Array-Based Lists">
+<META NAME="keywords" CONTENT="ods-python-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="3_Linked_Lists.html">
+<LINK REL="previous" HREF="1_Introduction.html">
+<LINK REL="up" HREF="ods-python-html.html">
+<LINK REL="next" HREF="2_1_ArrayStack_Fast_Stack_O.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html375"
+  HREF="2_1_ArrayStack_Fast_Stack_O.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html369"
+  HREF="ods-python-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html363"
+  HREF="1_8_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html371"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html373"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html376"
+  HREF="2_1_ArrayStack_Fast_Stack_O.html">2.1 ArrayStack: Fast Stack</A>
+<B> Up:</B> <A NAME="tex2html370"
+  HREF="ods-python-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html364"
+  HREF="1_8_Discussion_Exercises.html">1.8 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html372"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html374"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00500000000000000000"></A>
+<A NAME="chap:arrays"></A>
+<BR>
+<SPAN CLASS="arabic">2</SPAN>. Array-Based Lists
+</H1>
+
+<P>
+In this chapter, we will study implementations of the List and Queue
+interfaces where the underlying data is stored in an array, called the
+<SPAN  CLASS="textit">backing array</SPAN>.
+<A NAME="4484"></A>The following table summarizes the running times
+of operations for the data structures presented in this chapter:
+
+<DIV ALIGN="CENTER">
+<BR>
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $\ensuremath{\mathrm{get}(\ensuremath{\mathit{i}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img444.png"
+ ALT="$ \ensuremath{\mathrm{get}(\ensuremath{\mathit{i}})}$"></SPAN>/<!-- MATH
+ $\ensuremath{\mathrm{set}(\ensuremath{\mathit{i}},\ensuremath{\mathit{x}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="53" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img445.png"
+ ALT="$ \ensuremath{\mathrm{set}(\ensuremath{\mathit{i}},\ensuremath{\mathit{x}})}$"></SPAN></TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $\ensuremath{\mathrm{add}(\ensuremath{\mathit{i}},\ensuremath{\mathit{x}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img446.png"
+ ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{i}},\ensuremath{\mathit{x}})}$"></SPAN>/<!-- MATH
+ $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{i}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="72" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img447.png"
+ ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{i}})}$"></SPAN></TD>
+</TR>
+<TR><TD ALIGN="LEFT">ArrayStack</TD>
+<TD ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img448.png"
+ ALT="$ O(1)$"></SPAN></TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $O(\ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}-\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img449.png"
+ ALT="$ O(\ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}-\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}})$"></SPAN></TD>
+</TR>
+<TR><TD ALIGN="LEFT">ArrayDeque</TD>
+<TD ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img450.png"
+ ALT="$ O(1)$"></SPAN></TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $O(\min\{\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}-\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}\})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img451.png"
+ ALT="$ O(\min\{\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}-\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}\})$"></SPAN></TD>
+</TR>
+<TR><TD ALIGN="LEFT">DualArrayDeque</TD>
+<TD ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img452.png"
+ ALT="$ O(1)$"></SPAN></TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $O(\min\{\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}-\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}\})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img453.png"
+ ALT="$ O(\min\{\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}-\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}}\})$"></SPAN></TD>
+</TR>
+<TR><TD ALIGN="LEFT">RootishArrayStack</TD>
+<TD ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img454.png"
+ ALT="$ O(1)$"></SPAN></TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $O(\ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}-\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img455.png"
+ ALT="$ O(\ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}-\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}})$"></SPAN></TD>
+</TR>
+</TABLE>
+<BR>
+
+</DIV>
+Data structures that work by storing data in a single array have many
+advantages and limitations in common:
+<A NAME="4519"></A>
+<UL>
+<LI>Arrays offer constant time access to any value in the array.
+  This is what allows <!-- MATH
+ $\ensuremath{\mathrm{get}(\ensuremath{\mathit{i}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img456.png"
+ ALT="$ \ensuremath{\mathrm{get}(\ensuremath{\mathit{i}})}$"></SPAN> and <!-- MATH
+ $\ensuremath{\mathrm{set}(\ensuremath{\mathit{i}},\ensuremath{\mathit{x}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="53" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img457.png"
+ ALT="$ \ensuremath{\mathrm{set}(\ensuremath{\mathit{i}},\ensuremath{\mathit{x}})}$"></SPAN> to run in constant time.
+
+<P>
+</LI>
+<LI>Arrays are not very dynamic.  Adding or removing an element
+  near the middle of a list means that a large number of elements in the
+  array need to be shifted to make room for the newly added element or
+  to fill in the gap created by the deleted element.  This is why the
+  operations <!-- MATH
+ $\ensuremath{\mathrm{add}(\ensuremath{\mathit{i}},\ensuremath{\mathit{x}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img458.png"
+ ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{i}},\ensuremath{\mathit{x}})}$"></SPAN> and <!-- MATH
+ $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{i}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="72" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img459.png"
+ ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{i}})}$"></SPAN> have running times that depend
+  on <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img460.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{n}}}$"></SPAN> and <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{i}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img461.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN>.
+
+<P>
+</LI>
+<LI>Arrays cannot expand or shrink.  When the number of elements in
+  the data structure exceeds the size of the backing array, a new array needs
+  to be allocated and the data from the old array needs to be copied
+  into the new array.  This is an expensive operation.
+</LI>
+</UL>
+The third point is important.  The running times cited in the table
+above do not include the cost associated with growing and shrinking
+the backing array.  We will see that, if carefully managed, the cost of
+growing and shrinking the backing array does not add much to the cost of
+an <SPAN  CLASS="textit">average</SPAN> operation.  More precisely, if we start with an empty
+data structure, and perform any sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img462.png"
+ ALT="$ m$"></SPAN> <!-- MATH
+ $\ensuremath{\mathrm{add}(\ensuremath{\mathit{i}},\ensuremath{\mathit{x}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img463.png"
+ ALT="$ \ensuremath{\mathrm{add}(\ensuremath{\mathit{i}},\ensuremath{\mathit{x}})}$"></SPAN> or <!-- MATH
+ $\ensuremath{\mathrm{remove}(\ensuremath{\mathit{i}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="72" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img464.png"
+ ALT="$ \ensuremath{\mathrm{remove}(\ensuremath{\mathit{i}})}$"></SPAN>
+operations, then the total cost of growing and shrinking the backing
+array, over the entire sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img465.png"
+ ALT="$ m$"></SPAN> operations is <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img466.png"
+ ALT="$ O(m)$"></SPAN>.  Although
+some individual operations are more expensive, the amortized cost,
+when amortized over all <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img467.png"
+ ALT="$ m$"></SPAN> operations, is only <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img468.png"
+ ALT="$ O(1)$"></SPAN> per operation.
+
+<P>
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html377"
+  HREF="2_1_ArrayStack_Fast_Stack_O.html"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN> ArrayStack: Fast Stack Operations Using an Array</A>
+<LI><A NAME="tex2html378"
+  HREF="2_2_FastArrayStack_Optimize.html"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">2</SPAN> FastArrayStack: An Optimized ArrayStack</A>
+<LI><A NAME="tex2html379"
+  HREF="2_3_ArrayQueue_Array_Based_.html"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">3</SPAN> ArrayQueue: An Array-Based Queue</A>
+<LI><A NAME="tex2html380"
+  HREF="2_4_ArrayDeque_Fast_Deque_O.html"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">4</SPAN> ArrayDeque: Fast Deque Operations Using an Array</A>
+<LI><A NAME="tex2html381"
+  HREF="2_5_DualArrayDeque_Building.html"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">5</SPAN> DualArrayDeque: Building a Deque from Two Stacks</A>
+<LI><A NAME="tex2html382"
+  HREF="2_6_RootishArrayStack_Space.html"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">6</SPAN> RootishArrayStack: A Space-Efficient Array Stack</A>
+<LI><A NAME="tex2html383"
+  HREF="2_7_Discussion_Exercises.html"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">7</SPAN> Discussion and Exercises</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html375"
+  HREF="2_1_ArrayStack_Fast_Stack_O.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html369"
+  HREF="ods-python-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html363"
+  HREF="1_8_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html371"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html373"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html376"
+  HREF="2_1_ArrayStack_Fast_Stack_O.html">2.1 ArrayStack: Fast Stack</A>
+<B> Up:</B> <A NAME="tex2html370"
+  HREF="ods-python-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html364"
+  HREF="1_8_Discussion_Exercises.html">1.8 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html372"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html374"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

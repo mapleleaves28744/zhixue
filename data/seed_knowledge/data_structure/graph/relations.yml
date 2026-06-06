@@ -1,0 +1,33 @@
+relations:
+  - source_id: ch05_stack
+    target_id: ch07_recursion
+    relation_type: used_in
+    evidence: 递归调用依赖调用栈保存现场。
+  - source_id: ch06_queue
+    target_id: ch13_bfs
+    relation_type: used_in
+    evidence: BFS 使用队列维护下一层待访问顶点。
+  - source_id: ch12_graph
+    target_id: ch13_bfs
+    relation_type: prerequisite
+    evidence: 理解图的顶点和边后才能分析 BFS。
+  - source_id: ch12_graph
+    target_id: ch14_dfs
+    relation_type: prerequisite
+    evidence: DFS 基于图的邻接关系递归或显式栈访问。
+  - source_id: ch13_bfs
+    target_id: ch15_dijkstra
+    relation_type: compares_with
+    evidence: BFS 可解决无权最短路径，Dijkstra 处理非负权图。
+  - source_id: ch09_binary_tree
+    target_id: ch17_sorting
+    relation_type: used_in
+    evidence: 堆排序依赖完全二叉树表示的堆结构。
+  - source_id: ch11_hash_table
+    target_id: ch18_searching
+    relation_type: belongs_to
+    evidence: 哈希表是查找章节的重要结构。
+  - source_id: ch13_bfs
+    target_id: ch14_dfs
+    relation_type: confused_with
+    evidence: 两者都是图搜索算法，但访问顺序和辅助结构不同。
