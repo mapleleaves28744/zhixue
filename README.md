@@ -23,13 +23,15 @@
 - 前端构建路由只保留：`/`、`/home`、`/courses`、`/knowledge`、`/assistant`、`/practice`、`/dashboard`、`/path-profile`、`/login`、`/register`。
 - 不再建设 `/teacher/*`、`/admin/*` 或旧 React `/student/*` 页面。
 - 无真实 LLM Key 时可用 Mock Provider；配置 OpenAI-compatible Provider 后可调用真实模型。
+- 2026-06-06 已使用真实 `xiaomi_mimo / mimo-v2.5` 完成资料上传到 Agent 日志的 23 步主链路验收，未回退 Mock。
+- 前端已从存在高危公告的 Next.js 14.2.35 升级至 Next.js 16.2.7，`npm audit` 为 0 vulnerabilities。
 
 最近一次本地验收：
 
 ```powershell
 cd backend
 python -m pytest -q --maxfail=1
-# 73 passed
+# 91 passed
 
 python -m alembic upgrade head
 # OK
@@ -40,9 +42,12 @@ npm run typecheck
 
 npm run build
 # OK
+
+npm audit --audit-level=moderate
+# 0 vulnerabilities
 ```
 
-`npm run build` 可能出现 Google Fonts 下载优化警告，不影响构建成功。
+真实 LLM 主链路专项记录见 `docs/19_测试方案/13_真实LLM主链路与Next安全专项验收记录.md`。
 
 ## 技术栈
 
@@ -191,6 +196,7 @@ npm run build
 scripts/local_check.ps1 -Database
 scripts/local_check.ps1 -Backend
 scripts/local_check.ps1 -Frontend
+scripts/local_check.ps1 -MainChain
 ```
 
 说明：
@@ -198,6 +204,8 @@ scripts/local_check.ps1 -Frontend
 - `-Backend` 会运行后端 pytest 和 FastAPI import check。
 - `-Database` 会运行 Alembic migration。
 - `-Frontend` 会运行 TypeScript 检查和 Next.js build。
+- `-MainChain` 要求后端已启动且配置真实 LLM Provider；会创建隔离测试账号并执行完整真实生成链路，回退 Mock 时直接失败。
+- `-All` 不包含真实 LLM 主链路，避免日常检查意外消耗 API 配额。
 - Docker 只作为第21阶段或部署专项验收，不作为当前学生端功能开发的前置条件。
 
 ## 常见问题

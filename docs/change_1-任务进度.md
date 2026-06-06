@@ -100,6 +100,27 @@
 
 ---
 
+## 主链路稳定性与安全专项
+
+- [x] 新增真实 LLM 主链路验收脚本，覆盖资料上传到 Agent 日志的 23 个步骤
+- [x] 使用 `xiaomi_mimo / mimo-v2.5` 实际跑通，`fallback_used=false`
+- [x] 后端 pytest、Alembic、前端 typecheck/build 通过
+- [x] Next.js 14.2.35 升级到 16.2.7，PostCSS 统一到 8.5.15
+- [x] `npm audit --audit-level=moderate` 归零
+- [x] 更新 README、阶段验收清单与专项验收记录
+
+### 专项核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| 真实 LLM 整链 | `python scripts/main_chain_check.py` | 23 步通过；生成 5 个知识点、5 个 Wiki 页面、3 道练习、1 份诊断、1 条自进化策略；Agent 日志 6 条 |
+| 真实 Provider | Tutor 响应元数据 | `provider=xiaomi_mimo`、`model=mimo-v2.5`、`fallback_used=false` |
+| 后端与数据库 | `python -m pytest -q`、`python -m alembic upgrade head` | 91 passed；migration head 通过 |
+| 前端安全升级 | `npm run typecheck`、`npm run build`、`npm audit --audit-level=moderate` | Next.js 16.2.7 构建通过；0 vulnerabilities |
+| Next 16 浏览器烟测 | 品牌首页 + 6 个关键 Stitch 页面逐页加载 | 通过；逐页导航未新增控制台错误 |
+
+---
+
 ## 提交记录（change_1）
 
 | 日期 | Commit | 说明 |
