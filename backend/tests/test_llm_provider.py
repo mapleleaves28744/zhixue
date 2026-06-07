@@ -15,7 +15,7 @@ from app.llm.embedding import (
     get_embedding_provider,
 )
 from app.llm.provider import FallbackLLMProvider, LoggingLLMProvider, get_llm_provider
-from app.llm.schemas import ChatMessage, ChatResponse
+from app.llm.schemas import ChatMessage, ChatResponse, ToolCall
 
 
 def test_mock_chat_returns_data_structure_content() -> None:
@@ -332,6 +332,137 @@ async def _test_llm_openai_embedding_request_sends_configured_dimensions(
     }
 
 
+def test_openai_chat_supports_native_tool_calls_and_mimo_reasoning_history(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    asyncio.run(_test_openai_chat_supports_native_tool_calls_and_mimo_reasoning_history(monkeypatch))
+
+
+async def _test_openai_chat_supports_native_tool_calls_and_mimo_reasoning_history(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import httpx
+
+    captured: dict[str, object] = {}
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, object]:
+            return {
+                "model": "mimo-v2.5",
+                "choices": [
+                    {
+                        "finish_reason": "tool_calls",
+                        "message": {
+                            "role": "assistant",
+                            "content": "",
+                            "reasoning_content": "private-protocol-state",
+                            "tool_calls": [
+                                {
+                                    "id": "call_1",
+                                    "type": "function",
+                                    "function": {
+                                        "name": "search_course_knowledge",
+                                        "arguments": "{\"query\":\"栈\"}",
+                                    },
+                                }
+                            ],
+                        },
+                    }
+                ],
+                "usage": {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15},
+            }
+
+    class FakeClient:
+        def __init__(self, timeout: int) -> None:
+            self.timeout = timeout
+
+        async def __aenter__(self) -> "FakeClient":
+            return self
+
+        async def __aexit__(self, *args: object) -> None:
+            return None
+
+        async def post(self, url: str, *, headers: dict[str, str], json: dict[str, object]):
+            captured["json"] = json
+            return FakeResponse()
+
+    monkeypatch.setattr(httpx, "AsyncClient", FakeClient)
+    provider = OpenAICompatibleLLMProvider(
+        api_key="test-key",
+        base_url="https://token-plan-cn.xiaomimimo.com/v1",
+        model="mimo-v2.5",
+    )
+
+    response = await provider.chat(
+        [
+            ChatMessage(
+                role="assistant",
+                content="",
+                reasoning_content="previous-private-state",
+                tool_calls=[
+                    ToolCall(
+                        id="previous_call",
+                        name="search_course_knowledge",
+                        arguments={"query": "队列"},
+                    )
+                ],
+            ),
+            ChatMessage(role="tool", content='{"items":[]}', tool_call_id="previous_call"),
+            ChatMessage(role="user", content="继续分析栈"),
+        ],
+        tools=[
+            {
+                "type": "function",
+                "function": {
+                    "name": "search_course_knowledge",
+                    "description": "检索课程知识库",
+                    "parameters": {"type": "object", "properties": {}},
+                },
+            }
+        ],
+        tool_choice="auto",
+        response_format={"type": "json_object"},
+    )
+
+    request_payload = captured["json"]
+    assert request_payload["tools"][0]["function"]["name"] == "search_course_knowledge"
+    assert request_payload["tool_choice"] == "auto"
+    assert request_payload["response_format"] == {"type": "json_object"}
+    assert request_payload["messages"][0]["reasoning_content"] == "previous-private-state"
+    assert request_payload["messages"][1]["tool_call_id"] == "previous_call"
+    assert response.finish_reason == "tool_calls"
+    assert response.reasoning_content == "private-protocol-state"
+    assert response.tool_calls[0].name == "search_course_knowledge"
+    assert response.tool_calls[0].arguments == {"query": "栈"}
+
+
+def test_llm_provider_can_disable_mock_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
+    from types import SimpleNamespace
+
+    import app.llm.provider as provider_module
+
+    monkeypatch.setattr(
+        provider_module,
+        "settings",
+        SimpleNamespace(
+            llm_provider="compatible",
+            llm_api_key="real-key",
+            llm_base_url="https://api.example/v1",
+            llm_model_name="real-model",
+            llm_timeout_seconds=60,
+            embedding_model="mock-embedding",
+            embedding_dimension=1024,
+        ),
+    )
+
+    provider = provider_module.get_llm_provider(allow_mock_fallback=False)
+
+    assert isinstance(provider, OpenAICompatibleLLMProvider)
+
+
 def test_compatible_without_api_key_falls_back_to_mock(monkeypatch: pytest.MonkeyPatch) -> None:
     from types import SimpleNamespace
 
@@ -396,6 +527,29 @@ async def _test_logging_provider_records_failed_calls_safely() -> None:
     log = db.items[0]
     assert getattr(log, "status") == "failed"
     assert "should-not-leak" not in str(getattr(log, "error_message"))
+
+
+class FallbackNamedProvider(BaseLLMProvider):
+    provider_name = "fallback"
+
+    async def chat(self, *args, **kwargs) -> ChatResponse:
+        return ChatResponse(content="真实回答", provider="xiaomi_mimo", model="mimo-v2.5")
+
+    async def stream_chat(self, *args, **kwargs):
+        yield "真实回答"
+
+    async def embedding(self, *args, **kwargs):
+        raise NotImplementedError
+
+
+@pytest.mark.asyncio
+async def test_logging_provider_records_the_provider_that_actually_answered() -> None:
+    db = FakeDB()
+    provider = LoggingLLMProvider(FallbackNamedProvider(), db=db)  # type: ignore[arg-type]
+
+    await provider.chat([ChatMessage(role="user", content="测试")])
+
+    assert getattr(db.items[0], "provider") == "xiaomi_mimo"
 
 
 def test_llm_fallback_provider_uses_mock_when_primary_fails() -> None:

@@ -2,12 +2,26 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
-> HTTP 操作数：**90**
+> HTTP 操作数：**104**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
 |---|---|---|---|---|
 | `GET` | `/` | Public | - | - |
+| `POST` | `/api/v1/agent-tasks/create` | JWT | - | application/json: `AgentTaskCreateRequest` |
+| `GET` | `/api/v1/agent-tasks/{task_id}` | JWT | task_id* | - |
+| `POST` | `/api/v1/agent-tasks/{task_id}/cancel` | JWT | task_id* | - |
+| `POST` | `/api/v1/agent-tasks/{task_id}/confirm` | JWT | task_id* | - |
+| `POST` | `/api/v1/agent-tasks/{task_id}/run` | JWT | task_id* | - |
+| `GET` | `/api/v1/agent-tasks/{task_id}/steps` | JWT | task_id* | - |
+| `GET` | `/api/v1/agent/conversations` | JWT | - | - |
+| `POST` | `/api/v1/agent/conversations` | JWT | - | application/json: `AgentConversationCreateRequest` |
+| `GET` | `/api/v1/agent/conversations/{conversation_id}/messages` | JWT | conversation_id* | - |
+| `POST` | `/api/v1/agent/conversations/{conversation_id}/messages` | JWT | conversation_id* | application/json: `AgentMessageCreateRequest` |
+| `GET` | `/api/v1/agent/tasks/{task_id}` | JWT | task_id* | - |
+| `POST` | `/api/v1/agent/tasks/{task_id}/cancel` | JWT | task_id* | - |
+| `GET` | `/api/v1/agent/tasks/{task_id}/events` | JWT | task_id* | - |
+| `POST` | `/api/v1/agent/tasks/{task_id}/resume` | JWT | task_id* | application/json: `AgentTaskResumeRequest` |
 | `GET` | `/api/v1/agents/ping` | JWT | - | - |
 | `POST` | `/api/v1/agents/run` | JWT | - | application/json: `AgentRunRequest` |
 | `GET` | `/api/v1/agents/runs` | JWT | task_type, status, page, page_size | - |

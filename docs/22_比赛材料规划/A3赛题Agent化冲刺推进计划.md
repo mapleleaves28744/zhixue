@@ -420,6 +420,8 @@ chunk 数
 
 让用户可以在对话窗口直接说明任务，而不是只能点按钮。
 
+> 当前状态（2026-06-07）：**completed**。已完成 AgentTask/Step 持久化、IntentRouterAgent、创建/查询/确认/执行/取消 API、用户隔离和 `/assistant` 结构化任务卡。正式验收记录见 `docs/19_测试方案/15_Phase2与Phase3Agent任务执行器阶段验收记录.md`。
+
 用户示例：
 
 ```text
@@ -587,6 +589,26 @@ GET  /api/v1/agent-tasks/{task_id}/steps
 ### 目标
 
 让 Agent 能自己拆计划、选工具、分步骤执行，并展示进度。
+
+> 当前状态（2026-06-07）：**completed（固定计划 MVP + Phase 3.1 LangGraph 动态运行时）**。固定 `LearningTaskGraph` 保留为 `legacy_workflow` 回滚链路；默认 `/assistant` 已升级为 LangGraph + MiMo Supervisor 动态规划、工具执行、观察、重规划、Review、记忆反思、PostgreSQL checkpoint、arq Worker 与 SSE 时间线。正式验收记录见 `docs/19_测试方案/16_Phase3.1LangGraph真正智能体阶段验收记录.md`。
+
+### 7.0 Phase 3.1 动态 Agent 运行时
+
+默认运行图：
+
+```text
+load_context → supervisor → approval/execute_tool → observe
+→ supervisor/replan → review → memory_reflect → finalize
+```
+
+实现约束：
+
+1. MiMo 原生 function tools 优先，结构化 JSON 决策作为同模型降级，不回退 Mock。
+2. Tool Registry 只允许调用现有 Service；禁止 Shell、源码、Migration、权限和系统配置工具。
+3. 默认预算为 15 次循环、30 次工具调用、5 次重新规划、单工具自动重试 2 次。
+4. PostgreSQL 保存会话、消息、追加式事件和 LangGraph checkpoint；Redis + arq 执行后台任务。
+5. 高风险工具使用 LangGraph interrupt 等待确认。
+6. `/assistant` 所有消息默认交给 Supervisor，发送后自动执行，不再要求点击“开始执行”。
 
 ### 7.1 新增 LearningTaskGraph
 
@@ -1271,7 +1293,7 @@ QualityReportPanel
 
 ### 13.9 前移与后置边界
 
-AgentTask 的最小进度展示不应等到 Phase 9。Phase 2/3 先通过轮询展示 steps；Phase 9 再升级为统一 SSE 和更完整的 Markdown/Artifact 渲染。
+AgentTask 的最小进度展示不应等到 Phase 9。Phase 3.1 已完成统一 Agent SSE 时间线；Phase 9 继续补完整 Markdown/Artifact 渲染和跨页面统一事件协议。
 
 Phase 9 不做整站 React 重写，只做必要 React islands 或静态脚本增强。若某页面需要 React 组件化，必须单独确认范围。
 
@@ -1346,30 +1368,24 @@ Playwright/E2E
 当前能做到：
 
 ```text
-有 Agent 类
-有 Agent 日志
-有 Tutor 问答
-有资源生成
-有练习诊断
-有画像/记忆/自进化/推荐接口
+用户通过自然语言下达简单或复杂学习目标
+MiMo Supervisor 动态拆计划并选择受控工具
+LangGraph 分步骤执行、观察、重规划、Review 和记忆反思
+arq 后台任务、PostgreSQL checkpoint、SSE 进度与高风险确认
+课程知识库 grounded 回答、资源、练习、诊断、画像、记忆、自进化与推荐
+公有《数据结构》知识库工程化构建和真实评测
 ```
 
 当前不能完整做到：
 
 ```text
-用户通过自然语言下达复杂任务
-Agent 自动拆计划
-Agent 自动选择多个 Skill
-Agent 分步骤执行
-前端展示任务进度
-统一流式输出
 统一 Markdown 渲染
 统一多模态 Artifact 卡片
-长任务生成进度追踪
-现代 AI 产品级错误/空状态
-遇到风险请求确认
-任务完成后自动更新 Wiki/画像/路径/推荐
-完整数据结构课程知识库工程化构建
+完整会话历史与任务管理 UI
+跨页面统一现代 AI 错误/空状态
+5+ 类正式 Skill 与 HTML 课堂
+完整 GraphRAG community summaries / Global-Local-DRIFT
+Redis 5+ Stream 模式和持续 Agent 指标趋势
 ```
 
 所以本计划的核心不是再堆单点功能，而是把系统升级为：

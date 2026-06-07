@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Request
 
 from app.api.v1 import (
+    agent,
+    agent_tasks,
     agents,
     auth,
     courses,
@@ -45,5 +47,7 @@ router.include_router(diagnosis.router, prefix="/diagnosis", tags=["diagnosis"])
 router.include_router(recommendations.router, prefix="/recommendations", tags=["recommendations"])
 router.include_router(evolution.router, prefix="/evolution", tags=["evolution"])
 router.include_router(agents.router, prefix="/agents", tags=["agents"])
+router.include_router(agent.router, prefix="/agent", tags=["agent"])
+router.include_router(agent_tasks.router, prefix="/agent-tasks", tags=["agent-tasks"])
 router.include_router(student_profile.router, prefix="/student/profile", tags=["student-profile"])
 router.include_router(student_memory.router, prefix="/student/memory", tags=["student-memory"])

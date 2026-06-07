@@ -304,6 +304,7 @@
   const resourceHistory = document.getElementById("resource-history");
   const resourceAgentStatus = document.getElementById("resource-agent-status");
   let currentCourseId = null;
+  let currentConversationId = null;
   let currentResource = null;
   let selectedResourceType = "explanation";
   let sending = false;
@@ -331,15 +332,15 @@
     }
     chatArea.innerHTML = `
       <div class="flex justify-center">
-        <span class="px-5 py-1.5 bg-surface-container-high/40 text-outline rounded-full text-label-sm font-bold backdrop-blur-sm" id="tutor-provider-status">Tutor API 已连接 · 等待模型响应</span>
+        <span class="px-5 py-1.5 bg-surface-container-high/40 text-outline rounded-full text-label-sm font-bold backdrop-blur-sm" id="tutor-provider-status">LangGraph Agent 已连接 · MiMo 动态规划</span>
       </div>
       <div class="flex items-start gap-4">
         <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20 text-primary shadow-sm backdrop-blur-md">
           <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
         </div>
         <div class="chat-bubble-ai rounded-[24px] rounded-tl-sm p-6 shadow-sm space-y-3 max-w-[85%]">
-          <p class="text-body-md text-on-surface leading-relaxed">可以直接提问了。我会调用真实 /api/v1/tutor/chat，并把引用、相关知识点、反馈与保存到 Wiki 串进学习闭环。</p>
-          <div class="text-label-sm text-outline font-bold">试试：什么是栈？它和队列有什么区别？</div>
+          <p class="text-body-md text-on-surface leading-relaxed">直接告诉我你的问题或学习目标。MiMo Supervisor 会动态规划、选择专业 Agent 与工具，并根据执行观察继续或重新规划。</p>
+          <div class="text-label-sm text-outline font-bold">试试：我最近图和排序不太会，帮我生成一套学习计划、讲解资料和练习题。</div>
         </div>
       </div>`;
   }
@@ -446,6 +447,207 @@
       </div>`;
     chatArea.appendChild(wrapper);
     chatArea.scrollTop = chatArea.scrollHeight;
+  }
+
+  const taskStatusLabels = {
+    queued: "等待执行",
+    planned: "计划已生成",
+    waiting_confirmation: "等待确认",
+    running: "执行中",
+    succeeded: "已完成",
+    failed: "执行失败",
+    cancelled: "已取消",
+  };
+  const agentEventLabels = {
+    queued: "进入后台队列",
+    planning: "加载上下文并规划",
+    plan_created: "MiMo 制定计划",
+    tool_started: "开始调用工具",
+    tool_completed: "工具执行完成",
+    observation: "观察执行结果",
+    replanned: "根据观察重新规划",
+    waiting_confirmation: "等待风险操作确认",
+    reviewed: "Review Agent 审查",
+    memory_reflected: "提炼长期学习记忆",
+    artifact_created: "创建学习产物",
+    completed: "任务完成",
+    failed: "任务失败",
+    cancelled: "任务已取消",
+  };
+
+  async function ensureAgentConversation() {
+    if (!currentCourseId) {
+      throw new Error("请先创建或选择课程");
+    }
+    const storageKey = `zhixue_agent_conversation_${currentCourseId}`;
+    const storedId = localStorage.getItem(storageKey);
+    const page = await api.listAgentConversations();
+    const conversations = page.items || [];
+    const selected = conversations.find((item) => item.id === storedId && item.course_id === currentCourseId)
+      || conversations.find((item) => item.course_id === currentCourseId);
+    if (selected) {
+      currentConversationId = selected.id;
+    } else {
+      const created = await api.createAgentConversation({
+        course_id: currentCourseId,
+        title: "新对话",
+      });
+      currentConversationId = created.id;
+    }
+    localStorage.setItem(storageKey, currentConversationId);
+    return currentConversationId;
+  }
+
+  async function refreshDynamicAgentTaskCard(wrapper, knownTask = null) {
+    const taskId = wrapper?.dataset?.taskId;
+    if (!taskId) return null;
+    const task = knownTask || await api.getDynamicAgentTask(taskId);
+    wrapper.__agentTask = task;
+    renderDynamicAgentTaskCard(wrapper, task);
+    return task;
+  }
+
+  function renderDynamicAgentTaskCard(wrapper, task) {
+    const plan = task.plan_json || {};
+    const artifacts = plan.artifact_refs || [];
+    const citations = plan.citations || [];
+    const events = wrapper.__agentEvents || [];
+    const terminal = ["succeeded", "failed", "cancelled"].includes(task.status);
+    const statusTone = task.status === "succeeded"
+      ? "text-green-700 bg-green-50 border-green-200"
+      : task.status === "failed"
+        ? "text-error bg-error-container/20 border-error/20"
+        : task.status === "running"
+          ? "text-primary bg-primary/5 border-primary/20"
+          : "text-on-surface-variant bg-white/70 border-white";
+    const planHtml = (plan.plan || []).map((item, index) => (
+      `<div class="flex items-start gap-2 text-xs text-on-surface-variant"><span class="font-bold text-primary">${index + 1}.</span><span>${escapeHtml(item)}</span></div>`
+    )).join("");
+    const eventHtml = events.map((event) => {
+      const isFailure = event.type === "failed" || event.data?.success === false;
+      const isActive = ["planning", "tool_started", "replanned"].includes(event.type);
+      const icon = isFailure ? "error" : event.type === "completed" ? "check_circle" : isActive ? "sync" : "radio_button_checked";
+      const tone = isFailure ? "text-error" : event.type === "completed" ? "text-green-700" : isActive ? "text-primary" : "text-outline";
+      const detail = event.data?.summary || event.data?.message || event.data?.tool_name || event.data?.error_message || "";
+      return `
+        <div class="grid grid-cols-[24px_1fr_auto] gap-3 items-start py-3 border-b border-outline-variant/20 last:border-0">
+          <span class="material-symbols-outlined text-[19px] ${tone} ${isActive ? "animate-spin" : ""}">${icon}</span>
+          <div class="min-w-0">
+            <div class="font-bold text-sm text-on-surface">${escapeHtml(agentEventLabels[event.type] || event.type)}</div>
+            ${detail ? `<div class="text-xs text-outline mt-1">${escapeHtml(detail)}</div>` : ""}
+          </div>
+          <span class="text-xs font-bold text-outline whitespace-nowrap">#${escapeHtml(event.data?.sequence_no || events.indexOf(event) + 1)}</span>
+        </div>`;
+    }).join("");
+    const artifactHtml = artifacts.map((ref) => (
+      `<div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10 text-xs font-bold text-primary">
+        <span class="material-symbols-outlined text-[16px]">inventory_2</span>
+        <span>${escapeHtml(ref.type || "artifact")}${ref.title ? ` · ${escapeHtml(ref.title)}` : ""}</span>
+      </div>`
+    )).join("");
+    const controls = terminal ? "" : `
+      <div class="flex flex-wrap gap-2 pt-4 border-t border-outline-variant/20">
+        ${task.status === "waiting_confirmation" ? `<button data-task-action="approve" class="px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold shadow-sm">允许本次操作</button><button data-task-action="reject" class="px-4 py-2 rounded-xl bg-white/80 border border-white text-error text-xs font-bold">拒绝操作</button>` : ""}
+        <button data-task-action="cancel" class="px-4 py-2 rounded-xl bg-white/80 border border-white text-error text-xs font-bold">取消任务</button>
+      </div>`;
+    wrapper.innerHTML = `
+      <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20 text-primary shadow-sm">
+        <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">account_tree</span>
+      </div>
+      <div class="chat-bubble-ai rounded-[24px] rounded-tl-sm p-6 shadow-sm space-y-4 max-w-[88%] w-full">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="text-xs font-bold text-primary uppercase tracking-widest">LangGraph Agent · ${escapeHtml(task.runtime_mode)}</div>
+            <h3 class="font-bold text-on-surface mt-1">${escapeHtml(task.task_goal)}</h3>
+          </div>
+          <span class="px-3 py-1.5 rounded-full border text-xs font-bold whitespace-nowrap ${statusTone}">${escapeHtml(taskStatusLabels[task.status] || task.status)}</span>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-xs">
+          <div class="rounded-xl bg-white/60 border border-white px-3 py-2"><span class="text-outline">风险</span><strong class="block mt-1 text-on-surface">${escapeHtml(task.risk_level)}</strong></div>
+          <div class="rounded-xl bg-white/60 border border-white px-3 py-2"><span class="text-outline">循环</span><strong class="block mt-1 text-on-surface">${task.iteration_count || 0}</strong></div>
+          <div class="rounded-xl bg-white/60 border border-white px-3 py-2"><span class="text-outline">工具调用</span><strong class="block mt-1 text-on-surface">${task.tool_call_count || 0}</strong></div>
+        </div>
+        ${planHtml ? `<div><div class="text-xs font-bold text-outline uppercase tracking-widest mb-2">Current Plan</div><div class="rounded-2xl bg-white/55 border border-white p-4 space-y-2">${planHtml}</div></div>` : ""}
+        <div>
+          <div class="text-xs font-bold text-outline uppercase tracking-widest mb-2">Plan · Act · Observe · Replan</div>
+          <div class="rounded-2xl bg-white/55 border border-white px-4 max-h-72 overflow-y-auto">${eventHtml || '<div class="py-4 text-xs text-outline">任务已入队，等待 Worker 接管</div>'}</div>
+        </div>
+        ${artifactHtml ? `<div><div class="text-xs font-bold text-outline uppercase tracking-widest mb-2">Artifacts</div><div class="grid gap-2">${artifactHtml}</div></div>` : ""}
+        ${citations.length ? `<div class="text-xs font-bold text-primary">已绑定 ${citations.length} 条课程来源引用</div>` : ""}
+        ${task.error_message ? `<div class="rounded-xl bg-error-container/20 text-error px-4 py-3 text-xs font-bold">${escapeHtml(task.error_message)}</div>` : ""}
+        ${controls}
+      </div>`;
+    wrapper.querySelectorAll("[data-task-action]").forEach((button) => {
+      button.addEventListener("click", () => handleDynamicAgentTaskAction(wrapper, button.dataset.taskAction, button));
+    });
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+
+  function appendDynamicAgentTaskCard(task) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "flex items-start gap-4";
+    wrapper.dataset.taskId = task.id;
+    wrapper.__agentTask = task;
+    wrapper.__agentEvents = [];
+    chatArea.appendChild(wrapper);
+    renderDynamicAgentTaskCard(wrapper, task);
+    return wrapper;
+  }
+
+  async function handleDynamicAgentTaskAction(wrapper, action, button) {
+    const taskId = wrapper.dataset.taskId;
+    if (!taskId || button.disabled) return;
+    button.disabled = true;
+    const original = button.textContent;
+    button.textContent = "处理中...";
+    try {
+      let task;
+      if (action === "approve") task = await api.resumeDynamicAgentTask(taskId, true);
+      if (action === "reject") task = await api.resumeDynamicAgentTask(taskId, false);
+      if (action === "cancel") task = await api.cancelDynamicAgentTask(taskId);
+      await refreshDynamicAgentTaskCard(wrapper, task);
+      if (action === "approve" || action === "reject") void watchDynamicAgentTask(wrapper);
+    } catch (error) {
+      api.toast(error.message || "Agent 操作失败", "error");
+      button.disabled = false;
+      button.textContent = original;
+    }
+  }
+
+  async function watchDynamicAgentTask(wrapper) {
+    const taskId = wrapper.dataset.taskId;
+    try {
+      await api.streamDynamicAgentTaskEvents(taskId, {
+        onEvent: async (eventType, data) => {
+          if (eventType !== "heartbeat") {
+            wrapper.__agentEvents.push({ type: eventType, data });
+          }
+          const task = await refreshDynamicAgentTaskCard(wrapper);
+          if (eventType === "completed" && !wrapper.__answerRendered) {
+            wrapper.__answerRendered = true;
+            appendAiMessage({
+              answer: data.final_answer,
+              citations: data.citations || task.plan_json?.citations || [],
+              provider: "xiaomi_mimo",
+              model: "mimo-v2.5",
+              agent_run_id: task.id,
+            });
+          }
+        },
+      });
+      await refreshDynamicAgentTaskCard(wrapper);
+    } catch (error) {
+      wrapper.__agentEvents.push({ type: "failed", data: { error_message: error.message || "事件流连接失败" } });
+      await refreshDynamicAgentTaskCard(wrapper).catch(() => renderDynamicAgentTaskCard(wrapper, wrapper.__agentTask));
+    }
+  }
+
+  async function sendDynamicAgentMessage(userInput) {
+    const conversationId = await ensureAgentConversation();
+    const accepted = await api.sendAgentConversationMessage(conversationId, userInput);
+    const wrapper = appendDynamicAgentTaskCard(accepted.task);
+    void watchDynamicAgentTask(wrapper);
+    api.toast("目标已交给 MiMo Supervisor，Agent 正在后台自动执行。", "success");
   }
 
   function formatElapsed(startedAt) {
@@ -712,48 +914,10 @@
     textarea.value = "";
     appendUserMessage(question);
     setSending(true);
-    const progress = createTutorProgressMessage();
     try {
-      let finalMeta = null;
-      const payload = {
-        course_id: currentCourseId,
-        question,
-        wiki_page_id: chapterSelect?.value || null,
-        top_k: 5,
-        use_rag: true,
-        use_wiki: true,
-        use_profile: true,
-      };
-      if (api.streamTutorChat) {
-        finalMeta = await api.streamTutorChat(payload, {
-          onDelta: (chunk) => progress.appendDelta(chunk),
-          onProgress: (event) => progress.updateStage(event.message),
-          onDone: (meta) => { finalMeta = meta; },
-        });
-      } else {
-        const data = await api.chatWithTutor(payload);
-        progress.appendDelta(data.answer || "");
-        finalMeta = data;
-      }
-      const data = {
-        ...(finalMeta || {}),
-        answer: progress.getAnswer() || finalMeta?.answer || "",
-      };
-      const providerStatus = document.getElementById("tutor-provider-status");
-      if (providerStatus) {
-        if (data.fallback_used) {
-          providerStatus.textContent = `${data.failed_provider || "真实模型"} 调用失败 · 已切换 Mock 兜底`;
-          providerStatus.classList.add("text-error");
-        } else {
-          const providerName = data.provider === "xiaomi_mimo" ? "小米 MiMo" : (data.provider || "未知 Provider");
-          providerStatus.textContent = `${providerName} 已响应 · ${data.model || "未返回模型名"}`;
-        }
-      }
-      progress.complete();
-      progress.remove();
-      appendAiMessage(data);
+      await sendDynamicAgentMessage(question);
     } catch (error) {
-      progress.fail(error.message || "AI Tutor 请求失败，请稍后重试。");
+      api.toast(error.message || "Agent 任务创建失败", "error");
     } finally {
       setSending(false);
     }
@@ -1068,6 +1232,7 @@
 
   courseSelect?.addEventListener("change", () => {
     currentCourseId = courseSelect.value || null;
+    currentConversationId = null;
     if (currentCourseId) {
       localStorage.setItem("zhixue_current_course_id", currentCourseId);
     }

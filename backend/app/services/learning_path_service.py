@@ -94,14 +94,7 @@ class LearningPathService:
                 },
             )
         )
-        if not agent_result.success:
-            raise BusinessException(
-                code=ErrorCode.AGENT_RUN_FAILED,
-                detail=agent_result.message,
-                status_code=500,
-            )
-
-        plan_items = agent_result.data.get("items") or []
+        plan_items = agent_result.data.get("items") if agent_result.success else []
         if not plan_items:
             plan_items = self._rule_plan_items(
                 goal=payload.goal,
@@ -110,6 +103,11 @@ class LearningPathService:
                 mastery_snapshot=profile.mastery_snapshot if profile else {},
                 knowledge_points=knowledge_points,
             )
+        path_reason = (
+            agent_result.data.get("reason")
+            if agent_result.success
+            else f"Planner Agent 暂未生成结构化路径，已使用课程知识点、目标和画像规则生成。原因：{agent_result.message}"
+        )
 
         title = self._make_title(payload.goal, payload.path_type)
         path = LearningPath(
@@ -117,7 +115,7 @@ class LearningPathService:
             course_id=payload.course_id,
             title=title,
             goal=payload.goal,
-            reason=agent_result.data.get("reason") or self._default_reason(profile, payload.goal),
+            reason=path_reason or self._default_reason(profile, payload.goal),
             status="active",
             progress=Decimal("0"),
         )

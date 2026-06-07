@@ -5,6 +5,8 @@ services and database query composition in repositories.
 """
 
 from app.models.agent import AgentRun
+from app.models.agent_conversation import AgentConversation, AgentMessage, AgentTaskEvent
+from app.models.agent_task import AgentTask, AgentTaskStep
 from app.models.chunk import DocumentChunk
 from app.models.course import Course
 from app.models.diagnosis import DiagnosisReport
@@ -26,6 +28,11 @@ from app.models.wiki import WikiLink, WikiPage, WikiPageVersion, WikiSource
 
 __all__ = [
     "AgentRun",
+    "AgentConversation",
+    "AgentMessage",
+    "AgentTaskEvent",
+    "AgentTask",
+    "AgentTaskStep",
     "Course",
     "CourseMaterial",
     "DiagnosisReport",

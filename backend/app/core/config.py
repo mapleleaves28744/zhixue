@@ -42,6 +42,11 @@ class Settings(BaseSettings):
     )
     llm_timeout_seconds: int = Field(default=60, alias="LLM_TIMEOUT_SECONDS")
 
+    agent_max_iterations: int = Field(default=15, alias="AGENT_MAX_ITERATIONS")
+    agent_max_tool_calls: int = Field(default=30, alias="AGENT_MAX_TOOL_CALLS")
+    agent_max_replans: int = Field(default=5, alias="AGENT_MAX_REPLANS")
+    agent_worker_concurrency: int = Field(default=4, alias="AGENT_WORKER_CONCURRENCY")
+
     embedding_provider: str = Field(default="mock", alias="EMBEDDING_PROVIDER")
     embedding_api_key: str = Field(
         default="",

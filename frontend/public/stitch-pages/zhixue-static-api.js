@@ -363,6 +363,125 @@
     return request(`/agents/runs?${query}`);
   }
 
+  async function createAgentTask(payload) {
+    return request("/agent-tasks/create", {
+      method: "POST",
+      body: payload,
+    });
+  }
+
+  async function getAgentTask(taskId) {
+    return request(`/agent-tasks/${taskId}`);
+  }
+
+  async function getAgentTaskSteps(taskId) {
+    return request(`/agent-tasks/${taskId}/steps`);
+  }
+
+  async function confirmAgentTask(taskId) {
+    return request(`/agent-tasks/${taskId}/confirm`, { method: "POST" });
+  }
+
+  async function runAgentTask(taskId) {
+    return request(`/agent-tasks/${taskId}/run`, { method: "POST" });
+  }
+
+  async function cancelAgentTask(taskId) {
+    return request(`/agent-tasks/${taskId}/cancel`, { method: "POST" });
+  }
+
+  async function createAgentConversation(payload) {
+    return request("/agent/conversations", {
+      method: "POST",
+      body: payload,
+    });
+  }
+
+  async function listAgentConversations() {
+    return request("/agent/conversations");
+  }
+
+  async function listAgentConversationMessages(conversationId) {
+    return request(`/agent/conversations/${conversationId}/messages`);
+  }
+
+  async function sendAgentConversationMessage(conversationId, content) {
+    return request(`/agent/conversations/${conversationId}/messages`, {
+      method: "POST",
+      body: { content },
+    });
+  }
+
+  async function getDynamicAgentTask(taskId) {
+    return request(`/agent/tasks/${taskId}`);
+  }
+
+  async function resumeDynamicAgentTask(taskId, approved = true) {
+    return request(`/agent/tasks/${taskId}/resume`, {
+      method: "POST",
+      body: { approved },
+    });
+  }
+
+  async function cancelDynamicAgentTask(taskId) {
+    return request(`/agent/tasks/${taskId}/cancel`, { method: "POST" });
+  }
+
+  async function streamDynamicAgentTaskEvents(taskId, handlers = {}) {
+    const token = getToken();
+    if (!token) {
+      throw new Error("请先登录后再操作");
+    }
+    const response = await fetch(`${getApiBaseUrl()}/agent/tasks/${taskId}/events`, {
+      headers: {
+        Accept: "text/event-stream",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
+      throw new Error(normalizeErrorDetail(payload && payload.detail) || (payload && payload.message) || "Agent 事件流连接失败");
+    }
+    if (!response.body) {
+      throw new Error("浏览器不支持 Agent 实时事件流");
+    }
+
+    handlers.onOpen?.();
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+
+    function consumeEvent(rawEvent) {
+      const lines = rawEvent.split("\n").map((line) => line.trimEnd());
+      const eventName = (lines.find((line) => line.startsWith("event:")) || "event: message").slice(6).trim();
+      const dataLines = lines.filter((line) => line.startsWith("data:")).map((line) => line.slice(5).trimStart());
+      if (!dataLines.length) {
+        return;
+      }
+      const eventData = JSON.parse(dataLines.join("\n"));
+      handlers.onEvent?.(eventName, eventData);
+    }
+
+    while (true) {
+      const { value, done } = await reader.read();
+      buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+      const events = buffer.split("\n\n");
+      buffer = events.pop() || "";
+      for (const eventText of events) {
+        if (eventText.trim()) {
+          consumeEvent(eventText);
+        }
+      }
+      if (done) {
+        break;
+      }
+    }
+    if (buffer.trim()) {
+      consumeEvent(buffer);
+    }
+    handlers.onClose?.();
+  }
+
   async function refreshRecommendations(courseId) {
     const query = new URLSearchParams({ course_id: courseId });
     return request(`/recommendations/refresh?${query}`, { method: "POST" });
@@ -489,11 +608,20 @@
     formatDate,
     formatSize,
     chatWithTutor,
+    cancelAgentTask,
+    cancelDynamicAgentTask,
+    confirmAgentTask,
     streamTutorChat,
+    streamDynamicAgentTaskEvents,
+    createAgentConversation,
+    createAgentTask,
     createCourse,
     createWikiPage,
     generateResource,
     getCourse,
+    getAgentTask,
+    getAgentTaskSteps,
+    getDynamicAgentTask,
     getPageMascot,
     getWikiPage,
     getMe,
@@ -504,6 +632,8 @@
     logout,
     listCourses,
     listAgentRuns,
+    listAgentConversations,
+    listAgentConversationMessages,
     listDiagnosisReports,
     listLearningRecords,
     listMaterials,
@@ -517,6 +647,9 @@
     request,
     resolveCourseId,
     refreshRecommendations,
+    resumeDynamicAgentTask,
+    runAgentTask,
+    sendAgentConversationMessage,
     saveResourceToWiki,
     saveTutorAnswerToWiki,
     submitTutorFeedback,

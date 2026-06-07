@@ -1,6 +1,7 @@
 from app.agents.diagnosis_agent import DiagnosisAgent
 from app.agents.evolution_agent import EvolutionAgent
 from app.agents.knowledge_agent import KnowledgeAgent
+from app.agents.intent_router_agent import IntentRouterAgent
 from app.agents.memory_agent import MemoryAgent
 from app.agents.planner_agent import PlannerAgent
 from app.agents.profile_agent import ProfileAgent
@@ -15,6 +16,7 @@ __all__ = [
     "DiagnosisAgent",
     "EvolutionAgent",
     "KnowledgeAgent",
+    "IntentRouterAgent",
     "MemoryAgent",
     "PlannerAgent",
     "ProfileAgent",
