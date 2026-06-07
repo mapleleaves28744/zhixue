@@ -4,6 +4,7 @@ from app.api.v1 import (
     agent,
     agent_tasks,
     agents,
+    audio,
     auth,
     courses,
     diagnosis,
@@ -46,6 +47,7 @@ router.include_router(quizzes.router, prefix="/quizzes", tags=["quizzes"])
 router.include_router(diagnosis.router, prefix="/diagnosis", tags=["diagnosis"])
 router.include_router(recommendations.router, prefix="/recommendations", tags=["recommendations"])
 router.include_router(evolution.router, prefix="/evolution", tags=["evolution"])
+router.include_router(audio.router, prefix="/audio", tags=["audio"])
 router.include_router(agents.router, prefix="/agents", tags=["agents"])
 router.include_router(agent.router, prefix="/agent", tags=["agent"])
 router.include_router(agent_tasks.router, prefix="/agent-tasks", tags=["agent-tasks"])

@@ -114,6 +114,21 @@ class ProfileService:
             preference.version_no += 1
             preference.updated_at = datetime.now(UTC)
 
+        if course_id is not None:
+            from app.services.learning_record_service import LearningRecordService
+
+            await LearningRecordService(self.db).record_event(
+                user_id=user_id,
+                course_id=course_id,
+                event_type="profile_updated",
+                event_source="profile_service",
+                event_payload=self._build_profile_updated_event_payload(
+                    signals=signals,
+                    source_message_id=source_message_id,
+                ),
+                commit=False,
+            )
+
         await self.db.commit()
         await self.db.refresh(profile)
         if preference is not None:
@@ -145,6 +160,23 @@ class ProfileService:
             )
         profile = await self._get_or_create(user_id)
         return ProfileRead.model_validate(profile)
+
+    def _build_profile_updated_event_payload(
+        self,
+        *,
+        signals: dict[str, Any],
+        source_message_id: str | None,
+    ) -> dict[str, Any]:
+        changed_fields = [
+            key
+            for key in ("major", "grade", "learning_goal", "preferences", "weak_points", "error_patterns")
+            if signals.get(key)
+        ]
+        return {
+            "source": "dialogue_ingest",
+            "changed_fields": changed_fields,
+            "source_message_id": source_message_id,
+        }
 
     async def get_preferences(
         self, user_id: UUID, course_id: UUID | None = None

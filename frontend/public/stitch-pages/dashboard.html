@@ -414,6 +414,25 @@
       if (subtitles[2]) subtitles[2].textContent = runs[0]?.task_type || "Agent 日志";
       const count = taskCard.querySelector("span.font-label-sm");
       if (count) count.textContent = `${courses.length ? 1 : 0}/3 已完成`;
+      taskCard.querySelector("#active-recommendation-hint")?.remove();
+      if (recommendations.length) {
+        const hint = document.createElement("div");
+        hint.id = "active-recommendation-hint";
+        hint.className = "mb-4 rounded-xl bg-primary/5 border border-primary/15 px-4 py-3 text-xs font-bold text-primary";
+        hint.textContent = `基于你的最新画像/诊断，系统已刷新 ${recommendations.length} 条推荐`;
+        taskCard.insertBefore(hint, taskCard.children[1] || null);
+      }
+      taskCard.querySelectorAll("label").forEach((label, index) => {
+        label.addEventListener("click", () => {
+          const item = recommendations[index];
+          if (!item) return;
+          void api.trackLearningEvent?.({
+            course_id: item.course_id || courses[0]?.id,
+            event_type: "recommendation_click",
+            event_payload: { recommendation_id: item.id, title: item.title, surface: "dashboard_tasks" },
+          });
+        });
+      });
     }
     const reminderCard = [...document.querySelectorAll(".glass-card")].find((card) => card.innerText.includes("复习提醒"));
     if (reminderCard) {
@@ -427,11 +446,22 @@
               runs[0] ? `Agent - ${runs[0].task_type}` : "AI 助手 - 完成一次问答",
             ];
         list.innerHTML = reminders.map((item, index) => `
-          <li class="flex items-center gap-3 ${index === 0 ? "bg-white/50 p-3 rounded-xl border border-white/60" : "p-3 px-4"}">
+          <li class="flex items-center gap-3 ${index === 0 ? "bg-white/50 p-3 rounded-xl border border-white/60" : "p-3 px-4"}" data-recommendation-index="${index}">
             <div class="${index === 0 ? "w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(131,84,0,0.4)]" : "w-2 h-2 rounded-full bg-outline-variant"}"></div>
             <span class="font-body-sm text-body-sm text-on-surface-variant flex-1">${escapeHtml(item)}</span>
             ${index === 0 ? '<span class="font-label-caps text-label-caps text-secondary bg-secondary-fixed/60 px-2 py-0.5 rounded-md font-bold">高优</span>' : ""}
           </li>`).join("");
+        list.querySelectorAll("[data-recommendation-index]").forEach((node) => {
+          node.addEventListener("click", () => {
+            const item = recommendations[Number(node.dataset.recommendationIndex)];
+            if (!item) return;
+            void api.trackLearningEvent?.({
+              course_id: item.course_id || courses[0]?.id,
+              event_type: "recommendation_click",
+              event_payload: { recommendation_id: item.id, title: item.title, surface: "dashboard_reminders" },
+            });
+          });
+        });
       }
     }
   }
@@ -457,6 +487,13 @@
       const recommendationPage = courseId && api.listRecommendations ? await api.listRecommendations(courseId, { pageSize: 5 }).catch(() => ({ items: [] })) : { items: [] };
       const wikiPages = wikiPage.items || [];
       const recommendations = recommendationPage.items || [];
+      if (courseId && recommendations.length) {
+        void api.trackLearningEvent?.({
+          course_id: courseId,
+          event_type: "recommendation_view",
+          event_payload: { count: recommendations.length, surface: "dashboard" },
+        });
+      }
       const masteryItems = normalizeList(profile.mastery_snapshot);
       const mastery = Math.round(firstNumber(masteryItems.map((item) => item.score || item.mastery || item.value), 68));
       const runs = runsPage.items || [];

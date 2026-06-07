@@ -349,6 +349,44 @@
     return request(`/learning-records?${query}`);
   }
 
+  async function trackLearningEvents(events) {
+    try {
+      if (!Array.isArray(events) || !events.length) {
+        return { recorded: 0 };
+      }
+      return await request("/learning-records/events/batch", {
+        method: "POST",
+        body: {
+          events: events.map((event) => ({
+            ...event,
+            event_source: event.event_source || "stitch_frontend",
+            event_payload: event.event_payload || {},
+          })),
+        },
+      });
+    } catch {
+      return { recorded: 0, ignored: true };
+    }
+  }
+
+  async function trackLearningEvent(event) {
+    return trackLearningEvents([event]);
+  }
+
+  async function transcribeAudio(payload) {
+    return request("/audio/transcribe", {
+      method: "POST",
+      body: payload,
+    });
+  }
+
+  async function synthesizeSpeech(payload) {
+    return request("/audio/synthesize", {
+      method: "POST",
+      body: payload,
+    });
+  }
+
   async function listAgentRuns(params = {}) {
     const query = new URLSearchParams({
       page: String(params.page || 1),
@@ -662,6 +700,10 @@
     saveTutorAnswerToWiki,
     submitTutorFeedback,
     toast,
+    trackLearningEvent,
+    trackLearningEvents,
+    transcribeAudio,
+    synthesizeSpeech,
     updateCourse,
   };
 

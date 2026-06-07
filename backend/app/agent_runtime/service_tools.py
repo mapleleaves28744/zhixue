@@ -124,6 +124,156 @@ def build_learning_tool_registry(
             artifact_refs=[{"type": "quiz", "id": str(result.quiz_id), "title": result.title}],
         )
 
+    async def parse_document(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.services.embedding_service import EmbeddingService
+        from app.services.material_service import MaterialService
+
+        material_id = UUID(str(arguments["material_id"]))
+        parse_result = await MaterialService(db).parse_material(
+            material_id=material_id,
+            current_user=current_user,
+        )
+        embedded_count = await EmbeddingService(db).generate_embeddings(material_id)
+        return ToolExecutionResult(
+            output={
+                "material_id": str(material_id),
+                "file_name": parse_result.file_name,
+                "text_length": parse_result.text_length,
+                "parse_status": parse_result.parse_status,
+                "embedded_count": embedded_count,
+            },
+            evidence=[
+                f"已解析 {parse_result.file_name}，提取 {parse_result.text_length} 字符",
+                f"已生成 {embedded_count} 个向量切片",
+            ],
+            artifact_refs=[
+                {
+                    "type": "material",
+                    "id": str(material_id),
+                    "title": parse_result.file_name,
+                }
+            ],
+        )
+
+    async def generate_mindmap_handler(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.services.mindmap_service import MindmapService
+
+        topic = str(arguments.get("topic") or "").strip() or "数据结构知识结构"
+        result = await MindmapService(db).generate(
+            current_user=current_user,
+            course_id=context.course_id,
+            topic=topic,
+            scope=str(arguments.get("scope") or "course"),
+            depth=int(arguments.get("depth") or 3),
+        )
+        return ToolExecutionResult(
+            output=result,
+            evidence=result.get("citations") or [],
+            citations=result.get("citations") or [],
+            artifact_refs=[
+                {
+                    "type": "resource",
+                    "subtype": "mindmap",
+                    "id": result["resource_id"],
+                    "title": result["title"],
+                }
+            ],
+        )
+
+    async def generate_diagram_handler(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.services.diagram_service import DiagramService
+
+        concept = str(arguments.get("concept") or "").strip() or "数据结构概念"
+        result = await DiagramService(db).generate(
+            current_user=current_user,
+            course_id=context.course_id,
+            concept=concept,
+            diagram_type=str(arguments.get("diagram_type") or "flowchart"),
+        )
+        return ToolExecutionResult(
+            output=result,
+            evidence=result.get("citations") or [],
+            citations=result.get("citations") or [],
+            artifact_refs=[
+                {
+                    "type": "resource",
+                    "subtype": "diagram",
+                    "id": result["resource_id"],
+                    "title": result["title"],
+                }
+            ],
+        )
+
+    async def transcribe_audio_handler(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.llm.audio_provider import _safe_audio_byte_count, build_audio_provider
+
+        audio_base64 = str(arguments["audio_base64"])
+        byte_count = _safe_audio_byte_count(audio_base64)
+        result = await build_audio_provider().transcribe(
+            audio_base64,
+            filename=str(arguments.get("filename") or "audio.wav"),
+            language=str(arguments.get("language") or "zh"),
+        )
+        raw = result.raw or {}
+        return ToolExecutionResult(
+            output={
+                "text": result.text,
+                "duration_ms": result.duration_ms,
+                "language": result.language,
+                "provider": result.provider,
+                "model": result.model,
+                "audio_bytes": byte_count,
+                "fallback_used": bool(raw.get("fallback_used")),
+                "failed_provider": raw.get("failed_provider"),
+                "fallback_reason": raw.get("fallback_reason"),
+            },
+            evidence=[
+                f"语音识别完成，provider={result.provider}，模型={result.model}",
+                f"输入音频 {byte_count} bytes，识别文本 {len(result.text)} 字",
+            ],
+        )
+
+    async def synthesize_speech_handler(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.llm.audio_provider import (
+            MIMO_TTS_MODEL,
+            MIMO_TTS_VOICECLONE_MODEL,
+            MIMO_TTS_VOICEDESIGN_MODEL,
+            build_audio_provider,
+        )
+
+        text = str(arguments["text"]).strip()
+        model_type = str(arguments.get("model_type") or "tts")
+        model_map = {
+            "tts": MIMO_TTS_MODEL,
+            "voiceclone": MIMO_TTS_VOICECLONE_MODEL,
+            "voicedesign": MIMO_TTS_VOICEDESIGN_MODEL,
+        }
+        result = await build_audio_provider().synthesize(
+            text,
+            voice=str(arguments.get("voice") or "") or None,
+            speed=float(arguments.get("speed") or 1.0),
+            response_format=str(arguments.get("response_format") or "wav"),
+            model=model_map.get(model_type, MIMO_TTS_MODEL),
+        )
+        raw = result.raw or {}
+        return ToolExecutionResult(
+            output={
+                "audio_base64": result.audio_base64,
+                "format": result.format,
+                "model": result.model,
+                "provider": result.provider,
+                "duration_ms": result.duration_ms,
+                "text_length": len(text),
+                "fallback_used": bool(raw.get("fallback_used")),
+                "failed_provider": raw.get("failed_provider"),
+                "fallback_reason": raw.get("fallback_reason"),
+            },
+            evidence=[
+                f"语音合成完成，provider={result.provider}，模型={result.model}",
+                f"输出格式 {result.format}，文本 {len(text)} 字",
+            ],
+        )
+
     async def analyze_diagnosis(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
         from app.services.diagnosis_service import DiagnosisService
 
@@ -284,6 +434,73 @@ def build_learning_tool_registry(
         handler=generate_quiz,
         writes_db=True,
     )
+    _register(
+        registry,
+        name="parse_uploaded_document",
+        description="解析已上传的课程资料（PDF/DOCX/TXT/MD），自动切片和向量化，供 RAG 检索使用。",
+        agent_name="KnowledgeAgent",
+        properties={"material_id": {"type": "string", "description": "课程资料 UUID"}},
+        required=["material_id"],
+        handler=parse_document,
+        writes_db=True,
+    )
+    _register(
+        registry,
+        name="generate_mindmap",
+        description="围绕课程知识点生成 Mermaid 思维导图，可视化知识结构关系。",
+        agent_name="KnowledgeAgent",
+        properties={
+            "topic": {"type": "string", "description": "知识主题"},
+            "scope": {"type": "string", "enum": ["course", "chapter", "custom"]},
+            "depth": {"type": "integer", "minimum": 2, "maximum": 5},
+        },
+        required=["topic"],
+        handler=generate_mindmap_handler,
+        writes_db=True,
+    )
+    _register(
+        registry,
+        name="generate_diagram",
+        description="围绕知识概念生成流程图、架构图或示意图的 Mermaid 代码。",
+        agent_name="KnowledgeAgent",
+        properties={
+            "concept": {"type": "string", "description": "需要图解的概念"},
+            "diagram_type": {"type": "string", "enum": ["flowchart", "sequence", "class", "er"]},
+        },
+        required=["concept"],
+        handler=generate_diagram_handler,
+        writes_db=True,
+    )
+    _register(
+        registry,
+        name="transcribe_audio",
+        description="将音频文件转换为文字，支持语音提问、语音笔记等场景。",
+        agent_name="TutorAgent",
+        properties={
+            "audio_base64": {"type": "string", "description": "Base64 编码的音频数据"},
+            "filename": {"type": "string", "description": "文件名（用于推断格式）"},
+            "language": {"type": "string", "description": "语言代码，默认 zh"},
+        },
+        required=["audio_base64"],
+        handler=transcribe_audio_handler,
+        timeout_seconds=60,
+    )
+    _register(
+        registry,
+        name="synthesize_speech",
+        description="将文字转换为语音，用于讲解朗读、错题语音反馈等场景。",
+        agent_name="TutorAgent",
+        properties={
+            "text": {"type": "string", "description": "要转换的文字"},
+            "model_type": {"type": "string", "enum": ["tts", "voiceclone", "voicedesign"]},
+            "voice": {"type": "string", "description": "音色，可由具体 Provider 解释"},
+            "speed": {"type": "number", "minimum": 0.5, "maximum": 2.0},
+            "response_format": {"type": "string", "enum": ["wav", "mp3"]},
+        },
+        required=["text"],
+        handler=synthesize_speech_handler,
+        timeout_seconds=120,
+    )
     _register(registry, "analyze_learning_diagnosis", "基于练习和错题生成学习诊断。", "DiagnosisAgent", {}, [], analyze_diagnosis, writes_db=True)
     _register(registry, "refresh_recommendations", "根据画像、诊断和路径刷新推荐。", "RecommendAgent", {}, [], refresh_recommendations, writes_db=True)
     _register(
@@ -337,6 +554,7 @@ def _register(
     writes_db: bool = False,
     risk_level: str = "low",
     requires_confirmation: bool = False,
+    timeout_seconds: int = 120,
 ) -> None:
     registry.register(
         AgentTool(
@@ -353,5 +571,6 @@ def _register(
             writes_db=writes_db,
             risk_level=risk_level,  # type: ignore[arg-type]
             requires_confirmation=requires_confirmation,
+            timeout_seconds=timeout_seconds,
         )
     )

@@ -44,6 +44,27 @@ def test_profile_dialogue_dimensions_keep_source_evidence() -> None:
     assert summary["source_count"] == 1
 
 
+def test_profile_dialogue_builds_profile_updated_learning_event_payload() -> None:
+    service = ProfileService.__new__(ProfileService)
+    signals = {
+        "major": "软件工程",
+        "grade": None,
+        "learning_goal": "期末 85 分",
+        "preferences": {"explanation_style": "visual_first"},
+        "weak_points": [{"knowledge_name": "递归"}],
+        "error_patterns": [],
+    }
+
+    payload = service._build_profile_updated_event_payload(
+        signals=signals,
+        source_message_id="msg-2",
+    )
+
+    assert payload["source"] == "dialogue_ingest"
+    assert set(payload["changed_fields"]) == {"major", "learning_goal", "preferences", "weak_points"}
+    assert payload["source_message_id"] == "msg-2"
+
+
 def test_phase4_profile_dialogue_api_route_registered() -> None:
     routes = {getattr(route, "path", "") for route in app.routes}
 

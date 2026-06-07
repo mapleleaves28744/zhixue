@@ -25,6 +25,8 @@ RESOURCE_TYPE_LABELS = {
     "example": "例题",
     "flashcard": "复习卡",
     "review": "错题解析",
+    "mindmap": "思维导图",
+    "diagram": "图解",
 }
 
 

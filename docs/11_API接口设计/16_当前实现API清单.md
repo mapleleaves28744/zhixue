@@ -2,7 +2,7 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
-> HTTP 操作数：**105**
+> HTTP 操作数：**108**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
@@ -26,6 +26,8 @@
 | `POST` | `/api/v1/agents/run` | JWT | - | application/json: `AgentRunRequest` |
 | `GET` | `/api/v1/agents/runs` | JWT | task_type, status, page, page_size | - |
 | `GET` | `/api/v1/agents/runs/{run_id}` | JWT | run_id* | - |
+| `POST` | `/api/v1/audio/synthesize` | JWT | - | application/json: `AudioSynthesizeRequest` |
+| `POST` | `/api/v1/audio/transcribe` | JWT | - | application/json: `AudioTranscribeRequest` |
 | `POST` | `/api/v1/auth/change-password` | JWT | - | application/json: `ChangePasswordRequest` |
 | `GET` | `/api/v1/auth/check-username` | Public | username* | - |
 | `POST` | `/api/v1/auth/login` | Public | - | application/json: `LoginRequest` |
@@ -58,6 +60,7 @@
 | `GET` | `/api/v1/learning-paths/{path_id}` | JWT | path_id* | - |
 | `DELETE` | `/api/v1/learning-paths/{path_id}` | JWT | path_id* | - |
 | `GET` | `/api/v1/learning-records` | JWT | course_id, event_type, limit | - |
+| `POST` | `/api/v1/learning-records/events/batch` | JWT | - | application/json: `LearningEventBatchRequest` |
 | `GET` | `/api/v1/materials` | JWT | course_id*, page, page_size | - |
 | `GET` | `/api/v1/materials/ping` | JWT | - | - |
 | `POST` | `/api/v1/materials/upload` | JWT | - | multipart/form-data: `Body_upload_material_api_v1_materials_upload_post` |

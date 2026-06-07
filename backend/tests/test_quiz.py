@@ -81,6 +81,21 @@ def test_quiz_service_normalizes_agent_questions() -> None:
     assert items[1]["question_type"] == "short_answer"
 
 
+def test_quiz_service_fallback_questions_match_question_type() -> None:
+    service = QuizService.__new__(QuizService)
+
+    judge = service._fallback_question(index=0, topic="栈", question_type="judge", difficulty="easy")
+    fill_blank = service._fallback_question(index=1, topic="队列", question_type="fill_blank", difficulty="medium")
+    coding = service._fallback_question(index=2, topic="二叉树遍历", question_type="coding", difficulty="hard")
+
+    assert judge["options"] == {"正确": "正确", "错误": "错误"}
+    assert judge["standard_answer"] in {"正确", "错误"}
+    assert "____" in fill_blank["question_text"]
+    assert fill_blank["options"] == []
+    assert "代码" in coding["question_text"] or "伪代码" in coding["question_text"]
+    assert coding["options"] == []
+
+
 def test_quiz_service_grades_objective_answers() -> None:
     service = QuizService.__new__(QuizService)
     question = SimpleNamespace(question_type="single_choice", standard_answer="B")

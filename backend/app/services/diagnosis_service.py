@@ -16,6 +16,7 @@ from app.models.knowledge import KnowledgePoint
 from app.models.quiz import AnswerRecord, MistakeBook, Question, Quiz
 from app.models.user import User
 from app.services.course_service import CourseService
+from app.services.learning_record_service import LearningRecordService
 
 
 class DiagnosisService:
@@ -71,9 +72,33 @@ class DiagnosisService:
             generated_by_agent_run_id=agent_run_id,
         )
         self.db.add(report)
+        await self.db.flush()
+        await LearningRecordService(self.db).record_event(
+            user_id=current_user.id,
+            course_id=course_id,
+            event_type="diagnosis_generated",
+            event_source="diagnosis_service",
+            event_payload=self._build_diagnosis_generated_event_payload(
+                report_id=report.id,
+                weak_points=weak_points,
+                recommended_actions=recommended_actions,
+            ),
+            commit=False,
+        )
         await self.db.commit()
         await self.db.refresh(report)
-        return self._serialize_report(report)
+        serialized = self._serialize_report(report)
+        if trigger_evolution:
+            from app.services.evolution_service import EvolutionService
+
+            evolution_result = await EvolutionService(self.db).auto_evolve_if_needed(
+                user_id=current_user.id,
+                course_id=course_id,
+                diagnosis=serialized,
+            )
+            if evolution_result is not None:
+                serialized["auto_evolution"] = evolution_result
+        return serialized
 
     async def list_reports(
         self,
@@ -300,6 +325,19 @@ class DiagnosisService:
             "total_questions": total,
             "correct_answers": correct,
             "accuracy": round(accuracy, 4),
+        }
+
+    def _build_diagnosis_generated_event_payload(
+        self,
+        *,
+        report_id: UUID,
+        weak_points: list[dict[str, Any]],
+        recommended_actions: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        return {
+            "report_id": str(report_id),
+            "weak_points_count": len(weak_points),
+            "recommended_actions_count": len(recommended_actions),
         }
 
     def _serialize_report(self, report: DiagnosisReport) -> dict[str, Any]:

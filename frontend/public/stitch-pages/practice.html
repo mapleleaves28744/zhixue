@@ -92,7 +92,10 @@
 <div class="flex flex-wrap gap-2" id="question-type-group">
 <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium shadow-sm" data-question-type="single_choice" onclick="selectQuestionType(this)">单选</button>
 <button class="px-4 py-2 bg-white/50 border border-outline-variant hover:border-primary rounded-lg text-sm font-medium transition-colors" data-question-type="multiple_choice" onclick="selectQuestionType(this)">多选</button>
+<button class="px-4 py-2 bg-white/50 border border-outline-variant hover:border-primary rounded-lg text-sm font-medium transition-colors" data-question-type="judge" onclick="selectQuestionType(this)">判断</button>
 <button class="px-4 py-2 bg-white/50 border border-outline-variant hover:border-primary rounded-lg text-sm font-medium transition-colors" data-question-type="short_answer" onclick="selectQuestionType(this)">简答</button>
+<button class="px-4 py-2 bg-white/50 border border-outline-variant hover:border-primary rounded-lg text-sm font-medium transition-colors" data-question-type="fill_blank" onclick="selectQuestionType(this)">填空</button>
+<button class="px-4 py-2 bg-white/50 border border-outline-variant hover:border-primary rounded-lg text-sm font-medium transition-colors" data-question-type="coding" onclick="selectQuestionType(this)">编程</button>
 </div>
 </div>
 <div>
@@ -413,6 +416,17 @@
                 currentQuestionIndex = 0;
                 quizRenderMode = 'inline';
                 renderQuiz(currentQuestions[0]);
+                void api.trackLearningEvent?.({
+                    course_id: currentCourseId,
+                    event_type: 'quiz_start',
+                    event_payload: {
+                        quiz_id: currentQuizId,
+                        topic,
+                        question_type: selectedQuestionType,
+                        difficulty: selectedDifficulty,
+                        count: currentQuestions.length,
+                    },
+                });
                 api.toast(`已生成 ${currentQuestions.length} 道题目`, 'success');
             } catch (e) {
                 api.toast(e.message || '生成失败', 'error');
@@ -445,7 +459,11 @@
                 return;
             }
             selectedAnswer = null;
-            const options = normalizeOptions(question.options);
+            const questionType = question.question_type || selectedQuestionType || 'single_choice';
+            let options = normalizeOptions(question.options);
+            if (questionType === 'judge' && Object.keys(options).length === 0) {
+                options = { '正确': '正确', '错误': '错误' };
+            }
             const optionKeys = Object.keys(options);
             const answerInput = optionKeys.length
                 ? `
@@ -458,6 +476,14 @@
                         `).join('')}
                     </div>
                 `
+                : questionType === 'coding'
+                    ? `
+                        <textarea id="short-answer-input" class="w-full min-h-48 rounded-xl border-outline-variant bg-[#1f2937] text-white font-mono p-4 text-sm focus:ring-primary focus:border-primary mb-8" placeholder="写下伪代码、关键步骤和边界条件..."></textarea>
+                    `
+                    : questionType === 'fill_blank'
+                        ? `
+                            <input id="short-answer-input" class="w-full rounded-xl border-outline-variant bg-white/60 p-4 text-body-md focus:ring-primary focus:border-primary mb-8" placeholder="填写空缺答案..." />
+                        `
                 : `
                     <textarea id="short-answer-input" class="w-full min-h-32 rounded-xl border-outline-variant bg-white/50 p-4 text-body-md focus:ring-primary focus:border-primary mb-8" placeholder="写下你的答案..."></textarea>
                 `;
@@ -466,7 +492,7 @@
                     <div class="text-label-sm text-outline">题号: ${currentQuestionIndex + 1} / ${currentQuestions.length}</div>
                 </div>
                 <div class="mb-8">
-                    <span class="px-2.5 py-1 bg-primary-fixed text-on-primary-fixed-variant text-[11px] font-bold rounded uppercase mb-3 inline-block">${escapeHtml(question.question_type || '练习题')}</span>
+                    <span class="px-2.5 py-1 bg-primary-fixed text-on-primary-fixed-variant text-[11px] font-bold rounded uppercase mb-3 inline-block">${escapeHtml(questionTypeLabel(questionType))}</span>
                     <h2 class="text-headline-md leading-relaxed text-on-surface">${escapeHtml(question.question_text || '')}</h2>
                 </div>
                 ${answerInput}
@@ -488,7 +514,22 @@
             }
             resultSection.querySelectorAll('#quiz-options label').forEach(label => {
                 label.addEventListener('click', () => {
-                    selectedAnswer = label.dataset.answer;
+                    const answer = label.dataset.answer;
+                    if (questionType === 'multiple_choice') {
+                        const current = new Set(Array.isArray(selectedAnswer) ? selectedAnswer : []);
+                        if (current.has(answer)) {
+                            current.delete(answer);
+                            label.classList.remove('bg-primary/5', 'border-primary', 'ring-1', 'ring-primary/20');
+                            label.querySelector('div').classList.remove('bg-primary', 'text-white');
+                        } else {
+                            current.add(answer);
+                            label.classList.add('bg-primary/5', 'border-primary', 'ring-1', 'ring-primary/20');
+                            label.querySelector('div').classList.add('bg-primary', 'text-white');
+                        }
+                        selectedAnswer = Array.from(current).sort();
+                        return;
+                    }
+                    selectedAnswer = answer;
                     resultSection.querySelectorAll('#quiz-options label').forEach(l => {
                         l.classList.remove('bg-primary/5', 'border-primary', 'ring-1', 'ring-primary/20');
                         l.querySelector('div').classList.remove('bg-primary', 'text-white');
@@ -502,7 +543,9 @@
         async function submitCurrentAnswer() {
             if (isSubmitting) return;
             const question = currentQuestions[currentQuestionIndex];
-            const answerText = selectedAnswer || document.getElementById('short-answer-input')?.value?.trim();
+            const answerText = Array.isArray(selectedAnswer)
+                ? selectedAnswer.join('')
+                : selectedAnswer || document.getElementById('short-answer-input')?.value?.trim();
             if (!currentQuizId || !question) return;
             if (!answerText) { api.toast('请先作答再提交', 'info'); return; }
             const btn = document.getElementById('submit-answer-button');
@@ -520,6 +563,17 @@
                     api.toast(`回答错误，正确答案是 ${question.standard_answer || ''}`, 'error');
                 }
                 renderAnalysis(question, record, result);
+                void api.trackLearningEvent?.({
+                    course_id: currentCourseId,
+                    event_type: 'quiz_complete',
+                    event_payload: {
+                        quiz_id: currentQuizId,
+                        question_id: question.id,
+                        question_type: question.question_type || selectedQuestionType,
+                        is_correct: Boolean(record.is_correct),
+                        score: result.score,
+                    },
+                });
                 selectedAnswer = null;
             } catch (e) {
                 api.toast(e.message || '提交失败', 'error');
@@ -747,6 +801,17 @@
                 }, {});
             }
             return options && typeof options === 'object' ? options : {};
+        }
+
+        function questionTypeLabel(type) {
+            return {
+                single_choice: '单选题',
+                multiple_choice: '多选题',
+                judge: '判断题',
+                short_answer: '简答题',
+                fill_blank: '填空题',
+                coding: '编程题',
+            }[type] || '练习题';
         }
 
         function renderErrorState(title, detail) {

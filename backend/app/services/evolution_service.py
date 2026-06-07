@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.error_codes import ErrorCode
 from app.core.exceptions import BusinessException
+from app.models.diagnosis import DiagnosisReport
 from app.models.evolution import EvolutionEvent, EvolutionStrategy
 from app.schemas.evolution import EventRead, StrategyRead
 
@@ -22,6 +23,7 @@ class EvolutionService:
         user_id: UUID,
         course_id: UUID,
         focus: str,
+        trigger_type: str = "manual",
     ) -> tuple[EvolutionEvent, list[EvolutionStrategy]]:
         from app.agents.context import AgentContext
         from app.agents.evolution_agent import EvolutionAgent
@@ -55,7 +57,7 @@ class EvolutionService:
         event = EvolutionEvent(
             user_id=user_id,
             course_id=course_id,
-            trigger_type="manual",
+            trigger_type=trigger_type,
             focus=focus,
             input_snapshot={"evidence_length": len(evidence_text)},
             status="pending",
@@ -134,6 +136,67 @@ class EvolutionService:
         await self.db.refresh(event)
 
         return event, strategies
+
+    async def auto_evolve_if_needed(
+        self,
+        *,
+        user_id: UUID,
+        course_id: UUID,
+        diagnosis: dict[str, Any] | None = None,
+    ) -> dict[str, Any] | None:
+        diagnosis = diagnosis or await self._get_latest_diagnosis_snapshot(user_id, course_id)
+        if not diagnosis or not self._should_auto_evolve_from_diagnosis(diagnosis):
+            return None
+
+        weak_points = list(diagnosis.get("weak_points") or [])
+        focus = (
+            "根据最近诊断自动生成学习策略草稿，不自动应用。"
+            f"诊断报告ID：{diagnosis.get('id') or 'unknown'}；"
+            f"正确率：{float(diagnosis.get('accuracy') or 0):.2f}；"
+            f"薄弱点：{weak_points[:5]}"
+        )
+        event, strategies = await self.analyze(
+            user_id=user_id,
+            course_id=course_id,
+            focus=focus,
+            trigger_type="auto_diagnosis",
+        )
+        return {
+            "event_id": str(event.id),
+            "strategies_count": len(strategies),
+            "strategy_ids": [str(item.id) for item in strategies],
+            "status": "draft_generated" if strategies else "no_strategy_generated",
+        }
+
+    def _should_auto_evolve_from_diagnosis(self, diagnosis: dict[str, Any]) -> bool:
+        if "total_questions" in diagnosis and int(diagnosis.get("total_questions") or 0) == 0 and not diagnosis.get("weak_points"):
+            return False
+        accuracy = float(diagnosis.get("accuracy") if diagnosis.get("accuracy") is not None else 1.0)
+        weak_points = list(diagnosis.get("weak_points") or [])
+        return accuracy < 0.6 or len(weak_points) >= 2
+
+    async def _get_latest_diagnosis_snapshot(
+        self,
+        user_id: UUID,
+        course_id: UUID,
+    ) -> dict[str, Any] | None:
+        stmt = (
+            select(DiagnosisReport)
+            .where(DiagnosisReport.user_id == user_id, DiagnosisReport.course_id == course_id)
+            .order_by(DiagnosisReport.created_at.desc())
+            .limit(1)
+        )
+        result = await self.db.execute(stmt)
+        report = result.scalar_one_or_none()
+        if report is None:
+            return None
+        stats = (report.mastery_result or {}).get("summary_stats") or {}
+        return {
+            "id": str(report.id),
+            "accuracy": float(stats.get("accuracy") or 0),
+            "total_questions": int(stats.get("total_questions") or 0),
+            "weak_points": report.weak_points or [],
+        }
 
     async def list_strategies(
         self,

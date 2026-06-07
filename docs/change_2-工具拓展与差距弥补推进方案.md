@@ -1586,3 +1586,34 @@ async def auto_evolve_if_needed(self, user_id: UUID, course_id: UUID):
 | 防幻觉 + 安全 | `review_artifacts` + `ContentSafetyService` | ✅ 新增 |
 | 流式输出 | 现有 Agent SSE + 新工具 artifact/progress | ✅ 增强 |
 | 外部 AI 工具说明 | MiMo/其他外部 Provider + Mock 兜底 | ✅ 增强 |
+
+---
+
+## 八、change_3 分支执行状态（2026-06-08）
+
+本轮已在 `change_3` 分支完成第一批、第二批核心能力与 S4 受控策略草稿闭环：
+
+| 任务 | 执行状态 | 落地说明 |
+|---|---|---|
+| T1 `parse_uploaded_document` | 已完成 | 新增 Agent 工具注册，显式要求 `material_id`，Supervisor 不伪造资料 ID。 |
+| T2 `generate_mindmap` | 已完成 | 新增 `MindmapService`，生成 Mermaid mindmap 并保存为 `generated_resources.resource_type="mindmap"`。 |
+| T6 `generate_diagram` | 已完成 | 新增 `DiagramService`，支持 flowchart / sequence / class / er Mermaid 图解资源。 |
+| T5 Quiz 多题型扩展 | 已完成 | 强化 Quiz Prompt、fallback 题型结构和 `/practice` Stitch 多题型展示/提交。 |
+| S1 内容安全 | 已完成 | 新增 `ContentSafetyService`，ReviewAgent 会合并规则审查并提升风险等级。 |
+| S3 学习行为追踪 | 已完成 | 新增 `/api/v1/learning-records/events/batch`，`zhixue-static-api.js` 暴露 `trackLearningEvent(s)`，关键 Stitch 页面已接入埋点。 |
+| S2 主动推送展示 | 已完成 | 画像/诊断变化写入 `learning_records`，Supervisor 可触发 `refresh_recommendations`，`/dashboard` 展示“基于最新画像/诊断刷新推荐”提示。 |
+| S4 策略动态调整草稿闭环 | 已完成 | 诊断 `trigger_evolution=True` 时按正确率/薄弱点 gate 生成 draft 策略，不静默应用。 |
+| T3 `transcribe_audio` | 已完成 | 新增统一 Audio Provider、Mock/Fallback/MiMo Token Plan Provider、Agent 工具和 `/api/v1/audio/transcribe`；前端上传音频后只把识别文本写入输入框，不持久化原始 base64。 |
+| T4 `synthesize_speech` | 已完成 | 新增 `synthesize_speech` Agent 工具和 `/api/v1/audio/synthesize`；`/assistant` 回答卡片支持朗读并展示 `<audio controls>`。 |
+
+本轮未执行：演示数据一键初始化、浏览器 E2E 演示链路、Docker Compose 全栈验证。真实 MiMo 语音调用依赖 `LLM_API_KEY` 与 `LLM_BASE_URL`，无配置时使用 Mock Provider 演示，不得冒充真实语音模型效果。
+
+本轮验收：
+
+| 检查项 | 结果 |
+|---|---|
+| 后端相关测试 | `python -m pytest tests/test_agent_runtime.py tests/test_resource.py tests/test_quiz.py tests/test_content_safety.py tests/test_visual_resource_services.py -q`，66 passed |
+| 后端全量测试 | `python -m pytest -q`，170 passed |
+| 前端构建 | `npm run build`，通过 |
+| 实现文档导出 | `python scripts/export_implementation_docs.py`，导出 108 个 API 操作和 33 张表 |
+| 文档检查 | `python scripts/check_docs.py`，通过 |

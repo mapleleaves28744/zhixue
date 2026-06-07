@@ -7,11 +7,13 @@ from app.agents.base_agent import BaseAgent
 from app.agents.context import AgentContext, AgentResult
 from app.agents.registry import AgentRegistry
 from app.llm import ChatMessage, get_llm_provider
+from app.services.content_safety_service import ContentSafetyService
 from app.services.prompt_service import PromptService
 
 logger = logging.getLogger(__name__)
 
 VALID_RISK_LEVELS = {"low", "medium", "high"}
+RISK_ORDER = {"low": 0, "medium": 1, "high": 2}
 
 
 @AgentRegistry.register
@@ -44,11 +46,46 @@ class ReviewAgent(BaseAgent):
         )
 
         review = self._parse_review(response.content)
+        safety = await ContentSafetyService().check(
+            str(content),
+            citations=context.params.get("citations") or [],
+            source_chunks=context.params.get("source_chunks"),
+            require_citation=bool(context.params.get("require_citation")),
+        )
+        review = self._merge_safety_review(review, safety)
 
         return self.success_result(
             data=review,
             message="内容审查完成",
         )
+
+    def _merge_safety_review(self, review: dict, safety: dict) -> dict:
+        if safety.get("safe", True):
+            return review
+        merged = dict(review)
+        current_risk = str(merged.get("risk_level") or "medium")
+        safety_risk = str(safety.get("risk_level") or "medium")
+        if current_risk not in VALID_RISK_LEVELS:
+            current_risk = "medium"
+        if safety_risk not in VALID_RISK_LEVELS:
+            safety_risk = "medium"
+        merged["risk_level"] = (
+            current_risk
+            if RISK_ORDER[current_risk] >= RISK_ORDER[safety_risk]
+            else safety_risk
+        )
+        merged["issues"] = list(merged.get("issues") or []) + list(safety.get("issues") or [])
+        suggestions = merged.get("revision_suggestions")
+        if isinstance(suggestions, list):
+            merged["revision_suggestions"] = suggestions + list(safety.get("suggestions") or [])
+        else:
+            merged["revision_suggestions"] = "\n".join(
+                item
+                for item in [str(suggestions or ""), *[str(s) for s in safety.get("suggestions") or []]]
+                if item
+            )
+        merged["pass"] = False
+        return merged
 
     def _parse_review(self, content: str) -> dict:
         """解析审查结果，提取风险等级和审核意见"""

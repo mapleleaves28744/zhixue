@@ -627,9 +627,50 @@ def test_default_learning_tool_registry_exposes_specialized_agents_and_risk_boun
         "reflect_learning_memory",
         "review_artifacts",
         "apply_evolution_strategy",
+        "parse_uploaded_document",
+        "generate_mindmap",
+        "generate_diagram",
+        "transcribe_audio",
+        "synthesize_speech",
     }.issubset(names)
     assert registry.requires_confirmation("apply_evolution_strategy") is True
     assert registry.risk_level("apply_evolution_strategy") == "high"
+
+
+def test_parse_uploaded_document_requires_explicit_material_id_and_is_not_faked_by_supervisor() -> None:
+    user = SimpleNamespace(id=uuid4(), role="student")
+    registry = build_learning_tool_registry(SimpleNamespace(), user)  # type: ignore[arg-type]
+    tool = registry.get("parse_uploaded_document")
+    supervisor = MiMoSupervisor(provider=StructuredDecisionProvider())
+
+    assert tool.input_schema["required"] == ["material_id"]
+    assert supervisor._safe_arguments("parse_uploaded_document", {}, "解析这份课程资料") == {}
+
+
+@pytest.mark.asyncio
+async def test_mimo_supervisor_routes_visual_resource_requests_to_mermaid_tools() -> None:
+    supervisor = MiMoSupervisor(provider=DirectUngroundedAnswerProvider())
+    tools = [
+        {
+            "type": "function",
+            "function": {"name": name, "description": name, "parameters": {"type": "object"}},
+        }
+        for name in ("generate_mindmap", "generate_diagram")
+    ]
+
+    mindmap = await supervisor.decide(
+        {"goal": "请为二叉树生成思维导图", "messages": [], "observations": [], "tool_calls": []},
+        tools,
+    )
+    diagram = await supervisor.decide(
+        {"goal": "请画一张栈入栈出栈流程图", "messages": [], "observations": [], "tool_calls": []},
+        tools,
+    )
+
+    assert mindmap.tool_calls[0].name == "generate_mindmap"
+    assert mindmap.tool_calls[0].arguments == {"topic": "请为二叉树生成思维导图", "scope": "course", "depth": 3}
+    assert diagram.tool_calls[0].name == "generate_diagram"
+    assert diagram.tool_calls[0].arguments["concept"] == "请画一张栈入栈出栈流程图"
 
 
 def test_unified_agent_conversation_api_routes_are_registered() -> None:

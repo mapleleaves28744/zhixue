@@ -363,6 +363,39 @@ class QuizService:
         difficulty: str,
     ) -> dict[str, Any]:
         labels = ["A", "B", "C", "D"]
+        if question_type == "judge":
+            return {
+                "question_type": question_type,
+                "difficulty": difficulty,
+                "question_text": f"判断：学习「{topic}」时，只记住定义而忽略操作过程和边界条件也能稳定掌握。",
+                "options": {"正确": "正确", "错误": "错误"},
+                "standard_answer": "错误",
+                "analysis": f"第 {index + 1} 题用于检查对{topic}学习方法的判断。数据结构概念需要结合定义、操作、复杂度和边界条件。",
+                "error_tags": ["概念理解偏差", "边界条件忽略"],
+                "created_by": "system",
+            }
+        if question_type == "fill_blank":
+            return {
+                "question_type": question_type,
+                "difficulty": difficulty,
+                "question_text": f"填空：学习「{topic}」时，应同时关注定义、操作过程、____ 和应用场景。",
+                "options": [],
+                "standard_answer": "复杂度",
+                "analysis": f"第 {index + 1} 题用于检查是否能把{topic}与复杂度分析联系起来。",
+                "error_tags": ["复杂度意识不足"],
+                "created_by": "system",
+            }
+        if question_type == "coding":
+            return {
+                "question_type": question_type,
+                "difficulty": difficulty,
+                "question_text": f"请写出或描述一段伪代码，展示「{topic}」的核心操作过程，并说明关键边界条件。",
+                "options": [],
+                "standard_answer": f"应给出{topic}核心操作的伪代码，并说明空结构、越界或终止条件等边界情况。",
+                "analysis": f"第 {index + 1} 题用于检查是否能把{topic}从概念迁移到可执行步骤。",
+                "error_tags": ["过程推演不足", "边界条件忽略"],
+                "created_by": "system",
+            }
         return {
             "question_type": question_type,
             "difficulty": difficulty,

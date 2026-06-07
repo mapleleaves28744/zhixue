@@ -1208,6 +1208,54 @@
         }
       }
     },
+    "/api/v1/learning-records/events/batch": {
+      "post": {
+        "tags": [
+          "learning-records"
+        ],
+        "summary": "Record Learning Events",
+        "operationId": "record_learning_events_api_v1_learning_records_events_batch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LearningEventBatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Record Learning Events Api V1 Learning Records Events Batch Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/learning-paths": {
       "get": {
         "tags": [
@@ -4051,6 +4099,102 @@
         }
       }
     },
+    "/api/v1/audio/transcribe": {
+      "post": {
+        "tags": [
+          "audio"
+        ],
+        "summary": "Transcribe Audio",
+        "operationId": "transcribe_audio_api_v1_audio_transcribe_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioTranscribeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Transcribe Audio Api V1 Audio Transcribe Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/audio/synthesize": {
+      "post": {
+        "tags": [
+          "audio"
+        ],
+        "summary": "Synthesize Speech",
+        "operationId": "synthesize_speech_api_v1_audio_synthesize_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioSynthesizeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Synthesize Speech Api V1 Audio Synthesize Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/agents/ping": {
       "get": {
         "tags": [
@@ -5486,6 +5630,78 @@
         ],
         "title": "AnalyzeRequest"
       },
+      "AudioSynthesizeRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Text"
+          },
+          "model_type": {
+            "type": "string",
+            "pattern": "^(tts|voiceclone|voicedesign)$",
+            "title": "Model Type",
+            "default": "tts"
+          },
+          "voice": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice"
+          },
+          "speed": {
+            "type": "number",
+            "maximum": 2.0,
+            "minimum": 0.5,
+            "title": "Speed",
+            "default": 1.0
+          },
+          "response_format": {
+            "type": "string",
+            "pattern": "^(wav|mp3)$",
+            "title": "Response Format",
+            "default": "wav"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "AudioSynthesizeRequest"
+      },
+      "AudioTranscribeRequest": {
+        "properties": {
+          "audio_base64": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Audio Base64"
+          },
+          "filename": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "Filename",
+            "default": "audio.wav"
+          },
+          "language": {
+            "type": "string",
+            "maxLength": 16,
+            "title": "Language",
+            "default": "zh"
+          }
+        },
+        "type": "object",
+        "required": [
+          "audio_base64"
+        ],
+        "title": "AudioTranscribeRequest"
+      },
       "Body_upload_material_api_v1_materials_upload_post": {
         "properties": {
           "course_id": {
@@ -5764,6 +5980,81 @@
           "query"
         ],
         "title": "KnowledgeSearchRequest"
+      },
+      "LearningEventBatchRequest": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/LearningEventCreate"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "events"
+        ],
+        "title": "LearningEventBatchRequest"
+      },
+      "LearningEventCreate": {
+        "properties": {
+          "course_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Course Id"
+          },
+          "knowledge_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Knowledge Id"
+          },
+          "event_type": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Event Type"
+          },
+          "event_source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Source",
+            "default": "frontend"
+          },
+          "event_payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Event Payload"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_type"
+        ],
+        "title": "LearningEventCreate"
       },
       "LearningPathGenerateRequest": {
         "properties": {

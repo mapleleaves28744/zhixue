@@ -13,11 +13,18 @@ RESOURCE_TYPE_ALIASES: dict[str, str] = {
     "例题": "example",
     "复习卡": "flashcard",
     "错题解析": "review",
+    "思维导图": "mindmap",
+    "脑图": "mindmap",
+    "图解": "diagram",
+    "流程图": "diagram",
+    "架构图": "diagram",
+    "示意图": "diagram",
     "explain": "explanation",
     "note": "summary",
+    "mind_map": "mindmap",
 }
 
-VALID_RESOURCE_TYPES = {"explanation", "summary", "example", "flashcard", "review"}
+VALID_RESOURCE_TYPES = {"explanation", "summary", "example", "flashcard", "review", "mindmap", "diagram"}
 
 
 class ResourceGenerateRequest(BaseModel):

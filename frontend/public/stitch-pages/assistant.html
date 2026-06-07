@@ -190,7 +190,8 @@
 <!-- Input Area -->
 <div class="p-5 border-t border-white/60 bg-white/40 backdrop-blur-xl">
 <div class="relative bg-white/80 border border-white/90 rounded-2xl p-3 shadow-sm focus-within:ring-4 focus-within:ring-primary/10 transition-all flex items-end">
-<button class="p-2.5 text-outline hover:text-primary transition-colors shrink-0 rounded-xl hover:bg-white/50">
+<input id="audio-upload-input" type="file" accept="audio/*" class="hidden" />
+<button id="audio-upload-button" class="p-2.5 text-outline hover:text-primary transition-colors shrink-0 rounded-xl hover:bg-white/50" title="上传音频提问">
 <span class="material-symbols-outlined">attach_file</span>
 </button>
 <textarea class="w-full bg-transparent border-none focus:ring-0 resize-none max-h-32 py-2 px-3 text-body-md text-on-surface placeholder-outline-variant outline-none" placeholder="输入问题，按 Enter 发送..." rows="1"></textarea>
@@ -217,6 +218,8 @@
 <button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="example">例题</button>
 <button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="flashcard">复习卡</button>
 <button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="review">错题解析</button>
+<button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="mindmap">思维导图</button>
+<button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="diagram">图解</button>
 </div>
 </div>
 <div>
@@ -296,6 +299,8 @@
   const chatArea = document.querySelector(".flex-1.overflow-y-auto.p-8.space-y-8");
   const textarea = document.querySelector("textarea[placeholder='输入问题，按 Enter 发送...']");
   const sendButton = textarea?.parentElement?.querySelector("button:last-child");
+  const audioUploadInput = document.getElementById("audio-upload-input");
+  const audioUploadButton = document.getElementById("audio-upload-button");
   const resourceButtons = document.querySelectorAll(".resource-type-button");
   const generateResourceButton = document.getElementById("generate-resource-button");
   const saveResourceButton = document.getElementById("save-resource-to-wiki-button");
@@ -882,6 +887,10 @@
             <span class="material-symbols-outlined text-[18px]">bookmark_add</span>
             保存到 Wiki
           </button>
+          <button class="tutor-read-answer flex items-center gap-1.5 text-label-sm font-bold text-primary hover:bg-primary/5 px-3 py-1.5 rounded-full transition-all border border-transparent hover:border-primary/10">
+            <span class="material-symbols-outlined text-[18px]">volume_up</span>
+            朗读
+          </button>
           <button class="tutor-feedback p-1.5 text-outline-variant hover:text-primary transition-colors rounded-full hover:bg-white/50" data-feedback-type="useful" ${messageId ? "" : "disabled"}>
             <span class="material-symbols-outlined text-[20px]">thumb_up</span>
           </button>
@@ -897,6 +906,7 @@
       chatArea.appendChild(relatedNode.firstElementChild);
     }
     wrapper.querySelector(".tutor-save-answer")?.addEventListener("click", () => saveTutorAnswer(messageId));
+    wrapper.querySelector(".tutor-read-answer")?.addEventListener("click", (event) => readTutorAnswer(answer, event.currentTarget, wrapper));
     wrapper.querySelectorAll(".tutor-feedback").forEach((button) => {
       button.addEventListener("click", () => submitTutorFeedback(messageId, button.dataset.feedbackType || "useful", button));
     });
@@ -944,6 +954,42 @@
     }
   }
 
+  async function readTutorAnswer(answer, button, wrapper) {
+    if (!answer || !currentCourseId) {
+      api.toast("暂无可朗读内容", "info");
+      return;
+    }
+    const original = button?.innerHTML;
+    try {
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span> 合成中';
+      }
+      const result = await api.synthesizeSpeech({
+        text: answer.slice(0, 1200),
+        model_type: "tts",
+        response_format: "mp3",
+      });
+      const bubble = wrapper.querySelector(".chat-bubble-ai");
+      bubble?.querySelector(".speech-player")?.remove();
+      const audioType = result.format === "mp3" ? "audio/mpeg" : "audio/wav";
+      const player = document.createElement("div");
+      player.className = "speech-player rounded-2xl bg-primary/5 border border-primary/15 px-4 py-3 space-y-2";
+      player.innerHTML = `
+        <div class="text-xs font-bold text-primary">${result.fallback_used ? "真实语音接口暂不可用，已使用 Mock 兜底" : `语音合成完成 · ${escapeHtml(result.provider || "audio")}`}</div>
+        <audio controls class="w-full" src="data:${audioType};base64,${result.audio_base64 || ""}"></audio>
+      `;
+      bubble?.appendChild(player);
+    } catch (error) {
+      api.toast(error.message || "朗读任务创建失败", "error");
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.innerHTML = original;
+      }
+    }
+  }
+
   function setSending(next) {
     sending = next;
     if (sendButton) {
@@ -952,6 +998,46 @@
       sendButton.innerHTML = next
         ? '<span class="material-symbols-outlined animate-spin">sync</span>'
         : '<span class="material-symbols-outlined">send</span>';
+    }
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const value = String(reader.result || "");
+        resolve(value.includes(",") ? value.split(",").pop() : value);
+      };
+      reader.onerror = () => reject(reader.error || new Error("音频读取失败"));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleAudioUpload(file) {
+    if (!file || !textarea) {
+      return;
+    }
+    if (file.size > 12 * 1024 * 1024) {
+      api.toast("音频文件过大，请选择 12MB 以内的文件", "error");
+      return;
+    }
+    try {
+      const audioBase64 = await fileToBase64(file);
+      api.toast("正在识别音频...", "info");
+      const result = await api.transcribeAudio({
+        audio_base64: audioBase64,
+        filename: file.name,
+        language: "zh",
+      });
+      textarea.value = result.text || "";
+      textarea.focus();
+      api.toast(result.fallback_used ? "真实语音接口暂不可用，已使用 Mock 兜底。" : "语音识别完成，可继续编辑后发送。", "success");
+    } catch (error) {
+      api.toast(error.message || "语音识别失败，可改用文字输入", "error");
+    } finally {
+      if (audioUploadInput) {
+        audioUploadInput.value = "";
+      }
     }
   }
 
@@ -968,6 +1054,11 @@
     appendUserMessage(question);
     setSending(true);
     try {
+      void api.trackLearningEvent?.({
+        course_id: currentCourseId,
+        event_type: "tutor_ask",
+        event_payload: { mode: "dynamic_agent", question_length: question.length },
+      });
       await sendDynamicAgentMessage(question);
     } catch (error) {
       api.toast(error.message || "Agent 任务创建失败", "error");
@@ -1062,7 +1153,29 @@
       example: "例题",
       flashcard: "复习卡",
       review: "错题解析",
+      mindmap: "思维导图",
+      diagram: "图解",
     }[type] || "资源";
+  }
+
+  function isMermaidContent(content) {
+    const trimmed = String(content || "").trim();
+    return /^(mindmap|flowchart\s+(TD|LR|BT|RL)|sequenceDiagram|classDiagram|erDiagram)\b/.test(trimmed);
+  }
+
+  function mermaidCodePreview(content) {
+    return `
+      <div class="rounded-2xl bg-white/80 border border-primary/15 overflow-hidden shadow-sm">
+        <div class="flex items-center justify-between px-4 py-3 bg-primary/5 border-b border-primary/10">
+          <div class="flex items-center gap-2 text-sm font-bold text-primary">
+            <span class="material-symbols-outlined text-lg">account_tree</span>
+            Mermaid
+          </div>
+          <span class="text-xs font-bold text-outline">渲染失败时可直接核对代码</span>
+        </div>
+        <pre class="max-h-[420px] overflow-auto p-4 text-xs leading-6 text-on-surface bg-white/70 whitespace-pre-wrap">${escapeHtml(content || "")}</pre>
+      </div>
+    `;
   }
 
   function markdownToHtml(markdown) {
@@ -1129,7 +1242,7 @@
           <h3 class="text-xl font-bold text-on-surface leading-snug">${escapeHtml(resource.title)}</h3>
         </div>
         <div class="rounded-2xl bg-white/70 border border-white/90 p-5 shadow-sm">
-          ${markdownToHtml(resource.content)}
+          ${isMermaidContent(resource.content) ? mermaidCodePreview(resource.content) : markdownToHtml(resource.content)}
         </div>
         <div class="rounded-2xl bg-primary/5 border border-primary/15 p-4">
           <div class="text-label-sm font-bold text-primary mb-2">个性化原因</div>
@@ -1304,6 +1417,10 @@
 
   resetChatToApiReady();
   sendButton?.addEventListener("click", sendQuestion);
+  audioUploadButton?.addEventListener("click", () => audioUploadInput?.click());
+  audioUploadInput?.addEventListener("change", () => {
+    void handleAudioUpload(audioUploadInput.files?.[0]);
+  });
   textarea?.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();

@@ -389,7 +389,7 @@ class ResourceService:
         if normalized not in VALID_RESOURCE_TYPES:
             raise BusinessException(
                 code=ErrorCode.PARAM_ERROR,
-                detail="resource_type 只能是 explanation / summary / example / flashcard / review",
+                detail="resource_type 只能是 explanation / summary / example / flashcard / review / mindmap / diagram",
                 status_code=400,
             )
         return normalized
@@ -406,6 +406,8 @@ class ResourceService:
             "example": "例题",
             "flashcard": "复习卡",
             "review": "错题解析",
+            "mindmap": "思维导图",
+            "diagram": "图解",
         }
         topic = knowledge.name if knowledge else wiki_page.title if wiki_page else "数据结构"
         return f"{topic}{labels[resource_type]}"

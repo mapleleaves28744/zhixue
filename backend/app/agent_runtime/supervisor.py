@@ -239,8 +239,13 @@ class MiMoSupervisor:
             ),
             ("generate_explanation", ("讲解资料", "配套讲解", "生成一份", "生成讲解")),
             ("generate_quiz", ("练习题", "生成练习", "生成一组练习", "配套练习")),
+            ("parse_uploaded_document", ("解析资料", "解析文档", "处理上传", "解析这份")),
+            ("generate_mindmap", ("思维导图", "知识图谱", "知识结构", "梳理一下脉络", "整体框架")),
+            ("generate_diagram", ("图解", "流程图", "架构图", "示意图", "画一张", "画一个")),
+            ("transcribe_audio", ("语音识别", "识别语音", "音频转文字", "语音转文字")),
+            ("synthesize_speech", ("朗读", "语音播放", "文字转语音", "合成语音")),
             ("analyze_learning_diagnosis", ("薄弱点", "错误模式", "学习诊断")),
-            ("refresh_recommendations", ("推荐下一步", "推荐学习内容", "刷新推荐")),
+            ("refresh_recommendations", ("推荐下一步", "推荐学习内容", "刷新推荐", "根据画像推送", "主动推荐", "诊断后推荐", "推荐资源")),
             (
                 "update_profile_from_dialogue",
                 (
@@ -276,6 +281,11 @@ class MiMoSupervisor:
             "generate_learning_path": {"goal": goal},
             "generate_explanation": {"topic": goal, "requirement": goal},
             "generate_quiz": {"topic": goal},
+            "parse_uploaded_document": {},
+            "generate_mindmap": {"topic": goal, "scope": "course", "depth": 3},
+            "generate_diagram": {"concept": goal, "diagram_type": "flowchart"},
+            "transcribe_audio": {},
+            "synthesize_speech": {"text": goal, "model_type": "tts", "response_format": "wav"},
             "update_profile_from_dialogue": {"dialogue_text": goal},
             "review_artifacts": {"content": goal},
         }

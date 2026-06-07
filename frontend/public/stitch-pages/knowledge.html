@@ -438,6 +438,11 @@
         api.listWikiVersions ? api.listWikiVersions(pageId).catch(() => []) : Promise.resolve([]),
       ]);
       renderWikiPageDetail(page, Array.isArray(versions) ? versions : []);
+      void api.trackLearningEvent?.({
+        course_id: currentCourseId,
+        event_type: "wiki_read",
+        event_payload: { page_id: pageId, title: page.title || "" },
+      });
     } catch (error) {
       api.toast(error.message || "Wiki 详情加载失败", "error");
       renderWikiPageList();

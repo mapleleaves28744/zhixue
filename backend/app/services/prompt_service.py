@@ -100,7 +100,14 @@ DEFAULT_PROMPTS: dict[tuple[str, str], str] = {
         "    }}\n"
         "  ]\n"
         "}}\n\n"
-        "要求：题目必须和知识点直接相关；客观题只有一个最优答案；解析要说明依据；错因标签要可用于错题本。"
+        "题型契约：\n"
+        "- single_choice：options 为 A/B/C/D 对象，standard_answer 为单个选项字母。\n"
+        "- multiple_choice：options 为 A/B/C/D 对象，standard_answer 为多个选项字母组合，例如 AC。\n"
+        "- judge：options 为 {\"正确\":\"正确\",\"错误\":\"错误\"}，standard_answer 为 正确 或 错误。\n"
+        "- short_answer：options 为空数组，standard_answer 为简短参考答案。\n"
+        "- fill_blank：题干必须包含 ____，options 为空数组，standard_answer 为填空答案。\n"
+        "- coding：options 为空数组，standard_answer 描述关键伪代码步骤和边界条件。\n\n"
+        "要求：题目必须和知识点直接相关；客观题答案必须唯一且可批改；解析要说明依据；错因标签要可用于错题本。"
     ),
     (
         "DiagnosisAgent",
