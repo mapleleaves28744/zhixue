@@ -796,6 +796,19 @@ ProfileInterviewAgent
 | `A3-04-03` | 对话式画像接入 AgentTask | AgentTask Service/Executor | 用户一句话可触发画像访谈和后续计划 |
 | `A3-04-04` | `/path-profile` 证据展示 | Stitch 页面 | 画像字段旁能看到证据摘要，不只显示结论 |
 
+### 当前落地状态（2026-06-07）
+
+Phase 4 v1 已在 Phase 3.1 LangGraph 统一 Agent 入口上完成轻量落地：
+
+- 暂不新增独立 `ProfileInterviewAgent` 类，先由 MiMo Supervisor 识别画像类自然语言，再调用 Tool Registry 中的 `update_profile_from_dialogue`。
+- 画像证据复用现有表，不新增 migration：`student_profiles.strategy_summary.dialogue_profile` 保存维度、证据摘录、来源 ID、置信度和更新时间；`learning_preferences.prompt_params.last_dialogue_evidence` 保存偏好证据。
+- 新增 `POST /api/v1/student/profile/dialogue-ingest`，用于服务层测试和非 Agent 入口补录画像。
+- `/assistant` 中学生可以直接说“我是软件工程大二学生，递归薄弱，喜欢 Python 代码示例和分步骤讲解，请记住我的学习偏好”，系统会动态规划并执行画像工具。
+- `/path-profile` 已展示对话证据，不只展示画像结论。
+- 稳定演示脚本 `scripts/agent_demo_check.py` 会验证对话式画像工具与学习路径工具均被真实 Agent 链路调用。
+
+后续增强再补完整画像访谈问答树、节奏/时间约束等更细画像维度，以及多轮追问式 ProfileInterviewAgent。
+
 ## 9. Phase 5：公共 GraphRAG + 个人 Karpathy LLM Wiki
 
 ### 9.1 公共 GraphRAG

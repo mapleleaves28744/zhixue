@@ -162,6 +162,25 @@ def build_learning_tool_registry(
             artifact_refs=[{"type": "profile_update", "id": str(result.id)}],
         )
 
+    async def update_profile_from_dialogue(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.services.profile_service import ProfileService
+
+        result = await ProfileService(db).ingest_dialogue_profile(
+            user_id=current_user.id,
+            course_id=context.course_id,
+            dialogue_text=str(arguments["dialogue_text"]),
+            source_message_id=str(arguments.get("source_message_id") or context.tool_call_id),
+        )
+        data = result.model_dump(mode="json")
+        artifact_refs = [{"type": "profile_update", "id": str(result.profile.id)}]
+        if result.preferences is not None:
+            artifact_refs.append({"type": "learning_preference", "id": str(result.preferences.id)})
+        return ToolExecutionResult(
+            output=data,
+            evidence=[data.get("evidence") or {}],
+            artifact_refs=artifact_refs,
+        )
+
     async def reflect_memory(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
         from app.services.memory_service import MemoryService
 
@@ -267,6 +286,19 @@ def build_learning_tool_registry(
     )
     _register(registry, "analyze_learning_diagnosis", "基于练习和错题生成学习诊断。", "DiagnosisAgent", {}, [], analyze_diagnosis, writes_db=True)
     _register(registry, "refresh_recommendations", "根据画像、诊断和路径刷新推荐。", "RecommendAgent", {}, [], refresh_recommendations, writes_db=True)
+    _register(
+        registry,
+        "update_profile_from_dialogue",
+        "从学生自然语言对话中提取学习目标、专业年级、偏好、薄弱点和错误模式，并带证据更新画像。",
+        "ProfileAgent",
+        {
+            "dialogue_text": {"type": "string"},
+            "source_message_id": {"type": "string"},
+        },
+        ["dialogue_text"],
+        update_profile_from_dialogue,
+        writes_db=True,
+    )
     _register(registry, "rebuild_profile", "基于学习证据重建学生画像。", "ProfileAgent", {}, [], rebuild_profile, writes_db=True)
     _register(registry, "reflect_learning_memory", "提炼带证据的长期学习记忆。", "MemoryAgent", {}, [], reflect_memory, writes_db=True)
     _register(

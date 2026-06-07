@@ -373,6 +373,83 @@ async def test_mimo_supervisor_enforces_explicit_multi_tool_goal_until_satisfied
 
 
 @pytest.mark.asyncio
+async def test_mimo_supervisor_routes_dialogue_profile_updates_to_profile_tool() -> None:
+    decision = await MiMoSupervisor(provider=DirectUngroundedAnswerProvider()).decide(
+        {
+            "goal": "我是软件工程大二学生，我喜欢 Python 代码示例，递归比较薄弱，请记住我的学习偏好。",
+            "messages": [],
+            "observations": [],
+            "tool_calls": [],
+        },
+        [
+            {
+                "type": "function",
+                "function": {
+                    "name": "update_profile_from_dialogue",
+                    "description": "从对话中提取画像",
+                    "parameters": {"type": "object"},
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "rebuild_profile",
+                    "description": "重建画像",
+                    "parameters": {"type": "object"},
+                },
+            },
+        ],
+    )
+
+    assert decision.status == "continue"
+    assert decision.tool_calls[0].name == "update_profile_from_dialogue"
+    assert "软件工程" in decision.tool_calls[0].arguments["dialogue_text"]
+
+
+class ProfileOverreachProvider:
+    async def chat(self, messages, **kwargs):
+        return ChatResponse(
+            content="",
+            finish_reason="tool_calls",
+            tool_calls=[
+                ToolCall(id="profile", name="update_profile_from_dialogue", arguments={}),
+                ToolCall(id="quiz", name="generate_quiz", arguments={"topic": "递归"}),
+            ],
+        )
+
+
+@pytest.mark.asyncio
+async def test_mimo_supervisor_keeps_profile_only_request_to_one_tool_and_then_completes() -> None:
+    supervisor = MiMoSupervisor(provider=ProfileOverreachProvider())
+    goal = "我是软件工程大二学生，递归比较薄弱，请记住我的学习偏好。"
+    tools = [
+        {
+            "type": "function",
+            "function": {"name": name, "description": name, "parameters": {"type": "object"}},
+        }
+        for name in ("update_profile_from_dialogue", "generate_quiz")
+    ]
+
+    first = await supervisor.decide(
+        {"goal": goal, "messages": [], "observations": [], "tool_calls": []},
+        tools,
+    )
+    completed = await supervisor.decide(
+        {
+            "goal": goal,
+            "messages": [],
+            "observations": [{"success": True, "tool_name": "update_profile_from_dialogue"}],
+            "tool_calls": [{"name": "update_profile_from_dialogue"}],
+        },
+        tools,
+    )
+
+    assert [item.name for item in first.tool_calls] == ["update_profile_from_dialogue"]
+    assert completed.status == "complete"
+    assert completed.tool_calls == []
+
+
+@pytest.mark.asyncio
 async def test_mimo_supervisor_routes_explicit_strategy_apply_to_high_risk_tool() -> None:
     decision = await MiMoSupervisor(provider=DirectUngroundedAnswerProvider()).decide(
         {
@@ -545,6 +622,7 @@ def test_default_learning_tool_registry_exposes_specialized_agents_and_risk_boun
         "generate_quiz",
         "analyze_learning_diagnosis",
         "refresh_recommendations",
+        "update_profile_from_dialogue",
         "rebuild_profile",
         "reflect_learning_memory",
         "review_artifacts",

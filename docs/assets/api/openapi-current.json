@@ -5083,6 +5083,54 @@
         ]
       }
     },
+    "/api/v1/student/profile/dialogue-ingest": {
+      "post": {
+        "tags": [
+          "student-profile"
+        ],
+        "summary": "Ingest Dialogue Profile",
+        "operationId": "ingest_dialogue_profile_api_v1_student_profile_dialogue_ingest_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileDialogueIngestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Ingest Dialogue Profile Api V1 Student Profile Dialogue Ingest Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/student/profile/preferences": {
       "get": {
         "tags": [
@@ -5815,6 +5863,45 @@
         },
         "type": "object",
         "title": "MemoryUpdate"
+      },
+      "ProfileDialogueIngestRequest": {
+        "properties": {
+          "course_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Course Id"
+          },
+          "dialogue_text": {
+            "type": "string",
+            "maxLength": 5000,
+            "minLength": 1,
+            "title": "Dialogue Text"
+          },
+          "source_message_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Message Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dialogue_text"
+        ],
+        "title": "ProfileDialogueIngestRequest"
       },
       "ProfileUpdate": {
         "properties": {

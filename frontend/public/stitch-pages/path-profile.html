@@ -408,6 +408,29 @@
       profile.learning_goal,
       profile.major,
     ].filter(Boolean).slice(0, 4);
+    const dialogueProfile = profile.strategy_summary?.dialogue_profile || {};
+    const dialogueDimensions = dialogueProfile.dimensions || {};
+    const dimensionLabels = {
+      major: "专业",
+      grade: "年级",
+      learning_goal: "目标",
+      answer_length: "回答长度",
+      explanation_style: "解释风格",
+      resource_preferences: "资源偏好",
+      weak_points: "薄弱点",
+      error_patterns: "错误模式",
+    };
+    const evidenceItems = Object.entries(dialogueDimensions).map(([key, dimension]) => {
+      const items = Array.isArray(dimension.items) ? dimension.items : [];
+      const value = dimension.value || items.map((item) => item.knowledge_name || item.pattern || item.name).filter(Boolean).join("、");
+      const evidence = Array.isArray(dimension.evidence) ? dimension.evidence[dimension.evidence.length - 1] : null;
+      return {
+        label: dimensionLabels[key] || key,
+        value,
+        confidence: Math.round(Number(dimension.confidence || 0.8) * 100),
+        quote: evidence?.quote || "",
+      };
+    }).filter((item) => item.value).slice(0, 3);
 
     section.innerHTML = `
       <h3 class="font-headline-md text-headline-md mb-8 flex items-center">
@@ -436,6 +459,25 @@
             `).join("")}
           </div>
           <p class="text-label-md text-on-surface-variant leading-relaxed">${escapeHtml(profile.profile_summary || "画像已由后端创建，后续会根据答疑、资料、练习和记忆持续更新。")}</p>
+          ${evidenceItems.length ? `
+            <div class="rounded-2xl bg-primary/5 border border-primary/15 p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <p class="text-label-sm font-bold text-primary flex items-center">
+                  <span class="material-symbols-outlined text-base mr-1">verified</span>对话证据
+                </p>
+                <span class="text-[11px] font-bold text-outline">来源 ${dialogueProfile.source_count || evidenceItems.length} 条</span>
+              </div>
+              ${evidenceItems.map((item) => `
+                <div class="min-w-0">
+                  <div class="flex items-center justify-between gap-3">
+                    <p class="text-xs font-bold text-on-surface truncate">${escapeHtml(item.label)}：${escapeHtml(item.value)}</p>
+                    <span class="text-[11px] font-bold text-primary shrink-0">${item.confidence}%</span>
+                  </div>
+                  <p class="text-[11px] text-on-surface-variant leading-5 line-clamp-2">${escapeHtml(item.quote)}</p>
+                </div>
+              `).join("")}
+            </div>
+          ` : ""}
         </div>
         <div class="pt-6 mt-6 border-t border-outline-variant/30 flex justify-between items-end">
           <div>

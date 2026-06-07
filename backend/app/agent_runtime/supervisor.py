@@ -28,6 +28,9 @@ class MiMoSupervisor:
         state: dict[str, Any],
         tool_schemas: list[dict[str, Any]],
     ) -> AgentDecision:
+        bounded_decision = self._profile_update_only_decision(state, tool_schemas)
+        if bounded_decision is not None:
+            return bounded_decision
         messages = self._build_messages(state)
         response = await self.provider.chat(
             messages,
@@ -157,6 +160,73 @@ class MiMoSupervisor:
             )
         return decision
 
+    def _profile_update_only_decision(
+        self,
+        state: dict[str, Any],
+        tool_schemas: list[dict[str, Any]],
+    ) -> AgentDecision | None:
+        goal = str(state.get("goal") or "")
+        if not self._is_profile_update_only_goal(goal):
+            return None
+        available = {
+            str(item.get("function", {}).get("name"))
+            for item in tool_schemas
+            if isinstance(item, dict)
+        }
+        if "update_profile_from_dialogue" not in available:
+            return None
+        completed = any(
+            item.get("success") is True and item.get("tool_name") == "update_profile_from_dialogue"
+            for item in state.get("observations") or []
+        )
+        if completed:
+            return AgentDecision(
+                status="complete",
+                summary="对话式学习画像已更新。",
+                final_answer="已记录你的学习目标、偏好和薄弱点，后续学习建议会参考这些信息。",
+            )
+        return AgentDecision(
+            status="continue",
+            summary="本轮仅更新对话式学习画像，不扩张为资源或练习生成任务。",
+            plan=["从当前对话提取并更新学习画像"],
+            tool_calls=[
+                PlannedToolCall(
+                    id=f"call_{uuid4().hex}",
+                    name="update_profile_from_dialogue",
+                    arguments=self._safe_arguments("update_profile_from_dialogue", {}, goal),
+                )
+            ],
+        )
+
+    def _is_profile_update_only_goal(self, goal: str) -> bool:
+        profile_requests = (
+            "请记住",
+            "记住我的学习偏好",
+            "更新我的画像",
+            "记录我的学习偏好",
+            "保存我的学习偏好",
+        )
+        explicit_other_tasks = (
+            "学习计划",
+            "学习路径",
+            "复习计划",
+            "安排三天",
+            "安排一周",
+            "生成练习",
+            "练习题",
+            "生成讲解",
+            "讲解一下",
+            "解释一下",
+            "检索资料",
+            "课程资料",
+            "给出引用",
+            "推荐下一步",
+            "学习诊断",
+        )
+        return any(item in goal for item in profile_requests) and not any(
+            item in goal for item in explicit_other_tasks
+        )
+
     def _required_tools(self, goal: str) -> list[str]:
         rules = [
             (
@@ -171,7 +241,22 @@ class MiMoSupervisor:
             ("generate_quiz", ("练习题", "生成练习", "生成一组练习", "配套练习")),
             ("analyze_learning_diagnosis", ("薄弱点", "错误模式", "学习诊断")),
             ("refresh_recommendations", ("推荐下一步", "推荐学习内容", "刷新推荐")),
-            ("rebuild_profile", ("学习画像", "重建画像", "重新整理我的学习画像")),
+            (
+                "update_profile_from_dialogue",
+                (
+                    "记住我的学习偏好",
+                    "更新我的画像",
+                    "我的学习偏好",
+                    "我更喜欢",
+                    "我喜欢",
+                    "我的专业",
+                    "我的目标",
+                    "我是",
+                    "我目前",
+                    "比较薄弱",
+                ),
+            ),
+            ("rebuild_profile", ("重建画像", "重新整理我的学习画像", "根据学习记录重建画像")),
             ("reflect_learning_memory", ("长期学习记忆", "反思最近学习", "沉淀有价值")),
             ("review_artifacts", ("来源、幻觉和风险审查", "审查学习产物", "审核学习产物")),
             ("apply_evolution_strategy", ("应用最新的一条自进化策略", "应用自进化策略")),
@@ -191,6 +276,7 @@ class MiMoSupervisor:
             "generate_learning_path": {"goal": goal},
             "generate_explanation": {"topic": goal, "requirement": goal},
             "generate_quiz": {"topic": goal},
+            "update_profile_from_dialogue": {"dialogue_text": goal},
             "review_artifacts": {"content": goal},
         }
         for key, value in defaults.get(tool_name, {}).items():

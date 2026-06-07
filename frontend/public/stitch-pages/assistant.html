@@ -404,6 +404,7 @@
       )).join("");
       await loadWikiPages();
       await loadResourceHistory();
+      await loadAgentConversationHistory();
     } catch (error) {
       api.toast(error.message || "课程加载失败", "error");
     }
@@ -496,6 +497,58 @@
     }
     localStorage.setItem(storageKey, currentConversationId);
     return currentConversationId;
+  }
+
+  async function loadAgentConversationHistory() {
+    if (!chatArea || !currentCourseId) {
+      return;
+    }
+    resetChatToApiReady();
+    try {
+      const conversationId = await ensureAgentConversation();
+      const page = await api.listAgentConversationMessages(conversationId);
+      const messages = page.items || [];
+      if (!messages.length) {
+        return;
+      }
+      for (const message of messages) {
+        if (message.role === "user") {
+          appendUserMessage(message.content);
+          if (message.task_id) {
+            const task = await api.getDynamicAgentTask(message.task_id);
+            const wrapper = appendDynamicAgentTaskCard(task);
+            wrapper.__answerRendered = true;
+            await hydrateHistoricalAgentTask(wrapper);
+          }
+        } else if (message.role === "assistant") {
+          appendAiMessage({
+            answer: message.content,
+            citations: message.payload?.citations || [],
+            provider: "xiaomi_mimo",
+            model: "mimo-v2.5",
+            agent_run_id: message.task_id,
+          });
+        }
+      }
+    } catch (error) {
+      api.toast(error.message || "Agent 会话历史加载失败", "error");
+    }
+  }
+
+  async function hydrateHistoricalAgentTask(wrapper) {
+    const taskId = wrapper?.dataset?.taskId;
+    if (!taskId) {
+      return;
+    }
+    wrapper.__agentEvents = [];
+    await api.streamDynamicAgentTaskEvents(taskId, {
+      onEvent: (eventType, data) => {
+        if (eventType !== "heartbeat") {
+          wrapper.__agentEvents.push({ type: eventType, data });
+        }
+      },
+    });
+    renderDynamicAgentTaskCard(wrapper, wrapper.__agentTask);
   }
 
   async function refreshDynamicAgentTaskCard(wrapper, knownTask = null) {
@@ -1239,6 +1292,7 @@
     currentResource = null;
     void loadWikiPages();
     void loadResourceHistory();
+    void loadAgentConversationHistory();
   });
 
   chapterSelect?.addEventListener("change", updateSaveButton);

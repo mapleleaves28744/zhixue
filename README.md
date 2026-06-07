@@ -104,6 +104,40 @@ http://127.0.0.1:3000/register?api_base=http%3A%2F%2F127.0.0.1%3A8010%2Fapi%2Fv1
 
 ## 启动步骤
 
+### 0. Phase 3.1 Agent 稳定演示快速启动
+
+推荐比赛演示前使用脚本统一启动后端、Agent Worker 和前端，避免页面连到旧后端或旧 Worker：
+
+```powershell
+scripts/start_phase31_demo.ps1
+```
+
+脚本默认使用：
+
+```text
+Backend:  http://127.0.0.1:8000
+Frontend: http://127.0.0.1:3000
+Agent:    arq Worker
+```
+
+如果端口被占用，脚本会提示 PID，不会自动杀进程。可以改端口：
+
+```powershell
+scripts/start_phase31_demo.ps1 -BackendPort 8002 -FrontendPort 3001
+```
+
+如果检测到已有 `arq app.workers.agent_worker.WorkerSettings` 进程，脚本默认会拒绝继续启动。原因是新旧 Worker 会共享同一个 Redis 队列，旧代码 Worker 可能抢走新任务，导致 `/assistant` 页面或 `agent_demo_check.py` 长时间等待。确认已有 Worker 就是当前分支版本时，才使用：
+
+```powershell
+scripts/start_phase31_demo.ps1 -AllowExistingWorker
+```
+
+稳定性冒烟验收：
+
+```powershell
+python scripts/agent_demo_check.py --base-url http://127.0.0.1:8000/api/v1
+```
+
 ### 1. 启动后端
 
 ```powershell
@@ -113,6 +147,13 @@ python -m venv .venv
 pip install -r requirements.txt
 python -m alembic upgrade head
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Phase 3.1 的 `/assistant` 统一 Agent 入口还需要单独启动后台 worker：
+
+```powershell
+cd backend
+python -m arq app.workers.agent_worker.WorkerSettings
 ```
 
 若 `8000` 被占用：
@@ -166,11 +207,13 @@ http://127.0.0.1:3000/register?api_base=http%3A%2F%2F127.0.0.1%3A8010%2Fapi%2Fv1
 4. `/knowledge`：依次执行解析、切片、向量化、抽取知识点、生成 Wiki。
 5. `/knowledge`：使用“检索资料”验证 RAG 检索结果。
 6. `/assistant`：围绕课程资料提问，例如“请解释栈和队列的区别，并引用课程资料。”
-7. `/assistant`：生成学习资源，例如例题、总结或复习卡。
-8. `/practice`：生成练习题，选择答案并提交，查看自动批改。
-9. `/practice`：打开诊断报告，生成学习诊断并刷新推荐。
-10. `/dashboard`：查看课程数、Wiki 数、Agent 运行数、今日任务和推荐。
-11. `/path-profile`：生成学习路径，触发长期记忆反思，触发自进化策略分析。
+7. `/assistant`：用自然语言更新画像，例如“我是软件工程大二学生，递归薄弱，喜欢 Python 代码示例和分步骤讲解，请记住我的学习偏好。”
+8. `/path-profile`：查看对话式画像证据。
+9. `/assistant`：生成学习资源，例如例题、总结或复习卡。
+10. `/practice`：生成练习题，选择答案并提交，查看自动批改。
+11. `/practice`：打开诊断报告，生成学习诊断并刷新推荐。
+12. `/dashboard`：查看课程数、Wiki 数、Agent 运行数、今日任务和推荐。
+13. `/path-profile`：生成学习路径，触发长期记忆反思，触发自进化策略分析。
 
 演示建议资料内容可用一份简单的《数据结构》文本，例如：
 
@@ -209,6 +252,7 @@ scripts/local_check.ps1 -Database
 scripts/local_check.ps1 -Backend
 scripts/local_check.ps1 -Frontend
 scripts/local_check.ps1 -MainChain
+scripts/local_check.ps1 -AgentDemo
 ```
 
 说明：
@@ -217,6 +261,7 @@ scripts/local_check.ps1 -MainChain
 - `-Database` 会运行 Alembic migration。
 - `-Frontend` 会运行 TypeScript 检查和 Next.js build。
 - `-MainChain` 要求后端已启动且配置真实 LLM Provider；会创建隔离测试账号并执行完整真实生成链路，回退 Mock 时直接失败。
+- `-AgentDemo` 要求后端和 arq Worker 已启动；会验证 `/assistant` 统一 Agent 入口、工具事件、对话式画像和学习路径生成。
 - `-All` 不包含真实 LLM 主链路，避免日常检查意外消耗 API 配额。
 - Docker 只作为第21阶段或部署专项验收，不作为当前学生端功能开发的前置条件。
 

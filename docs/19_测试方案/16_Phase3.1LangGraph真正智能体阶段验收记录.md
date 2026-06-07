@@ -3,7 +3,7 @@
 > 验收日期：2026-06-07  
 > 验收分支：`change_2`  
 > 验收环境：本机 PostgreSQL、Redis 3.0.504、FastAPI、arq Worker、Next.js、真实 Xiaomi MiMo-V2.5。  
-> 验收结论：**Phase 3.1 核心实现与真实浏览器主链路通过验收。**
+> 验收结论：**Phase 3.1 核心实现、真实浏览器主链路与稳定演示入口通过验收。**
 
 ## 验收范围
 
@@ -137,8 +137,8 @@ scripts/evaluate_agent_runtime.py
 
 ```text
 python -m alembic upgrade head                         通过
-python -m pytest -q                                    143 passed
-python scripts/export_implementation_docs.py           通过，104 API / 33 ORM tables
+python -m pytest -q                                    148 passed
+python scripts/export_implementation_docs.py           通过，105 API / 33 ORM tables
 python scripts/check_docs.py                           通过
 python scripts/evaluate_agent_runtime.py --validate-only 通过，20 scenarios
 npm run typecheck                                      通过
@@ -151,6 +151,48 @@ npm run build                                          通过
 ```powershell
 python scripts/evaluate_agent_runtime.py --validate-only
 python scripts/evaluate_agent_runtime.py --user-id <user_id> --course-id <course_id>
+```
+
+## 稳定演示加固
+
+新增稳定演示入口：
+
+```powershell
+scripts/start_phase31_demo.ps1
+python scripts/agent_demo_check.py --base-url http://127.0.0.1:8000/api/v1
+```
+
+`start_phase31_demo.ps1` 负责统一启动 FastAPI、arq Worker 和 Next.js，并在端口被旧进程占用时直接提示，避免 `/assistant` 连到旧后端。脚本还会检查已有 arq Agent Worker；若旧 Worker 仍在运行，默认拒绝启动，防止旧代码 Worker 抢 Redis 队列任务导致页面或验收脚本长时间等待。
+
+`agent_demo_check.py` 通过真实 HTTP API 创建隔离学生、课程和 Agent 会话，连续发送两轮消息：
+
+1. 对话式画像更新：验证 Supervisor 路由到 `update_profile_from_dialogue`，并写入画像证据。
+2. 学习路径生成：验证 Supervisor 路由到 `generate_learning_path`，并产生后台任务事件和 Assistant 最终消息。
+
+该脚本作为 Phase 3.1 稳定演示冒烟验收，不替代 20 条真实 MiMo 标准场景集。
+
+## 2026-06-07 最终稳定性复验
+
+本次使用真实登录账号 `agent_demo_1780837064216` 在内置浏览器完成复验，不以未登录静态占位页作为验收依据。
+
+发现并修复：
+
+1. 旧 arq Worker 与当前 Worker 共享 Redis 队列会抢任务；启动脚本现默认拦截已有 Worker。
+2. 纯画像更新目标被 MiMo 扩张为答疑、路径、资源和练习等 8 次工具调用；Supervisor 现将明确“请记住/更新画像”目标约束为单工具快速闭环。
+3. `agent_demo_check.py` 在 Windows GBK 控制台输出 Unicode 符号时错误退出；控制台摘要现使用 ASCII-safe JSON。
+4. `/assistant` 只显示欢迎占位，没有恢复已有 Agent 会话；现会按课程加载历史消息、任务卡和完整 SSE 事件时间线。
+
+真实复验结果：
+
+```text
+agent_demo_check.py                                  通过，退出码 0，总耗时 76 秒
+画像任务                                             succeeded，1 次工具调用
+三天补弱计划任务                                     succeeded，2 次工具调用
+内置浏览器真实账号登录                               通过
+/assistant 真实会话、规划/工具/观察/Review/完成回放  通过
+/path-profile 画像、路径与对话证据                    通过
+/knowledge 32 份真实资料与质量报告                    通过
+浏览器控制台错误                                     0
 ```
 
 ## 边界与风险

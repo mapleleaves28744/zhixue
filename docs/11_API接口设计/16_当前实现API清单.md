@@ -2,7 +2,7 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
-> HTTP 操作数：**104**
+> HTTP 操作数：**105**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
@@ -88,6 +88,7 @@
 | `PATCH` | `/api/v1/student/memory/{memory_id}` | JWT | memory_id* | application/json: `MemoryUpdate` |
 | `GET` | `/api/v1/student/profile` | JWT | - | - |
 | `PUT` | `/api/v1/student/profile` | JWT | - | application/json: `ProfileUpdate` |
+| `POST` | `/api/v1/student/profile/dialogue-ingest` | JWT | - | application/json: `ProfileDialogueIngestRequest` |
 | `GET` | `/api/v1/student/profile/preferences` | JWT | - | - |
 | `POST` | `/api/v1/student/profile/rebuild` | JWT | - | - |
 | `GET` | `/api/v1/student/profile/summary` | JWT | - | - |

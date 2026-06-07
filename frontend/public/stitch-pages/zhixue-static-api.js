@@ -427,6 +427,13 @@
     return request(`/agent/tasks/${taskId}/cancel`, { method: "POST" });
   }
 
+  async function ingestProfileDialogue(payload) {
+    return request("/student/profile/dialogue-ingest", {
+      method: "POST",
+      body: payload,
+    });
+  }
+
   async function streamDynamicAgentTaskEvents(taskId, handlers = {}) {
     const token = getToken();
     if (!token) {
@@ -625,6 +632,7 @@
     getPageMascot,
     getWikiPage,
     getMe,
+    ingestProfileDialogue,
     getMastery,
     getCourseIdFromUrl,
     getParentSearchParams,
