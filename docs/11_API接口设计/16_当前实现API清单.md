@@ -2,12 +2,19 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
-> HTTP 操作数：**108**
+> HTTP 操作数：**127**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
 |---|---|---|---|---|
 | `GET` | `/` | Public | - | - |
+| `POST` | `/api/v1/ab-tests/` | JWT | - | application/json: `ABTestCreateRequest` |
+| `GET` | `/api/v1/ab-tests/` | JWT | course_id, status, page, page_size | - |
+| `POST` | `/api/v1/ab-tests/{test_id}/complete` | JWT | test_id* | - |
+| `POST` | `/api/v1/ab-tests/{test_id}/metric` | JWT | test_id* | application/json: `MetricRecordRequest` |
+| `POST` | `/api/v1/ab-tests/{test_id}/pause` | JWT | test_id* | - |
+| `POST` | `/api/v1/ab-tests/{test_id}/start` | JWT | test_id* | - |
+| `GET` | `/api/v1/ab-tests/{test_id}/stats` | JWT | test_id* | - |
 | `POST` | `/api/v1/agent-tasks/create` | JWT | - | application/json: `AgentTaskCreateRequest` |
 | `GET` | `/api/v1/agent-tasks/{task_id}` | JWT | task_id* | - |
 | `POST` | `/api/v1/agent-tasks/{task_id}/cancel` | JWT | task_id* | - |
@@ -21,6 +28,7 @@
 | `GET` | `/api/v1/agent/tasks/{task_id}` | JWT | task_id* | - |
 | `POST` | `/api/v1/agent/tasks/{task_id}/cancel` | JWT | task_id* | - |
 | `GET` | `/api/v1/agent/tasks/{task_id}/events` | JWT | task_id* | - |
+| `POST` | `/api/v1/agent/tasks/{task_id}/requeue` | JWT | task_id* | - |
 | `POST` | `/api/v1/agent/tasks/{task_id}/resume` | JWT | task_id* | application/json: `AgentTaskResumeRequest` |
 | `GET` | `/api/v1/agents/ping` | JWT | - | - |
 | `POST` | `/api/v1/agents/run` | JWT | - | application/json: `AgentRunRequest` |
@@ -41,6 +49,7 @@
 | `PUT` | `/api/v1/courses/{course_id}` | JWT | course_id* | application/json: `CourseUpdate` |
 | `DELETE` | `/api/v1/courses/{course_id}` | JWT | course_id* | - |
 | `POST` | `/api/v1/diagnosis/analyze` | JWT | course_id*, trigger_evolution | - |
+| `GET` | `/api/v1/diagnosis/difficulty` | JWT | course_id* | - |
 | `POST` | `/api/v1/diagnosis/generate` | JWT | course_id*, trigger_evolution | - |
 | `GET` | `/api/v1/diagnosis/mastery` | JWT | course_id | - |
 | `GET` | `/api/v1/diagnosis/reports` | JWT | course_id, page, page_size | - |
@@ -66,9 +75,19 @@
 | `POST` | `/api/v1/materials/upload` | JWT | - | multipart/form-data: `Body_upload_material_api_v1_materials_upload_post` |
 | `GET` | `/api/v1/materials/{material_id}` | JWT | material_id* | - |
 | `POST` | `/api/v1/materials/{material_id}/chunk` | JWT | material_id* | - |
+| `GET` | `/api/v1/materials/{material_id}/chunks` | JWT | material_id*, page, page_size | - |
+| `GET` | `/api/v1/materials/{material_id}/download` | JWT | material_id* | - |
 | `POST` | `/api/v1/materials/{material_id}/embed` | JWT | material_id* | - |
 | `POST` | `/api/v1/materials/{material_id}/parse` | JWT | material_id* | - |
 | `GET` | `/api/v1/materials/{material_id}/parse-status` | JWT | material_id* | - |
+| `GET` | `/api/v1/materials/{material_id}/parsed-text` | JWT | material_id* | - |
+| `GET` | `/api/v1/media-assets/{asset_id}` | JWT | asset_id* | - |
+| `GET` | `/api/v1/media-assets/{asset_id}/file` | JWT | asset_id*, access_token | - |
+| `POST` | `/api/v1/multimodal/courseware/generate` | JWT | - | application/json: `InteractiveCoursewareGenerateRequest` |
+| `POST` | `/api/v1/multimodal/images/generate` | JWT | - | application/json: `EducationalImageGenerateRequest` |
+| `GET` | `/api/v1/multimodal/jobs/{job_id}` | JWT | job_id* | - |
+| `POST` | `/api/v1/multimodal/storyboard/generate` | JWT | - | application/json: `StoryboardHtmlGenerateRequest` |
+| `POST` | `/api/v1/multimodal/videos/generate` | JWT | - | application/json: `LessonVideoGenerateRequest` |
 | `GET` | `/api/v1/ping` | Public | - | - |
 | `GET` | `/api/v1/quizzes` | JWT | course_id, page, page_size | - |
 | `POST` | `/api/v1/quizzes/generate` | JWT | - | application/json: `QuizGenerateRequest` |

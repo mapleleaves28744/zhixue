@@ -100,6 +100,7 @@ class AgentRuntimeService:
                     event_sink=event_sink,
                 )
                 if approved is None:
+                    input_payload = task.input_payload or {}
                     result = await graph.run(
                         task_id=task.id,
                         conversation_id=task.conversation_id,
@@ -111,6 +112,8 @@ class AgentRuntimeService:
                         max_iterations=settings.agent_max_iterations,
                         max_tool_calls=settings.agent_max_tool_calls,
                         max_replans=settings.agent_max_replans,
+                        tool_hints=list(input_payload.get("tool_hints") or []),
+                        skip_tools=list(input_payload.get("skip_tools") or []),
                     )
                 else:
                     result = await graph.resume(thread_id=task.thread_id or str(task.id), approved=approved)
@@ -223,11 +226,14 @@ class AgentRuntimeService:
         step = await self.tasks.get_step_by_tool_call(UUID(task_id), tool_call_id)
         if step is None or step.status not in {"succeeded", "failed"}:
             return None
+        output = dict(step.output_payload or {})
+        citations = output.pop("_citations", [])
         return ToolExecutionResult(
             success=step.status == "succeeded",
-            output=step.output_payload,
+            output=output,
             evidence=step.evidence,
             artifact_refs=step.artifact_refs,
+            citations=citations,
             error_message=step.error_message,
             attempts=step.retry_count + 1,
         )
@@ -237,10 +243,13 @@ class AgentRuntimeService:
         step = await self.tasks.get_step_by_tool_call(UUID(task_id), tool_call_id)
         if step is None:
             return
+        output_payload = dict(result.output or {})
+        if result.citations:
+            output_payload["_citations"] = result.citations
         await self.tasks.update_step(
             step,
             status="succeeded" if result.success else "failed",
-            output_payload=result.output,
+            output_payload=output_payload,
             evidence=result.evidence,
             artifact_refs=result.artifact_refs,
             error_message=result.error_message,

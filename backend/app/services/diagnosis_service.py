@@ -88,6 +88,41 @@ class DiagnosisService:
         await self.db.commit()
         await self.db.refresh(report)
         serialized = self._serialize_report(report)
+
+        # ── 自适应难度调节 ──
+        try:
+            from app.services.difficulty_service import DifficultyService
+
+            difficulty_result = await DifficultyService(self.db).compute_and_update(
+                user_id=current_user.id,
+                course_id=course_id,
+                accuracy=float(serialized.get("accuracy") or 0),
+                weak_points=weak_points,
+                error_patterns=error_patterns,
+            )
+            serialized["difficulty_adjustment"] = difficulty_result
+        except Exception:
+            # 难度调节失败不应阻断诊断流程
+            pass
+
+        # ── 发布诊断完成事件 ──
+        try:
+            from app.core.event_bus import get_event_bus
+
+            await get_event_bus().publish(
+                "diagnosis_complete",
+                {
+                    "user_id": current_user.id,
+                    "course_id": course_id,
+                    "accuracy": float(serialized.get("accuracy") or 0),
+                    "weak_points_count": len(weak_points),
+                    "skip_auto_evolve": bool(trigger_evolution),
+                },
+                source="diagnosis_service",
+            )
+        except Exception:
+            pass
+
         if trigger_evolution:
             from app.services.evolution_service import EvolutionService
 

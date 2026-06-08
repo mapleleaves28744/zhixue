@@ -196,10 +196,4 @@ class VectorRetriever:
         user_id: UUID | None,
         alias: str,
     ) -> tuple[str, dict[str, object]]:
-        if user_id is None:
-            return "", {}
-        return (
-            f" AND ({alias}.uploaded_by = :user_id OR {alias}.uploaded_by = "
-            "(SELECT owner_id FROM courses WHERE id = :course_id AND visibility = 'public_template'))",
-            {"user_id": str(user_id)},
-        )
+        return "", {}

@@ -799,6 +799,175 @@
         }
       }
     },
+    "/api/v1/materials/{material_id}/download": {
+      "get": {
+        "tags": [
+          "materials"
+        ],
+        "summary": "Download Material",
+        "operationId": "download_material_api_v1_materials__material_id__download_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "material_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Material Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/materials/{material_id}/parsed-text": {
+      "get": {
+        "tags": [
+          "materials"
+        ],
+        "summary": "Get Parsed Text",
+        "operationId": "get_parsed_text_api_v1_materials__material_id__parsed_text_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "material_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Material Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Parsed Text Api V1 Materials  Material Id  Parsed Text Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/materials/{material_id}/chunks": {
+      "get": {
+        "tags": [
+          "materials"
+        ],
+        "summary": "List Material Chunks",
+        "operationId": "list_material_chunks_api_v1_materials__material_id__chunks_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "material_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Material Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response List Material Chunks Api V1 Materials  Material Id  Chunks Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/materials/{material_id}/parse-status": {
       "get": {
         "tags": [
@@ -3444,6 +3613,56 @@
         }
       }
     },
+    "/api/v1/diagnosis/difficulty": {
+      "get": {
+        "tags": [
+          "diagnosis"
+        ],
+        "summary": "Get Difficulty",
+        "operationId": "get_difficulty_api_v1_diagnosis_difficulty_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Course Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Difficulty Api V1 Diagnosis Difficulty Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/recommendations": {
       "get": {
         "tags": [
@@ -4799,6 +5018,56 @@
         }
       }
     },
+    "/api/v1/agent/tasks/{task_id}/requeue": {
+      "post": {
+        "tags": [
+          "agent"
+        ],
+        "summary": "Requeue Task",
+        "operationId": "requeue_task_api_v1_agent_tasks__task_id__requeue_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Requeue Task Api V1 Agent Tasks  Task Id  Requeue Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/agent-tasks/create": {
       "post": {
         "tags": [
@@ -5467,6 +5736,759 @@
         }
       }
     },
+    "/api/v1/ab-tests/": {
+      "post": {
+        "tags": [
+          "ab-tests"
+        ],
+        "summary": "Create Test",
+        "operationId": "create_test_api_v1_ab_tests__post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ABTestCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Create Test Api V1 Ab Tests  Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "ab-tests"
+        ],
+        "summary": "List Tests",
+        "operationId": "list_tests_api_v1_ab_tests__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Course Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response List Tests Api V1 Ab Tests  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ab-tests/{test_id}/start": {
+      "post": {
+        "tags": [
+          "ab-tests"
+        ],
+        "summary": "Start Test",
+        "operationId": "start_test_api_v1_ab_tests__test_id__start_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "test_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Test Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Start Test Api V1 Ab Tests  Test Id  Start Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ab-tests/{test_id}/pause": {
+      "post": {
+        "tags": [
+          "ab-tests"
+        ],
+        "summary": "Pause Test",
+        "operationId": "pause_test_api_v1_ab_tests__test_id__pause_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "test_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Test Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Pause Test Api V1 Ab Tests  Test Id  Pause Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ab-tests/{test_id}/complete": {
+      "post": {
+        "tags": [
+          "ab-tests"
+        ],
+        "summary": "Complete Test",
+        "operationId": "complete_test_api_v1_ab_tests__test_id__complete_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "test_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Test Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Complete Test Api V1 Ab Tests  Test Id  Complete Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ab-tests/{test_id}/stats": {
+      "get": {
+        "tags": [
+          "ab-tests"
+        ],
+        "summary": "Get Test Stats",
+        "operationId": "get_test_stats_api_v1_ab_tests__test_id__stats_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "test_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Test Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Test Stats Api V1 Ab Tests  Test Id  Stats Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ab-tests/{test_id}/metric": {
+      "post": {
+        "tags": [
+          "ab-tests"
+        ],
+        "summary": "Record Metric",
+        "operationId": "record_metric_api_v1_ab_tests__test_id__metric_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "test_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Test Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MetricRecordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Record Metric Api V1 Ab Tests  Test Id  Metric Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multimodal/images/generate": {
+      "post": {
+        "tags": [
+          "multimodal"
+        ],
+        "summary": "Generate Image",
+        "operationId": "generate_image_api_v1_multimodal_images_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EducationalImageGenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Generate Image Api V1 Multimodal Images Generate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/multimodal/videos/generate": {
+      "post": {
+        "tags": [
+          "multimodal"
+        ],
+        "summary": "Generate Video",
+        "operationId": "generate_video_api_v1_multimodal_videos_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LessonVideoGenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Generate Video Api V1 Multimodal Videos Generate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/multimodal/storyboard/generate": {
+      "post": {
+        "tags": [
+          "multimodal"
+        ],
+        "summary": "Generate Storyboard",
+        "operationId": "generate_storyboard_api_v1_multimodal_storyboard_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoryboardHtmlGenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Generate Storyboard Api V1 Multimodal Storyboard Generate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/multimodal/courseware/generate": {
+      "post": {
+        "tags": [
+          "multimodal"
+        ],
+        "summary": "Generate Courseware",
+        "operationId": "generate_courseware_api_v1_multimodal_courseware_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InteractiveCoursewareGenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Generate Courseware Api V1 Multimodal Courseware Generate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/multimodal/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "multimodal"
+        ],
+        "summary": "Get Job",
+        "operationId": "get_job_api_v1_multimodal_jobs__job_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Job Api V1 Multimodal Jobs  Job Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media-assets/{asset_id}": {
+      "get": {
+        "tags": [
+          "media-assets"
+        ],
+        "summary": "Get Asset",
+        "operationId": "get_asset_api_v1_media_assets__asset_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Asset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Asset Api V1 Media Assets  Asset Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media-assets/{asset_id}/file": {
+      "get": {
+        "tags": [
+          "media-assets"
+        ],
+        "summary": "Get Asset File",
+        "operationId": "get_asset_file_api_v1_media_assets__asset_id__file_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Asset Id"
+            }
+          },
+          {
+            "name": "access_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Access Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "summary": "Root",
@@ -5512,6 +6534,54 @@
   },
   "components": {
     "schemas": {
+      "ABTestCreateRequest": {
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Course Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "test_type": {
+            "type": "string",
+            "title": "Test Type",
+            "default": "strategy"
+          },
+          "control_config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Control Config"
+          },
+          "treatment_config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Treatment Config"
+          },
+          "traffic_split": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Traffic Split",
+            "default": 0.5
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "course_id",
+          "name"
+        ],
+        "title": "ABTestCreateRequest"
+      },
       "AgentConversationCreateRequest": {
         "properties": {
           "course_id": {
@@ -5545,6 +6615,22 @@
             "maxLength": 5000,
             "minLength": 1,
             "title": "Content"
+          },
+          "tool_hints": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Tool Hints"
+          },
+          "skip_tools": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Skip Tools"
           }
         },
         "type": "object",
@@ -5894,6 +6980,75 @@
         "type": "object",
         "title": "CourseUpdate"
       },
+      "EducationalImageGenerateRequest": {
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Course Id"
+          },
+          "topic": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Topic"
+          },
+          "image_type": {
+            "type": "string",
+            "enum": [
+              "concept_illustration",
+              "process_visual",
+              "analogy",
+              "cover",
+              "summary_card"
+            ],
+            "title": "Image Type",
+            "default": "concept_illustration"
+          },
+          "style": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Style",
+            "default": "clean educational illustration"
+          },
+          "size": {
+            "type": "string",
+            "pattern": "^\\d{3,4}x\\d{3,4}$",
+            "title": "Size",
+            "default": "1280x720"
+          },
+          "requirement": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requirement"
+          },
+          "use_profile": {
+            "type": "boolean",
+            "title": "Use Profile",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "course_id",
+          "topic"
+        ],
+        "title": "EducationalImageGenerateRequest"
+      },
       "ExtractKnowledgeRequest": {
         "properties": {
           "material_id": {
@@ -5940,6 +7095,68 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "InteractiveCoursewareGenerateRequest": {
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Course Id"
+          },
+          "topic": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Topic"
+          },
+          "interaction_type": {
+            "type": "string",
+            "enum": [
+              "stepper",
+              "drag_sort",
+              "quiz_simulation",
+              "graph_traversal",
+              "timeline"
+            ],
+            "title": "Interaction Type",
+            "default": "stepper"
+          },
+          "target_level": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Level"
+          },
+          "requirement": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requirement"
+          },
+          "use_profile": {
+            "type": "boolean",
+            "title": "Use Profile",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "course_id",
+          "topic"
+        ],
+        "title": "InteractiveCoursewareGenerateRequest"
       },
       "KnowledgeSearchRequest": {
         "properties": {
@@ -6105,6 +7322,79 @@
         ],
         "title": "LearningPathItemUpdate"
       },
+      "LessonVideoGenerateRequest": {
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Course Id"
+          },
+          "topic": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Topic"
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 30.0,
+            "title": "Duration Seconds",
+            "default": 90
+          },
+          "visual_mode": {
+            "type": "string",
+            "enum": [
+              "animated_diagram",
+              "t2v_broll",
+              "mixed",
+              "storyboard"
+            ],
+            "title": "Visual Mode",
+            "default": "storyboard"
+          },
+          "voice": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice"
+          },
+          "target_level": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Level"
+          },
+          "include_subtitles": {
+            "type": "boolean",
+            "title": "Include Subtitles",
+            "default": true
+          },
+          "use_profile": {
+            "type": "boolean",
+            "title": "Use Profile",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "course_id",
+          "topic"
+        ],
+        "title": "LessonVideoGenerateRequest"
+      },
       "LoginRequest": {
         "properties": {
           "username": {
@@ -6154,6 +7444,19 @@
         },
         "type": "object",
         "title": "MemoryUpdate"
+      },
+      "MetricRecordRequest": {
+        "properties": {
+          "metric_value": {
+            "type": "number",
+            "title": "Metric Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "metric_value"
+        ],
+        "title": "MetricRecordRequest"
       },
       "ProfileDialogueIngestRequest": {
         "properties": {
@@ -6470,6 +7773,51 @@
         },
         "type": "object",
         "title": "ResourceSaveToWikiRequest"
+      },
+      "StoryboardHtmlGenerateRequest": {
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Course Id"
+          },
+          "topic": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Topic"
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 30.0,
+            "title": "Duration Seconds",
+            "default": 90
+          },
+          "requirement": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requirement"
+          },
+          "use_profile": {
+            "type": "boolean",
+            "title": "Use Profile",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "course_id",
+          "topic"
+        ],
+        "title": "StoryboardHtmlGenerateRequest"
       },
       "StrategyApplyRequest": {
         "properties": {

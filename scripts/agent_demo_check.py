@@ -182,7 +182,11 @@ class AgentDemoCheck:
             if last_status in TERMINAL_STATUSES:
                 return task
             time.sleep(self.poll_interval)
-        raise AgentDemoFailed(f"task {task_id} timed out, last_status={last_status}")
+        raise AgentDemoFailed(
+            f"task {task_id} timed out, last_status={last_status}. "
+            "If status stayed queued, start arq worker via scripts/start_dev.ps1 "
+            "or run backend/scripts/recover_orphaned_agent_tasks.py."
+        )
 
     def read_events(self, task_id: str) -> list[dict[str, Any]]:
         events: list[dict[str, Any]] = []

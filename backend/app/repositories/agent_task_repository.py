@@ -14,6 +14,19 @@ class AgentTaskRepository:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
+    async def list_orphaned_queued_tasks(self, *, limit: int = 20) -> list[AgentTask]:
+        result = await self.db.execute(
+            select(AgentTask)
+            .where(
+                AgentTask.status == "queued",
+                AgentTask.started_at.is_(None),
+                AgentTask.runtime_mode == "langgraph",
+            )
+            .order_by(AgentTask.created_at.asc())
+            .limit(limit)
+        )
+        return list(result.scalars().all())
+
     async def create_task(
         self,
         *,

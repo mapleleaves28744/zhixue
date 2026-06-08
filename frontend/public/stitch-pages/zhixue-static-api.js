@@ -244,6 +244,22 @@
     return request(`/materials?${query}`);
   }
 
+  function materialDownloadUrl(materialId) {
+    return `${getApiBaseUrl()}/materials/${materialId}/download`;
+  }
+
+  async function getMaterialParsedText(materialId) {
+    return request(`/materials/${materialId}/parsed-text`);
+  }
+
+  async function listMaterialChunks(materialId, params = {}) {
+    const query = new URLSearchParams({
+      page: String(params.page || 1),
+      page_size: String(params.pageSize || 20),
+    });
+    return request(`/materials/${materialId}/chunks?${query}`);
+  }
+
   async function createWikiPage(payload) {
     return request("/wiki/pages", {
       method: "POST",
@@ -465,6 +481,10 @@
     return request(`/agent/tasks/${taskId}/cancel`, { method: "POST" });
   }
 
+  async function requeueDynamicAgentTask(taskId) {
+    return request(`/agent/tasks/${taskId}/requeue`, { method: "POST" });
+  }
+
   async function ingestProfileDialogue(payload) {
     return request("/student/profile/dialogue-ingest", {
       method: "POST",
@@ -642,6 +662,84 @@
     return firstCourse.id;
   }
 
+  function escapeHtml(value) {
+    return String(value == null ? "" : value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  async function getMediaAsset(assetId) {
+    return request(`/media-assets/${assetId}`);
+  }
+
+  function mediaAssetFileUrl(assetId) {
+    const base = getApiBaseUrl().replace(/\/$/, "");
+    const url = `${base}/media-assets/${assetId}/file`;
+    const token = getToken();
+    if (!token) {
+      return url;
+    }
+    return `${url}?access_token=${encodeURIComponent(token)}`;
+  }
+
+  function renderArtifactCard(artifact) {
+    const type = artifact.subtype || artifact.type;
+    const title = artifact.title || "学习产物";
+    if (artifact.type === "media_job") {
+      return `
+        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+          <div class="text-sm text-[#8a5a00] font-bold">视频生成任务</div>
+          <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
+          <div class="mt-3 h-2 rounded-full bg-[#f5e4c8] overflow-hidden">
+            <div class="h-full bg-[#8a5a00]" style="width:${Number(artifact.progress || 0)}%"></div>
+          </div>
+          <div class="mt-2 text-xs text-[#7c6b58]">${escapeHtml(artifact.stage || artifact.status || "queued")}</div>
+        </div>`;
+    }
+    if (artifact.type === "media_review") {
+      const passed = artifact.passed === true;
+      const risk = artifact.risk_level || "unknown";
+      const tone = passed ? "border-green-200 bg-green-50/80" : risk === "high" ? "border-red-200 bg-red-50/80" : "border-amber-200 bg-amber-50/80";
+      return `
+        <div class="rounded-3xl border ${tone} p-5 shadow-sm">
+          <div class="text-sm font-bold text-[#8a5a00]">多模态安全审核</div>
+          <div class="mt-1 text-lg font-black text-[#2b2118]">${passed ? "通过" : "需关注"} · 风险 ${escapeHtml(risk)}</div>
+          <div class="mt-2 text-xs text-[#7c6b58]">asset ${escapeHtml(artifact.asset_id || "-")}</div>
+        </div>`;
+    }
+    if (artifact.type === "media_asset" && type === "image") {
+      const url = mediaAssetFileUrl(artifact.asset_id);
+      return `
+        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+          <div class="text-sm text-[#8a5a00] font-bold">教学插图</div>
+          <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
+          <img class="mt-4 w-full rounded-2xl border border-[#f5e4c8]" src="${url}" alt="${escapeHtml(title)}" />
+        </div>`;
+    }
+    if (artifact.type === "media_asset" && (type === "courseware" || type === "storyboard" || artifact.mime_type === "text/html")) {
+      const url = mediaAssetFileUrl(artifact.asset_id);
+      return `
+        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+          <div class="text-sm text-[#8a5a00] font-bold">${type === "storyboard" ? "讲解分镜" : "互动课件"}</div>
+          <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
+          <iframe class="mt-4 w-full h-[520px] rounded-2xl border border-[#f5e4c8] bg-white" src="${url}" sandbox="allow-scripts"></iframe>
+        </div>`;
+    }
+    if (artifact.type === "media_asset" && (type === "video" || String(artifact.mime_type || "").startsWith("video/"))) {
+      const url = mediaAssetFileUrl(artifact.asset_id);
+      return `
+        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+          <div class="text-sm text-[#8a5a00] font-bold">讲解视频</div>
+          <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
+          <video class="mt-4 w-full rounded-2xl border border-[#f5e4c8] bg-black" src="${url}" controls preload="metadata"></video>
+        </div>`;
+    }
+    return `<pre class="rounded-2xl bg-white/80 p-4 text-xs overflow-auto">${escapeHtml(JSON.stringify(artifact, null, 2))}</pre>`;
+  }
+
   function getPageMascot() {
     if (window.ZhixueUI && typeof window.ZhixueUI.getPageMascot === "function") {
       return window.ZhixueUI.getPageMascot();
@@ -655,6 +753,7 @@
     chatWithTutor,
     cancelAgentTask,
     cancelDynamicAgentTask,
+    requeueDynamicAgentTask,
     confirmAgentTask,
     streamTutorChat,
     streamDynamicAgentTaskEvents,
@@ -667,8 +766,11 @@
     getAgentTask,
     getAgentTaskSteps,
     getDynamicAgentTask,
+    getMediaAsset,
     getPageMascot,
     getWikiPage,
+    mediaAssetFileUrl,
+    renderArtifactCard,
     getMe,
     ingestProfileDialogue,
     getMastery,
@@ -683,6 +785,9 @@
     listDiagnosisReports,
     listLearningRecords,
     listMaterials,
+    listMaterialChunks,
+    getMaterialParsedText,
+    materialDownloadUrl,
     listMistakes,
     listQuizzes,
     listRecommendations,

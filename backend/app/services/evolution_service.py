@@ -6,6 +6,7 @@ from uuid import UUID
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.error_codes import ErrorCode
 from app.core.exceptions import BusinessException
 from app.models.diagnosis import DiagnosisReport
@@ -173,7 +174,10 @@ class EvolutionService:
             return False
         accuracy = float(diagnosis.get("accuracy") if diagnosis.get("accuracy") is not None else 1.0)
         weak_points = list(diagnosis.get("weak_points") or [])
-        return accuracy < 0.6 or len(weak_points) >= 2
+        return (
+            accuracy < settings.evolve_accuracy_threshold
+            or len(weak_points) >= settings.evolve_weak_point_min
+        )
 
     async def _get_latest_diagnosis_snapshot(
         self,

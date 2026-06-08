@@ -133,6 +133,24 @@ class ProfileService:
         await self.db.refresh(profile)
         if preference is not None:
             await self.db.refresh(preference)
+
+        if course_id is not None:
+            try:
+                from app.core.event_bus import get_event_bus
+
+                await get_event_bus().publish(
+                    "profile_update",
+                    {
+                        "user_id": user_id,
+                        "course_id": course_id,
+                        "accuracy": None,
+                        "weak_points": list(signals.get("weak_points") or []),
+                    },
+                    source="profile_service",
+                )
+            except Exception:
+                pass
+
         return ProfileDialogueIngestResult(
             profile=ProfileRead.model_validate(profile),
             preferences=LearningPreferenceRead.model_validate(preference) if preference else None,

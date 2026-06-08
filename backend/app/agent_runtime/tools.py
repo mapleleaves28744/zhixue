@@ -5,6 +5,8 @@ from dataclasses import dataclass, field
 from typing import Any, Awaitable, Callable, Literal
 from uuid import UUID
 
+from jsonschema import Draft202012Validator, ValidationError as JsonSchemaValidationError
+
 
 @dataclass(frozen=True)
 class ToolContext:
@@ -146,16 +148,10 @@ class ToolRegistry:
         return result
 
     def _validate_arguments(self, tool: AgentTool, arguments: dict[str, Any]) -> None:
-        required = list(tool.input_schema.get("required") or [])
-        missing = [key for key in required if key not in arguments]
-        if missing:
-            raise ValueError(f"工具 {tool.name} 缺少参数: {', '.join(missing)}")
-        properties = dict(tool.input_schema.get("properties") or {})
-        for key, value in arguments.items():
-            expected = properties.get(key, {}).get("type")
-            if expected == "string" and not isinstance(value, str):
-                raise ValueError(f"工具 {tool.name} 参数 {key} 必须是 string")
-            if expected == "integer" and not isinstance(value, int):
-                raise ValueError(f"工具 {tool.name} 参数 {key} 必须是 integer")
-            if expected == "array" and not isinstance(value, list):
-                raise ValueError(f"工具 {tool.name} 参数 {key} 必须是 array")
+        schema = tool.input_schema or {"type": "object"}
+        try:
+            Draft202012Validator(schema).validate(arguments)
+        except JsonSchemaValidationError as exc:
+            path = ".".join(str(p) for p in exc.path)
+            location = f" 参数 {path}" if path else ""
+            raise ValueError(f"工具 {tool.name}{location} 校验失败: {exc.message}") from exc

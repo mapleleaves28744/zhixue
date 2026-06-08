@@ -64,7 +64,65 @@ def test_audio_tools_are_registered_and_do_not_require_db_writes() -> None:
     assert registry.get("synthesize_speech").writes_db is False
 
 
-def test_audio_api_routes_are_registered() -> None:
+@pytest.mark.asyncio
+async def test_mimo_audio_provider_uses_chat_completions_endpoints(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.llm import audio_provider as module
+
+    captured: list[tuple[str, dict[str, object]]] = []
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, object]:
+            url = captured[-1][0]
+            if url.endswith("/chat/completions") and captured[-1][1].get("model") == module.MIMO_ASR_MODEL:
+                return {
+                    "choices": [{"message": {"content": "识别结果"}}],
+                    "usage": {"seconds": 2},
+                }
+            return {
+                "choices": [
+                    {
+                        "message": {
+                            "audio": {
+                                "data": base64.b64encode(b"RIFFwav").decode("ascii"),
+                                "transcript": "hello",
+                            }
+                        }
+                    }
+                ],
+                "usage": {},
+            }
+
+    class FakeClient:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return None
+
+        async def post(self, url: str, *, headers: dict[str, str], json: dict[str, object]):
+            captured.append((url, json))
+            return FakeResponse()
+
+    monkeypatch.setattr(module.settings, "llm_api_key", "test-key")
+    monkeypatch.setattr(module.settings, "llm_base_url", "https://token-plan-cn.xiaomimimo.com/v1")
+    monkeypatch.setattr(module.httpx, "AsyncClient", lambda **kwargs: FakeClient())
+
+    provider = module.MiMoTokenPlanAudioProvider()
+    asr = await provider.transcribe(base64.b64encode(b"wav").decode("ascii"), filename="clip.wav")
+    tts = await provider.synthesize("栈是后进先出。", response_format="wav")
+
+    assert asr.text == "识别结果"
+    assert tts.provider == "xiaomi_mimo_audio"
+    assert all("/chat/completions" in url for url, _ in captured)
+    assert captured[0][1]["model"] == module.MIMO_ASR_MODEL
+    assert captured[1][1]["model"] == module.MIMO_TTS_MODEL
+    asr_message = captured[0][1]["messages"][0]
+    assert asr_message["content"][0]["input_audio"]["data"].startswith("data:audio/wav;base64,")
     from app.main import app
 
     paths = app.openapi()["paths"]

@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, Query, Request, UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user
@@ -69,6 +70,64 @@ async def get_material(
 ) -> dict[str, object]:
     material = await MaterialService(db).get_material(material_id, current_user)
     return success_response(material.model_dump(mode="json"), request=request)
+
+
+@router.get("/{material_id}/download")
+async def download_material(
+    material_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> FileResponse:
+    path, file_name = await MaterialService(db).get_material_file_path(material_id, current_user)
+    return FileResponse(path, filename=file_name)
+
+
+@router.get("/{material_id}/parsed-text")
+async def get_parsed_text(
+    material_id: UUID,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    text = await MaterialService(db).get_parsed_text(material_id, current_user)
+    return success_response({"material_id": str(material_id), "text": text}, request=request)
+
+
+@router.get("/{material_id}/chunks")
+async def list_material_chunks(
+    material_id: UUID,
+    request: Request,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    await MaterialService(db).get_material(material_id, current_user)
+    chunks, total = await ChunkService(db).list_chunks_paginated(
+        material_id,
+        page=page,
+        page_size=page_size,
+    )
+    items = [
+        {
+            "id": str(chunk.id),
+            "material_id": str(chunk.material_id),
+            "course_id": str(chunk.course_id),
+            "chunk_index": chunk.chunk_index,
+            "content": chunk.content,
+            "token_count": chunk.token_count,
+            "source_title": chunk.source_title,
+            "extra_meta": chunk.extra_meta or {},
+        }
+        for chunk in chunks
+    ]
+    return page_response(
+        items=items,
+        total=total,
+        page=page,
+        page_size=page_size,
+        request=request,
+    )
 
 
 @router.get("/{material_id}/parse-status")

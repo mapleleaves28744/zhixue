@@ -118,6 +118,8 @@ class ResourceService:
 
         return ResourceGenerateResponse(
             resource_id=resource.id,
+            id=resource.id,
+            resource_type=resource.resource_type,
             title=resource.title,
             content=resource.content,
             citations=resource.citations,
@@ -126,6 +128,7 @@ class ResourceService:
             review_result=review_result,
             status=resource.status,
             wiki_page_id=resource.wiki_page_id,
+            created_at=resource.created_at,
         )
 
     async def list_resources(
@@ -408,6 +411,12 @@ class ResourceService:
             "review": "错题解析",
             "mindmap": "思维导图",
             "diagram": "图解",
+            "image": "教学插图",
+            "video": "讲解视频",
+            "animation": "动画",
+            "interactive_courseware": "互动课件",
+            "code_project": "代码实操项目",
+            "reading_pack": "拓展阅读包",
         }
         topic = knowledge.name if knowledge else wiki_page.title if wiki_page else "数据结构"
         return f"{topic}{labels[resource_type]}"

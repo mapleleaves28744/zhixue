@@ -4,6 +4,7 @@ Model modules define database table mappings only. Keep business rules in
 services and database query composition in repositories.
 """
 
+from app.models.ab_test import ABTest, ABTestAssignment
 from app.models.agent import AgentRun
 from app.models.agent_conversation import AgentConversation, AgentMessage, AgentTaskEvent
 from app.models.agent_task import AgentTask, AgentTaskStep
@@ -15,8 +16,9 @@ from app.models.feedback import UserFeedback
 from app.models.knowledge import KnowledgePoint
 from app.models.learning_path import LearningPath, LearningPathItem
 from app.models.learning_record import LearningRecord
-from app.models.llm_log import LLMCallLog
 from app.models.material import CourseMaterial
+from app.models.llm_log import LLMCallLog
+from app.models.media import MediaAsset, MediaJob
 from app.models.memory import StudentMemory
 from app.models.profile import LearningPreference, StudentProfile
 from app.models.prompt import PromptVersion
@@ -27,6 +29,8 @@ from app.models.user import User
 from app.models.wiki import WikiLink, WikiPage, WikiPageVersion, WikiSource
 
 __all__ = [
+    "ABTest",
+    "ABTestAssignment",
     "AgentRun",
     "AgentConversation",
     "AgentMessage",
@@ -46,6 +50,8 @@ __all__ = [
     "LearningRecord",
     "LearningPreference",
     "LLMCallLog",
+    "MediaAsset",
+    "MediaJob",
     "PromptVersion",
     "AnswerRecord",
     "MistakeBook",

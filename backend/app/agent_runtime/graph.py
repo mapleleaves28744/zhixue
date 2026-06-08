@@ -84,6 +84,8 @@ class LearningAgentGraph:
         max_iterations: int = 15,
         max_tool_calls: int = 30,
         max_replans: int = 5,
+        tool_hints: list[str] | None = None,
+        skip_tools: list[str] | None = None,
     ) -> AgentState:
         initial: AgentState = {
             "task_id": str(task_id),
@@ -112,6 +114,8 @@ class LearningAgentGraph:
             "final_answer": "",
             "error_message": "",
             "approved_tool_call_ids": [],
+            "tool_hints": tool_hints or [],
+            "skip_tools": skip_tools or [],
         }
         result = await self.graph.ainvoke(
             initial,
@@ -174,6 +178,7 @@ class LearningAgentGraph:
                 "summary": decision.summary,
                 "plan": decision.plan,
                 "tool_calls": [item.model_dump(mode="json") for item in decision.tool_calls],
+                "reasoning_content": decision.reasoning_content or "",
                 "iteration_count": iteration_count,
                 "replan_count": replans,
             },

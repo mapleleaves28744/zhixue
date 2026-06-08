@@ -1,4 +1,11 @@
-export type ResourceType = "explanation" | "summary" | "example" | "flashcard" | "review"
+export type ResourceType =
+  | "explanation"
+  | "summary"
+  | "example"
+  | "flashcard"
+  | "review"
+  | "mindmap"
+  | "diagram"
 
 export interface ResourceCitation {
   source_type: string
@@ -40,6 +47,8 @@ export interface ResourceGeneratePayload {
 
 export interface ResourceGenerateResult {
   resource_id: string
+  id: string
+  resource_type: ResourceType
   title: string
   content: string
   citations: ResourceCitation[]
@@ -48,4 +57,5 @@ export interface ResourceGenerateResult {
   review_result: Record<string, unknown>
   status: string
   wiki_page_id?: string | null
+  created_at?: string
 }

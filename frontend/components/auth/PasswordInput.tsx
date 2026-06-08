@@ -11,14 +11,16 @@ interface PasswordInputProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
+  inputClassName?: string
 }
 
-export function PasswordInput({ id, value, onChange, placeholder }: PasswordInputProps) {
+export function PasswordInput({ id, value, onChange, placeholder, inputClassName }: PasswordInputProps) {
   const [visible, setVisible] = useState(false)
 
   return (
     <div className="relative">
       <Input
+        className={inputClassName}
         id={id}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}

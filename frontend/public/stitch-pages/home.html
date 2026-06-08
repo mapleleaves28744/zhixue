@@ -122,8 +122,8 @@
 <h3 class="font-headline-sm text-headline-sm mb-4">智学助手</h3>
 <p class="text-on-surface-variant font-body-md text-body-md mb-6">有关课程的任何疑问，随时向我提问。</p>
 <div class="mt-auto relative">
-<input class="w-full bg-white/60 border-none rounded-xl py-3 pl-4 pr-12 text-body-md focus:ring-2 focus:ring-primary/20" placeholder="向 AI 提问..." type="text"/>
-<button class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-primary text-on-primary rounded-lg">
+<input id="home-assistant-question" class="w-full bg-white/60 border-none rounded-xl py-3 pl-4 pr-12 text-body-md focus:ring-2 focus:ring-primary/20" placeholder="向 AI 提问..." type="text"/>
+<button id="home-assistant-send" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-primary text-on-primary rounded-lg">
 <span class="material-symbols-outlined text-sm">send</span>
 </button>
 </div>
@@ -503,5 +503,23 @@
         }
 
         loadKnowledgeUpdates();
+
+        const homeQuestionInput = document.getElementById("home-assistant-question");
+        const homeQuestionSend = document.getElementById("home-assistant-send");
+        function goAssistantWithQuestion() {
+            const question = homeQuestionInput?.value?.trim();
+            if (!question) {
+                api.navigate("/assistant");
+                return;
+            }
+            api.navigate(`/assistant?question=${encodeURIComponent(question)}`);
+        }
+        homeQuestionSend?.addEventListener("click", goAssistantWithQuestion);
+        homeQuestionInput?.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                goAssistantWithQuestion();
+            }
+        });
     </script>
 </body></html>

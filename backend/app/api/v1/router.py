@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request
 
 from app.api.v1 import (
+    ab_tests,
     agent,
     agent_tasks,
     agents,
@@ -13,6 +14,8 @@ from app.api.v1 import (
     learning_records,
     learning_paths,
     materials,
+    media_assets,
+    multimodal,
     quizzes,
     recommendations,
     resources,
@@ -53,3 +56,6 @@ router.include_router(agent.router, prefix="/agent", tags=["agent"])
 router.include_router(agent_tasks.router, prefix="/agent-tasks", tags=["agent-tasks"])
 router.include_router(student_profile.router, prefix="/student/profile", tags=["student-profile"])
 router.include_router(student_memory.router, prefix="/student/memory", tags=["student-memory"])
+router.include_router(ab_tests.router, prefix="/ab-tests", tags=["ab-tests"])
+router.include_router(multimodal.router, prefix="/multimodal", tags=["multimodal"])
+router.include_router(media_assets.router, prefix="/media-assets", tags=["media-assets"])

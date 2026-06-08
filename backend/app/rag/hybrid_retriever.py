@@ -214,13 +214,8 @@ class HybridRetriever:
         user_id: UUID | None,
         alias: str,
     ) -> tuple[str, dict[str, object]]:
-        if user_id is None:
-            return "", {}
-        return (
-            f" AND ({alias}.uploaded_by = :user_id OR {alias}.uploaded_by = "
-            "(SELECT owner_id FROM courses WHERE id = :course_id AND visibility = 'public_template'))",
-            {"user_id": str(user_id)},
-        )
+        # course_id 已在调用方限定；user_id 仅保留参数兼容，不再过滤上传者。
+        return "", {}
 
 
 def fuse_and_rerank_results(

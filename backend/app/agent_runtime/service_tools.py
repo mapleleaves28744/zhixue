@@ -234,12 +234,16 @@ def build_learning_tool_registry(
         )
 
     async def synthesize_speech_handler(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        import base64
+
         from app.llm.audio_provider import (
             MIMO_TTS_MODEL,
             MIMO_TTS_VOICECLONE_MODEL,
             MIMO_TTS_VOICEDESIGN_MODEL,
             build_audio_provider,
         )
+        from app.repositories.media_repository import MediaRepository
+        from app.services.media_storage_service import MediaStorageService
 
         text = str(arguments["text"]).strip()
         model_type = str(arguments.get("model_type") or "tts")
@@ -256,10 +260,35 @@ def build_learning_tool_registry(
             model=model_map.get(model_type, MIMO_TTS_MODEL),
         )
         raw = result.raw or {}
+        audio_format = result.format or "wav"
+        padding = "=" * (-len(result.audio_base64) % 4)
+        audio_bytes = base64.b64decode(result.audio_base64 + padding)
+        storage_path, file_size, mime_type = MediaStorageService().save_bytes(
+            data=audio_bytes,
+            asset_type="audio",
+            suffix=f".{audio_format}",
+        )
+        topic = text[:30].replace("\n", " ")
+        asset = await MediaRepository(db).create_asset(
+            user_id=current_user.id,
+            course_id=context.course_id,
+            asset_type="audio",
+            title=f"语音讲解 · {topic}",
+            storage_path=storage_path,
+            mime_type=mime_type,
+            file_size=file_size,
+            duration_ms=result.duration_ms,
+            agent_task_id=context.task_id,
+            tool_call_id=context.tool_call_id,
+            provider=result.provider,
+            model_name=result.model,
+            prompt=text[:2000],
+        )
         return ToolExecutionResult(
             output={
+                "asset_id": str(asset.id),
                 "audio_base64": result.audio_base64,
-                "format": result.format,
+                "format": audio_format,
                 "model": result.model,
                 "provider": result.provider,
                 "duration_ms": result.duration_ms,
@@ -270,7 +299,15 @@ def build_learning_tool_registry(
             },
             evidence=[
                 f"语音合成完成，provider={result.provider}，模型={result.model}",
-                f"输出格式 {result.format}，文本 {len(text)} 字",
+                f"输出格式 {audio_format}，文本 {len(text)} 字",
+            ],
+            artifact_refs=[
+                {
+                    "type": "audio",
+                    "asset_id": str(asset.id),
+                    "title": asset.title,
+                    "mime_type": mime_type,
+                }
             ],
         )
 
@@ -355,6 +392,27 @@ def build_learning_tool_registry(
             raise RuntimeError(result.message)
         return ToolExecutionResult(output=result.data, evidence=result.evidence)
 
+    async def review_multimodal_asset_handler(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.services.multimodal_review_service import MultimodalReviewService
+
+        asset_id = UUID(str(arguments["asset_id"]))
+        result = await MultimodalReviewService(db).review_asset(asset_id, current_user.id)
+        return ToolExecutionResult(
+            output=result,
+            evidence=[
+                f"多模态审核完成，risk={result['risk_level']}，引用 {result['citation_count']} 条",
+                *(result.get("issues") or []),
+            ],
+            artifact_refs=[
+                {
+                    "type": "media_review",
+                    "asset_id": result["asset_id"],
+                    "risk_level": result["risk_level"],
+                    "passed": result["passed"],
+                }
+            ],
+        )
+
     async def apply_evolution(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
         from app.services.evolution_service import EvolutionService
 
@@ -374,6 +432,82 @@ def build_learning_tool_registry(
         return ToolExecutionResult(
             output=result.model_dump(mode="json"),
             artifact_refs=[{"type": "evolution_strategy", "id": str(result.id), "status": result.status}],
+        )
+
+    async def generate_educational_image_handler(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.services.multimodal_resource_service import MultimodalResourceService
+
+        result = await MultimodalResourceService(db).generate_image(
+            current_user=current_user,
+            course_id=context.course_id,
+            topic=str(arguments["topic"]),
+            image_type=str(arguments.get("image_type") or "concept_illustration"),
+            style=str(arguments.get("style") or "clean educational illustration"),
+            size=str(arguments.get("size") or "1280x720"),
+            requirement=str(arguments.get("requirement") or "") or None,
+            tool_context=context,
+        )
+        return ToolExecutionResult(
+            output=result,
+            evidence=result.get("citations") or [],
+            citations=result.get("citations") or [],
+            artifact_refs=[{"type": "media_asset", "subtype": "image", **result}],
+        )
+
+    async def generate_lesson_video_handler(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.services.multimodal_resource_service import MultimodalResourceService
+
+        result = await MultimodalResourceService(db).create_video_job(
+            current_user=current_user,
+            course_id=context.course_id,
+            topic=str(arguments["topic"]),
+            duration_seconds=int(arguments.get("duration_seconds") or 90),
+            visual_mode=str(arguments.get("visual_mode") or "storyboard"),
+            voice=str(arguments.get("voice") or "") or None,
+            target_level=str(arguments.get("target_level") or "") or None,
+            tool_context=context,
+        )
+        return ToolExecutionResult(
+            output=result,
+            evidence=["视频生成任务已创建，后台会持续写入进度事件。"],
+            artifact_refs=[{"type": "media_job", "subtype": "video", **result}],
+        )
+
+    async def generate_storyboard_html_handler(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.services.multimodal_resource_service import MultimodalResourceService
+
+        result = await MultimodalResourceService(db).generate_storyboard_html(
+            current_user=current_user,
+            course_id=context.course_id,
+            topic=str(arguments["topic"]),
+            duration_seconds=int(arguments.get("duration_seconds") or 90),
+            requirement=str(arguments.get("requirement") or "") or None,
+            tool_context=context,
+        )
+        return ToolExecutionResult(
+            output=result,
+            evidence=result.get("citations") or [],
+            citations=result.get("citations") or [],
+            artifact_refs=[{"type": "media_asset", "subtype": "storyboard", **result}],
+        )
+
+    async def generate_interactive_courseware_handler(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.services.multimodal_resource_service import MultimodalResourceService
+
+        result = await MultimodalResourceService(db).generate_courseware(
+            current_user=current_user,
+            course_id=context.course_id,
+            topic=str(arguments["topic"]),
+            interaction_type=str(arguments.get("interaction_type") or "stepper"),
+            target_level=str(arguments.get("target_level") or "") or None,
+            requirement=str(arguments.get("requirement") or "") or None,
+            tool_context=context,
+        )
+        return ToolExecutionResult(
+            output=result,
+            evidence=result.get("citations") or [],
+            citations=result.get("citations") or [],
+            artifact_refs=[{"type": "media_asset", "subtype": "courseware", **result}],
         )
 
     _register(
@@ -529,6 +663,15 @@ def build_learning_tool_registry(
     )
     _register(
         registry,
+        "review_multimodal_asset",
+        "审核图片、视频、互动课件等多模态产物的事实依据、安全风险、版权风险与可访问性。",
+        "ReviewAgent",
+        {"asset_id": {"type": "string", "minLength": 1}},
+        ["asset_id"],
+        review_multimodal_asset_handler,
+    )
+    _register(
+        registry,
         "apply_evolution_strategy",
         "应用已生成的自进化策略。该操作必须获得用户确认。",
         "EvolutionAgent",
@@ -538,6 +681,71 @@ def build_learning_tool_registry(
         writes_db=True,
         risk_level="high",
         requires_confirmation=True,
+    )
+    _register(
+        registry,
+        name="generate_educational_image",
+        description="基于课程资料、学生画像和知识主题生成教学插图、概念图、类比图或封面图。",
+        agent_name="VisualResourceAgent",
+        properties={
+            "topic": {"type": "string", "minLength": 1},
+            "image_type": {"type": "string", "enum": ["concept_illustration", "process_visual", "analogy", "cover", "summary_card"]},
+            "style": {"type": "string"},
+            "size": {"type": "string", "enum": ["1024x1024", "1280x720", "720x1280", "1024x768"]},
+            "requirement": {"type": "string"},
+        },
+        required=["topic"],
+        handler=generate_educational_image_handler,
+        writes_db=True,
+        timeout_seconds=180,
+    )
+    _register(
+        registry,
+        name="generate_lesson_video",
+        description="创建短讲解视频生成任务，返回 job_id，并通过 Agent 事件持续展示脚本、分镜、渲染进度。",
+        agent_name="VideoResourceAgent",
+        properties={
+            "topic": {"type": "string", "minLength": 1},
+            "duration_seconds": {"type": "integer", "minimum": 30, "maximum": 240},
+            "visual_mode": {"type": "string", "enum": ["storyboard", "animated_diagram", "t2v_broll", "mixed"]},
+            "voice": {"type": "string"},
+            "target_level": {"type": "string"},
+        },
+        required=["topic"],
+        handler=generate_lesson_video_handler,
+        writes_db=True,
+        timeout_seconds=30,
+    )
+    _register(
+        registry,
+        name="generate_storyboard_html",
+        description="基于课程资料生成分镜 HTML 讲解页，可在 sandbox iframe 中预览（文生视频演示替代）。",
+        agent_name="VideoResourceAgent",
+        properties={
+            "topic": {"type": "string", "minLength": 1},
+            "duration_seconds": {"type": "integer", "minimum": 30, "maximum": 240},
+            "requirement": {"type": "string"},
+        },
+        required=["topic"],
+        handler=generate_storyboard_html_handler,
+        writes_db=True,
+        timeout_seconds=120,
+    )
+    _register(
+        registry,
+        name="generate_interactive_courseware",
+        description="基于课程资料生成安全模板化互动课件，不直接信任模型生成裸 HTML/JS。",
+        agent_name="CoursewareAgent",
+        properties={
+            "topic": {"type": "string", "minLength": 1},
+            "interaction_type": {"type": "string", "enum": ["stepper", "drag_sort", "quiz_simulation", "graph_traversal", "timeline"]},
+            "target_level": {"type": "string"},
+            "requirement": {"type": "string"},
+        },
+        required=["topic"],
+        handler=generate_interactive_courseware_handler,
+        writes_db=True,
+        timeout_seconds=180,
     )
     return registry
 

@@ -79,6 +79,20 @@ async def get_task(
     return success_response(result.model_dump(mode="json"), request=request)
 
 
+@router.get("/tasks/{task_id}/events/history")
+async def list_task_events(
+    task_id: UUID,
+    request: Request,
+    current_user: User = Depends(require_student),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    items = await AgentConversationService(db).list_events(task_id, current_user)
+    return success_response(
+        {"items": [item.model_dump(mode="json") for item in items]},
+        request=request,
+    )
+
+
 @router.get("/tasks/{task_id}/events", response_model=None)
 async def stream_task_events(
     task_id: UUID,
@@ -118,6 +132,17 @@ async def cancel_task(
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     result = await AgentConversationService(db).cancel_task(task_id, current_user)
+    return success_response(result.model_dump(mode="json"), request=request)
+
+
+@router.post("/tasks/{task_id}/requeue")
+async def requeue_task(
+    task_id: UUID,
+    request: Request,
+    current_user: User = Depends(require_student),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    result = await AgentConversationService(db).requeue_task(task_id, current_user)
     return success_response(result.model_dump(mode="json"), request=request)
 
 

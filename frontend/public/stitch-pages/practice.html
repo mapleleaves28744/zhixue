@@ -647,7 +647,7 @@
                                     </div>
                                     <p class="text-sm font-semibold mb-2">${escapeHtml(m.question?.question_text || '')}</p>
                                     <p class="text-xs text-outline">你的答案: ${escapeHtml(m.answer_record?.answer_text || '')} | 正确答案: ${escapeHtml(m.question?.standard_answer || '')}</p>
-                                    ${m.correction ? `<p class="text-xs text-on-surface-variant mt-2 bg-surface-container-high p-2 rounded">${escapeHtml(m.correction)}</p>` : ''}
+                                    ${m.correction ? `<div class="text-xs text-on-surface-variant mt-2 bg-surface-container-high p-2 rounded zhixue-markdown-block">${window.ZhixueUI?.renderMarkdown ? window.ZhixueUI.renderMarkdown(m.correction) : escapeHtml(m.correction)}</div>` : ''}
                                 </div>
                             `).join('')}
                         </div>
@@ -678,9 +678,7 @@
                     <span class="px-3 py-1 rounded-full text-xs font-bold ${isCorrect ? 'bg-primary-fixed text-on-primary-fixed' : 'bg-error-container text-error'}">${isCorrect ? '已掌握' : '进入错题本'}</span>
                 </div>
                 <div class="bg-white/60 rounded-xl p-6 mb-6 border border-white/50 shadow-sm">
-                    <p class="text-body-md leading-relaxed mb-4">
-                        <strong class="text-primary">答案解析：</strong> ${escapeHtml(question.analysis || record.feedback || '请结合课程资料复盘。')}
-                    </p>
+                    <div class="text-sm text-outline mb-3 zhixue-markdown-block"><strong class="text-primary">答案解析：</strong> ${window.ZhixueUI?.renderMarkdown ? window.ZhixueUI.renderMarkdown(question.analysis || record.feedback || '请结合课程资料复盘。') : escapeHtml(question.analysis || record.feedback || '请结合课程资料复盘。')}</div>
                     <p class="text-sm text-outline mb-3">标准答案：${escapeHtml(question.standard_answer || '')}</p>
                     <div class="flex flex-wrap items-center gap-3">
                         <span class="text-label-sm font-bold text-outline">常见错因分析:</span>
@@ -742,7 +740,7 @@
             if (sideProgressCard) {
                 sideProgressCard.innerHTML = `
                     <div class="relative z-10 w-full">
-                        <p class="text-label-sm font-bold text-on-surface-variant mb-2">${escapeHtml(report.summary || '继续积累练习数据，诊断会越来越稳定。')}</p>
+                        <div class="text-label-sm font-bold text-on-surface-variant mb-2 zhixue-markdown-block">${window.ZhixueUI?.renderMarkdown ? window.ZhixueUI.renderMarkdown(report.summary || '继续积累练习数据，诊断会越来越稳定。') : escapeHtml(report.summary || '继续积累练习数据，诊断会越来越稳定。')}</div>
                         <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden shadow-inner">
                             <div class="bg-primary h-full" style="width:${Math.max(8, Math.round((report.accuracy || 0) * 100))}%"></div>
                         </div>

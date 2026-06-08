@@ -7,6 +7,7 @@ from uuid import uuid4
 from pydantic import ValidationError
 
 from app.agent_runtime.state import AgentDecision, PlannedToolCall
+from app.agent_runtime import supervisor_intents
 from app.llm.schemas import ChatMessage, ToolCall
 
 
@@ -32,13 +33,15 @@ class MiMoSupervisor:
         if bounded_decision is not None:
             return bounded_decision
         messages = self._build_messages(state)
-        response = await self.provider.chat(
-            messages,
-            tools=tool_schemas,
-            tool_choice="auto",
-            response_format={"type": "json_object"},
-            thinking={"type": "disabled"},
-        )
+        chat_kwargs: dict[str, Any] = {
+            "thinking": {"type": "disabled"},
+        }
+        if tool_schemas:
+            chat_kwargs["tools"] = tool_schemas
+            chat_kwargs["tool_choice"] = "auto"
+        else:
+            chat_kwargs["response_format"] = {"type": "json_object"}
+        response = await self.provider.chat(messages, **chat_kwargs)
         if response.tool_calls:
             decision = AgentDecision(
                 status="continue",
@@ -54,10 +57,10 @@ class MiMoSupervisor:
                 ],
                 reasoning_content=response.reasoning_content,
             )
-            return self._enforce_execution_policy(state, tool_schemas, decision)
+            return self._apply_safety_net(state, tool_schemas, decision)
         decision = self._parse_decision(response.content)
         decision.reasoning_content = response.reasoning_content
-        return self._enforce_execution_policy(state, tool_schemas, decision)
+        return self._apply_safety_net(state, tool_schemas, decision)
 
     def _parse_decision(self, content: str) -> AgentDecision:
         try:
@@ -114,51 +117,259 @@ class MiMoSupervisor:
             final_answer="智能体未能生成有效计划，请补充目标后重试。",
         )
 
+    def _apply_safety_net(
+        self,
+        state: dict[str, Any],
+        tool_schemas: list[dict[str, Any]],
+        decision: AgentDecision,
+    ) -> AgentDecision:
+        """LLM 决策优先；仅在交付物缺失、显式约束或 LLM 空转时介入。"""
+        goal = str(state.get("goal") or "")
+        available = self._available_tool_names(tool_schemas)
+        completed_tools = self._completed_tool_names(state)
+        skip_tools = set(state.get("skip_tools") or [])
+
+        if decision.tool_calls:
+            if decision.status == "complete":
+                decision.status = "continue"
+            decision.tool_calls = self._filter_tool_calls_for_profile_only(goal, decision.tool_calls)
+            decision.tool_calls = self._align_tool_calls_with_deliverables(
+                goal,
+                completed_tools,
+                decision.tool_calls,
+                available,
+                skip_tools,
+                state,
+            )
+            for call in decision.tool_calls:
+                call.arguments = self._safe_arguments(call.name, call.arguments, goal, state)
+            if decision.tool_calls:
+                return decision
+
+        hint = self._next_tool_hint(state, available, completed_tools, skip_tools)
+        if hint and decision.status == "complete":
+            return self._force_tool(hint, goal, state, decision, reason="用户指定工具")
+
+        pending_deliverables = self._pending_deliverables(goal, available, completed_tools, skip_tools)
+        if decision.status == "complete" and pending_deliverables:
+            tool_name = pending_deliverables[0]
+            label = supervisor_intents.deliverable_label(tool_name)
+            return self._force_tool(
+                tool_name,
+                goal,
+                state,
+                decision,
+                reason=f"用户要求的{label}尚未生成，禁止仅用文字/Markdown 代替",
+            )
+
+        if (
+            decision.status == "complete"
+            and self._requires_explicit_retrieval(goal, completed_tools, state, skip_tools)
+            and "search_course_knowledge" in available
+            and "search_course_knowledge" not in skip_tools
+        ):
+            return self._force_tool(
+                "search_course_knowledge",
+                goal,
+                state,
+                decision,
+                reason="用户明确要求基于课程资料回答，必须先检索",
+            )
+
+        if decision.status == "complete" and self._should_use_fallback_planner(
+            goal,
+            state,
+            available,
+            completed_tools,
+            skip_tools,
+            pending_deliverables,
+        ):
+            fallback = self._fallback_next_tool(goal, available, completed_tools, skip_tools)
+            if fallback:
+                return self._force_tool(
+                    fallback,
+                    goal,
+                    state,
+                    decision,
+                    reason=f"LLM 未调用工具，安全网补调 {fallback}",
+                )
+
+        return decision
+
     def _enforce_execution_policy(
         self,
         state: dict[str, Any],
         tool_schemas: list[dict[str, Any]],
         decision: AgentDecision,
     ) -> AgentDecision:
-        goal = str(state.get("goal") or "")
-        available = {
+        return self._apply_safety_net(state, tool_schemas, decision)
+
+    @staticmethod
+    def _available_tool_names(tool_schemas: list[dict[str, Any]]) -> set[str]:
+        return {
             str(item.get("function", {}).get("name"))
             for item in tool_schemas
-            if isinstance(item, dict)
+            if isinstance(item, dict) and item.get("function", {}).get("name")
         }
-        if decision.tool_calls:
-            if decision.status == "complete":
-                decision.status = "continue"
-            for call in decision.tool_calls:
-                call.arguments = self._safe_arguments(call.name, call.arguments, goal)
-            return decision
 
-        completed_tools = {
+    @staticmethod
+    def _completed_tool_names(state: dict[str, Any]) -> set[str]:
+        return {
             str(item.get("tool_name"))
             for item in state.get("observations") or []
             if item.get("success") is True and item.get("tool_name")
         }
-        missing = [
+
+    def _pending_deliverables(
+        self,
+        goal: str,
+        available: set[str],
+        completed_tools: set[str],
+        skip_tools: set[str],
+    ) -> list[str]:
+        deliverable_set = set(self._required_deliverables(goal))
+        ordered = supervisor_intents.plan_required_tools(
+            goal,
+            is_profile_update_only=self._is_profile_update_only_goal(goal),
+        )
+        return [
             name
-            for name in self._required_tools(goal)
-            if name in available and name not in completed_tools
+            for name in ordered
+            if name in deliverable_set
+            and name in available
+            and name not in completed_tools
+            and name not in skip_tools
         ]
-        if missing:
-            tool_name = missing[0]
-            return AgentDecision(
-                status="continue",
-                summary=f"任务明确要求执行 {tool_name}，继续调用对应专业工具。",
-                plan=[f"调用 {name}" for name in missing],
-                tool_calls=[
-                    PlannedToolCall(
-                        id=f"call_{uuid4().hex}",
-                        name=tool_name,
-                        arguments=self._safe_arguments(tool_name, {}, goal),
-                    )
-                ],
-                reasoning_content=decision.reasoning_content,
-            )
-        return decision
+
+    def _next_tool_hint(
+        self,
+        state: dict[str, Any],
+        available: set[str],
+        completed_tools: set[str],
+        skip_tools: set[str],
+    ) -> str | None:
+        for name in reversed(state.get("tool_hints") or []):
+            if name in available and name not in completed_tools and name not in skip_tools:
+                return str(name)
+        return None
+
+    def _requires_explicit_retrieval(
+        self,
+        goal: str,
+        completed_tools: set[str],
+        state: dict[str, Any],
+        skip_tools: set[str],
+    ) -> bool:
+        if "search_course_knowledge" in completed_tools or "search_course_knowledge" in skip_tools:
+            return False
+        if state.get("citations"):
+            return False
+        explicit = ("基于课程资料", "基于资料", "给出引用", "引用来源", "课程知识库")
+        return any(phrase in goal for phrase in explicit)
+
+    def _should_use_fallback_planner(
+        self,
+        goal: str,
+        state: dict[str, Any],
+        available: set[str],
+        completed_tools: set[str],
+        skip_tools: set[str],
+        pending_deliverables: list[str],
+    ) -> bool:
+        if pending_deliverables:
+            return False
+        if int(state.get("tool_call_count") or 0) > 0:
+            return False
+        if self._is_profile_update_only_goal(goal):
+            return False
+        planned = supervisor_intents.plan_required_tools(
+            goal,
+            is_profile_update_only=False,
+        )
+        if planned == ["answer_course_question"]:
+            return False
+        return bool(self._fallback_next_tool(goal, available, completed_tools, skip_tools))
+
+    def _fallback_next_tool(
+        self,
+        goal: str,
+        available: set[str],
+        completed_tools: set[str],
+        skip_tools: set[str],
+    ) -> str | None:
+        planned = supervisor_intents.plan_required_tools(
+            goal,
+            is_profile_update_only=self._is_profile_update_only_goal(goal),
+        )
+        for name in planned:
+            if name in available and name not in completed_tools and name not in skip_tools:
+                return name
+        return None
+
+    def _force_tool(
+        self,
+        tool_name: str,
+        goal: str,
+        state: dict[str, Any],
+        decision: AgentDecision,
+        *,
+        reason: str,
+    ) -> AgentDecision:
+        return AgentDecision(
+            status="continue",
+            summary=reason,
+            plan=[f"调用 {tool_name}"],
+            tool_calls=[
+                PlannedToolCall(
+                    id=f"call_{uuid4().hex}",
+                    name=tool_name,
+                    arguments=self._safe_arguments(tool_name, {}, goal, state),
+                )
+            ],
+            reasoning_content=decision.reasoning_content,
+        )
+
+    def _filter_tool_calls_for_profile_only(
+        self,
+        goal: str,
+        tool_calls: list[PlannedToolCall],
+    ) -> list[PlannedToolCall]:
+        if not self._is_profile_update_only_goal(goal):
+            return tool_calls
+        allowed = {"update_profile_from_dialogue"}
+        return [call for call in tool_calls if call.name in allowed]
+
+    def _align_tool_calls_with_deliverables(
+        self,
+        goal: str,
+        completed_tools: set[str],
+        tool_calls: list[PlannedToolCall],
+        available: set[str],
+        skip_tools: set[str],
+        state: dict[str, Any],
+    ) -> list[PlannedToolCall]:
+        pending = self._pending_deliverables(goal, available, completed_tools, skip_tools)
+        if not pending or not tool_calls:
+            return tool_calls
+        primary = pending[0]
+        chosen = {call.name for call in tool_calls}
+        if primary in chosen:
+            return tool_calls
+        prep_tools = {"search_course_knowledge", "generate_explanation", "answer_course_question"}
+        if primary == "synthesize_speech" and chosen.issubset(prep_tools):
+            if "generate_explanation" in chosen and "generate_explanation" not in completed_tools:
+                return tool_calls
+            if supervisor_intents.should_prepare_speech_script(goal) and "generate_explanation" not in completed_tools:
+                return tool_calls
+        if chosen.isdisjoint(set(pending)):
+            return [
+                PlannedToolCall(
+                    id=f"call_{uuid4().hex}",
+                    name=primary,
+                    arguments=self._safe_arguments(primary, {}, goal, state),
+                )
+            ]
+        return tool_calls
 
     def _profile_update_only_decision(
         self,
@@ -193,7 +404,7 @@ class MiMoSupervisor:
                 PlannedToolCall(
                     id=f"call_{uuid4().hex}",
                     name="update_profile_from_dialogue",
-                    arguments=self._safe_arguments("update_profile_from_dialogue", {}, goal),
+                    arguments=self._safe_arguments("update_profile_from_dialogue", {}, goal, state),
                 )
             ],
         )
@@ -228,53 +439,126 @@ class MiMoSupervisor:
         )
 
     def _required_tools(self, goal: str) -> list[str]:
-        rules = [
-            (
-                "search_course_knowledge",
-                ("检索", "课程资料", "课程知识库", "基于资料", "基于课程", "引用", "来源"),
-            ),
-            (
-                "generate_learning_path",
-                ("学习计划", "学习路径", "复习计划", "安排一周", "安排三天", "制定一个"),
-            ),
-            ("generate_explanation", ("讲解资料", "配套讲解", "生成一份", "生成讲解")),
-            ("generate_quiz", ("练习题", "生成练习", "生成一组练习", "配套练习")),
-            ("parse_uploaded_document", ("解析资料", "解析文档", "处理上传", "解析这份")),
-            ("generate_mindmap", ("思维导图", "知识图谱", "知识结构", "梳理一下脉络", "整体框架")),
-            ("generate_diagram", ("图解", "流程图", "架构图", "示意图", "画一张", "画一个")),
-            ("transcribe_audio", ("语音识别", "识别语音", "音频转文字", "语音转文字")),
-            ("synthesize_speech", ("朗读", "语音播放", "文字转语音", "合成语音")),
-            ("analyze_learning_diagnosis", ("薄弱点", "错误模式", "学习诊断")),
-            ("refresh_recommendations", ("推荐下一步", "推荐学习内容", "刷新推荐", "根据画像推送", "主动推荐", "诊断后推荐", "推荐资源")),
-            (
-                "update_profile_from_dialogue",
-                (
-                    "记住我的学习偏好",
-                    "更新我的画像",
-                    "我的学习偏好",
-                    "我更喜欢",
-                    "我喜欢",
-                    "我的专业",
-                    "我的目标",
-                    "我是",
-                    "我目前",
-                    "比较薄弱",
-                ),
-            ),
-            ("rebuild_profile", ("重建画像", "重新整理我的学习画像", "根据学习记录重建画像")),
-            ("reflect_learning_memory", ("长期学习记忆", "反思最近学习", "沉淀有价值")),
-            ("review_artifacts", ("来源、幻觉和风险审查", "审查学习产物", "审核学习产物")),
-            ("apply_evolution_strategy", ("应用最新的一条自进化策略", "应用自进化策略")),
-        ]
-        return [name for name, keywords in rules if any(keyword in goal for keyword in keywords)]
+        tools = supervisor_intents.plan_required_tools(
+            goal,
+            is_profile_update_only=self._is_profile_update_only_goal(goal),
+        )
+        return self._ensure_knowledge_search_first(goal, tools)
+
+    def _required_deliverables(self, goal: str) -> list[str]:
+        return supervisor_intents.required_deliverables(goal)
+
+    def _speech_intent(self, goal: str) -> bool:
+        return supervisor_intents.speech_intent(goal)
+
+    def _video_intent(self, goal: str) -> bool:
+        return supervisor_intents.video_intent(goal)
+
+    def _extract_topic_from_goal(self, goal: str) -> str:
+        cleaned = str(goal)
+        for token in (
+            "生成",
+            "请",
+            "帮我",
+            "给",
+            "一段",
+            "一个",
+            "关于",
+            "的",
+            "语音",
+            "朗读",
+            "讲解",
+            "合成",
+            "TTS",
+            "播放",
+            "听",
+        ):
+            cleaned = cleaned.replace(token, "")
+        return cleaned.strip() or "该知识点"
+
+    def _resolve_speech_text(self, state: dict[str, Any], goal: str, text: str | None = None) -> str:
+        candidate = str(text or "").strip()
+        if candidate and candidate != goal.strip() and len(candidate) >= 40:
+            return candidate[:4000]
+        for obs in reversed(state.get("observations") or []):
+            output = obs.get("output")
+            if not isinstance(output, dict):
+                continue
+            for key in ("content", "text", "answer", "summary"):
+                value = output.get(key)
+                if isinstance(value, str) and len(value.strip()) >= 40:
+                    return value.strip()[:4000]
+            chunks = output.get("chunks")
+            if isinstance(chunks, list) and chunks:
+                merged = "\n".join(
+                    str(item.get("content") or item.get("text") or item)
+                    for item in chunks[:5]
+                    if item is not None
+                ).strip()
+                if len(merged) >= 40:
+                    return merged[:4000]
+        topic = self._extract_topic_from_goal(goal)
+        return (
+            f"你好，下面为你讲解{topic}。"
+            f"{topic}是数据结构中的核心知识点，遵循先进先出的原则。"
+            f"常见操作包括入队、出队、取队头和判空，在任务调度与广度优先搜索中应用广泛。"
+        )[:4000]
+
+    _GENERATION_TOOLS = {
+        "generate_learning_path",
+        "generate_explanation",
+        "generate_quiz",
+        "generate_mindmap",
+        "generate_diagram",
+        "generate_educational_image",
+        "generate_lesson_video",
+        "generate_storyboard_html",
+        "generate_interactive_courseware",
+        "answer_course_question",
+    }
+
+    def _ensure_knowledge_search_first(self, goal: str, tools: list[str]) -> list[str]:
+        if self._is_profile_update_only_goal(goal):
+            return tools
+        needs_grounding = any(name in self._GENERATION_TOOLS for name in tools) or self._should_ground_in_course_materials(goal)
+        if needs_grounding and "search_course_knowledge" not in tools:
+            return ["search_course_knowledge", *tools]
+        return tools
+
+    def _should_ground_in_course_materials(self, goal: str) -> bool:
+        keywords = (
+            "什么是",
+            "讲解",
+            "解释",
+            "为什么",
+            "如何",
+            "帮我",
+            "BFS",
+            "DFS",
+            "广度优先",
+            "深度优先",
+            "排序",
+            "队列",
+            "栈",
+            "二叉树",
+            "图",
+            "遍历",
+            "算法",
+            "数据结构",
+            "哈希",
+            "链表",
+        )
+        return any(keyword in goal for keyword in keywords)
 
     def _safe_arguments(
         self,
         tool_name: str,
         arguments: dict[str, Any],
         goal: str,
+        state: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         normalized = dict(arguments)
+        state = state or {}
         defaults: dict[str, dict[str, Any]] = {
             "search_course_knowledge": {"query": goal, "top_k": 10},
             "answer_course_question": {"question": goal, "top_k": 5},
@@ -284,14 +568,53 @@ class MiMoSupervisor:
             "parse_uploaded_document": {},
             "generate_mindmap": {"topic": goal, "scope": "course", "depth": 3},
             "generate_diagram": {"concept": goal, "diagram_type": "flowchart"},
+            "generate_educational_image": {
+                "topic": goal,
+                "image_type": "concept_illustration",
+                "style": "clean educational illustration",
+                "size": "1280x720",
+                "requirement": goal,
+            },
+            "generate_lesson_video": {
+                "topic": goal,
+                "duration_seconds": 90,
+                "visual_mode": "storyboard",
+                "target_level": "undergraduate",
+            },
+            "generate_storyboard_html": {
+                "topic": goal,
+                "duration_seconds": 90,
+                "requirement": goal,
+            },
+            "generate_interactive_courseware": {
+                "topic": goal,
+                "interaction_type": "stepper",
+                "target_level": "undergraduate",
+                "requirement": goal,
+            },
             "transcribe_audio": {},
-            "synthesize_speech": {"text": goal, "model_type": "tts", "response_format": "wav"},
+            "synthesize_speech": {
+                "text": self._resolve_speech_text(state, goal),
+                "model_type": "tts",
+                "response_format": "wav",
+            },
             "update_profile_from_dialogue": {"dialogue_text": goal},
             "review_artifacts": {"content": goal},
+            "review_multimodal_asset": {},
         }
         for key, value in defaults.get(tool_name, {}).items():
             if not normalized.get(key):
                 normalized[key] = value
+        if tool_name == "review_multimodal_asset" and not normalized.get("asset_id"):
+            import re
+
+            match = re.search(
+                r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+                goal,
+                flags=re.IGNORECASE,
+            )
+            if match:
+                normalized["asset_id"] = match.group(0)
         if tool_name == "generate_quiz" and normalized.get("question_types"):
             aliases = {
                 "选择题": "single_choice",
@@ -343,11 +666,16 @@ class MiMoSupervisor:
 
     def _build_messages(self, state: dict[str, Any]) -> list[ChatMessage]:
         system = (
-            "你是智学工坊 Supervisor Agent。你必须根据用户目标、历史消息和工具观察动态决定下一步。"
+            "你是智学工坊 Supervisor Agent。你的职责是根据用户目标、历史消息和工具观察，"
+            "**直接通过原生 function calling 选择下一步工具**。"
             "优先调用有来源的知识检索工具；工具失败后调整方案，不要重复无效调用。"
-            "任务完成时返回 JSON："
-            '{"status":"complete","summary":"...","final_answer":"...","plan":[],"tool_calls":[]}.'
-            "需要继续但不调用原生工具时返回 status=continue 和 tool_calls。"
+            "交付物必须与用户意图一致：语音→synthesize_speech，视频→generate_lesson_video，"
+            "插图→generate_educational_image，流程图→generate_diagram，练习→generate_quiz，"
+            "纯答疑→answer_course_question，文字讲解资源→generate_explanation。"
+            "禁止把文字资源、Markdown 或摘要冒充语音/视频/图片结果。"
+            "当用户要求语音时，先准备讲解文本（检索/生成），再 synthesize_speech。"
+            "只有在任务真正完成、且不需要再调用工具时，才返回纯文本 final_answer。"
+            "若仍需工具，请直接发起 tool call，不要只返回 JSON 计划。"
             "不要输出隐式思维链，只输出简洁决策摘要。"
         )
         context = {

@@ -41,6 +41,42 @@ register_exception_handlers(app)
 app.include_router(api_v1_router, prefix="/api/v1")
 
 
+# ── EventBus 生命周期管理 ──
+@app.on_event("startup")
+async def start_event_bus() -> None:
+    from app.core.event_bus import get_event_bus
+    from app.core.event_handlers import register_default_handlers
+
+    register_default_handlers()
+    bus = get_event_bus()
+    await bus.start()
+
+
+@app.on_event("startup")
+async def setup_pgvector() -> None:
+    """尝试在启动时设置 pgvector 扩展和索引。"""
+    try:
+        from app.db.pgvector_setup import setup_pgvector
+        from app.db.session import AsyncSessionLocal
+
+        async with AsyncSessionLocal() as db:
+            result = await setup_pgvector(db)
+            if result["extension_available"]:
+                import logging
+                logging.getLogger(__name__).info("pgvector setup: %s", result)
+    except Exception:
+        # pgvector 设置失败不应阻止应用启动
+        pass
+
+
+@app.on_event("shutdown")
+async def stop_event_bus() -> None:
+    from app.core.event_bus import get_event_bus
+
+    bus = get_event_bus()
+    await bus.stop()
+
+
 @app.get("/")
 async def root() -> dict[str, object]:
     return {

@@ -51,3 +51,5 @@ class AgentState(TypedDict, total=False):
     last_tool_result: dict[str, Any]
     review_result: dict[str, Any]
     approved_tool_call_ids: list[str]
+    tool_hints: list[str]
+    skip_tools: list[str]

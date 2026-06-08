@@ -1,5 +1,14 @@
-import { StitchFrame } from "@/components/StitchFrame"
+import { Suspense } from "react"
+
+import { LandingPage } from "@/components/landing/LandingPage"
+import { landingFontVariables } from "@/lib/landingFonts"
 
 export default function HomePage() {
-  return <StitchFrame title="智学工坊" src="/stitch-pages/brand-home.html" />
+  return (
+    <div className={`${landingFontVariables} landing-page`}>
+      <Suspense fallback={null}>
+        <LandingPage />
+      </Suspense>
+    </div>
+  )
 }

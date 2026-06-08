@@ -13,6 +13,8 @@ const checks = [
   ["知识图谱调用真实接口", knowledge.includes("/wiki/graph?course_id=")],
   ["知识图谱节点可打开 Wiki", knowledge.includes('data-wiki-page-id="${node.id}"')],
   ["图谱 Tab 已绑定渲染", knowledge.includes('label === "图谱视图"') && knowledge.includes("renderWikiGraph()")],
+  ["资料可下载预览切片", knowledge.includes("material-download") && knowledge.includes("material-view-chunks")],
+  ["Wiki Markdown 增强渲染", knowledge.includes("ZhixueUI.renderMarkdown")],
 ];
 
 const failed = checks.filter(([, passed]) => !passed);

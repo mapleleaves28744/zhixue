@@ -180,6 +180,54 @@
 
 ---
 
+## Sprint 5：体验问题审计与修复（UX Sprint）
+
+> 依据「体验问题审计与修复计划」并行推进：助手 React 化、Markdown 全站、资源持久化、知识库可读。
+
+### P0 体验问题追踪
+
+| ID | 问题 | 状态 |
+|----|------|------|
+| A1 | 无流式正文，仅 Agent 进度 | 已修复：快速模式 Tutor SSE |
+| A2 | 无快速/智能体模式切换 | 已修复：ModeToggle |
+| A3 | Agent 卡片不可折叠、内容重复 | 已修复：AgentTaskCard |
+| A4 | 对话区无限拉长 | 已修复：固定高度 + 内部滚动 |
+| A5 | Markdown 不渲染 | 已修复：MarkdownRenderer |
+| A6 | 资源刷新后预览丢失 | 已修复：last_resource_id 恢复 |
+| A7 | 多模态产物全尺寸撑爆 | 已修复：ArtifactCard 缩略 |
+| A8 | 假控件未接线 | 已修复：资料库/Wiki 开关已接线 |
+| A9 | 初始假对话闪现 | 已修复：React 页无静态占位 |
+
+### P1/P2 追踪
+
+| ID | 问题 | 状态 |
+|----|------|------|
+| K1-K6 | 知识库资料/切片不可读等 | 修复中：material API + knowledge UI |
+| G1-G5 | 工具栏、Agent 详情、message_id | 修复中：ToolSelector + tool_hints |
+| X1-X7 | Mermaid、类型不一致、home 提问等 | 部分修复 |
+
+### Sprint 5 任务清单
+
+- [x] MarkdownRenderer 基座 + 依赖
+- [x] 后端 materials download / parsed-text / chunks API
+- [x] 后端 resources generate 响应对齐 + tool_hints
+- [x] `/assistant` React 化：布局、快速模式、智能体模式
+- [x] 资源缩略图 + DetailDrawer + 刷新恢复
+- [x] knowledge 资料预览 + 切片浏览器
+- [x] check-assistant-ui.mjs + E2E 烟测
+
+### Sprint 5 核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| 助手 React 化 | `node scripts/check-assistant-ui.mjs` | 13/13 PASS |
+| 前端构建 | `npm run typecheck`、`npm run build` | 通过 |
+| 资源 Schema | `pytest tests/test_resource.py` | 28 passed |
+| 知识库资料可读 | knowledge.html 下载/全文/切片按钮 | 已实现 |
+| Markdown 全站 | Wiki/练习/画像/助手 | 已接入 |
+
+---
+
 ## 提交记录（change_1）
 
 | 日期 | Commit | 说明 |

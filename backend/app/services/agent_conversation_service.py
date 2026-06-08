@@ -21,6 +21,7 @@ from app.schemas.agent_conversation import (
     AgentTaskEventRead,
 )
 from app.schemas.agent_task import AgentTaskRead
+from app.services.agent_inline_runner import schedule_inline_fallback
 from app.services.agent_queue_service import AgentEventBroker, AgentQueueService
 from app.services.course_service import CourseService
 
@@ -96,6 +97,15 @@ class AgentConversationService:
             thread_id=conversation.thread_id,
             goal=payload.content,
         )
+        if payload.tool_hints or payload.skip_tools:
+            await self.tasks.update_task(
+                task,
+                input_payload={
+                    "user_input": payload.content,
+                    "tool_hints": payload.tool_hints,
+                    "skip_tools": payload.skip_tools,
+                },
+            )
         message.task_id = task.id
         if conversation.title == "新对话":
             conversation.title = payload.content[:40]
@@ -127,6 +137,7 @@ class AgentConversationService:
                 status_code=503,
             )
         await self.broker.publish(task.id, "queued", {"sequence_no": event.sequence_no})
+        schedule_inline_fallback(task.id)
         return AgentMessageAccepted(
             conversation=AgentConversationRead.model_validate(conversation),
             message=AgentMessageRead.model_validate(message),
@@ -181,6 +192,7 @@ class AgentConversationService:
                 detail="Agent 恢复任务入队失败",
                 status_code=503,
             )
+        schedule_inline_fallback(task.id)
         return AgentTaskRead.model_validate(task)
 
     async def cancel_task(self, task_id: UUID, current_user: User) -> AgentTaskRead:
@@ -205,6 +217,39 @@ class AgentConversationService:
         )
         await self.db.commit()
         await self.broker.publish(task.id, "cancelled", {"sequence_no": event.sequence_no})
+        return AgentTaskRead.model_validate(task)
+
+    async def requeue_task(self, task_id: UUID, current_user: User) -> AgentTaskRead:
+        task = await self._get_owned_task(task_id, current_user.id)
+        if task.status != "queued" or task.started_at is not None:
+            raise BusinessException(
+                code=ErrorCode.CONFLICT,
+                detail="只有尚未被 Worker 接管的 queued 任务可以重新入队",
+                status_code=409,
+            )
+        try:
+            queued = await self.queue.enqueue(task.id, replace=True)
+        except Exception:
+            queued = False
+        if not queued:
+            raise BusinessException(
+                code=ErrorCode.AGENT_RUN_FAILED,
+                detail="Agent 任务重新入队失败，请确认 arq Worker 已启动",
+                status_code=503,
+            )
+        event = await self.conversations.add_event(
+            task_id=task.id,
+            conversation_id=task.conversation_id,
+            event_type="queued",
+            payload={"message": "任务已重新入队，等待 Worker 接管"},
+        )
+        await self.db.commit()
+        await self.broker.publish(
+            task.id,
+            "queued",
+            {"sequence_no": event.sequence_no, "requeued": True},
+        )
+        schedule_inline_fallback(task.id)
         return AgentTaskRead.model_validate(task)
 
     async def _get_owned_conversation(self, conversation_id: UUID, user_id: UUID) -> AgentConversation:

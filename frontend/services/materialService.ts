@@ -39,3 +39,34 @@ export function embedMaterial(materialId: string): Promise<{ material_id: string
     method: "POST"
   })
 }
+
+export function getMaterialDownloadUrl(materialId: string): string {
+  return `/api/v1/materials/${materialId}/download`
+}
+
+export function getParsedText(materialId: string): Promise<{ material_id: string; text: string }> {
+  return request<{ material_id: string; text: string }>(`/api/v1/materials/${materialId}/parsed-text`)
+}
+
+export interface MaterialChunk {
+  id: string
+  material_id: string
+  course_id: string
+  chunk_index: number
+  content: string
+  token_count: number
+  source_title?: string | null
+  extra_meta: Record<string, unknown>
+}
+
+export function listMaterialChunks(
+  materialId: string,
+  page = 1,
+  pageSize = 20,
+): Promise<PageData<MaterialChunk>> {
+  const params = new URLSearchParams({
+    page: String(page),
+    page_size: String(pageSize),
+  })
+  return request<PageData<MaterialChunk>>(`/api/v1/materials/${materialId}/chunks?${params}`)
+}

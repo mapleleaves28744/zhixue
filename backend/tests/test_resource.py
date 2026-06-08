@@ -84,16 +84,21 @@ class TestResourceSchemas:
         assert len(read.citations) == 1
 
     def test_resource_generate_response(self) -> None:
+        resource_id = uuid4()
         resp = ResourceGenerateResponse(
-            resource_id=uuid4(),
+            resource_id=resource_id,
+            id=resource_id,
+            resource_type="explanation",
             title="测试资源",
             content="内容",
             citations=[],
             personalized_reason="原因",
             status="active",
+            created_at=datetime.now(UTC),
         )
         assert resp.title == "测试资源"
         assert resp.status == "active"
+        assert resp.resource_type == "explanation"
 
 
 # ---------------------------------------------------------------------------
@@ -116,7 +121,10 @@ class TestResourceTypeValidation:
         assert RESOURCE_TYPE_ALIASES["mind_map"] == "mindmap"
 
     def test_valid_resource_types_complete(self) -> None:
-        expected = {"explanation", "summary", "example", "flashcard", "review", "mindmap", "diagram"}
+        expected = {
+            "explanation", "summary", "example", "flashcard", "review", "mindmap", "diagram",
+            "image", "video", "animation", "interactive_courseware", "code_project", "reading_pack",
+        }
         assert VALID_RESOURCE_TYPES == expected
 
     def test_normalize_resource_type_in_service(self) -> None:

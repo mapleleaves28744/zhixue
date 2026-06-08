@@ -4,7 +4,7 @@ import json
 import logging
 from collections.abc import AsyncIterator
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import redis.asyncio as redis
 from arq.connections import RedisSettings, create_pool
@@ -106,16 +106,33 @@ class AgentQueueService:
     def __init__(self, redis_url: str | None = None) -> None:
         self.redis_url = redis_url or settings.redis_url
 
-    async def enqueue(self, task_id: UUID, *, approved: bool | None = None) -> bool:
+    async def enqueue(
+        self,
+        task_id: UUID,
+        *,
+        approved: bool | None = None,
+        replace: bool = False,
+    ) -> bool:
         pool = await create_pool(RedisSettings.from_dsn(self.redis_url))
         try:
             function = "resume_agent_task_job" if approved is not None else "run_agent_task_job"
             args: tuple[object, ...] = (str(task_id), approved) if approved is not None else (str(task_id),)
+            suffix = "resume" if approved is not None else "run"
+            job_id = f"agent:{task_id}:{suffix}"
+            if replace:
+                job_id = f"{job_id}:recover:{uuid4().hex[:8]}"
             job = await pool.enqueue_job(
                 function,
                 *args,
-                _job_id=f"agent:{task_id}:{'resume' if approved is not None else 'run'}",
+                _job_id=job_id,
             )
             return job is not None
         finally:
             await pool.aclose()
+
+    async def recover_orphaned_tasks(self, task_ids: list[UUID]) -> int:
+        recovered = 0
+        for task_id in task_ids:
+            if await self.enqueue(task_id, replace=True):
+                recovered += 1
+        return recovered

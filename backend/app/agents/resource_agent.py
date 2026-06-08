@@ -17,6 +17,7 @@ from app.schemas.resource import RESOURCE_TYPE_ALIASES, VALID_RESOURCE_TYPES
 from app.services.memory_service import MemoryService
 from app.services.prompt_service import PromptService
 from app.services.profile_service import ProfileService
+from app.services.generator_registry import GeneratorRegistry
 
 
 RESOURCE_TYPE_LABELS = {
@@ -36,6 +37,9 @@ class ResourceAgent(BaseAgent):
     description = "基于知识点生成个性化学习资源"
 
     async def run(self, context: AgentContext) -> AgentResult:
+        # 确保生成器插件已加载
+        import app.generators  # noqa: F401
+
         resource_type = self._normalize_resource_type(
             str(context.params.get("resource_type") or "explanation")
         )
@@ -81,6 +85,44 @@ class ResourceAgent(BaseAgent):
 
         wiki_context = wiki_page.content[:2500] if wiki_page else "未指定 Wiki 页面"
 
+        # ── 尝试使用插件生成器 ──
+        generator_result = await GeneratorRegistry.generate(
+            resource_type,
+            knowledge_name=knowledge_name,
+            context=rag_context[:3000],
+            profile_text=profile_text,
+            requirement=requirement,
+            llm_provider=get_llm_provider(
+                db=self.db,
+                user_id=context.user_id,
+                course_id=context.course_id,
+                agent_run_id=context.run_id,
+            ),
+        )
+        if generator_result.success:
+            citations = self._build_citations(wiki_page, results)
+            personalized_reason = self._build_personalized_reason(
+                resource_type=resource_type,
+                knowledge_name=knowledge_name,
+                profile_text=profile_text,
+                requirement=requirement,
+            )
+            return self.success_result(
+                data={
+                    "title": generator_result.title or f"{knowledge_name}{RESOURCE_TYPE_LABELS.get(resource_type, '')}",
+                    "content": generator_result.content,
+                    "citations": citations,
+                    "personalized_reason": personalized_reason,
+                    "resource_type": resource_type,
+                    "knowledge_name": knowledge_name,
+                    "generator": "plugin",
+                    "agent_run_id": str(context.run_id) if context.run_id else None,
+                },
+                message="学习资源生成成功（插件生成器）",
+                evidence=[f"基于 {len(citations)} 条来源生成"] if citations else ["无检索依据，已标注为建议核对"],
+            )
+
+        # ── 插件未注册或失败，回退到默认 Prompt 生成 ──
         prompts = PromptService(self.db)
         rendered = await prompts.render_prompt(
             agent_name="ResourceAgent",
@@ -134,6 +176,7 @@ class ResourceAgent(BaseAgent):
                 "resource_type": resource_type,
                 "knowledge_name": knowledge_name,
                 "model_name": response.model,
+                "generator": "default",
                 "prompt_version_id": str(rendered.prompt_version_id) if rendered.prompt_version_id else None,
                 "agent_run_id": str(context.run_id) if context.run_id else None,
             },

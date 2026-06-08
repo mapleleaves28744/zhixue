@@ -174,6 +174,13 @@ class MiMoTokenPlanAudioProvider(BaseAudioProvider):
         self._api_key = settings.llm_api_key
         self._base_url = (settings.llm_base_url or "https://api.xiaomimimo.com/v1").rstrip("/")
 
+    def _headers(self) -> dict[str, str]:
+        return {
+            "Authorization": f"Bearer {self._api_key}",
+            "api-key": self._api_key,
+            "Content-Type": "application/json",
+        }
+
     async def transcribe(
         self,
         audio_base64: str,
@@ -182,21 +189,44 @@ class MiMoTokenPlanAudioProvider(BaseAudioProvider):
         language: str = "zh",
     ) -> ASRResult:
         audio_bytes = base64.b64decode(audio_base64)
-        async with httpx.AsyncClient(timeout=60) as client:
+        mime = _content_type(filename)
+        data_url = f"data:{mime};base64,{base64.b64encode(audio_bytes).decode('utf-8')}"
+        payload = {
+            "model": MIMO_ASR_MODEL,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_audio",
+                            "input_audio": {
+                                "data": data_url,
+                                "format": _asr_format(filename),
+                            },
+                        }
+                    ],
+                }
+            ],
+        }
+        async with httpx.AsyncClient(timeout=120) as client:
             response = await client.post(
-                f"{self._base_url}/audio/transcriptions",
-                headers={"Authorization": f"Bearer {self._api_key}"},
-                files={"file": (filename, audio_bytes, _content_type(filename))},
-                data={"model": MIMO_ASR_MODEL, "language": language},
+                f"{self._base_url}/chat/completions",
+                headers=self._headers(),
+                json=payload,
             )
             response.raise_for_status()
-            payload = response.json()
+            body = response.json()
+        message = (body.get("choices") or [{}])[0].get("message") or {}
+        usage = body.get("usage") or {}
+        seconds = usage.get("seconds")
+        duration_ms = int(seconds * 1000) if isinstance(seconds, (int, float)) else 0
         return ASRResult(
-            text=str(payload.get("text") or ""),
-            duration_ms=int(payload.get("duration_ms") or payload.get("duration") or 0),
-            language=str(payload.get("language") or language),
+            text=str(message.get("content") or ""),
+            duration_ms=duration_ms,
+            language=language,
             model=MIMO_ASR_MODEL,
             provider=self.provider_name,
+            raw={"usage": usage},
         )
 
     async def synthesize(
@@ -209,30 +239,37 @@ class MiMoTokenPlanAudioProvider(BaseAudioProvider):
         model: str | None = None,
     ) -> TTSResult:
         selected_model = model if model in _tts_models() else MIMO_TTS_MODEL
+        selected_voice = voice or _default_voice(text, selected_model)
+        audio_format = response_format if response_format in {"wav", "pcm16"} else "wav"
+        messages = _build_tts_messages(text, selected_model, speed=speed, voice=selected_voice)
+        audio_payload: dict[str, str] = {
+            "format": audio_format,
+            "voice": selected_voice,
+        }
         payload: dict[str, object] = {
             "model": selected_model,
-            "input": text,
-            "response_format": response_format,
-            "speed": speed,
+            "messages": messages,
+            "audio": audio_payload,
         }
-        if voice:
-            payload["voice"] = voice
         async with httpx.AsyncClient(timeout=120) as client:
             response = await client.post(
-                f"{self._base_url}/audio/speech",
-                headers={
-                    "Authorization": f"Bearer {self._api_key}",
-                    "Content-Type": "application/json",
-                },
+                f"{self._base_url}/chat/completions",
+                headers=self._headers(),
                 json=payload,
             )
             response.raise_for_status()
-            audio_bytes = response.content
+            body = response.json()
+        message = (body.get("choices") or [{}])[0].get("message") or {}
+        audio = message.get("audio") or {}
+        audio_b64 = str(audio.get("data") or "")
+        if not audio_b64:
+            raise RuntimeError("MiMo TTS 响应缺少 audio.data")
         return TTSResult(
-            audio_base64=base64.b64encode(audio_bytes).decode("utf-8"),
-            format=response_format,
+            audio_base64=audio_b64,
+            format=audio_format,
             model=selected_model,
             provider=self.provider_name,
+            raw={"transcript": audio.get("transcript"), "usage": body.get("usage")},
         )
 
 
@@ -265,3 +302,57 @@ def _content_type(filename: str) -> str:
 
 def _tts_models() -> set[str]:
     return {MIMO_TTS_MODEL, MIMO_TTS_VOICECLONE_MODEL, MIMO_TTS_VOICEDESIGN_MODEL}
+
+
+def _asr_format(filename: str) -> str:
+    lowered = filename.lower()
+    if lowered.endswith(".mp3"):
+        return "mp3"
+    if lowered.endswith(".m4a"):
+        return "m4a"
+    if lowered.endswith(".webm"):
+        return "webm"
+    return "wav"
+
+
+def _default_voice(text: str, model: str) -> str:
+    if model == MIMO_TTS_VOICECLONE_MODEL:
+        return "mimo_default"
+    if any("\u4e00" <= char <= "\u9fff" for char in text):
+        return "冰糖"
+    return "Chloe"
+
+
+def _build_tts_messages(
+    text: str,
+    model: str,
+    *,
+    speed: float,
+    voice: str,
+) -> list[dict[str, str]]:
+    speed_hint = "稍快" if speed > 1.05 else "稍慢" if speed < 0.95 else "自然"
+    if model == MIMO_TTS_VOICEDESIGN_MODEL:
+        return [
+            {
+                "role": "user",
+                "content": (
+                    "A warm, clear Chinese teaching voice for undergraduate computer science courses. "
+                    f"Speak at a {speed_hint} pace with friendly educational tone."
+                ),
+            },
+            {"role": "assistant", "content": text},
+        ]
+    if model == MIMO_TTS_VOICECLONE_MODEL and voice.startswith("data:audio/"):
+        return [
+            {"role": "user", "content": ""},
+            {"role": "assistant", "content": text},
+        ]
+    style = (
+        f"用清晰、温和的中文教学语气朗读，语速{speed_hint}，适合高校数据结构课程讲解。"
+        if any("\u4e00" <= char <= "\u9fff" for char in text)
+        else f"Use a clear educational tone at a {speed_hint} pace."
+    )
+    return [
+        {"role": "user", "content": style},
+        {"role": "assistant", "content": text},
+    ]

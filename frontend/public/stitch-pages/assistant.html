@@ -476,6 +476,7 @@
     reviewed: "Review Agent 审查",
     memory_reflected: "提炼长期学习记忆",
     artifact_created: "创建学习产物",
+    multimodal_progress: "多模态生成进度",
     completed: "任务完成",
     failed: "任务失败",
     cancelled: "任务已取消",
@@ -583,7 +584,7 @@
     )).join("");
     const eventHtml = events.map((event) => {
       const isFailure = event.type === "failed" || event.data?.success === false;
-      const isActive = ["planning", "tool_started", "replanned"].includes(event.type);
+      const isActive = !terminal && event.type === "tool_started";
       const icon = isFailure ? "error" : event.type === "completed" ? "check_circle" : isActive ? "sync" : "radio_button_checked";
       const tone = isFailure ? "text-error" : event.type === "completed" ? "text-green-700" : isActive ? "text-primary" : "text-outline";
       const detail = event.data?.summary || event.data?.message || event.data?.tool_name || event.data?.error_message || "";
@@ -597,12 +598,15 @@
           <span class="text-xs font-bold text-outline whitespace-nowrap">#${escapeHtml(event.data?.sequence_no || events.indexOf(event) + 1)}</span>
         </div>`;
     }).join("");
-    const artifactHtml = artifacts.map((ref) => (
-      `<div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10 text-xs font-bold text-primary">
+    const artifactHtml = artifacts.map((ref) => {
+      if (api.renderArtifactCard && (ref.type === "media_asset" || ref.type === "media_job" || ref.type === "media_review")) {
+        return api.renderArtifactCard(ref);
+      }
+      return `<div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10 text-xs font-bold text-primary">
         <span class="material-symbols-outlined text-[16px]">inventory_2</span>
         <span>${escapeHtml(ref.type || "artifact")}${ref.title ? ` · ${escapeHtml(ref.title)}` : ""}</span>
-      </div>`
-    )).join("");
+      </div>`;
+    }).join("");
     const controls = terminal ? "" : `
       <div class="flex flex-wrap gap-2 pt-4 border-t border-outline-variant/20">
         ${task.status === "waiting_confirmation" ? `<button data-task-action="approve" class="px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold shadow-sm">允许本次操作</button><button data-task-action="reject" class="px-4 py-2 rounded-xl bg-white/80 border border-white text-error text-xs font-bold">拒绝操作</button>` : ""}
@@ -674,11 +678,49 @@
 
   async function watchDynamicAgentTask(wrapper) {
     const taskId = wrapper.dataset.taskId;
+    let requeueAttempted = false;
+    const queuedGuard = window.setInterval(async () => {
+      const task = wrapper.__agentTask;
+      if (!task || task.status !== "queued" || requeueAttempted) {
+        return;
+      }
+      const createdAt = Date.parse(task.created_at || "");
+      if (!Number.isFinite(createdAt) || Date.now() - createdAt < 12000) {
+        return;
+      }
+      requeueAttempted = true;
+      try {
+        const refreshed = await api.requeueDynamicAgentTask(taskId);
+        wrapper.__agentTask = refreshed;
+        wrapper.__agentEvents.push({
+          type: "queued",
+          data: { message: "任务长时间未启动，已尝试重新入队" },
+        });
+        await refreshDynamicAgentTaskCard(wrapper, refreshed);
+        api.toast("检测到 Worker 可能未启动，已尝试重新入队。若仍无进展，请运行 scripts/start_dev.ps1。", "info");
+      } catch (error) {
+        wrapper.__agentEvents.push({
+          type: "failed",
+          data: { error_message: error.message || "任务重新入队失败" },
+        });
+        await refreshDynamicAgentTaskCard(wrapper);
+      }
+    }, 3000);
     try {
       await api.streamDynamicAgentTaskEvents(taskId, {
         onEvent: async (eventType, data) => {
           if (eventType !== "heartbeat") {
             wrapper.__agentEvents.push({ type: eventType, data });
+          }
+          if (eventType === "multimodal_progress" && data?.job_id && wrapper.__agentTask?.plan_json) {
+            const refs = wrapper.__agentTask.plan_json.artifact_refs || [];
+            refs.forEach((ref) => {
+              if (ref.job_id === data.job_id) {
+                ref.progress = data.progress;
+                ref.stage = data.stage;
+                ref.status = data.stage;
+              }
+            });
           }
           const task = await refreshDynamicAgentTaskCard(wrapper);
           if (eventType === "completed" && !wrapper.__answerRendered) {
@@ -697,6 +739,8 @@
     } catch (error) {
       wrapper.__agentEvents.push({ type: "failed", data: { error_message: error.message || "事件流连接失败" } });
       await refreshDynamicAgentTaskCard(wrapper).catch(() => renderDynamicAgentTaskCard(wrapper, wrapper.__agentTask));
+    } finally {
+      window.clearInterval(queuedGuard);
     }
   }
 

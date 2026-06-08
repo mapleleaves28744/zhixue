@@ -8,6 +8,8 @@ from sqlalchemy import func, select
 from app.agents.base_agent import BaseAgent
 from app.agents.context import AgentContext, AgentResult
 from app.agents.registry import AgentRegistry
+from app.agents.structured_chat_utils import call_structured_chat_or_none
+from app.agents.structured_outputs import ProfileRebuildOutput
 from app.llm.provider import get_llm_provider
 from app.llm.schemas import ChatMessage
 
@@ -109,12 +111,18 @@ class ProfileAgent(BaseAgent):
     async def _llm_rebuild(self, provider: Any, records_text: str) -> dict[str, Any]:
         prompt = (
             "你是一个学习分析引擎。根据以下学习记录，生成学生画像 JSON。\n"
-            "返回格式（纯 JSON，不要 markdown）：\n"
-            '{"profile_summary": "...", "mastery_snapshot": {"知识点": 掌握度0-1}, '
-            '"weak_points": ["薄弱点"], "error_patterns": ["错误模式"], '
-            '"strategy_summary": {"建议": "..."}}\n\n'
+            "返回 profile_summary、mastery_snapshot、weak_points、error_patterns、strategy_summary。\n\n"
             f"学习记录：\n{records_text}"
         )
+        structured = await call_structured_chat_or_none(
+            provider,
+            [ChatMessage(role="user", content=prompt)],
+            ProfileRebuildOutput,
+            temperature=0.3,
+            max_tokens=1024,
+        )
+        if structured is not None:
+            return structured.model_dump(exclude_none=True)
         response = await provider.chat(
             [ChatMessage(role="user", content=prompt)],
             temperature=0.3,

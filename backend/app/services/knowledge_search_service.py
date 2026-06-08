@@ -24,10 +24,12 @@ class KnowledgeSearchService:
         knowledge_id: UUID | None = None,
     ) -> list[dict[str, Any]]:
         await CourseService(self.db).get_readable_course(course_id, current_user)
+        # 课程可读权限已在 Service 层校验；检索范围限定在 course_id 内即可，
+        # 不再按 uploaded_by 二次过滤，避免公共课/协作上传资料被误排除。
         results = await HybridRetriever(self.db).search(
             course_id=course_id,
             query=query,
-            user_id=None if current_user.role == "admin" else current_user.id,
+            user_id=None,
             top_k=top_k,
             knowledge_id=knowledge_id,
         )

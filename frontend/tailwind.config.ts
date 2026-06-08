@@ -81,6 +81,8 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)"
       },
       fontFamily: {
+        display: ["var(--font-instrument-serif)", "serif"],
+        body: ["var(--font-inter)", "sans-serif"],
         "display-lg": ["Plus Jakarta Sans", "sans-serif"],
         "headline-md": ["Plus Jakarta Sans", "sans-serif"],
         "headline-sm": ["Plus Jakarta Sans", "sans-serif"],
@@ -108,6 +110,17 @@ const config: Config = {
         "card-gap": "24px",
         "container-padding-mobile": "20px",
         "container-padding-desktop": "48px"
+      },
+      keyframes: {
+        "fade-rise": {
+          from: { opacity: "0", transform: "translateY(24px)" },
+          to: { opacity: "1", transform: "translateY(0)" }
+        }
+      },
+      animation: {
+        "fade-rise": "fade-rise 0.8s ease-out both",
+        "fade-rise-delay": "fade-rise 0.8s ease-out 0.2s both",
+        "fade-rise-delay-2": "fade-rise 0.8s ease-out 0.4s both"
       }
     }
   },

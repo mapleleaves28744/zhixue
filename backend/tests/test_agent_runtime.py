@@ -647,6 +647,33 @@ def test_parse_uploaded_document_requires_explicit_material_id_and_is_not_faked_
     assert supervisor._safe_arguments("parse_uploaded_document", {}, "解析这份课程资料") == {}
 
 
+def test_supervisor_routes_speech_explanation_requests() -> None:
+    supervisor = MiMoSupervisor(provider=DirectUngroundedAnswerProvider())
+    goal = "生成讲解队列的语音"
+    required = supervisor._required_tools(goal)
+
+    assert supervisor._speech_intent(goal)
+    assert "generate_explanation" in required
+    assert "synthesize_speech" in required
+    assert required.index("generate_explanation") < required.index("synthesize_speech")
+
+
+def test_supervisor_resolve_speech_text_uses_explanation_output() -> None:
+    supervisor = MiMoSupervisor(provider=DirectUngroundedAnswerProvider())
+    state = {
+        "observations": [
+            {
+                "tool_name": "generate_explanation",
+                "success": True,
+                "output": {"content": "队列是一种先进先出的线性结构。" * 3},
+            }
+        ]
+    }
+    text = supervisor._resolve_speech_text(state, "生成讲解队列的语音")
+    assert "队列" in text
+    assert len(text) >= 40
+
+
 @pytest.mark.asyncio
 async def test_mimo_supervisor_routes_visual_resource_requests_to_mermaid_tools() -> None:
     supervisor = MiMoSupervisor(provider=DirectUngroundedAnswerProvider())
@@ -683,6 +710,7 @@ def test_unified_agent_conversation_api_routes_are_registered() -> None:
         "/api/v1/agent/tasks/{task_id}/events",
         "/api/v1/agent/tasks/{task_id}/resume",
         "/api/v1/agent/tasks/{task_id}/cancel",
+        "/api/v1/agent/tasks/{task_id}/requeue",
     }.issubset(paths)
 
 
@@ -713,7 +741,8 @@ async def test_tool_argument_validation_failure_becomes_observation_for_replanni
     )
 
     assert result.success is False
-    assert "缺少参数: query" in str(result.error_message)
+    assert "校验失败" in str(result.error_message)
+    assert "query" in str(result.error_message)
     assert result.attempts == 1
 
 

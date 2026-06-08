@@ -32,6 +32,8 @@ class AgentConversationRead(BaseModel):
 
 class AgentMessageCreateRequest(BaseModel):
     content: str = Field(min_length=1, max_length=5000)
+    tool_hints: list[str] = Field(default_factory=list, max_length=10)
+    skip_tools: list[str] = Field(default_factory=list, max_length=10)
 
 
 class AgentMessageRead(BaseModel):

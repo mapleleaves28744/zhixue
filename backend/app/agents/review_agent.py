@@ -6,6 +6,8 @@ import logging
 from app.agents.base_agent import BaseAgent
 from app.agents.context import AgentContext, AgentResult
 from app.agents.registry import AgentRegistry
+from app.agents.structured_chat_utils import call_structured_chat_or_none
+from app.agents.structured_outputs import ReviewOutput
 from app.llm import ChatMessage, get_llm_provider
 from app.services.content_safety_service import ContentSafetyService
 from app.services.prompt_service import PromptService
@@ -39,13 +41,19 @@ class ReviewAgent(BaseAgent):
             course_id=context.course_id,
             agent_run_id=context.run_id,
         )
-        response = await llm.chat(
-            [ChatMessage(role="user", content=rendered.content)],
+        messages = [ChatMessage(role="user", content=rendered.content)]
+        structured = await call_structured_chat_or_none(
+            llm,
+            messages,
+            ReviewOutput,
             temperature=0.3,
             max_tokens=2048,
         )
-
-        review = self._parse_review(response.content)
+        if structured is not None:
+            review = structured.to_dict()
+        else:
+            response = await llm.chat(messages, temperature=0.3, max_tokens=2048)
+            review = self._parse_review(response.content)
         safety = await ContentSafetyService().check(
             str(content),
             citations=context.params.get("citations") or [],

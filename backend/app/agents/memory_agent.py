@@ -9,6 +9,8 @@ from sqlalchemy import select
 from app.agents.base_agent import BaseAgent
 from app.agents.context import AgentContext, AgentResult
 from app.agents.registry import AgentRegistry
+from app.agents.structured_chat_utils import call_structured_chat_or_none
+from app.agents.structured_outputs import MemoryReflectOutput
 from app.llm.provider import get_llm_provider
 from app.llm.schemas import ChatMessage
 
@@ -80,11 +82,18 @@ class MemoryAgent(BaseAgent):
 
         prompt = (
             "你是一个学习分析引擎。根据学习记录，提取长期记忆。\n"
-            "返回 JSON 数组（纯 JSON，不要 markdown）：\n"
-            '[{"memory_type": "insight|mistake_pattern|preference", "content": "...", '
-            '"evidence": ["记录ID或描述"], "confidence": 0.8}]\n\n'
+            "返回 JSON 对象，包含 memories 数组；每项含 memory_type、content、evidence、confidence。\n\n"
             f"学习记录：\n{records_text}"
         )
+        structured = await call_structured_chat_or_none(
+            provider,
+            [ChatMessage(role="user", content=prompt)],
+            MemoryReflectOutput,
+            temperature=0.3,
+            max_tokens=1024,
+        )
+        if structured is not None and structured.memories:
+            return [item.model_dump(exclude_none=True) for item in structured.memories]
         response = await provider.chat(
             [ChatMessage(role="user", content=prompt)],
             temperature=0.3,
@@ -92,6 +101,8 @@ class MemoryAgent(BaseAgent):
         )
         try:
             result = json.loads(response.content)
+            if isinstance(result, dict) and isinstance(result.get("memories"), list):
+                return result["memories"]
             if isinstance(result, list):
                 return result
         except json.JSONDecodeError:

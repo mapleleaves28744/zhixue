@@ -25,8 +25,10 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+    closeClassName?: string
+  }
+>(({ className, children, closeClassName, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
@@ -38,7 +40,13 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-5 top-5 rounded-full bg-white/60 p-2 text-[#857462] transition hover:text-primary">
+      <DialogPrimitive.Close
+        className={cn(
+          "absolute right-5 top-5 rounded-full bg-white/60 p-2 text-[#857462] transition hover:text-primary",
+          closeClassName
+        )}
+        data-auth-close={closeClassName ? "" : undefined}
+      >
         <X className="size-4" />
         <span className="sr-only">关闭</span>
       </DialogPrimitive.Close>

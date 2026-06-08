@@ -265,6 +265,9 @@
   }
 
   function renderWikiText(content) {
+    if (window.ZhixueUI?.renderMarkdown) {
+      return window.ZhixueUI.renderMarkdown(content || "暂无正文。");
+    }
     const escaped = escapeHtml(content || "暂无正文。");
     return escaped
       .replace(/^### (.*)$/gm, '<h4 class="font-bold text-primary mt-4 mb-2">$1</h4>')
@@ -968,21 +971,25 @@
     }
     if (sliceGrid) {
       const textLength = material.extra_meta && material.extra_meta.text_length;
-      const parsedPath = material.extra_meta && material.extra_meta.parsed_text_path;
       sliceGrid.innerHTML = `
         <div class="bg-white/70 backdrop-blur-md rounded-xl p-4 border border-white/90 shadow-sm col-span-2">
           <div class="flex items-center justify-between mb-3">
-            <span class="font-label-sm text-label-sm text-outline bg-surface-container-low/60 px-2 py-1 rounded border border-white/50">Parse Status</span>
+            <span class="font-label-sm text-label-sm text-outline bg-surface-container-low/60 px-2 py-1 rounded border border-white/50">资料内容</span>
             <span class="text-xs font-bold px-2 py-0.5 rounded-md ${statusClass(material.parse_status)}">${statusLabel(material.parse_status)}</span>
           </div>
           <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
             ${material.parse_status === "success"
-              ? `已完成文本解析，文本长度约 ${textLength || 0} 字符。后续切片与向量化会基于解析后的 sidecar 文本继续处理。`
+              ? `已完成文本解析，文本长度约 ${textLength || 0} 字符。可下载原文件、阅读解析全文或浏览切片。`
               : material.parse_status === "failed"
                 ? `解析失败：${escapeHtml(material.parse_error || "请检查文件内容后重试。")}`
                 : "资料已保存，点击“解析资料”提取纯文本，为后续切片、检索和 Wiki 生成做准备。"}
           </p>
-          ${parsedPath ? `<p class="mt-3 text-[12px] text-on-surface-variant font-semibold">文本缓存：${escapeHtml(parsedPath)}</p>` : ""}
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button type="button" class="glass-button-secondary px-3 py-2 text-xs font-bold" data-action="material-download">下载原文件</button>
+            <button type="button" class="glass-button-secondary px-3 py-2 text-xs font-bold" data-action="material-preview-text" ${material.parse_status !== "success" ? "disabled" : ""}>阅读解析全文</button>
+            <button type="button" class="glass-button-secondary px-3 py-2 text-xs font-bold" data-action="material-view-chunks" ${!(pipelineMeta.chunk_count > 0) ? "disabled" : ""}>浏览切片</button>
+          </div>
+          <div id="material-content-viewer" class="mt-4 hidden rounded-xl border border-white/80 bg-white/60 p-4 max-h-[420px] overflow-y-auto text-sm text-on-surface-variant"></div>
         </div>
         <div class="bg-white/70 backdrop-blur-md rounded-xl p-4 border border-white/90 shadow-sm">
           <span class="font-label-sm text-label-sm text-outline bg-surface-container-low/60 px-2 py-1 rounded border border-white/50">Chunks</span>
@@ -1021,7 +1028,93 @@
         </div>`;
       bindWikiPageButtons();
       sliceGrid.querySelector("[data-action='show-wiki-list']")?.addEventListener("click", renderWikiPageList);
+      bindMaterialContentActions(material);
     }
+  }
+
+  async function downloadSelectedMaterial(material) {
+    try {
+      const token = api.getToken();
+      const response = await fetch(api.materialDownloadUrl(material.id), {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!response.ok) {
+        throw new Error("下载失败");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = material.file_name;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      api.toast(error.message || "下载失败", "error");
+    }
+  }
+
+  async function previewParsedText(material) {
+    const viewer = document.getElementById("material-content-viewer");
+    if (!viewer) return;
+    viewer.classList.remove("hidden");
+    viewer.innerHTML = '<p class="text-outline">正在加载解析全文…</p>';
+    try {
+      const data = await api.getMaterialParsedText(material.id);
+      const html = window.ZhixueUI?.renderMarkdown
+        ? window.ZhixueUI.renderMarkdown(data.text || "")
+        : `<pre class="whitespace-pre-wrap">${escapeHtml(data.text || "")}</pre>`;
+      viewer.innerHTML = `<h4 class="font-bold text-on-surface mb-3">解析全文</h4>${html}`;
+    } catch (error) {
+      viewer.innerHTML = `<p class="text-error">${escapeHtml(error.message || "加载失败")}</p>`;
+    }
+  }
+
+  async function viewMaterialChunks(material) {
+    const viewer = document.getElementById("material-content-viewer");
+    if (!viewer) return;
+    viewer.classList.remove("hidden");
+    viewer.innerHTML = '<p class="text-outline">正在加载切片…</p>';
+    try {
+      const data = await api.listMaterialChunks(material.id, { pageSize: 50 });
+      if (!data.items.length) {
+        viewer.innerHTML = '<p class="text-outline">暂无切片，请先执行切片。</p>';
+        return;
+      }
+      viewer.innerHTML = `
+        <h4 class="font-bold text-on-surface mb-3">文档切片（${data.total}）</h4>
+        <div class="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-3">
+          <div class="space-y-1 max-h-[360px] overflow-y-auto" id="chunk-index-list">
+            ${data.items.map((chunk, index) => `
+              <button type="button" class="w-full text-left rounded-lg px-2 py-1.5 text-xs font-bold ${index === 0 ? "bg-primary/10 text-primary" : "hover:bg-white/80 text-outline"}" data-chunk-index="${chunk.chunk_index}">
+                #${chunk.chunk_index + 1}
+              </button>`).join("")}
+          </div>
+          <div id="chunk-content-panel" class="rounded-xl bg-white/70 border border-white/80 p-3 text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(data.items[0].content)}</div>
+        </div>`;
+      const chunkMap = Object.fromEntries(data.items.map((item) => [String(item.chunk_index), item.content]));
+      viewer.querySelectorAll("[data-chunk-index]").forEach((button) => {
+        button.addEventListener("click", () => {
+          viewer.querySelectorAll("[data-chunk-index]").forEach((node) => {
+            node.classList.remove("bg-primary/10", "text-primary");
+            node.classList.add("text-outline");
+          });
+          button.classList.add("bg-primary/10", "text-primary");
+          button.classList.remove("text-outline");
+          const panel = document.getElementById("chunk-content-panel");
+          if (panel) {
+            panel.textContent = chunkMap[button.dataset.chunkIndex] || "";
+          }
+        });
+      });
+    } catch (error) {
+      viewer.innerHTML = `<p class="text-error">${escapeHtml(error.message || "加载失败")}</p>`;
+    }
+  }
+
+  function bindMaterialContentActions(material) {
+    sliceGrid?.querySelector("[data-action='material-download']")?.addEventListener("click", () => downloadSelectedMaterial(material));
+    sliceGrid?.querySelector("[data-action='material-preview-text']")?.addEventListener("click", () => previewParsedText(material));
+    sliceGrid?.querySelector("[data-action='material-view-chunks']")?.addEventListener("click", () => viewMaterialChunks(material));
   }
 
   function renderMaterials() {

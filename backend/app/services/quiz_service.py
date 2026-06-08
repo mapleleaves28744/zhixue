@@ -48,6 +48,19 @@ class QuizService:
         knowledge = await self._get_knowledge(payload.knowledge_id, course, current_user)
         topic = self._topic(payload.topic, knowledge, course)
 
+        # 自适应难度：未显式指定时读取推荐难度
+        difficulty = payload.difficulty
+        if not difficulty or difficulty == "medium":
+            try:
+                from app.services.difficulty_service import DifficultyService
+
+                difficulty = await DifficultyService(self.db).get_difficulty(
+                    user_id=current_user.id,
+                    course_id=course.id,
+                )
+            except Exception:
+                difficulty = payload.difficulty or "medium"
+
         result = await AgentService(self.db).run_task(
             task_type="generate_quiz",
             user_id=current_user.id,
@@ -57,7 +70,7 @@ class QuizService:
                 "knowledge_name": topic,
                 "knowledge_description": knowledge.description if knowledge else "",
                 "question_types": payload.question_types,
-                "difficulty": payload.difficulty,
+                "difficulty": difficulty,
                 "count": payload.count,
                 "quiz_type": payload.quiz_type,
             },
@@ -184,6 +197,26 @@ class QuizService:
 
         correct_count = sum(1 for record in records if record.is_correct)
         score = round((correct_count / len(records)) * 100, 2) if records else 0.0
+
+        # ── 发布答题完成事件 ──
+        try:
+            from app.core.event_bus import get_event_bus
+
+            await get_event_bus().publish(
+                "quiz_submit",
+                {
+                    "user_id": current_user.id,
+                    "course_id": quiz.course_id,
+                    "quiz_id": quiz.id,
+                    "score": score,
+                    "correct_count": correct_count,
+                    "total_questions": len(records),
+                },
+                source="quiz_service",
+            )
+        except Exception:
+            pass
+
         return QuizSubmitResponse(
             quiz_id=quiz.id,
             total_questions=len(records),

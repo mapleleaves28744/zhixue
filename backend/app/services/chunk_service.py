@@ -82,3 +82,16 @@ class ChunkService:
 
     async def get_chunks_by_material(self, material_id: UUID) -> list[DocumentChunk]:
         return await self.chunks.list_by_material(material_id)
+
+    async def list_chunks_paginated(
+        self,
+        material_id: UUID,
+        *,
+        page: int,
+        page_size: int,
+    ) -> tuple[list[DocumentChunk], int]:
+        chunks = await self.chunks.list_by_material(material_id)
+        total = len(chunks)
+        start = (page - 1) * page_size
+        end = start + page_size
+        return chunks[start:end], total
