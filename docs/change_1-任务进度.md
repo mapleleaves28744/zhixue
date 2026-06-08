@@ -202,9 +202,9 @@
 
 | ID | 问题 | 状态 |
 |----|------|------|
-| K1-K6 | 知识库资料/切片不可读等 | 修复中：material API + knowledge UI |
-| G1-G5 | 工具栏、Agent 详情、message_id | 修复中：ToolSelector + tool_hints |
-| X1-X7 | Mermaid、类型不一致、home 提问等 | 部分修复 |
+| K1-K6 | 知识库资料/切片不可读等 | 已修复：material API + knowledge UI |
+| G1-G5 | 工具栏、Agent 详情、message_id | 已修复：ToolSelector + AgentEventDetail + 内联音频 |
+| X1-X7 | Mermaid、类型不一致、home 提问等 | 部分修复：Markdown 基座、home 跳转助手 |
 
 ### Sprint 5 任务清单
 
@@ -220,11 +220,49 @@
 
 | 任务 | 核验 | 结果 |
 |------|------|------|
-| 助手 React 化 | `node scripts/check-assistant-ui.mjs` | 13/13 PASS |
+| 助手 React 化 | `node scripts/check-assistant-ui.mjs` | 19/19 PASS |
 | 前端构建 | `npm run typecheck`、`npm run build` | 通过 |
 | 资源 Schema | `pytest tests/test_resource.py` | 28 passed |
 | 知识库资料可读 | knowledge.html 下载/全文/切片按钮 | 已实现 |
 | Markdown 全站 | Wiki/练习/画像/助手 | 已接入 |
+
+---
+
+## Sprint 6：Supervisor LLM 主导与助手语音闭环
+
+> 目标：**LLM 主导规划、规则只做安全网**；智能体完成后在对话区直接展示 Markdown 与可播放语音，不再依赖弹窗才能看完整回答。
+
+### 架构（Supervisor）
+
+- [x] 有 tools 时优先 **native function calling**（不再绑定 `response_format: json_object`）
+- [x] `_apply_safety_net` 替代 keyword 主导的 `_enforce_execution_policy`
+- [x] 安全网仅介入：必交付物缺失、显式检索约束、用户 `tool_hints`、Mock fallback（纯答疑不强制补工具）
+- [x] Mock Provider 在有 tools 时按 `plan_required_tools` 返回 native `tool_calls`
+- [x] `supervisor_intents` 删除不可达 `elif diagram_intent` 分支
+- [x] `ab_test_service.assign_user` 改用 `INSERT ON CONFLICT DO NOTHING` 消除 TOCTOU
+
+### 助手体验（React `/assistant`）
+
+- [x] `ReplyBlocks`：完成后内联完整 Markdown；流式时单行摘要 + 实时正文
+- [x] `InlineAudioPlayer` + `extractSpeechAudio`：对话区与详情内嵌音频播放
+- [x] `AgentEventDetail` / `ActivityDetailDialog`：规划思路、工具参数、TTS 事件
+- [x] `synthesize_speech` 持久化 `media_assets` 并返回 `artifact_refs`
+- [x] `AGENT_INLINE_FALLBACK`：Worker 未启动时 API 进程内联执行兜底
+
+### Sprint 6 核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| Supervisor 意图回归 | `pytest tests/test_supervisor_intents.py tests/test_agent_runtime.py -q` | 44 passed |
+| 助手 React 契约 | `node scripts/check-assistant-ui.mjs` | 19/19 PASS |
+| 全量后端 | `pytest -q` | 214 passed；1 项 harness 待修（显式检索 vs 交付物顺序，`test_agent_harness.py`） |
+| API/DB 事实源 | `python scripts/export_implementation_docs.py` | 128 API、37 表 |
+| 前端构建 | `npm run typecheck`、`npm run build` | 待本地复验 |
+
+### 已知后续
+
+1. `_apply_safety_net`：用户同时要求「基于资料 + 插图」时，应先 `search_course_knowledge` 再 `generate_educational_image`（harness 用例待对齐）。
+2. 浏览器 E2E：「生成讲解队列的语音」→ 对话区播放器 + 完整 Markdown 需人工或 Playwright 复验。
 
 ---
 

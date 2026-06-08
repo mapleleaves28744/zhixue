@@ -2,7 +2,7 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
-> HTTP 操作数：**127**
+> HTTP 操作数：**128**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
@@ -28,6 +28,7 @@
 | `GET` | `/api/v1/agent/tasks/{task_id}` | JWT | task_id* | - |
 | `POST` | `/api/v1/agent/tasks/{task_id}/cancel` | JWT | task_id* | - |
 | `GET` | `/api/v1/agent/tasks/{task_id}/events` | JWT | task_id* | - |
+| `GET` | `/api/v1/agent/tasks/{task_id}/events/history` | JWT | task_id* | - |
 | `POST` | `/api/v1/agent/tasks/{task_id}/requeue` | JWT | task_id* | - |
 | `POST` | `/api/v1/agent/tasks/{task_id}/resume` | JWT | task_id* | application/json: `AgentTaskResumeRequest` |
 | `GET` | `/api/v1/agents/ping` | JWT | - | - |

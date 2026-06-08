@@ -32,6 +32,7 @@
 - 不再建设 `/teacher/*`、`/admin/*` 或旧 React `/student/*` 页面。
 - 无真实 LLM Key 时可用 Mock Provider；配置 OpenAI-compatible Provider 后可调用真实模型。
 - 2026-06-06 已使用真实 `xiaomi_mimo / mimo-v2.5` 完成资料上传到 Agent 日志的 23 步主链路验收，未回退 Mock。
+- `/assistant` 已 React 化（快速 Tutor SSE + LangGraph 智能体）；Supervisor 采用 LLM 主导、规则安全网决策模型。
 - 前端已从存在高危公告的 Next.js 14.2.35 升级至 Next.js 16.2.7，`npm audit` 为 0 vulnerabilities。
 
 最近一次本地验收：
@@ -39,7 +40,7 @@
 ```powershell
 cd backend
 python -m pytest -q --maxfail=1
-# 91 passed
+# 214 passed
 
 python -m alembic upgrade head
 # OK
