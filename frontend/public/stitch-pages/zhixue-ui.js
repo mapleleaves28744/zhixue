@@ -289,17 +289,62 @@
       .replace(/'/g, "&#39;");
   }
 
+  function buildMarkdownTable(block) {
+    const lines = block.trim().split(/\r?\n/).filter((line) => line.trim());
+    if (!lines.length) return "";
+
+    const parseCells = (line) =>
+      line
+        .split("|")
+        .slice(1, -1)
+        .map((cell) => escapeHtml(cell.trim()));
+
+    const header = parseCells(lines[0]);
+    let bodyLines = lines.slice(1);
+    if (bodyLines[0] && /^\|[\s\-:|]+\|$/.test(bodyLines[0].trim())) {
+      bodyLines = bodyLines.slice(1);
+    }
+
+    const headHtml = header
+      .map((cell) => `<th class="px-3 py-2 text-left text-xs font-bold text-on-surface-variant border-b border-outline/20">${cell}</th>`)
+      .join("");
+    const bodyHtml = bodyLines
+      .map((line) => {
+        const cells = parseCells(line);
+        return `<tr>${cells.map((cell) => `<td class="px-3 py-2 text-sm text-on-surface border-b border-outline/10 align-top">${cell}</td>`).join("")}</tr>`;
+      })
+      .join("");
+
+    return `<div class="overflow-x-auto my-3"><table class="zhixue-md-table w-full min-w-[320px] border-collapse rounded-xl overflow-hidden bg-white/40"><thead><tr>${headHtml}</tr></thead><tbody>${bodyHtml}</tbody></table></div>`;
+  }
+
   function renderMarkdown(content) {
-    const escaped = escapeHtml(content || "");
-    return escaped
+    const tables = [];
+    const withTableTokens = String(content || "").replace(/(?:^\|[^\n]+\|\r?\n?)+/gm, (block) => {
+      const token = `__ZHIXUE_TABLE_${tables.length}__`;
+      tables.push(buildMarkdownTable(block));
+      return `\n${token}\n`;
+    });
+
+    let html = escapeHtml(withTableTokens)
+      .replace(/^#### (.*)$/gm, '<h4 class="font-bold text-sm text-on-surface mt-4 mb-2">$1</h4>')
       .replace(/^### (.*)$/gm, '<h4 class="font-bold text-primary mt-4 mb-2">$1</h4>')
       .replace(/^## (.*)$/gm, '<h3 class="font-headline-sm text-headline-sm text-on-surface mt-5 mb-2">$1</h3>')
       .replace(/^# (.*)$/gm, '<h2 class="font-headline-md text-headline-md text-on-surface mt-2 mb-3">$1</h2>')
+      .replace(/^---$/gm, '<hr class="my-4 border-0 border-t border-outline/20" />')
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/`([^`]+)`/g, '<code class="rounded bg-surface-container-high px-1 py-0.5 text-xs">$1</code>')
-      .replace(/^- (.*)$/gm, '<li class="ml-4 list-disc">$1</li>')
-      .replace(/(<li[^>]*>.*<\/li>\n?)+/g, (block) => `<ul class="my-2 space-y-1">${block}</ul>`)
+      .replace(/^\d+\.\s+(.*)$/gm, '<li class="ml-1 list-decimal text-sm text-on-surface-variant">$1</li>')
+      .replace(/^- (.*)$/gm, '<li class="ml-1 list-disc text-sm text-on-surface-variant">$1</li>')
+      .replace(/(<li class="ml-1 list-decimal[^"]*"[^>]*>[\s\S]*?<\/li>(?:\n|<br\/>)*)+/g, (block) => `<ol class="my-2 space-y-1 pl-5">${block}</ol>`)
+      .replace(/(<li class="ml-1 list-disc[^"]*"[^>]*>[\s\S]*?<\/li>(?:\n|<br\/>)*)+/g, (block) => `<ul class="my-2 space-y-1 pl-5">${block}</ul>`)
       .replace(/\n/g, "<br/>");
+
+    tables.forEach((tableHtml, index) => {
+      html = html.replace(`__ZHIXUE_TABLE_${index}__`, tableHtml);
+    });
+
+    return html;
   }
 
   function initPage() {

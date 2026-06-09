@@ -4,8 +4,11 @@ import { MarkdownRenderer } from "@/components/markdown/MarkdownRenderer"
 import { normalizeAgentAnswer } from "@/lib/normalizeAgentAnswer"
 import { StreamActivityLine } from "@/components/assistant/StreamActivityLine"
 import { truncateText } from "@/components/assistant/streamLabels"
+import type { ChatArtifactRef, ChatMediaArtifactRef } from "@/components/assistant/extractChatArtifacts"
 import type { SpeechAudioPayload } from "@/components/assistant/extractSpeechAudio"
 import { InlineAudioPlayer } from "@/components/assistant/InlineAudioPlayer"
+import { InlineChatResources } from "@/components/assistant/InlineChatResources"
+import { InlineMediaArtifacts } from "@/components/assistant/InlineMediaArtifacts"
 
 interface TutorReplyBlockProps {
   content: string
@@ -65,7 +68,20 @@ interface AgentReplyBlockProps {
   error?: string | null
   toolCount?: number
   speechAudio?: SpeechAudioPayload | null
+  chatArtifacts?: ChatArtifactRef[]
+  mediaArtifacts?: ChatMediaArtifactRef[]
   onOpenDetail?: () => void
+}
+
+function shouldShowStandaloneSpeech(
+  speechAudio: SpeechAudioPayload | null | undefined,
+  chatArtifacts: ChatArtifactRef[],
+  mediaArtifacts: ChatMediaArtifactRef[],
+): boolean {
+  if (!speechAudio) return false
+  if (chatArtifacts.length > 0) return false
+  if (mediaArtifacts.length > 0) return false
+  return true
 }
 
 export function AgentReplyBlock({
@@ -75,9 +91,12 @@ export function AgentReplyBlock({
   error,
   toolCount = 0,
   speechAudio,
+  chatArtifacts = [],
+  mediaArtifacts = [],
   onOpenDetail,
 }: AgentReplyBlockProps) {
   const answer = normalizeAgentAnswer(finalAnswer)
+  const showStandaloneSpeech = shouldShowStandaloneSpeech(speechAudio, chatArtifacts, mediaArtifacts)
 
   if (streaming) {
     return (
@@ -96,7 +115,9 @@ export function AgentReplyBlock({
           error={error}
           onClick={onOpenDetail}
         />
-        {speechAudio ? (
+        {chatArtifacts.length ? <InlineChatResources refs={chatArtifacts} /> : null}
+        {mediaArtifacts.length ? <InlineMediaArtifacts refs={mediaArtifacts} /> : null}
+        {showStandaloneSpeech && speechAudio ? (
           <div className="glass-card rounded-3xl rounded-tl-md p-4">
             <InlineAudioPlayer audio={speechAudio} />
           </div>
@@ -121,7 +142,9 @@ export function AgentReplyBlock({
           className="max-w-full"
         />
       ) : null}
-      {speechAudio ? (
+      {chatArtifacts.length ? <InlineChatResources refs={chatArtifacts} /> : null}
+      {mediaArtifacts.length ? <InlineMediaArtifacts refs={mediaArtifacts} /> : null}
+      {showStandaloneSpeech && speechAudio ? (
         <div className="glass-card rounded-3xl rounded-tl-md p-4 shadow-sm">
           <InlineAudioPlayer audio={speechAudio} />
         </div>

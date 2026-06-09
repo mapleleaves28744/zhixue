@@ -31,8 +31,17 @@ class MasteryService:
         *,
         user_id: UUID,
         course_id: UUID,
+        apply_decay: bool = False,
     ) -> dict[str, float]:
         rows = await self.repo.list_for_course(user_id=user_id, course_id=course_id)
+        if apply_decay:
+            now = datetime.now(UTC)
+            for row in rows:
+                before = float(row.mastery_score)
+                self._apply_decay(row, now)
+                if float(row.mastery_score) != before:
+                    await self.repo.save(row)
+            await self.db.flush()
         return {str(row.knowledge_id): float(row.mastery_score) for row in rows}
 
     async def list_mastery_items(
@@ -88,11 +97,14 @@ class MasteryService:
         row = self._apply_decay(row, now)
 
         if is_correct:
-            row.mastery_score = min(1.0, float(row.mastery_score) + self.LEARN_RATE * (1.0 - float(row.mastery_score)))
-            row.stability = min(30.0, float(row.stability) + 0.5)
+            row.mastery_score = min(
+                1.0,
+                float(row.mastery_score) + self.LEARN_RATE * max(0.15, 1.0 - float(row.mastery_score)),
+            )
+            row.stability = min(30.0, float(row.stability) + 0.8)
             row.correct_count += 1
         else:
-            row.mastery_score = max(0.0, float(row.mastery_score) - self.LEARN_RATE * 0.6)
+            row.mastery_score = max(0.0, float(row.mastery_score) - self.LEARN_RATE * 0.75)
             row.stability = max(0.5, float(row.stability) * 0.85)
 
         row.attempt_count += 1

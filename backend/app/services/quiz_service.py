@@ -198,6 +198,29 @@ class QuizService:
         correct_count = sum(1 for record in records if record.is_correct)
         score = round((correct_count / len(records)) * 100, 2) if records else 0.0
 
+        try:
+            from app.services.mastery_service import MasteryService
+
+            mastery_svc = MasteryService(self.db)
+            for record in records:
+                question = questions_by_id.get(record.question_id)
+                kid = question.knowledge_id if question and question.knowledge_id else quiz.knowledge_id
+                if not kid:
+                    continue
+                await mastery_svc.apply_practice_update(
+                    user_id=current_user.id,
+                    course_id=quiz.course_id,
+                    knowledge_id=kid,
+                    is_correct=bool(record.is_correct),
+                )
+            await mastery_svc.sync_profile_snapshot(
+                user_id=current_user.id,
+                course_id=quiz.course_id,
+            )
+            await self.db.commit()
+        except Exception:
+            pass
+
         # ── 发布答题完成事件 ──
         try:
             from app.core.event_bus import get_event_bus
@@ -208,6 +231,7 @@ class QuizService:
                     "user_id": current_user.id,
                     "course_id": quiz.course_id,
                     "quiz_id": quiz.id,
+                    "quiz_knowledge_id": str(quiz.knowledge_id) if quiz.knowledge_id else None,
                     "score": score,
                     "correct_count": correct_count,
                     "total_questions": len(records),

@@ -36,6 +36,10 @@ export interface GeneratedResource {
   created_at: string
   media_asset_id?: string | null
   media_mime_type?: string | null
+  media_asset_type?: string | null
+  media_file_url?: string | null
+  content_format?: string | null
+  preview_mode?: "image" | "audio" | "mermaid" | "text" | null
 }
 
 export interface ResourceGeneratePayload {
@@ -61,4 +65,10 @@ export interface ResourceGenerateResult {
   status: string
   wiki_page_id?: string | null
   created_at?: string
+  media_asset_id?: string | null
+  media_mime_type?: string | null
+  media_asset_type?: string | null
+  media_file_url?: string | null
+  content_format?: string | null
+  preview_mode?: "image" | "audio" | "mermaid" | "text" | null
 }

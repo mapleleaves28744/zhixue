@@ -1,0 +1,291 @@
+{
+  "login": {
+    "username": "stu_01",
+    "password": "123456"
+  },
+  "user_id": "adf294d1-64b8-4f14-8eb4-3639c918d6ef",
+  "course_id": "393d39d6-d18a-4389-9e67-267c42bd8be5",
+  "course_title": "数据结构长期测试课",
+  "materials": [
+    {
+      "id": "67e41e6f-2873-4875-9b67-a344d64962ad",
+      "name": "数据结构课程教学大纲.md",
+      "extracted": 8,
+      "wiki_generated": 8
+    },
+    {
+      "id": "a706ecfd-ca53-4482-96bf-c374a2338725",
+      "name": "02_线性表.md",
+      "extracted": 23,
+      "wiki_generated": 0
+    }
+  ],
+  "wiki_pages": 60,
+  "tutor_chats": 6,
+  "quizzes_submitted": 3,
+  "mistakes": 6,
+  "graph_nodes": 60,
+  "graph_links": 0,
+  "mastery_max": 0.020000000000000004,
+  "profile_keys": [
+    "created_at",
+    "error_patterns",
+    "grade",
+    "id",
+    "learning_goal",
+    "major",
+    "mastery_snapshot",
+    "profile_summary",
+    "strategy_summary",
+    "updated_at",
+    "user_id",
+    "version_no",
+    "weak_points"
+  ],
+  "memories": 7,
+  "evolution_strategies": 0,
+  "recommendations": 1,
+  "agent_tasks": 1,
+  "errors": [
+    "wiki-gen/a706ecfd: POST /wiki/pages/generate-from-material 非 JSON 响应 HTTP 500",
+    "upload/03_栈与队列.md: [WinError 10054] 远程主机强迫关闭了一个现有的连接。",
+    "quiz-gen/线性表与链表: POST /quizzes/generate 非 JSON 响应 HTTP 500",
+    "quiz-gen/栈与循环队列: [WinError 10054] 远程主机强迫关闭了一个现有的连接。",
+    "quiz-gen/树与图遍历: POST /quizzes/generate 非 JSON 响应 HTTP 500",
+    "diagnosis/analyze: [WinError 10054] 远程主机强迫关闭了一个现有的连接。",
+    "Agent 任务超时 task=829989af-d45e-4fed-951a-4a9074a233e9 last=running"
+  ],
+  "steps": [
+    {
+      "name": "health/ping",
+      "ok": true,
+      "detail": "keys=2",
+      "ms": 10
+    },
+    {
+      "name": "auth/login",
+      "ok": true,
+      "detail": "keys=5",
+      "ms": 205
+    },
+    {
+      "name": "course/create",
+      "ok": true,
+      "detail": "id=393d39d6-d18a-4389-9e67-267c42bd8be5",
+      "ms": 29
+    },
+    {
+      "name": "upload/数据结构课程教学大纲.md",
+      "ok": true,
+      "detail": "id=67e41e6f-2873-4875-9b67-a344d64962ad",
+      "ms": 44
+    },
+    {
+      "name": "parse/67e41e6f",
+      "ok": true,
+      "detail": "id=67e41e6f-2873-4875-9b67-a344d64962ad",
+      "ms": 349
+    },
+    {
+      "name": "chunk/67e41e6f",
+      "ok": true,
+      "detail": "chunk_count=28",
+      "ms": 233
+    },
+    {
+      "name": "embed/67e41e6f",
+      "ok": true,
+      "detail": "embedded_count=28",
+      "ms": 42575
+    },
+    {
+      "name": "extract/67e41e6f",
+      "ok": true,
+      "detail": "extracted_count=8",
+      "ms": 219
+    },
+    {
+      "name": "wiki-gen/67e41e6f",
+      "ok": true,
+      "detail": "generated_count=8",
+      "ms": 63568
+    },
+    {
+      "name": "upload/02_线性表.md",
+      "ok": true,
+      "detail": "id=a706ecfd-ca53-4482-96bf-c374a2338725",
+      "ms": 33
+    },
+    {
+      "name": "parse/a706ecfd",
+      "ok": true,
+      "detail": "id=a706ecfd-ca53-4482-96bf-c374a2338725",
+      "ms": 239
+    },
+    {
+      "name": "chunk/a706ecfd",
+      "ok": true,
+      "detail": "chunk_count=45",
+      "ms": 182
+    },
+    {
+      "name": "embed/a706ecfd",
+      "ok": true,
+      "detail": "embedded_count=45",
+      "ms": 33339
+    },
+    {
+      "name": "extract/a706ecfd",
+      "ok": true,
+      "detail": "extracted_count=23",
+      "ms": 269
+    },
+    {
+      "name": "wiki-gen/a706ecfd",
+      "ok": false,
+      "detail": "POST /wiki/pages/generate-from-material 非 JSON 响应 HTTP 500",
+      "ms": 63126
+    },
+    {
+      "name": "upload/03_栈与队列.md",
+      "ok": false,
+      "detail": "[WinError 10054] 远程主机强迫关闭了一个现有的连接。",
+      "ms": 162
+    },
+    {
+      "name": "profile/dialogue-ingest",
+      "ok": true,
+      "detail": "keys=4",
+      "ms": 54
+    },
+    {
+      "name": "tutor/线性表和链表有什么区别？我更适合先学",
+      "ok": true,
+      "detail": "keys=16",
+      "ms": 74421
+    },
+    {
+      "name": "tutor/请用通俗例子解释栈在函数调用中的作用",
+      "ok": true,
+      "detail": "keys=16",
+      "ms": 73428
+    },
+    {
+      "name": "tutor/循环队列为什么要牺牲一个存储单元来判",
+      "ok": true,
+      "detail": "keys=16",
+      "ms": 82040
+    },
+    {
+      "name": "tutor/二叉树前序和中序遍历有什么区别？给我",
+      "ok": true,
+      "detail": "keys=16",
+      "ms": 71765
+    },
+    {
+      "name": "tutor/我最近图和排序都不太会，帮我列一个三",
+      "ok": true,
+      "detail": "keys=16",
+      "ms": 164425
+    },
+    {
+      "name": "tutor/BFS 和 DFS 分别适合解决什么",
+      "ok": true,
+      "detail": "keys=16",
+      "ms": 115242
+    },
+    {
+      "name": "resource/summary",
+      "ok": true,
+      "detail": "id=35b77179-c3bd-4224-86a6-3a67360f568a",
+      "ms": 61359
+    },
+    {
+      "name": "resource/flashcard",
+      "ok": true,
+      "detail": "id=31fbd9a8-14e0-40a4-920b-f4a9921d5945",
+      "ms": 93905
+    },
+    {
+      "name": "quiz-gen/线性表与链表",
+      "ok": false,
+      "detail": "POST /quizzes/generate 非 JSON 响应 HTTP 500",
+      "ms": 182
+    },
+    {
+      "name": "quiz-gen/栈与循环队列",
+      "ok": false,
+      "detail": "[WinError 10054] 远程主机强迫关闭了一个现有的连接。",
+      "ms": 14
+    },
+    {
+      "name": "quiz-gen/树与图遍历",
+      "ok": false,
+      "detail": "POST /quizzes/generate 非 JSON 响应 HTTP 500",
+      "ms": 25
+    },
+    {
+      "name": "diagnosis/analyze",
+      "ok": false,
+      "detail": "[WinError 10054] 远程主机强迫关闭了一个现有的连接。",
+      "ms": 10
+    },
+    {
+      "name": "profile/rebuild",
+      "ok": true,
+      "detail": "id=08609496-4487-4986-bbb3-1348248cfb44",
+      "ms": 68465
+    },
+    {
+      "name": "memory/reflect",
+      "ok": true,
+      "detail": "items=1",
+      "ms": 58626
+    },
+    {
+      "name": "evolution/analyze",
+      "ok": true,
+      "detail": "strategies_count=0",
+      "ms": 12837
+    },
+    {
+      "name": "recommendations/refresh",
+      "ok": true,
+      "detail": "keys=2",
+      "ms": 60
+    },
+    {
+      "name": "learning-events",
+      "ok": true,
+      "detail": "keys=1",
+      "ms": 16
+    },
+    {
+      "name": "agent/conversation",
+      "ok": true,
+      "detail": "id=7eccb139-57b7-4693-a917-7e8b6a93384b",
+      "ms": 47
+    },
+    {
+      "name": "agent/msg-1",
+      "ok": true,
+      "detail": "keys=4",
+      "ms": 144
+    },
+    {
+      "name": "agent/msg-2",
+      "ok": true,
+      "detail": "keys=4",
+      "ms": 76
+    }
+  ],
+  "frontend_urls": {
+    "login": "http://127.0.0.1:3000/?auth=login",
+    "knowledge": "http://127.0.0.1:3000/knowledge?course_id=393d39d6-d18a-4389-9e67-267c42bd8be5",
+    "assistant": "http://127.0.0.1:3000/assistant?course_id=393d39d6-d18a-4389-9e67-267c42bd8be5",
+    "practice": "http://127.0.0.1:3000/practice?course_id=393d39d6-d18a-4389-9e67-267c42bd8be5",
+    "dashboard": "http://127.0.0.1:3000/dashboard",
+    "path_profile": "http://127.0.0.1:3000/path-profile"
+  },
+  "resume_completed": true
+}

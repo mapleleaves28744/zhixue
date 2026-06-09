@@ -291,6 +291,7 @@
 </div>
 <script src="/stitch-pages/zhixue-ui.js"></script>
 <script src="/stitch-pages/zhixue-static-api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
 (() => {
   const api = window.ZhixueStatic;
@@ -1246,24 +1247,114 @@
     }[type] || "资源";
   }
 
+  function resourceTypeIcon(type, previewMode) {
+    if (previewMode === "audio") return "volume_up";
+    if (previewMode === "image" || previewMode === "mermaid") return "account_tree";
+    return {
+      explanation: "menu_book",
+      summary: "summarize",
+      example: "quiz",
+      flashcard: "style",
+      review: "error",
+      mindmap: "account_tree",
+      diagram: "schema",
+    }[type] || "auto_fix_high";
+  }
+
   function isMermaidContent(content) {
     const trimmed = String(content || "").trim();
     return /^(mindmap|flowchart\s+(TD|LR|BT|RL)|sequenceDiagram|classDiagram|erDiagram)\b/.test(trimmed);
   }
 
-  function mermaidCodePreview(content) {
+  function mediaPreviewUrl(resource) {
+    if (!resource?.media_asset_id || !api.mediaAssetFileUrl) {
+      return "";
+    }
+    return api.mediaAssetFileUrl(resource.media_asset_id);
+  }
+
+  function imagePreviewHtml(resource) {
+    const url = mediaPreviewUrl(resource);
+    if (!url) {
+      return "";
+    }
     return `
-      <div class="rounded-2xl bg-white/80 border border-primary/15 overflow-hidden shadow-sm">
+      <div class="rounded-2xl bg-white border border-primary/15 overflow-hidden shadow-sm">
+        <img class="w-full max-h-[520px] object-contain bg-white" src="${url}" alt="${escapeHtml(resource.title || "资源预览")}" />
+      </div>`;
+  }
+
+  function audioPreviewHtml(resource) {
+    const url = mediaPreviewUrl(resource);
+    if (!url) {
+      return "";
+    }
+    return `
+      <div class="rounded-2xl bg-primary/5 border border-primary/15 p-5 shadow-sm">
+        <div class="flex items-center gap-2 text-sm font-bold text-primary mb-3">
+          <span class="material-symbols-outlined">volume_up</span>
+          语音讲解
+        </div>
+        <audio controls class="w-full" src="${url}" preload="metadata"></audio>
+      </div>`;
+  }
+
+  function mermaidPreviewHtml(content) {
+    const id = `resource-mermaid-${Date.now()}`;
+    return `
+      <div class="rounded-2xl bg-white border border-primary/15 overflow-hidden shadow-sm">
         <div class="flex items-center justify-between px-4 py-3 bg-primary/5 border-b border-primary/10">
           <div class="flex items-center gap-2 text-sm font-bold text-primary">
             <span class="material-symbols-outlined text-lg">account_tree</span>
-            Mermaid
+            思维导图 / 图解
           </div>
-          <span class="text-xs font-bold text-outline">渲染失败时可直接核对代码</span>
         </div>
-        <pre class="max-h-[420px] overflow-auto p-4 text-xs leading-6 text-on-surface bg-white/70 whitespace-pre-wrap">${escapeHtml(content || "")}</pre>
-      </div>
-    `;
+        <div id="${id}" class="p-4 overflow-auto min-h-[280px] flex items-center justify-center bg-white"></div>
+        <details class="border-t border-primary/10 px-4 py-3 bg-white/70">
+          <summary class="text-xs font-bold text-outline cursor-pointer">查看 Mermaid 源码</summary>
+          <pre class="mt-2 max-h-[220px] overflow-auto text-xs leading-6 text-on-surface whitespace-pre-wrap">${escapeHtml(content || "")}</pre>
+        </details>
+      </div>`;
+  }
+
+  async function paintMermaidPreview(content) {
+    if (!window.mermaid || !isMermaidContent(content)) {
+      return;
+    }
+    const host = resourcePreview?.querySelector("[id^='resource-mermaid-']");
+    if (!host) {
+      return;
+    }
+    try {
+      window.mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
+      const { svg } = await window.mermaid.render(`mmd-${Date.now()}`, content);
+      host.innerHTML = svg;
+    } catch (error) {
+      host.innerHTML = `<div class="text-sm text-error font-bold">图谱渲染失败，请展开源码核对。</div>`;
+    }
+  }
+
+  function buildResourceBodyHtml(resource) {
+    const previewMode = resource.preview_mode || (isMermaidContent(resource.content) ? "mermaid" : "text");
+    if (previewMode === "image" && resource.media_asset_id) {
+      return imagePreviewHtml(resource);
+    }
+    if (previewMode === "audio" && resource.media_asset_id) {
+      const textBlock = resource.resource_type === "explanation"
+        ? `<details class="rounded-2xl bg-white/70 border border-white/90 p-4 shadow-sm">
+            <summary class="text-sm font-bold text-primary cursor-pointer">展开文字讲稿</summary>
+            <div class="mt-3">${markdownToHtml(resource.content)}</div>
+          </details>`
+        : "";
+      return `${audioPreviewHtml(resource)}${textBlock}`;
+    }
+    if (previewMode === "mermaid" || isMermaidContent(resource.content)) {
+      if (resource.media_asset_id) {
+        return `${imagePreviewHtml(resource)}${mermaidPreviewHtml(resource.content)}`;
+      }
+      return mermaidPreviewHtml(resource.content);
+    }
+    return `<div class="rounded-2xl bg-white/70 border border-white/90 p-5 shadow-sm">${markdownToHtml(resource.content)}</div>`;
   }
 
   function markdownToHtml(markdown) {
@@ -1310,7 +1401,7 @@
     return html.join("");
   }
 
-  function renderResource(resource) {
+  async function renderResource(resource) {
     if (!resourcePreview || !resource) {
       return;
     }
@@ -1329,18 +1420,19 @@
           <div class="text-[11px] font-bold text-primary uppercase tracking-widest mb-2">${resourceTypeLabel(resource.resource_type)}</div>
           <h3 class="text-xl font-bold text-on-surface leading-snug">${escapeHtml(resource.title)}</h3>
         </div>
-        <div class="rounded-2xl bg-white/70 border border-white/90 p-5 shadow-sm">
-          ${isMermaidContent(resource.content) ? mermaidCodePreview(resource.content) : markdownToHtml(resource.content)}
-        </div>
-        <div class="rounded-2xl bg-primary/5 border border-primary/15 p-4">
-          <div class="text-label-sm font-bold text-primary mb-2">个性化原因</div>
-          <p class="text-sm leading-6 text-on-surface-variant">${escapeHtml(resource.personalized_reason || "暂无个性化证据，建议结合学习记录继续校准。")}</p>
-        </div>
+        ${buildResourceBodyHtml(resource)}
+        <details class="rounded-2xl bg-primary/5 border border-primary/15 p-4">
+          <summary class="text-label-sm font-bold text-primary cursor-pointer">个性化原因</summary>
+          <p class="mt-2 text-sm leading-6 text-on-surface-variant">${escapeHtml(resource.personalized_reason || "暂无个性化证据，建议结合学习记录继续校准。")}</p>
+        </details>
         <div>
           <div class="text-label-sm font-bold text-outline-variant mb-2">引用来源</div>
           <div class="grid gap-2">${citationHtml}</div>
         </div>
       </article>`;
+    if (isMermaidContent(resource.content)) {
+      await paintMermaidPreview(resource.content);
+    }
     updateSaveButton();
   }
 
@@ -1411,7 +1503,7 @@
         use_profile: true,
         save_to_wiki: false,
       });
-      renderResource(resource);
+      await renderResource(resource);
       stopActiveResourceProgress();
       setResourceStatus("done", "Review Agent 已校验");
       api.toast("学习资源已生成", "success");
@@ -1450,6 +1542,18 @@
     }
   }
 
+  async function openResourceById(resourceId) {
+    if (!resourceId) {
+      return;
+    }
+    try {
+      const resource = await api.getResource(resourceId);
+      await renderResource(resource);
+    } catch (error) {
+      api.toast(error.message || "资源加载失败", "error");
+    }
+  }
+
   async function loadResourceHistory() {
     if (!resourceHistory || !currentCourseId) {
       return;
@@ -1464,19 +1568,16 @@
       resourceHistory.innerHTML = items.map((item) => `
         <button class="w-full group flex items-center gap-4 p-3.5 bg-white/30 hover:bg-white/80 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-white shadow-sm text-left" data-resource-id="${item.id}">
           <div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shrink-0 border border-primary/20 group-hover:scale-105 transition-transform">
-            <span class="material-symbols-outlined text-xl">${item.status === "saved_to_wiki" ? "bookmark_added" : "auto_fix_high"}</span>
+            <span class="material-symbols-outlined text-xl">${item.status === "saved_to_wiki" ? "bookmark_added" : resourceTypeIcon(item.resource_type, item.preview_mode)}</span>
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-bold text-on-surface truncate text-label-md">${escapeHtml(item.title)}</p>
-            <p class="text-xs text-outline font-semibold mt-0.5">${resourceTypeLabel(item.resource_type)} · ${api.formatDate(item.created_at)}</p>
+            <p class="text-xs text-outline font-semibold mt-0.5">${resourceTypeLabel(item.resource_type)}${item.preview_mode === "audio" ? " · 可播放" : item.preview_mode === "image" || item.preview_mode === "mermaid" ? " · 可视化" : ""} · ${api.formatDate(item.created_at)}</p>
           </div>
         </button>`).join("");
       resourceHistory.querySelectorAll("[data-resource-id]").forEach((button) => {
         button.addEventListener("click", () => {
-          const resource = items.find((item) => item.id === button.dataset.resourceId);
-          if (resource) {
-            renderResource(resource);
-          }
+          void openResourceById(button.dataset.resourceId);
         });
       });
     } catch (error) {

@@ -282,6 +282,10 @@
     });
   }
 
+  async function getResource(resourceId) {
+    return request(`/resources/${resourceId}`);
+  }
+
   async function listResources(courseId, params = {}) {
     const query = new URLSearchParams({
       page: String(params.page || 1),
@@ -657,17 +661,47 @@
     });
   }
 
-  async function resolveCourseId() {
-    const courseId = getCourseIdFromUrl();
-    if (courseId) {
-      return courseId;
+  const CURRENT_COURSE_KEY = "zhixue_current_course_id";
+
+  async function pickCourseIdWithMostWiki(courses) {
+    let bestCourse = courses[0];
+    let bestWikiCount = -1;
+    for (const course of courses) {
+      try {
+        const wikiPage = await listWikiPages(course.id, { pageSize: 1 });
+        const wikiCount = Number(wikiPage.total ?? (wikiPage.items || []).length) || 0;
+        if (wikiCount > bestWikiCount) {
+          bestWikiCount = wikiCount;
+          bestCourse = course;
+        }
+      } catch {
+        // Keep scanning other courses when one course lookup fails.
+      }
     }
-    const page = await listCourses({ pageSize: 1 });
-    const firstCourse = page.items && page.items[0];
-    if (!firstCourse) {
+    return bestCourse.id;
+  }
+
+  async function resolveCourseId() {
+    const page = await listCourses({ pageSize: 50, status: "active" });
+    const courses = page.items || [];
+    if (!courses.length) {
       throw new Error("请先创建课程，再继续操作");
     }
-    return firstCourse.id;
+
+    const urlCourseId = getCourseIdFromUrl();
+    if (urlCourseId && courses.some((course) => course.id === urlCourseId)) {
+      window.localStorage.setItem(CURRENT_COURSE_KEY, urlCourseId);
+      return urlCourseId;
+    }
+
+    const storedCourseId = window.localStorage.getItem(CURRENT_COURSE_KEY);
+    if (storedCourseId && courses.some((course) => course.id === storedCourseId)) {
+      return storedCourseId;
+    }
+
+    const bestCourseId = await pickCourseIdWithMostWiki(courses);
+    window.localStorage.setItem(CURRENT_COURSE_KEY, bestCourseId);
+    return bestCourseId;
   }
 
   function escapeHtml(value) {
@@ -736,6 +770,15 @@
           <iframe class="mt-4 w-full h-[520px] rounded-2xl border border-[#f5e4c8] bg-white" src="${url}" sandbox="allow-scripts"></iframe>
         </div>`;
     }
+    if (artifact.type === "media_asset" && (type === "audio" || String(artifact.mime_type || "").startsWith("audio/"))) {
+      const url = mediaAssetFileUrl(artifact.asset_id);
+      return `
+        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+          <div class="text-sm text-[#8a5a00] font-bold">语音讲解</div>
+          <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
+          <audio class="mt-4 w-full" src="${url}" controls preload="metadata"></audio>
+        </div>`;
+    }
     if (artifact.type === "media_asset" && (type === "video" || String(artifact.mime_type || "").startsWith("video/"))) {
       const url = mediaAssetFileUrl(artifact.asset_id);
       return `
@@ -770,6 +813,7 @@
     createCourse,
     createWikiPage,
     generateResource,
+    getResource,
     getCourse,
     getAgentTask,
     getAgentTaskSteps,

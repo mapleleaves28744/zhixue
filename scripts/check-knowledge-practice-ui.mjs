@@ -12,8 +12,12 @@ const checks = [
   ["Wiki 详情有明确返回按钮", knowledge.includes("返回 Wiki 列表")],
   ["知识图谱调用真实接口", knowledge.includes("getWikiGraph") || knowledge.includes("/wiki/graph")],
   ["知识图谱使用 D3 力导向组件", knowledge.includes("ZhixueForceGraph") && knowledge.includes("d3.min.js")],
+  ["力导向图支持悬停知识点提示", fs.readFileSync("frontend/public/stitch-pages/zhixue-force-graph.js", "utf8").includes("zhixue-graph-tooltip")],
+  ["力导向图按掌握度区分颜色与大小", fs.readFileSync("frontend/public/stitch-pages/zhixue-force-graph.js", "utf8").includes("masteryRadius") && fs.readFileSync("frontend/public/stitch-pages/zhixue-force-graph.js", "utf8").includes("#16a34a")],
   ["知识图谱节点可打开 Wiki", knowledge.includes('data-wiki-page-id="${node.id}"') || knowledge.includes("data-wiki-page-id")],
   ["图谱 Tab 已绑定渲染", knowledge.includes('label === "图谱视图"') && knowledge.includes("renderWikiGraph()")],
+  ["知识库支持课程切换", knowledge.includes("knowledge-course-select") && knowledge.includes("syncCourseSelector")],
+  ["图谱空状态区分资料与 Wiki", knowledge.includes("图谱节点来自 Wiki") && knowledge.includes("从资料生成 Wiki")],
   ["资料可下载预览切片", knowledge.includes("material-download") && knowledge.includes("material-view-chunks")],
   ["Wiki Markdown 增强渲染", knowledge.includes("ZhixueUI.renderMarkdown")],
 ];

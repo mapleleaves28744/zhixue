@@ -11,8 +11,14 @@ from app.models.user import User
 from app.repositories.knowledge_relation_repository import KnowledgeRelationRepository
 from app.repositories.knowledge_repository import KnowledgeRepository
 from app.repositories.wiki_repository import WikiRepository
+from app.llm import ChatMessage, get_llm_provider
 from app.services.mastery_service import MasteryService
 from app.services.wiki_service import WikiService
+
+BIDIRECTIONAL_RELATION_TYPES = frozenset({"similar", "confused_with", "related"})
+DIRECTED_RELATION_TYPES = frozenset(
+    {"prerequisite", "next", "used_in", "contains", "belongs_to", "resource_for", "example_of"}
+)
 
 
 class KnowledgeGraphService:
@@ -33,10 +39,11 @@ class KnowledgeGraphService:
         relations: list[dict[str, Any]],
         dialogue_excerpt: str = "",
     ) -> dict[str, Any]:
-        kp_by_name: dict[str, Any] = {}
+        kp_by_name = await self._knowledge_name_index(course_id=course_id, owner_id=current_user.id)
         created_entities = 0
         created_relations = 0
         created_wiki = 0
+        touched_ids: list[str] = []
 
         for raw in entities:
             name = str(raw.get("name") or "").strip()
@@ -51,6 +58,7 @@ class KnowledgeGraphService:
                 chapter=str(raw.get("chapter") or "")[:128] or None,
             )
             kp_by_name[name.lower()] = point
+            touched_ids.append(str(point.id))
             if is_new:
                 created_entities += 1
 
@@ -71,36 +79,12 @@ class KnowledgeGraphService:
                 understood=bool(raw.get("understood")),
             )
 
-        for raw in relations:
-            src_name = str(raw.get("source") or raw.get("source_name") or "").strip().lower()
-            tgt_name = str(raw.get("target") or raw.get("target_name") or "").strip().lower()
-            rel_type = str(raw.get("relation_type") or "related").strip()
-            if not src_name or not tgt_name:
-                continue
-            src = kp_by_name.get(src_name)
-            tgt = kp_by_name.get(tgt_name)
-            if not src or not tgt or src.id == tgt.id:
-                continue
-            _, is_new = await self.relations.upsert(
-                course_id=course_id,
-                source_knowledge_id=src.id,
-                target_knowledge_id=tgt.id,
-                relation_type=rel_type,
-                scope="personal",
-                evidence=str(raw.get("evidence") or "")[:500] or None,
-                confidence=float(raw.get("confidence") or 0.75),
-                created_by="ai",
-            )
-            if is_new:
-                created_relations += 1
-            await self._mirror_wiki_link(
-                current_user=current_user,
-                course_id=course_id,
-                source_kp=src,
-                target_kp=tgt,
-                relation_type=rel_type,
-                evidence=str(raw.get("evidence") or ""),
-            )
+        created_relations += await self._persist_relations(
+            current_user=current_user,
+            course_id=course_id,
+            relations=relations,
+            kp_by_name=kp_by_name,
+        )
 
         await self.mastery.sync_profile_snapshot(user_id=current_user.id, course_id=course_id)
         return {
@@ -109,7 +93,44 @@ class KnowledgeGraphService:
             "created_entities": created_entities,
             "created_relations": created_relations,
             "wiki_pages_touched": created_wiki,
+            "touched_knowledge_ids": list(dict.fromkeys(touched_ids)),
         }
+
+    async def infer_relations_after_material_extract(
+        self,
+        *,
+        current_user: User,
+        course_id: UUID,
+        owner_id: UUID,
+        material_text: str,
+        new_points: list[Any],
+    ) -> int:
+        """资料抽取后：对照已有知识点，由 AI/规则推断先修、后继、相似等关系。"""
+        all_kps = await self.knowledge.list_visible_by_course(
+            course_id=course_id,
+            current_user_id=owner_id,
+            public_owner_id=None,
+            include_all=True,
+        )
+        if len(all_kps) < 2:
+            return 0
+
+        kp_by_name = {kp.name.lower(): kp for kp in all_kps}
+        relations = await self._llm_infer_relations(
+            knowledge_points=all_kps,
+            context_text=material_text[:6000],
+            user_id=current_user.id,
+            course_id=course_id,
+        )
+        if not relations:
+            relations = self._rule_infer_material_relations(new_points, all_kps, material_text)
+
+        return await self._persist_relations(
+            current_user=current_user,
+            course_id=course_id,
+            relations=relations,
+            kp_by_name=kp_by_name,
+        )
 
     async def extract_from_dialogue_text(
         self,
@@ -224,6 +245,162 @@ class KnowledgeGraphService:
             if page.knowledge_id == kp.id or page.title == kp.name:
                 return page
         return None
+
+    async def _knowledge_name_index(self, *, course_id: UUID, owner_id: UUID) -> dict[str, Any]:
+        points = await self.knowledge.list_visible_by_course(
+            course_id=course_id,
+            current_user_id=owner_id,
+            public_owner_id=None,
+            include_all=True,
+        )
+        return {point.name.lower(): point for point in points}
+
+    async def _persist_relations(
+        self,
+        *,
+        current_user: User,
+        course_id: UUID,
+        relations: list[dict[str, Any]],
+        kp_by_name: dict[str, Any],
+    ) -> int:
+        created_relations = 0
+        for raw in relations:
+            src_name = str(raw.get("source") or raw.get("source_name") or "").strip().lower()
+            tgt_name = str(raw.get("target") or raw.get("target_name") or "").strip().lower()
+            rel_type = str(raw.get("relation_type") or "related").strip()
+            if not src_name or not tgt_name:
+                continue
+            src = kp_by_name.get(src_name)
+            tgt = kp_by_name.get(tgt_name)
+            if not src or not tgt or src.id == tgt.id:
+                continue
+            _, is_new = await self.relations.upsert(
+                course_id=course_id,
+                source_knowledge_id=src.id,
+                target_knowledge_id=tgt.id,
+                relation_type=rel_type,
+                scope="personal",
+                evidence=str(raw.get("evidence") or "")[:500] or None,
+                confidence=float(raw.get("confidence") or 0.75),
+                created_by="ai",
+            )
+            if is_new:
+                created_relations += 1
+            await self._mirror_wiki_link(
+                current_user=current_user,
+                course_id=course_id,
+                source_kp=src,
+                target_kp=tgt,
+                relation_type=rel_type,
+                evidence=str(raw.get("evidence") or ""),
+            )
+        return created_relations
+
+    async def _llm_infer_relations(
+        self,
+        *,
+        knowledge_points: list[Any],
+        context_text: str,
+        user_id: UUID,
+        course_id: UUID,
+    ) -> list[dict[str, Any]]:
+        if len(knowledge_points) < 2:
+            return []
+        names = [kp.name for kp in knowledge_points[:80]]
+        llm = get_llm_provider(db=self.db, user_id=user_id, course_id=course_id)
+        prompt = (
+            "你是数据结构课程知识图谱编辑。根据资料内容与已有知识点列表，推断知识点之间的关系。\n"
+            "只返回 JSON：\n"
+            '{"relations":[{"source":"知识点A","target":"知识点B",'
+            '"relation_type":"prerequisite|next|similar|used_in|confused_with",'
+            '"evidence":"一句依据","confidence":0.8}]}\n'
+            "规则：\n"
+            "- prerequisite：A 是 B 的前置知识，用单向箭头 A→B\n"
+            "- next：A 学完后建议学 B\n"
+            "- similar / confused_with：易混或并列，可双向\n"
+            "- used_in：A 应用于 B（如队列 used_in BFS）\n"
+            "只输出有明确依据的关系，不要编造。\n\n"
+            f"已有知识点：{json.dumps(names, ensure_ascii=False)}\n\n"
+            f"资料摘录：\n{context_text[:4500]}"
+        )
+        try:
+            response = await llm.chat(
+                [ChatMessage(role="user", content=prompt)],
+                temperature=0.2,
+                max_tokens=2048,
+            )
+            data = self._parse_json(response.content)
+            if isinstance(data, dict) and isinstance(data.get("relations"), list):
+                return [item for item in data["relations"] if isinstance(item, dict)]
+        except Exception:
+            pass
+        return []
+
+    def _rule_infer_material_relations(
+        self,
+        new_points: list[Any],
+        all_points: list[Any],
+        material_text: str,
+    ) -> list[dict[str, Any]]:
+        relations: list[dict[str, Any]] = []
+        by_chapter: dict[str, list[Any]] = {}
+        for point in all_points:
+            chapter = str(point.chapter or "通用").strip()
+            by_chapter.setdefault(chapter, []).append(point)
+
+        for chapter, points in by_chapter.items():
+            ordered = sorted(points, key=lambda p: (p.sort_order, p.name))
+            for idx in range(len(ordered) - 1):
+                relations.append(
+                    {
+                        "source": ordered[idx].name,
+                        "target": ordered[idx + 1].name,
+                        "relation_type": "next",
+                        "evidence": f"同章节「{chapter}」学习顺序推断",
+                        "confidence": 0.55,
+                    }
+                )
+
+        pairs = [
+            ("栈", "队列", "similar"),
+            ("队列", "BFS", "used_in"),
+            ("链表", "线性表", "belongs_to"),
+            ("二叉树", "树", "belongs_to"),
+        ]
+        names_in_text = {p.name for p in all_points}
+        for src, tgt, rel_type in pairs:
+            if src in names_in_text and tgt in names_in_text:
+                relations.append(
+                    {
+                        "source": src,
+                        "target": tgt,
+                        "relation_type": rel_type,
+                        "evidence": "课程常见知识结构关联",
+                        "confidence": 0.6,
+                    }
+                )
+
+        if "栈" in material_text and "队列" in material_text:
+            relations.append(
+                {
+                    "source": "栈",
+                    "target": "队列",
+                    "relation_type": "similar",
+                    "evidence": "资料中同时讲解栈与队列",
+                    "confidence": 0.65,
+                }
+            )
+        return relations
+
+    def _parse_json(self, text: str) -> object:
+        cleaned = text.strip()
+        if cleaned.startswith("```"):
+            cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
+            cleaned = re.sub(r"\s*```$", "", cleaned)
+        try:
+            return json.loads(cleaned)
+        except json.JSONDecodeError:
+            return None
 
     def _rule_extract(self, text: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         terms = [

@@ -1,7 +1,6 @@
 "use client"
 
-import { MediaAssetPreview } from "@/components/assistant/MediaAssetPreview"
-import { MarkdownRenderer } from "@/components/markdown/MarkdownRenderer"
+import { ResourcePreviewBody } from "@/components/assistant/ResourcePreviewBody"
 import {
   Dialog,
   DialogContent,
@@ -30,8 +29,6 @@ const TYPE_LABELS: Record<string, string> = {
 export function ResourceDetailDrawer({ resource, open, onOpenChange }: ResourceDetailDrawerProps) {
   if (!resource) return null
 
-  const isImageResource = resource.resource_type === "image" && resource.media_asset_id
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
@@ -42,23 +39,12 @@ export function ResourceDetailDrawer({ resource, open, onOpenChange }: ResourceD
             {new Date(resource.created_at).toLocaleString()}
           </p>
         </DialogHeader>
-        {isImageResource ? (
-          <MediaAssetPreview
-            assetId={resource.media_asset_id!}
-            mimeType={resource.media_mime_type}
-            title={resource.title}
-          />
-        ) : (
-          <MarkdownRenderer content={resource.content} />
-        )}
-        {resource.personalized_reason && (
-          <p className="mt-4 rounded-xl bg-primary/5 p-3 text-sm text-on-surface-variant">
-            {resource.personalized_reason}
-          </p>
-        )}
-        {isImageResource && resource.content && (
-          <p className="text-xs text-outline">{resource.content}</p>
-        )}
+
+        <ResourcePreviewBody
+          resource={resource}
+          showPersonalizedReason
+          collapseScript={resource.resource_type === "explanation"}
+        />
       </DialogContent>
     </Dialog>
   )

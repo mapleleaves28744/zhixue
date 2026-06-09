@@ -696,7 +696,7 @@
             if (sideProgressCard) {
                 sideProgressCard.innerHTML = `
                     <div class="relative z-10 w-full">
-                        <div class="text-label-sm font-bold text-on-surface-variant mb-2 zhixue-markdown-block">${window.ZhixueUI?.renderMarkdown ? window.ZhixueUI.renderMarkdown(report.summary || '继续积累练习数据，诊断会越来越稳定。') : escapeHtml(report.summary || '继续积累练习数据，诊断会越来越稳定。')}</div>
+                        <div class="text-label-sm text-on-surface-variant mb-2 zhixue-markdown-block">${renderMarkdownContent(report.summary || '继续积累练习数据，诊断会越来越稳定。')}</div>
                         <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden shadow-inner">
                             <div class="bg-primary h-full" style="width:${Math.max(8, Math.round((report.accuracy || 0) * 100))}%"></div>
                         </div>
@@ -813,6 +813,19 @@
                 .replace(/'/g, '&#039;');
         }
 
+        function renderMarkdownContent(content) {
+            if (window.ZhixueUI?.renderMarkdown) {
+                return window.ZhixueUI.renderMarkdown(content || '');
+            }
+            return escapeHtml(content || '');
+        }
+
+        function diagnosisReportTitle(summary) {
+            const text = String(summary || '学习诊断报告').trim();
+            const firstLine = text.split('\n').find((line) => line.trim()) || '学习诊断报告';
+            return firstLine.replace(/^#+\s*/, '').replace(/\*\*/g, '').trim().slice(0, 48) || '学习诊断报告';
+        }
+
         function renderDiagnosisReportList(reports) {
             const container = document.querySelector('.col-span-12.lg\\:col-span-8');
             if (!container) return;
@@ -839,7 +852,7 @@
                                             <span class="text-[11px] px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-bold">${escapeHtml(report.report_type || 'practice')}</span>
                                             ${report.generated_by_agent_run_id ? '<span class="text-[11px] px-2 py-0.5 rounded-full bg-tertiary-container/30 text-tertiary font-bold">Agent 生成</span>' : ''}
                                         </div>
-                                        <h4 class="font-bold text-on-surface">${escapeHtml(report.summary || '学习诊断报告')}</h4>
+                                        <h4 class="font-bold text-on-surface">${escapeHtml(diagnosisReportTitle(report.summary))}</h4>
                                         <p class="text-xs text-outline mt-2">${api.formatDate(report.created_at)}</p>
                                     </div>
                                     <div class="grid grid-cols-3 gap-2 min-w-[220px]">
@@ -857,15 +870,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-                                    <div class="rounded-xl bg-error-container/20 border border-error/10 p-3">
-                                        <p class="text-xs font-bold text-error mb-2">薄弱点</p>
-                                        ${(report.weaknesses || []).slice(0, 3).map((item) => `<p class="text-xs text-on-surface-variant">- ${escapeHtml(item)}</p>`).join('') || '<p class="text-xs text-on-surface-variant">暂无明显薄弱点</p>'}
-                                    </div>
-                                    <div class="rounded-xl bg-white/70 border border-white/80 p-3">
-                                        <p class="text-xs font-bold text-primary mb-2">下一步建议</p>
-                                        ${(report.recommendations || report.recommended_actions || []).slice(0, 3).map((item) => `<p class="text-xs text-on-surface-variant">- ${escapeHtml(typeof item === 'string' ? item : item.title || item.action || '继续复习')}</p>`).join('') || '<p class="text-xs text-on-surface-variant">继续完成练习以形成更稳定建议。</p>'}
-                                    </div>
+                                <div class="mt-4 rounded-xl bg-white/70 border border-white/80 p-4 zhixue-markdown-block text-sm leading-relaxed">
+                                    ${renderMarkdownContent(report.summary || '暂无诊断摘要')}
                                 </div>
                             </article>
                         `).join('') : `
@@ -920,27 +926,9 @@
                                 <div class="text-label-sm text-outline">正确数</div>
                             </div>
                         </div>
-                        <div class="space-y-4">
-                            <div class="p-4 bg-white/40 rounded-xl">
-                                <h4 class="font-bold text-sm mb-2 flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-success text-lg">check_circle</span> 优势
-                                </h4>
-                                ${(result.strengths || []).map(s => `<p class="text-sm text-on-surface-variant">- ${s}</p>`).join('') || '<p class="text-sm text-outline">暂无数据</p>'}
-                            </div>
-                            <div class="p-4 bg-white/40 rounded-xl">
-                                <h4 class="font-bold text-sm mb-2 flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-error text-lg">warning</span> 薄弱点
-                                </h4>
-                                ${(result.weaknesses || []).map(w => `<p class="text-sm text-on-surface-variant">- ${w}</p>`).join('') || '<p class="text-sm text-outline">暂无数据</p>'}
-                            </div>
-                            <div class="p-4 bg-white/40 rounded-xl">
-                                <h4 class="font-bold text-sm mb-2 flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-primary text-lg">lightbulb</span> 建议
-                                </h4>
-                                ${(result.recommendations || []).map(r => `<p class="text-sm text-on-surface-variant">- ${r}</p>`).join('') || '<p class="text-sm text-outline">暂无数据</p>'}
-                            </div>
+                        <div class="rounded-xl bg-white/60 border border-white/80 p-5 zhixue-markdown-block text-sm leading-relaxed">
+                            ${renderMarkdownContent(result.summary || '暂无诊断摘要')}
                         </div>
-                        <p class="text-xs text-outline mt-4">${result.summary || ''}</p>
                     </section>
                 `;
             } catch (e) {

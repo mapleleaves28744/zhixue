@@ -127,6 +127,7 @@ class WikiGenerateService:
                     summary=kp.description or f"知识点：{kp.name}",
                     slug=slug,
                 )
+                page.knowledge_id = kp.id
 
                 await self.wiki.create_source(
                     page_id=page.id,

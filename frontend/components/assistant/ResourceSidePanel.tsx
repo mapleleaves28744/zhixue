@@ -36,12 +36,24 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
+  const [showingAllCourses, setShowingAllCourses] = useState(false)
 
   const fetchPage = useCallback(
     async (targetPage: number, restoreLast = false) => {
       if (!courseId) return
       try {
-        const data = await listResources({ courseId, page: targetPage, pageSize: 20, status: "all" })
+        let data = await listResources({ courseId, page: targetPage, pageSize: 20, status: "all" })
+        if ((data.total ?? 0) === 0 && targetPage === 1) {
+          const all = await listResources({ page: 1, pageSize: 20, status: "all" })
+          if ((all.total ?? 0) > 0) {
+            data = all
+            setShowingAllCourses(true)
+          } else {
+            setShowingAllCourses(false)
+          }
+        } else {
+          setShowingAllCourses(false)
+        }
         setHistory(data.items)
         setTotal(data.total)
 
@@ -112,6 +124,12 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
         personalized_reason: result.personalized_reason,
         status: result.status,
         created_at: result.created_at || new Date().toISOString(),
+        media_asset_id: result.media_asset_id,
+        media_mime_type: result.media_mime_type,
+        media_asset_type: result.media_asset_type,
+        media_file_url: result.media_file_url,
+        content_format: result.content_format,
+        preview_mode: result.preview_mode,
       }
       localStorage.setItem(`${LAST_RESOURCE_KEY}_${courseId}`, resource.id)
       setSelected(resource)
@@ -171,7 +189,12 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
         </Button>
 
         <div className="pt-2">
-          <p className="mb-2 text-xs font-bold text-outline">我的资源 ({total})</p>
+          <p className="mb-2 text-xs font-bold text-outline">
+            我的资源 ({total})
+            {showingAllCourses ? (
+              <span className="ml-1 font-normal text-primary">· 已显示全部课程</span>
+            ) : null}
+          </p>
           <div className="grid grid-cols-2 gap-2">
             {history.map((item) => (
               <button
@@ -181,7 +204,13 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
                 className="flex h-24 flex-col items-start rounded-2xl border border-white/80 bg-white/50 p-3 text-left shadow-sm hover:border-primary/40"
               >
                 <span className="material-symbols-outlined text-lg text-primary">
-                  {item.resource_type === "image" ? "image" : "description"}
+                  {item.preview_mode === "audio"
+                    ? "volume_up"
+                    : item.preview_mode === "image" || item.preview_mode === "mermaid" || item.resource_type === "mindmap" || item.resource_type === "diagram"
+                      ? "account_tree"
+                      : item.resource_type === "image"
+                        ? "image"
+                        : "description"}
                 </span>
                 <span className="mt-1 line-clamp-2 text-xs font-semibold">{item.title}</span>
                 <span className="mt-auto text-[10px] text-outline">

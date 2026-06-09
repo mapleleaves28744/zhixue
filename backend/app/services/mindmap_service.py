@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from typing import Any
 from uuid import UUID
 
@@ -11,6 +10,9 @@ from app.llm.schemas import ChatMessage
 from app.models.user import User
 from app.repositories.resource_repository import ResourceRepository
 from app.services.diagram_service import CONCISE_MERMAID_RULES
+from app.services.knowledge_search_service import KnowledgeSearchService
+from app.services.resource_media_service import ResourceMediaService
+from app.utils.mermaid_util import extract_mermaid_code, repair_mermaid_content
 
 
 class MindmapService:
@@ -30,12 +32,15 @@ class MindmapService:
     ) -> dict[str, Any]:
         topic = topic.strip() or "数据结构知识结构"
         depth = max(2, min(5, int(depth)))
-        knowledge_items = await KnowledgeSearchService(self.db).search(
-            current_user=current_user,
-            course_id=course_id,
-            query=topic,
-            top_k=15,
-        )
+        try:
+            knowledge_items = await KnowledgeSearchService(self.db).search(
+                current_user=current_user,
+                course_id=course_id,
+                query=topic,
+                top_k=15,
+            )
+        except Exception:
+            knowledge_items = []
         response = await get_llm_provider(
             db=self.db,
             user_id=current_user.id,
@@ -45,7 +50,10 @@ class MindmapService:
             temperature=0.5,
             max_tokens=4096,
         )
-        mermaid_code = self._extract_mermaid(response.content, topic)
+        mermaid_code = repair_mermaid_content(
+            extract_mermaid_code(response.content, fallback_root=topic),
+            root_label=topic[:40],
+        )
         citations = self._build_citations(knowledge_items, topic=topic, scope=scope, depth=depth)
         resource = await ResourceRepository(self.db).create(
             user_id=current_user.id,
@@ -60,16 +68,29 @@ class MindmapService:
             model_name=response.model,
             prompt_version_id=None,
         )
+        await ResourceMediaService(self.db).enrich_after_generate(
+            resource=resource,
+            current_user=current_user,
+            resource_type="mindmap",
+        )
         await self.db.commit()
         await self.db.refresh(resource)
-        return {
+        asset = await ResourceMediaService(self.db).media.get_asset_for_resource(resource.id, current_user.id)
+        payload: dict[str, Any] = {
             "resource_id": str(resource.id),
             "title": resource.title,
-            "mermaid_code": mermaid_code,
-            "content": mermaid_code,
+            "mermaid_code": resource.content,
+            "content": resource.content,
             "citations": citations,
             "topic": topic,
+            "preview_mode": "mermaid",
         }
+        if asset is not None:
+            payload["media_asset_id"] = str(asset.id)
+            payload["media_mime_type"] = asset.mime_type
+            payload["media_file_url"] = f"/api/v1/media-assets/{asset.id}/file"
+            payload["preview_mode"] = "image"
+        return payload
 
     def _build_prompt(self, topic: str, knowledge_items: list[dict[str, Any]], depth: int) -> str:
         context = "\n".join(
@@ -86,17 +107,6 @@ class MindmapService:
             f"4. {CONCISE_MERMAID_RULES}\n"
             f"5. 只输出 Mermaid 代码，不要其他解释\n"
         )
-
-    def _extract_mermaid(self, content: str, topic: str = "知识结构") -> str:
-        match = re.search(r"```mermaid\s*\n(.*?)```", content, re.DOTALL)
-        if match:
-            return match.group(1).strip()
-        if "mindmap" in content:
-            return content[content.index("mindmap") :].strip()
-        cleaned = content.strip()
-        if cleaned.startswith("mindmap"):
-            return cleaned
-        return f"mindmap\n  root({topic})\n    AI推断内容\n      建议核对资料"
 
     def _build_citations(
         self,

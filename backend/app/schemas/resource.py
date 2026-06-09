@@ -85,6 +85,10 @@ class GeneratedResourceRead(BaseModel):
     created_at: datetime
     media_asset_id: UUID | None = None
     media_mime_type: str | None = None
+    media_asset_type: str | None = None
+    media_file_url: str | None = None
+    content_format: str | None = None
+    preview_mode: str | None = None
 
 
 class ResourceGenerateResponse(BaseModel):
@@ -100,3 +104,9 @@ class ResourceGenerateResponse(BaseModel):
     status: str
     wiki_page_id: UUID | None = None
     created_at: datetime
+    media_asset_id: UUID | None = None
+    media_mime_type: str | None = None
+    media_asset_type: str | None = None
+    media_file_url: str | None = None
+    content_format: str | None = None
+    preview_mode: str | None = None

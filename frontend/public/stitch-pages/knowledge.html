@@ -46,7 +46,14 @@
 <!-- TopNavBar -->
 <header class="flex justify-between items-center w-full px-8 max-w-[calc(100%-80px)] h-20 bg-transparent z-40 hidden md:flex fixed top-0 left-20">
 <div class="flex items-center gap-6">
+<div class="flex flex-col gap-1 min-w-[200px]">
 <h2 class="font-headline-md text-headline-md text-on-surface">课程知识库</h2>
+<p id="knowledge-course-label" class="text-xs text-on-surface-variant font-medium">加载课程中…</p>
+</div>
+<div class="relative">
+<select id="knowledge-course-select" class="appearance-none pl-4 pr-10 py-2.5 rounded-full bg-white/60 border border-white/80 text-sm font-bold text-on-surface focus:outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/10 backdrop-blur-md shadow-sm min-w-[220px]"></select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">expand_more</span>
+</div>
 <div class="flex gap-4 items-center">
 <button data-knowledge-tab="资料库" class="text-primary font-bold border-b-2 border-primary py-2 px-2 font-label-md transition-all">资料库</button>
 <button data-knowledge-tab="课程 Wiki" class="text-on-surface-variant hover:text-primary py-2 px-2 font-label-md transition-all border-b-2 border-transparent hover:border-primary/30">课程 Wiki</button>
@@ -163,23 +170,23 @@
 <div class="flex justify-between items-start border-b border-outline-variant/30 pb-4 mb-4">
 <div>
 <h2 class="font-headline-md text-headline-md text-on-surface mb-2">高等数学第七版上册_第一章.pdf</h2>
-<div class="flex gap-4 text-sm text-on-surface-variant font-medium">
+<div id="knowledge-detail-meta" class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-on-surface-variant font-medium max-w-full">
 <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">calendar_today</span> 2023-10-24 上传</span>
 <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">account_circle</span> Admin</span>
 <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">tag</span> 标签: 高数, 极限, 函数</span>
 </div>
 </div>
-<div class="flex gap-2">
-<span class="px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm border border-primary/10 shadow-sm">共 124 个切片</span>
+<div class="flex gap-2 shrink-0">
+<span id="knowledge-detail-badge" class="px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm border border-primary/10 shadow-sm whitespace-nowrap">共 124 个切片</span>
 </div>
 </div>
 <!-- Slicing Preview Section -->
 <div class="flex-1 flex flex-col">
-<h4 class="font-headline-sm text-headline-sm text-on-surface mb-4 flex items-center gap-2">
+<h4 id="knowledge-slice-preview-header" class="font-headline-sm text-headline-sm text-on-surface mb-4 flex items-center gap-2">
 <span class="material-symbols-outlined text-primary">data_object</span>
                         文档切片预览 (Document Slice Preview)
                     </h4>
-<div class="flex-1 overflow-y-auto grid grid-cols-2 gap-4 pr-2 pb-2">
+<div id="knowledge-slice-grid" class="flex-1 overflow-y-auto grid grid-cols-2 gap-4 pr-2 pb-2">
 <!-- Slice Card 1 -->
 <div class="bg-white/70 backdrop-blur-md rounded-xl p-4 border border-white/90 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group relative">
 <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
@@ -231,9 +238,12 @@
   const docList = document.querySelector(".flex-1.overflow-y-auto.pr-2.flex.flex-col.gap-3");
   const countLabel = document.querySelector(".glass-card.p-4 h3 + p");
   const detailTitle = document.querySelector(".glass-card.p-6 h2");
-  const detailMeta = document.querySelector(".glass-card.p-6 .flex.gap-4.text-sm");
-  const detailChunkBadge = document.querySelector(".glass-card.p-6 .flex.gap-2 span");
-  const sliceGrid = document.querySelector(".grid.grid-cols-2.gap-4");
+  const detailMeta = document.getElementById("knowledge-detail-meta");
+  const detailChunkBadge = document.getElementById("knowledge-detail-badge");
+  const sliceGrid = document.getElementById("knowledge-slice-grid");
+  const slicePreviewHeader = document.getElementById("knowledge-slice-preview-header");
+  const SLICE_GRID_CLASS_DEFAULT = "flex-1 overflow-y-auto grid grid-cols-2 gap-4 pr-2 pb-2 min-w-0";
+  const SLICE_GRID_CLASS_FULL = "flex-1 overflow-y-auto pr-2 pb-2 flex flex-col w-full min-w-0";
   const topActions = document.querySelector(".flex.justify-end.gap-3");
   const searchInput = document.querySelector('input[placeholder="搜索知识点、文档..."]');
   const input = document.createElement("input");
@@ -250,6 +260,10 @@
   let selectedWikiPageId = null;
   let seedQualityReport = null;
   const knowledgeTabs = Array.from(document.querySelectorAll("[data-knowledge-tab]"));
+  const courseSelect = document.getElementById("knowledge-course-select");
+  const courseLabel = document.getElementById("knowledge-course-label");
+  let courseOptions = [];
+  let materialsLoaded = false;
 
   input.type = "file";
   input.accept = ".pdf,.docx,.md,.txt";
@@ -285,6 +299,41 @@
     return page.owner_id === currentUser.id ? "我的 Wiki" : "公共 Wiki";
   }
 
+  function updateCourseLabel() {
+    if (!courseLabel) {
+      return;
+    }
+    const title = currentCourse?.title || "未命名课程";
+    const wikiCount = wikiPages.length;
+    const materialCount = materials.length;
+    courseLabel.textContent = `${title} · ${materialCount} 份资料 · ${wikiCount} 个 Wiki`;
+  }
+
+  async function syncCourseSelector() {
+    if (!courseSelect) {
+      return;
+    }
+    try {
+      const page = await api.listCourses({ pageSize: 50, status: "active" });
+      courseOptions = page.items || [];
+      if (!courseOptions.length) {
+        courseSelect.innerHTML = "";
+        if (courseLabel) courseLabel.textContent = "暂无课程，请先创建";
+        return;
+      }
+      currentCourseId = currentCourseId || await api.resolveCourseId();
+      courseSelect.innerHTML = courseOptions.map((course) => (
+        `<option value="${course.id}" ${course.id === currentCourseId ? "selected" : ""}>${escapeHtml(course.title)}</option>`
+      )).join("");
+      const selected = courseOptions.find((course) => course.id === currentCourseId) || courseOptions[0];
+      currentCourseId = selected.id;
+      window.localStorage.setItem("zhixue_current_course_id", currentCourseId);
+      updateCourseLabel();
+    } catch (error) {
+      if (courseLabel) courseLabel.textContent = error.message || "课程加载失败";
+    }
+  }
+
   function setKnowledgeTab(activeLabel) {
     knowledgeTabs.forEach((button) => {
       const isActive = button.dataset.knowledgeTab === activeLabel;
@@ -296,6 +345,12 @@
     });
     if (topActions) {
       topActions.classList.toggle("invisible", activeLabel !== "资料库");
+    }
+    if (slicePreviewHeader) {
+      slicePreviewHeader.style.display = activeLabel === "资料库" ? "" : "none";
+    }
+    if (sliceGrid) {
+      sliceGrid.className = activeLabel === "资料库" ? SLICE_GRID_CLASS_DEFAULT : SLICE_GRID_CLASS_FULL;
     }
   }
 
@@ -463,7 +518,7 @@
     if (detailMeta) {
       detailMeta.innerHTML = `
         <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">hub</span>Obsidian 式力导向网络 · merged 视图</span>
-        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">palette</span>节点颜色 = 掌握度</span>`;
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">palette</span>颜色+大小 = 掌握度（绿大→红小）</span>`;
     }
     if (detailChunkBadge) detailChunkBadge.textContent = "加载中";
     sliceGrid.innerHTML = `
@@ -474,36 +529,61 @@
         </div>
       </div>`;
     try {
+      if (!materialsLoaded) {
+        await loadMaterials();
+      }
       currentCourseId = currentCourseId || await api.resolveCourseId();
       const graph = await (api.getWikiGraph ? api.getWikiGraph(currentCourseId, { view: "merged" }) : api.request(`/wiki/graph?course_id=${encodeURIComponent(currentCourseId)}&view=merged`));
       const nodes = graph.nodes || [];
       const links = graph.links || [];
+      const courseTitle = currentCourse?.title || "当前课程";
       if (detailChunkBadge) detailChunkBadge.textContent = `${nodes.length} 节点 · ${links.length} 关系`;
+      if (detailMeta) {
+        detailMeta.innerHTML = `
+          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">school</span>${escapeHtml(courseTitle)}</span>
+          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">hub</span>Obsidian 式力导向网络 · merged 视图</span>
+          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">palette</span>颜色+大小 = 掌握度（绿大→红小）</span>`;
+      }
       if (!nodes.length) {
         sliceGrid.innerHTML = "";
+        const wikiHint = wikiPages.length
+          ? `本课程已有 ${wikiPages.length} 个 Wiki 页面，但图谱接口返回 0 个节点。请点下方「刷新图谱」重试；若仍为空，可切换到其他课程或重新生成 Wiki。`
+          : materials.length
+            ? `本课程有 ${materials.length} 份资料，但尚无 Wiki。图谱节点来自 Wiki，不是资料本身——请依次点击「解析资料」→「入库并生成 Wiki」，或「从资料生成 Wiki」。`
+            : "与 AI 助手对话或从资料生成 Wiki 后，节点与关系会在此以力导向图呈现。";
         window.ZhixueUI?.renderEmptyState?.(sliceGrid, {
           mascot: "zhizhi",
-          title: "还没有可展示的个人 Wiki 图谱",
-          description: "与 AI 助手对话或从资料生成 Wiki 后，节点与关系会在此以力导向图呈现。",
+          title: `「${courseTitle}」暂无可展示的知识图谱`,
+          description: wikiHint,
+          actionLabel: wikiPages.length ? "刷新图谱" : (materials.length ? "去生成 Wiki" : ""),
+          actionOnClick: wikiPages.length
+            ? () => renderWikiGraph()
+            : (materials.length ? () => {
+                setKnowledgeTab("资料库");
+                renderMaterials();
+                api.toast("请选择资料后点击「从资料生成 Wiki」", "info");
+              } : undefined),
         });
         return;
       }
       sliceGrid.innerHTML = `
-        <section class="col-span-2 bg-white/75 rounded-xl border border-primary/15 p-5 flex flex-col lg:flex-row gap-4" style="min-height:520px">
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between mb-3">
-              <div>
+        <section class="w-full min-w-0 block bg-white/75 rounded-xl border border-primary/15 p-5" style="min-height:520px">
+          <div class="flex flex-col xl:grid xl:grid-cols-[minmax(0,1fr)_280px] gap-4 w-full min-w-0">
+          <div class="min-w-0 w-full order-1">
+            <div class="flex flex-wrap items-start justify-between gap-2 mb-3">
+              <div class="min-w-0 flex-1">
                 <h3 class="font-headline-sm text-on-surface">力导向知识网络</h3>
-                <p class="text-xs text-on-surface-variant mt-1">拖拽节点 · 滚轮缩放 · 实线=个人边 · 虚线=公有邻居</p>
+                <p class="text-xs text-on-surface-variant mt-1 leading-relaxed">悬停查看知识点 · 拖拽节点 · 滚轮缩放 · 实线=个人边 · 虚线=公有邻居</p>
               </div>
-              <span class="text-xs font-bold text-primary">${nodes.length} 节点 · ${links.length} 关系</span>
+              <span class="text-xs font-bold text-primary whitespace-nowrap shrink-0">${nodes.length} 节点 · ${links.length} 关系</span>
             </div>
-            <div id="wiki-force-graph-host" class="rounded-xl bg-surface-container-low/55 border border-white/90 relative" style="height:480px"></div>
+            <div id="wiki-force-graph-host" class="w-full rounded-xl bg-surface-container-low/55 border border-white/90 relative" style="height:480px;min-width:0;width:100%"></div>
           </div>
-          <aside id="wiki-graph-detail" class="w-full lg:w-72 shrink-0 rounded-xl bg-white/90 border border-primary/10 p-4 text-sm text-on-surface-variant">
+          <aside id="wiki-graph-detail" class="w-full xl:w-auto min-w-0 order-2 rounded-xl bg-white/90 border border-primary/10 p-4 text-sm text-on-surface-variant">
             <p class="text-xs font-bold text-primary mb-2">节点详情</p>
-            <p>点击左侧节点查看 Wiki 摘要与掌握度。</p>
+            <p class="leading-relaxed">悬停或点击左侧节点查看知识点名称、摘要与掌握度。</p>
           </aside>
+          </div>
         </section>`;
       if (wikiGraphInstance?.destroy) wikiGraphInstance.destroy();
       const host = document.getElementById("wiki-force-graph-host");
@@ -514,12 +594,13 @@
         onNodeClick(node) {
           if (!detailPanel) return;
           const masteryPct = Math.round((Number(node.mastery_score) || 0) * 100);
+          const tier = window.ZhixueForceGraph?.masteryTier?.(node.mastery_score) || { label: "掌握度", color: "#64748b" };
           detailPanel.innerHTML = `
             <p class="text-xs font-bold text-primary mb-2">节点详情</p>
             <h4 class="font-headline-sm text-on-surface mb-1">${escapeHtml(node.title)}</h4>
             <p class="text-xs mb-2">${escapeHtml(node.summary || "暂无摘要")}</p>
             <div class="flex flex-wrap gap-2 text-[11px] mb-3">
-              <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">掌握 ${masteryPct}%</span>
+              <span class="px-2 py-0.5 rounded-full font-bold" style="background:${tier.color}22;color:${tier.color}">${tier.label} ${masteryPct}%</span>
               <span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">${escapeHtml(node.scope || "personal")}</span>
             </div>
             ${node.page_type === "wiki" && !String(node.id).startsWith("kp:") ? `<button type="button" data-wiki-page-id="${node.id}" class="text-xs font-bold text-primary hover:underline">打开 Wiki 详情 →</button>` : `<p class="text-[11px]">公有知识邻居，可在对话/练习中逐步掌握。</p>`}`;
@@ -1180,7 +1261,8 @@
   }
 
   async function loadMaterials() {
-    currentCourseId = await api.resolveCourseId();
+    await syncCourseSelector();
+    currentCourseId = currentCourseId || await api.resolveCourseId();
     const [course, me, materialPage, wikiPage] = await Promise.all([
       api.getCourse(currentCourseId).catch(() => null),
       api.getMe().catch(() => null),
@@ -1191,6 +1273,11 @@
     currentUser = me;
     materials = materialPage.items || [];
     wikiPages = wikiPage.items || [];
+    materialsLoaded = true;
+    if (courseSelect) {
+      courseSelect.value = currentCourseId;
+    }
+    updateCourseLabel();
     setUploading(false);
     renderMaterials();
   }
@@ -1494,6 +1581,15 @@
         renderMaterials();
       }
     });
+  });
+
+  courseSelect?.addEventListener("change", async () => {
+    if (!courseSelect.value || courseSelect.value === currentCourseId) {
+      return;
+    }
+    currentCourseId = courseSelect.value;
+    window.localStorage.setItem("zhixue_current_course_id", currentCourseId);
+    api.navigate(`/knowledge?course_id=${encodeURIComponent(currentCourseId)}`);
   });
 
   ensurePipelineButtons();

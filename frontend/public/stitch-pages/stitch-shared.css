@@ -741,3 +741,23 @@ body {
     transform: none !important;
   }
 }
+
+.zhixue-markdown-block {
+  color: var(--zhixue-on-surface-variant);
+  text-align: left;
+}
+
+.zhixue-markdown-block h2,
+.zhixue-markdown-block h3,
+.zhixue-markdown-block h4 {
+  color: var(--zhixue-on-surface);
+}
+
+.zhixue-markdown-block ul {
+  padding-left: 0;
+}
+
+.zhixue-markdown-block .zhixue-md-table th,
+.zhixue-markdown-block .zhixue-md-table td {
+  vertical-align: top;
+}

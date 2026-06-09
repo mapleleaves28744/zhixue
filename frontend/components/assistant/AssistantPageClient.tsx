@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { ActivityDetailDialog } from "@/components/assistant/ActivityDetailDialog"
 import { AgentReplyBlock, TutorReplyBlock } from "@/components/assistant/ReplyBlocks"
+import { extractChatArtifacts, extractChatMediaArtifacts } from "@/components/assistant/extractChatArtifacts"
 import { extractSpeechAudio } from "@/components/assistant/extractSpeechAudio"
 import { ConversationHistoryHover } from "@/components/assistant/ConversationHistoryHover"
 import { ModeToggle } from "@/components/assistant/ModeToggle"
@@ -19,12 +20,14 @@ import {
   createAgentConversation,
   getAgentTask,
   listAgentConversationMessages,
+  listAgentConversations,
   listAgentTaskEvents,
   requeueAgentTask,
   resumeAgentTask,
   sendAgentConversationMessage,
   streamAgentTaskEvents,
 } from "@/services/agentService"
+import { resolveCourseIdFromList, resolveCourseIdSyncFallback } from "@/lib/resolveCourse"
 import { listCourses } from "@/services/courseService"
 import { listWikiPages } from "@/services/wikiService"
 import type { AgentMessage, AgentTask, AgentTaskEvent, AssistantMode } from "@/types/agent"
@@ -56,6 +59,7 @@ type ChatItem =
       finalAnswer: string
       streaming: boolean
       error: string | null
+      payloadArtifacts?: Record<string, unknown>[]
     }
 
 type DetailTarget =
@@ -85,31 +89,71 @@ function eventProducesResource(eventType: string, data: Record<string, unknown>)
   return false
 }
 
+async function hydrateAgentMessage(
+  item: Extract<ChatItem, { kind: "agent" }>,
+): Promise<Extract<ChatItem, { kind: "agent" }>> {
+  try {
+    const [task, history] = await Promise.all([
+      getAgentTask(item.taskId),
+      listAgentTaskEvents(item.taskId),
+    ])
+    const events: AgentTaskEvent[] = history.items.map((evt) => ({
+      type: evt.event_type,
+      data: evt.payload,
+    }))
+    const completed = [...events].reverse().find((e) => e.type === "completed")
+    const failed = [...events].reverse().find((e) => e.type === "failed")
+    const terminal = ["succeeded", "failed", "cancelled"].includes(task.status)
+    return {
+      ...item,
+      task,
+      events,
+      finalAnswer: completed
+        ? normalizeAgentAnswer(String(completed.data.final_answer || item.finalAnswer))
+        : item.finalAnswer,
+      error: failed
+        ? String(failed.data.error_message || "任务失败")
+        : task.error_message || item.error,
+      streaming: !terminal,
+    }
+  } catch {
+    return item
+  }
+}
+
 function messagesFromHistory(items: AgentMessage[]): ChatItem[] {
-  return items.slice(-40).map((m) => {
+  const result: ChatItem[] = []
+  let lastUserContent = ""
+
+  for (const m of items.slice(-40)) {
     if (m.role === "user") {
-      return { id: m.id, kind: "user" as const, content: m.content }
+      lastUserContent = m.content
+      result.push({ id: m.id, kind: "user", content: m.content })
+      continue
     }
     if (m.task_id) {
-      return {
+      result.push({
         id: m.id,
-        kind: "agent" as const,
+        kind: "agent",
         taskId: m.task_id,
-        userQuestion: "",
+        userQuestion: lastUserContent,
         events: [],
         task: null,
         finalAnswer: normalizeAgentAnswer(m.content),
         streaming: false,
         error: null,
-      }
+        payloadArtifacts: (m.payload?.artifacts as Record<string, unknown>[]) || [],
+      })
+      continue
     }
-    return {
+    result.push({
       id: m.id,
-      kind: "tutor" as const,
+      kind: "tutor",
       content: m.content,
       citations: (m.payload?.citations as TutorCitation[]) || [],
-    }
-  })
+    })
+  }
+  return result
 }
 
 export function AssistantPageClient() {
@@ -146,14 +190,22 @@ export function AssistantPageClient() {
 
   useEffect(() => {
     listCourses()
-      .then((data) => {
+      .then(async (data) => {
         setCourses(data.items)
-        const saved = localStorage.getItem(COURSE_KEY)
-        const initial = data.items.find((c) => c.id === saved)?.id || data.items[0]?.id || ""
-        setCourseId(initial)
+        const urlCourseId = searchParams.get("course_id")
+        if (!data.items.length) {
+          setCourseId("")
+          return
+        }
+        try {
+          const initial = await resolveCourseIdFromList(data.items, urlCourseId)
+          setCourseId(initial)
+        } catch {
+          setCourseId(resolveCourseIdSyncFallback(data.items))
+        }
       })
       .catch(() => toast.error("加载课程失败"))
-  }, [])
+  }, [searchParams])
 
   useEffect(() => {
     if (!courseId) return
@@ -201,27 +253,69 @@ export function AssistantPageClient() {
     return conv.id
   }, [conversationId, courseId])
 
-  const applyConversation = useCallback((id: string, items: AgentMessage[]) => {
-    setConversationId(id)
-    localStorage.setItem(`${CONVERSATION_KEY}_${courseId}`, id)
-    setMessages(messagesFromHistory(items))
-  }, [courseId])
+  const watchAgentTaskRef = useRef<(taskId: string) => void>(() => {})
+
+  const hydrateHistoryMessages = useCallback(async (items: AgentMessage[]) => {
+    const base = messagesFromHistory(items)
+    const hydrated = await Promise.all(
+      base.map(async (item) => (item.kind === "agent" ? hydrateAgentMessage(item) : item)),
+    )
+    setMessages(hydrated)
+    for (const item of hydrated) {
+      if (
+        item.kind === "agent" &&
+        item.streaming &&
+        !watchingTasksRef.current.has(item.taskId)
+      ) {
+        watchAgentTaskRef.current(item.taskId)
+      }
+    }
+  }, [])
+
+  const applyConversation = useCallback(
+    async (id: string, items: AgentMessage[]) => {
+      setConversationId(id)
+      localStorage.setItem(`${CONVERSATION_KEY}_${courseId}`, id)
+      await hydrateHistoryMessages(items)
+    },
+    [courseId, hydrateHistoryMessages],
+  )
 
   const loadHistory = useCallback(async () => {
     if (!conversationId) return
     try {
       const { items } = await listAgentConversationMessages(conversationId)
-      setMessages(messagesFromHistory(items))
+      await hydrateHistoryMessages(items)
     } catch {
       /* ignore */
     }
-  }, [conversationId])
+  }, [conversationId, hydrateHistoryMessages])
 
   useEffect(() => {
-    if (courseId) {
-      const saved = localStorage.getItem(`${CONVERSATION_KEY}_${courseId}`)
+    if (!courseId) return
+    const initConversation = async () => {
+      let saved = localStorage.getItem(`${CONVERSATION_KEY}_${courseId}`)
+      if (!saved) {
+        try {
+          const { items } = await listAgentConversations()
+          const latest = items
+            .filter((c) => c.course_id === courseId)
+            .sort((a, b) => {
+              const ta = new Date(a.last_message_at || a.updated_at).getTime()
+              const tb = new Date(b.last_message_at || b.updated_at).getTime()
+              return tb - ta
+            })[0]
+          if (latest) {
+            saved = latest.id
+            localStorage.setItem(`${CONVERSATION_KEY}_${courseId}`, saved)
+          }
+        } catch {
+          /* ignore */
+        }
+      }
       setConversationId(saved)
     }
+    void initConversation()
   }, [courseId])
 
   useEffect(() => {
@@ -353,6 +447,12 @@ export function AssistantPageClient() {
     },
     [bumpResourceList, patchAgentMessage],
   )
+
+  useEffect(() => {
+    watchAgentTaskRef.current = (taskId: string) => {
+      void watchAgentTask(taskId)
+    }
+  }, [watchAgentTask])
 
   const approveAgentTask = async (taskId: string, approved: boolean) => {
     await resumeAgentTask(taskId, approved)
@@ -532,6 +632,16 @@ export function AssistantPageClient() {
               const statusLabel = agentStatusLine(msg.events, msg.streaming)
               const toolCount = msg.task?.tool_call_count ?? 0
               const speechAudio = extractSpeechAudio(msg.events, msg.task)
+              const chatArtifacts = extractChatArtifacts(
+                msg.events,
+                msg.task,
+                msg.payloadArtifacts,
+              )
+              const mediaArtifacts = extractChatMediaArtifacts(
+                msg.events,
+                msg.task,
+                msg.payloadArtifacts,
+              )
               return (
                 <div key={msg.id} className="flex justify-start">
                   <AgentReplyBlock
@@ -541,6 +651,8 @@ export function AssistantPageClient() {
                     error={msg.error}
                     toolCount={toolCount}
                     speechAudio={speechAudio}
+                    chatArtifacts={chatArtifacts}
+                    mediaArtifacts={mediaArtifacts}
                     onOpenDetail={() => setDetailTarget({ kind: "agent", taskId: msg.taskId })}
                   />
                 </div>

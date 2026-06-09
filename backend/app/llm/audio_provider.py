@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import logging
+import struct
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -91,13 +92,16 @@ class MockAudioProvider(BaseAudioProvider):
         response_format: str = "wav",
         model: str | None = None,
     ) -> TTSResult:
-        placeholder = f"MOCK_AUDIO:{response_format}:{speed}:{voice or 'default'}:{text[:120]}"
+        duration_ms = max(200, int(len(text) * 20 / max(speed, 0.5)))
+        audio_format = response_format if response_format in {"wav", "mp3", "pcm16"} else "wav"
+        wav_bytes = _mock_silent_wav(duration_ms=duration_ms)
         return TTSResult(
-            audio_base64=base64.b64encode(placeholder.encode("utf-8")).decode("utf-8"),
-            duration_ms=max(1, len(text) * 20),
-            format=response_format,
+            audio_base64=base64.b64encode(wav_bytes).decode("ascii"),
+            duration_ms=duration_ms,
+            format=audio_format if audio_format != "pcm16" else "wav",
             model=model or "mock-tts",
             provider=self.provider_name,
+            raw={"mock": True, "text_preview": text[:120]},
         )
 
 
@@ -280,6 +284,28 @@ def build_audio_provider() -> BaseAudioProvider:
             fallback=MockAudioProvider(),
         )
     return MockAudioProvider()
+
+
+def _mock_silent_wav(*, duration_ms: int = 500, sample_rate: int = 8000) -> bytes:
+    num_samples = max(1, sample_rate * duration_ms // 1000)
+    data_size = num_samples * 2
+    header = struct.pack(
+        "<4sI4s4sIHHIIHH4sI",
+        b"RIFF",
+        36 + data_size,
+        b"WAVE",
+        b"fmt ",
+        16,
+        1,
+        1,
+        sample_rate,
+        sample_rate * 2,
+        2,
+        16,
+        b"data",
+        data_size,
+    )
+    return header + (b"\x00" * data_size)
 
 
 def _safe_audio_byte_count(audio_base64: str) -> int:

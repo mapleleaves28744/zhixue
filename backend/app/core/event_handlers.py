@@ -55,8 +55,9 @@ async def on_quiz_submit(event: Event) -> None:
 
         async with AsyncSessionLocal() as db:
             mastery = MasteryService(db)
+            quiz_knowledge_id = event.data.get("quiz_knowledge_id")
             for item in event.data.get("answers") or []:
-                kid = item.get("knowledge_id")
+                kid = item.get("knowledge_id") or quiz_knowledge_id
                 if not kid:
                     continue
                 await mastery.apply_practice_update(
@@ -94,14 +95,23 @@ async def on_chat_completed(event: Event) -> None:
         from app.services.mastery_service import MasteryService
 
         async with AsyncSessionLocal() as db:
+            mastery = MasteryService(db)
+            touched_ids = event.data.get("extract_result", {}).get("touched_knowledge_ids") or []
+            for kid in touched_ids:
+                await mastery.apply_ask_update(
+                    user_id=UUID(str(user_id)),
+                    course_id=UUID(str(course_id)),
+                    knowledge_id=UUID(str(kid)),
+                    understood=False,
+                )
             if knowledge_id:
-                mastery = MasteryService(db)
                 await mastery.apply_ask_update(
                     user_id=UUID(str(user_id)),
                     course_id=UUID(str(course_id)),
                     knowledge_id=UUID(str(knowledge_id)),
                     understood=False,
                 )
+            if touched_ids or knowledge_id:
                 await mastery.sync_profile_snapshot(
                     user_id=UUID(str(user_id)),
                     course_id=UUID(str(course_id)),

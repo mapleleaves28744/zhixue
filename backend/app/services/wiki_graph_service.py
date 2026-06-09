@@ -12,6 +12,8 @@ from app.services.course_service import CourseService
 from app.services.mastery_service import MasteryService
 from app.services.wiki_service import WikiService
 
+BIDIRECTIONAL_RELATION_TYPES = frozenset({"similar", "confused_with", "related"})
+
 
 class WikiGraphService:
     def __init__(self, db: AsyncSession) -> None:
@@ -39,7 +41,12 @@ class WikiGraphService:
             page=1,
             page_size=500,
         )
-        mastery_map = await self.mastery.get_mastery_map(user_id=current_user.id, course_id=course_id)
+        await self._bind_wiki_pages_to_knowledge(course_id=course_id, pages=pages)
+        mastery_map = await self.mastery.get_mastery_map(
+            user_id=current_user.id,
+            course_id=course_id,
+            apply_decay=True,
+        )
 
         page_by_id = {p.id: p for p in pages}
         page_by_kp: dict[UUID, Any] = {}
@@ -77,23 +84,51 @@ class WikiGraphService:
                     continue
                 meta = link.extra_meta or {}
                 links.append(
-                    {
-                        "id": str(link.id),
-                        "source": str(link.source_page_id),
-                        "target": str(link.target_page_id),
-                        "source_page_id": str(link.source_page_id),
-                        "target_page_id": str(link.target_page_id),
-                        "relation_type": link.relation_type,
-                        "evidence": meta.get("evidence"),
-                        "confidence": float(meta.get("confidence", 1.0)),
-                        "is_inferred": bool(meta.get("is_inferred", False)),
-                        "scope": "personal",
-                        "line_style": "solid",
-                    }
+                    self._format_link(
+                        link_id=str(link.id),
+                        source=str(link.source_page_id),
+                        target=str(link.target_page_id),
+                        relation_type=link.relation_type,
+                        evidence=meta.get("evidence"),
+                        confidence=float(meta.get("confidence", 1.0)),
+                        is_inferred=bool(meta.get("is_inferred", False)),
+                        scope="personal",
+                        line_style="solid",
+                    )
+                )
+
+        personal_kp_ids = {
+            p.knowledge_id for p in pages if p.owner_id == current_user.id and p.knowledge_id
+        }
+        if personal_kp_ids and self.relations is not None:
+            kp_edges = await self.relations.list_by_course(
+                course_id,
+                scopes=["personal"],
+            )
+            for edge in kp_edges:
+                if edge.source_knowledge_id not in personal_kp_ids and edge.target_knowledge_id not in personal_kp_ids:
+                    continue
+                src_page = page_by_kp.get(edge.source_knowledge_id)
+                tgt_page = page_by_kp.get(edge.target_knowledge_id)
+                if not src_page or not tgt_page:
+                    continue
+                if src_page.id not in visible_ids or tgt_page.id not in visible_ids:
+                    continue
+                links.append(
+                    self._format_link(
+                        link_id=str(edge.id),
+                        source=str(src_page.id),
+                        target=str(tgt_page.id),
+                        relation_type=edge.relation_type,
+                        evidence=edge.evidence,
+                        confidence=float(edge.confidence),
+                        is_inferred=edge.created_by == "ai",
+                        scope="personal",
+                        line_style="solid",
+                    )
                 )
 
         if view == "merged":
-            personal_kp_ids = {p.knowledge_id for p in pages if p.owner_id == current_user.id and p.knowledge_id}
             if personal_kp_ids:
                 public_kps = await self.knowledge.list_visible_by_course(
                     course_id=course_id,
@@ -137,19 +172,17 @@ class WikiGraphService:
                     tgt_id = str(tgt_page.id) if tgt_page else f"kp:{edge.target_knowledge_id}"
                     if any(n["id"] == src_id for n in nodes) and any(n["id"] == tgt_id for n in nodes):
                         links.append(
-                            {
-                                "id": str(edge.id),
-                                "source": src_id,
-                                "target": tgt_id,
-                                "source_page_id": src_id,
-                                "target_page_id": tgt_id,
-                                "relation_type": edge.relation_type,
-                                "evidence": edge.evidence,
-                                "confidence": float(edge.confidence),
-                                "is_inferred": edge.created_by == "ai",
-                                "scope": "public",
-                                "line_style": "dashed",
-                            }
+                            self._format_link(
+                                link_id=str(edge.id),
+                                source=src_id,
+                                target=tgt_id,
+                                relation_type=edge.relation_type,
+                                evidence=edge.evidence,
+                                confidence=float(edge.confidence),
+                                is_inferred=edge.created_by == "ai",
+                                scope="public",
+                                line_style="dashed",
+                            )
                         )
 
         seen: set[str] = set()
@@ -162,6 +195,54 @@ class WikiGraphService:
             unique_links.append(link)
 
         return {"nodes": nodes, "links": unique_links, "view": view}
+
+    async def _bind_wiki_pages_to_knowledge(self, *, course_id: UUID, pages: list[Any]) -> None:
+        if self.knowledge is None:
+            return
+        changed = False
+        for page in pages:
+            if page.knowledge_id:
+                continue
+            kp = await self.knowledge.find_by_course_and_name(
+                course_id,
+                page.owner_id,
+                page.title,
+            )
+            if kp is None:
+                continue
+            page.knowledge_id = kp.id
+            changed = True
+        if changed:
+            await self.db.flush()
+
+    @staticmethod
+    def _format_link(
+        *,
+        link_id: str,
+        source: str,
+        target: str,
+        relation_type: str,
+        evidence: str | None,
+        confidence: float,
+        is_inferred: bool,
+        scope: str,
+        line_style: str,
+    ) -> dict[str, Any]:
+        direction = "both" if relation_type in BIDIRECTIONAL_RELATION_TYPES else "forward"
+        return {
+            "id": link_id,
+            "source": source,
+            "target": target,
+            "source_page_id": source,
+            "target_page_id": target,
+            "relation_type": relation_type,
+            "evidence": evidence,
+            "confidence": confidence,
+            "is_inferred": is_inferred,
+            "scope": scope,
+            "line_style": line_style,
+            "direction": direction,
+        }
 
     async def get_subgraph(
         self,

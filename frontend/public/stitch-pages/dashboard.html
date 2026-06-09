@@ -114,7 +114,7 @@
 </div>
 <div class="glass-card p-4 relative overflow-hidden" id="dashboard-knowledge-graph-wrap" style="min-height:300px">
 <div class="flex items-center justify-between mb-2 px-1">
-<p class="text-xs text-on-surface-variant">迷你力导向图 · 颜色表示掌握度 · 点击查看知识库完整图谱</p>
+<p class="text-xs text-on-surface-variant">迷你力导向图 · 绿大=熟练 · 红小=薄弱 · 悬停查看知识点</p>
 <span id="dashboard-graph-meta" class="text-[11px] font-bold text-primary">加载中…</span>
 </div>
 <div id="dashboard-knowledge-graph" class="rounded-xl bg-white/50 border border-white/80 relative" style="height:260px"></div>
@@ -360,6 +360,17 @@
         legend: false,
         onNodeClick() {
           api.navigate(`/knowledge?course_id=${courseId}`);
+        },
+        onNodeHover(node) {
+          if (!meta) return;
+          if (!node) {
+            meta.textContent = `${nodes.length} 节点 · ${links.length} 关系`;
+            return;
+          }
+          const masteryPct = Math.round((Number(node.mastery_score) || 0) * 100);
+          const tier = window.ZhixueForceGraph?.masteryTier?.(node.mastery_score);
+          const tierLabel = tier?.label || "掌握度";
+          meta.textContent = `${node.title || "未命名"} · ${tierLabel} ${masteryPct}%`;
         },
       });
     } catch (error) {

@@ -3,6 +3,9 @@
 import type { ReactNode } from "react"
 import { MarkdownRenderer } from "@/components/markdown/MarkdownRenderer"
 import { normalizeAgentAnswer } from "@/lib/normalizeAgentAnswer"
+import { buildApiUrl } from "@/lib/api"
+import { getToken } from "@/lib/auth"
+import { normalizeAudioMime } from "@/lib/media"
 import type { AgentTaskEvent } from "@/types/agent"
 import { eventLabel } from "./streamLabels"
 
@@ -16,15 +19,26 @@ function JsonBlock({ value }: { value: unknown }) {
   )
 }
 
-function AudioPreview({ base64, format }: { base64: string; format?: string }) {
-  const mime = format === "pcm16" ? "audio/wav" : `audio/${format || "wav"}`
-  return (
-    <audio
-      controls
-      className="mt-2 w-full max-w-md"
-      src={`data:${mime};base64,${base64}`}
-    />
-  )
+function AudioPreview({
+  base64,
+  format,
+  assetId,
+  mimeType,
+}: {
+  base64?: string
+  format?: string
+  assetId?: string
+  mimeType?: string
+}) {
+  if (assetId) {
+    const url = buildApiUrl(`/api/v1/media-assets/${assetId}/file`)
+    const token = getToken()
+    const assetSrc = token ? `${url}?access_token=${encodeURIComponent(token)}` : url
+    return <audio controls className="mt-2 w-full max-w-md" src={assetSrc} />
+  }
+  if (!base64) return null
+  const mime = normalizeAudioMime(format, mimeType)
+  return <audio controls className="mt-2 w-full max-w-md" src={`data:${mime};base64,${base64}`} />
 }
 
 function summarizeOutput(output: unknown, toolName?: string): ReactNode {
@@ -33,14 +47,20 @@ function summarizeOutput(output: unknown, toolName?: string): ReactNode {
     return <p className="mt-1 whitespace-pre-wrap text-on-surface-variant">{String(output)}</p>
   }
   const record = output as Record<string, unknown>
-  if (record.audio_base64 && typeof record.audio_base64 === "string") {
+  const assetId = record.asset_id ? String(record.asset_id) : record.media_asset_id ? String(record.media_asset_id) : undefined
+  if (assetId || (record.audio_base64 && typeof record.audio_base64 === "string")) {
     return (
       <div className="mt-1 space-y-1">
         <p className="text-on-surface-variant">
           语音已生成 · {String(record.provider || "provider")} / {String(record.model || "model")}
           {record.text_length != null ? ` · ${record.text_length} 字` : ""}
         </p>
-        <AudioPreview base64={record.audio_base64} format={String(record.format || "wav")} />
+        <AudioPreview
+          base64={typeof record.audio_base64 === "string" ? record.audio_base64 : undefined}
+          format={String(record.format || "wav")}
+          assetId={assetId}
+          mimeType={String(record.mime_type || record.media_mime_type || "")}
+        />
       </div>
     )
   }

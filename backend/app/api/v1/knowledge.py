@@ -77,10 +77,14 @@ async def extract_knowledge(
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     await MaterialService(db).get_writable_material(body.material_id, current_user)
-    points = await KnowledgeService(db).extract_from_material(body.material_id)
+    points, relations_created = await KnowledgeService(db).extract_from_material(
+        body.material_id,
+        current_user=current_user,
+    )
     return success_response(
         {
             "extracted_count": len(points),
+            "relations_created": relations_created,
             "points": [
                 {
                     "id": str(p.id),
