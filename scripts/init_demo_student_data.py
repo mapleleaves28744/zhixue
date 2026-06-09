@@ -303,6 +303,8 @@ async def ensure_demo_student_data(
                 current_version=1,
                 extra_meta={"demo": True, "knowledge_key": page_data["key"]},
             )
+            source_point = knowledge_by_key[page_data["key"]]
+            page.knowledge_id = source_point.id
             db.add(page)
             await db.flush()
             db.add(
@@ -316,7 +318,6 @@ async def ensure_demo_student_data(
                     created_by=user.id,
                 )
             )
-            source_point = knowledge_by_key[page_data["key"]]
             db.add(
                 WikiSource(
                     page_id=page.id,
@@ -700,6 +701,10 @@ async def ensure_demo_student_data(
 
         await db.commit()
 
+        from scripts.import_seed_knowledge_graph import import_graph
+
+        seed_graph = await import_graph(course_id=course.id, owner_id=user.id)
+
         return {
             "username": username,
             "password": password,
@@ -712,6 +717,7 @@ async def ensure_demo_student_data(
             "recommendations": 3,
             "learning_events": len(blueprint["learning_events"]),
             "agent_task_id": str(task.id),
+            "seed_graph": seed_graph,
         }
 
 
@@ -747,6 +753,7 @@ def main() -> None:
     print(f"recommendations: {result['recommendations']}")
     print(f"learning_events: {result['learning_events']}")
     print(f"agent_task_id: {result['agent_task_id']}")
+    print(f"seed_graph: {result.get('seed_graph')}")
 
 
 if __name__ == "__main__":

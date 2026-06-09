@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, Request
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user
@@ -14,6 +16,7 @@ from app.services.knowledge_service import KnowledgeService
 from app.services.knowledge_search_service import KnowledgeSearchService
 from app.services.material_service import MaterialService
 from app.services.seed_knowledge_service import load_seed_quality_report
+from app.services.wiki_graph_service import WikiGraphService
 
 router = APIRouter()
 
@@ -46,6 +49,24 @@ async def search_knowledge(
         results,
         request=request,
     )
+
+
+@router.get("/graph/subgraph")
+async def get_knowledge_subgraph(
+    request: Request,
+    course_id: UUID = Query(...),
+    center_id: UUID = Query(...),
+    depth: int = Query(default=2, ge=1, le=4),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    data = await WikiGraphService(db).get_subgraph(
+        current_user=current_user,
+        course_id=course_id,
+        center_id=center_id,
+        depth=depth,
+    )
+    return success_response(data, request=request)
 
 
 @router.post("/extract-from-material")

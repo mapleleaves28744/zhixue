@@ -225,6 +225,12 @@ def build_multimodal_provider() -> BaseMultimodalProvider:
     return MockMultimodalProvider()
 
 
+def uses_real_image_generation(provider: BaseMultimodalProvider | None = None) -> bool:
+    """是否配置了可用的文生图 Provider（非 Mock 占位）。"""
+    provider = provider or build_multimodal_provider()
+    return not isinstance(provider, MockMultimodalProvider)
+
+
 _AGNES_ALLOWED_NUM_FRAMES = (81, 121, 161, 241, 441)
 
 

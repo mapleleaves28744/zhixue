@@ -348,56 +348,35 @@ async def summarize_wiki_page(
 async def get_wiki_graph(
     request: Request,
     course_id: UUID = Query(...),
+    view: str = Query(default="merged", pattern="^(personal|merged)$"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    svc = WikiService(db)
-    pages, _ = await svc.list_visible_pages(
+    from app.services.wiki_graph_service import WikiGraphService
+
+    data = await WikiGraphService(db).get_graph(
         current_user=current_user,
         course_id=course_id,
-        status="active",
-        page=1,
-        page_size=200,
+        view=view,
     )
+    return success_response(data, request=request)
 
-    visible_page_ids = {p.id for p in pages}
-    all_links: list[dict[str, object]] = []
-    for p in pages:
-        links = await svc.repo.list_links(p.id)
-        for link in links:
-            if link.source_page_id not in visible_page_ids or link.target_page_id not in visible_page_ids:
-                continue
-            all_links.append(
-                {
-                    "id": str(link.id),
-                    "source_page_id": str(link.source_page_id),
-                    "target_page_id": str(link.target_page_id),
-                    "relation_type": link.relation_type,
-                }
-            )
 
-    # Deduplicate links
-    seen: set[str] = set()
-    unique_links: list[dict[str, object]] = []
-    for link in all_links:
-        key = f"{link['source_page_id']}-{link['target_page_id']}-{link['relation_type']}"
-        if key not in seen:
-            seen.add(key)
-            unique_links.append(link)
+@router.get("/graph/subgraph")
+async def get_wiki_subgraph(
+    request: Request,
+    course_id: UUID = Query(...),
+    center_id: UUID = Query(...),
+    depth: int = Query(default=2, ge=1, le=4),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    from app.services.wiki_graph_service import WikiGraphService
 
-    return success_response(
-        {
-            "nodes": [
-                {
-                    "id": str(p.id),
-                    "owner_id": str(p.owner_id),
-                    "title": p.title,
-                    "summary": p.summary,
-                    "current_version": p.current_version,
-                }
-                for p in pages
-            ],
-            "links": unique_links,
-        },
-        request=request,
+    data = await WikiGraphService(db).get_subgraph(
+        current_user=current_user,
+        course_id=course_id,
+        center_id=center_id,
+        depth=depth,
     )
+    return success_response(data, request=request)

@@ -5,11 +5,12 @@
 > 模块：LLM Wiki
 >
 > Router tag：`wiki`
-> HTTP 操作数：**12**
+> HTTP 操作数：**13**
 
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
 |---|---|---|---|---|
-| `GET` | `/api/v1/wiki/graph` | JWT | course_id* | - |
+| `GET` | `/api/v1/wiki/graph` | JWT | course_id*, view | - |
+| `GET` | `/api/v1/wiki/graph/subgraph` | JWT | course_id*, center_id*, depth | - |
 | `GET` | `/api/v1/wiki/pages` | JWT | course_id*, status, page, page_size | - |
 | `POST` | `/api/v1/wiki/pages` | JWT | - | application/json: `WikiPageCreate` |
 | `POST` | `/api/v1/wiki/pages/generate-from-material` | JWT | - | application/json: `GenerateFromMaterialRequest` |

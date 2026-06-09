@@ -14,6 +14,7 @@ from app.models.user import User
 from app.models.wiki import WikiPage
 from app.repositories.course_repository import CourseRepository
 from app.repositories.knowledge_repository import KnowledgeRepository
+from app.repositories.media_repository import MediaRepository
 from app.repositories.resource_repository import ResourceRepository
 from app.repositories.wiki_repository import WikiRepository
 from app.schemas.resource import (
@@ -162,7 +163,13 @@ class ResourceService:
         current_user: User,
     ) -> GeneratedResourceRead:
         resource = await self._get_owned_resource(resource_id, current_user.id)
-        return GeneratedResourceRead.model_validate(resource)
+        data = GeneratedResourceRead.model_validate(resource).model_dump(mode="json")
+        if resource.resource_type == "image":
+            asset = await MediaRepository(self.db).get_asset_for_resource(resource.id, current_user.id)
+            if asset is not None:
+                data["media_asset_id"] = str(asset.id)
+                data["media_mime_type"] = asset.mime_type
+        return GeneratedResourceRead.model_validate(data)
 
     async def archive_resource(
         self,

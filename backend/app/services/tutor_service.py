@@ -119,7 +119,37 @@ class TutorService:
             "fallback_used": bool(data.get("fallback_used")),
             "failed_provider": data.get("failed_provider"),
             "fallback_reason": data.get("fallback_reason"),
+            "knowledge_extract": {},
+            "graph_context": data.get("graph_context") or {},
         }
+        try:
+            from app.services.chat_knowledge_pipeline import (
+                extract_knowledge_from_dialogue,
+                publish_chat_completed,
+                summarize_extract_for_ui,
+            )
+
+            extract_result = await extract_knowledge_from_dialogue(
+                self.db,
+                current_user=current_user,
+                course_id=course.id,
+                question=payload.question,
+                answer=answer,
+            )
+            response_payload["knowledge_extract"] = summarize_extract_for_ui(extract_result)
+            await publish_chat_completed(
+                user_id=current_user.id,
+                course_id=course.id,
+                question=payload.question,
+                answer=answer,
+                knowledge_id=payload.knowledge_id,
+                message_id=str(record.id),
+                extract_result=extract_result,
+                source="tutor_service",
+            )
+        except Exception:
+            pass
+
         return TutorChatResponse.model_validate(response_payload)
 
     async def stream_chat(

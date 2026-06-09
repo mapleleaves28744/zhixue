@@ -23,9 +23,11 @@ const LAST_RESOURCE_KEY = "zhixue_last_resource_id"
 interface ResourceSidePanelProps {
   courseId: string
   wikiPageId?: string | null
+  /** 递增时重新拉取资源列表（如 Agent 对话生成资源后） */
+  refreshSignal?: number
 }
 
-export function ResourceSidePanel({ courseId, wikiPageId }: ResourceSidePanelProps) {
+export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: ResourceSidePanelProps) {
   const [resourceType, setResourceType] = useState<ResourceType>("explanation")
   const [requirement, setRequirement] = useState("")
   const [generating, setGenerating] = useState(false)
@@ -35,32 +37,54 @@ export function ResourceSidePanel({ courseId, wikiPageId }: ResourceSidePanelPro
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
 
-  const loadHistory = useCallback(async (restoreLast = false) => {
-    if (!courseId) return
-    try {
-      const data = await listResources({ courseId, page, pageSize: 20, status: "all" })
-      setHistory(data.items)
-      setTotal(data.total)
+  const fetchPage = useCallback(
+    async (targetPage: number, restoreLast = false) => {
+      if (!courseId) return
+      try {
+        const data = await listResources({ courseId, page: targetPage, pageSize: 20, status: "all" })
+        setHistory(data.items)
+        setTotal(data.total)
 
-      const lastId = localStorage.getItem(`${LAST_RESOURCE_KEY}_${courseId}`)
-      if (restoreLast && lastId) {
-        try {
-          const resource = await getResource(lastId)
-          setSelected(resource)
-        } catch {
-          if (data.items[0]) setSelected(data.items[0])
+        const lastId = localStorage.getItem(`${LAST_RESOURCE_KEY}_${courseId}`)
+        if (restoreLast && lastId) {
+          try {
+            const resource = await getResource(lastId)
+            setSelected(resource)
+          } catch {
+            if (data.items[0]) setSelected(data.items[0])
+          }
+        } else if (restoreLast && data.items[0]) {
+          setSelected(data.items[0])
         }
-      } else if (restoreLast && data.items[0]) {
-        setSelected(data.items[0])
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "加载资源历史失败")
       }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "加载资源历史失败")
-    }
-  }, [courseId, page])
+    },
+    [courseId],
+  )
+
+  const loadHistory = useCallback(
+    async (restoreLast = false) => {
+      await fetchPage(page, restoreLast)
+    },
+    [fetchPage, page],
+  )
 
   useEffect(() => {
-    void loadHistory(true)
-  }, [loadHistory])
+    setPage(1)
+    void fetchPage(1, true)
+  }, [fetchPage])
+
+  useEffect(() => {
+    if (page === 1) return
+    void fetchPage(page, false)
+  }, [page, fetchPage])
+
+  useEffect(() => {
+    if (!refreshSignal) return
+    setPage(1)
+    void fetchPage(1, false)
+  }, [refreshSignal, fetchPage])
 
   const handleGenerate = async () => {
     if (!courseId) {
@@ -101,10 +125,15 @@ export function ResourceSidePanel({ courseId, wikiPageId }: ResourceSidePanelPro
     }
   }
 
-  const openResource = (resource: GeneratedResource) => {
-    setSelected(resource)
-    setDrawerOpen(true)
-    localStorage.setItem(`${LAST_RESOURCE_KEY}_${courseId}`, resource.id)
+  const openResource = async (resource: GeneratedResource) => {
+    try {
+      const detail = await getResource(resource.id)
+      setSelected(detail)
+      setDrawerOpen(true)
+      localStorage.setItem(`${LAST_RESOURCE_KEY}_${courseId}`, resource.id)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "加载资源详情失败")
+    }
   }
 
   return (
@@ -151,10 +180,14 @@ export function ResourceSidePanel({ courseId, wikiPageId }: ResourceSidePanelPro
                 onClick={() => openResource(item)}
                 className="flex h-24 flex-col items-start rounded-2xl border border-white/80 bg-white/50 p-3 text-left shadow-sm hover:border-primary/40"
               >
-                <span className="material-symbols-outlined text-lg text-primary">description</span>
+                <span className="material-symbols-outlined text-lg text-primary">
+                  {item.resource_type === "image" ? "image" : "description"}
+                </span>
                 <span className="mt-1 line-clamp-2 text-xs font-semibold">{item.title}</span>
                 <span className="mt-auto text-[10px] text-outline">
-                  {RESOURCE_TYPES.find((t) => t.value === item.resource_type)?.label || item.resource_type}
+                  {item.resource_type === "image"
+                    ? "教学插图"
+                    : RESOURCE_TYPES.find((t) => t.value === item.resource_type)?.label || item.resource_type}
                 </span>
               </button>
             ))}

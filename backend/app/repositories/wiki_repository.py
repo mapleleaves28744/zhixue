@@ -260,6 +260,7 @@ class WikiRepository:
         source_page_id: UUID,
         target_page_id: UUID,
         relation_type: str = "related",
+        extra_meta: dict | None = None,
     ) -> WikiLink | None:
         if source_page_id == target_page_id:
             return None
@@ -276,6 +277,7 @@ class WikiRepository:
             source_page_id=source_page_id,
             target_page_id=target_page_id,
             relation_type=relation_type,
+            extra_meta=extra_meta or {},
         )
         self.db.add(link)
         await self.db.flush()

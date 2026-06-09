@@ -168,14 +168,14 @@
 - [x] “答题竞技”继续使用独立答题视图，不被练习生成模式覆盖
 - [x] 课程 Wiki、资料库、图谱视图标签高亮跟随当前内容切换
 - [x] Wiki 详情增加明确的“返回 Wiki 列表”按钮
-- [x] 图谱视图接入真实 `/api/v1/wiki/graph`，展示 Wiki 节点、关系并支持点击节点打开详情
+- [x] 图谱视图接入真实 `/api/v1/wiki/graph`，使用 Obsidian 式 D3 力导向网络图（`zhixue-force-graph.js`），支持掌握度着色与节点详情侧栏
 
 ### 专项核验记录
 
 | 任务 | 核验 | 结果 |
 |------|------|------|
-| 静态交互契约 | `node scripts/check-knowledge-practice-ui.mjs` | 练习内嵌、答题竞技独立模式、Wiki 高亮/返回、真实图谱绑定通过 |
-| 浏览器交互 | `/knowledge` 标签切换、详情返回与图谱节点 | 高亮正确切换；8 个真实 Wiki 节点展示成功，节点可进入详情并返回列表 |
+| 静态交互契约 | `node scripts/check-knowledge-practice-ui.mjs` | 练习内嵌、答题竞技独立模式、Wiki 高亮/返回、D3 力导向图谱绑定通过 |
+| 浏览器交互 | `/knowledge` 标签切换、力导向图谱与详情侧栏 | 高亮正确切换；真实 Wiki 节点力导向展示，节点可进入详情并返回列表 |
 | 前端回归 | `npm run typecheck`、`npm run build` | 通过 |
 
 ---
@@ -263,6 +263,36 @@
 
 1. `_apply_safety_net`：用户同时要求「基于资料 + 插图」时，应先 `search_course_knowledge` 再 `generate_educational_image`（harness 用例待对齐）。
 2. 浏览器 E2E：「生成讲解队列的语音」→ 对话区播放器 + 完整 Markdown 需人工或 Playwright 复验。
+
+---
+
+## Sprint 7：知识卡片双路径（文生图 / Mermaid 兜底）
+
+> 赛题「文生图导出知识卡片」策略：**有 API 用精简文生图提示词；无 API 用简明 Mermaid 思维导图/流程图兜底**，均强调「节点/元素简明、可多层但不堆字」。
+
+### 策略
+
+| 条件 | 行为 |
+|------|------|
+| `MULTIMODAL_PROVIDER=mock` 或未配置 `AGNES_API_KEY` | `generate_educational_image` → Mermaid mindmap（默认 3 层）或 flowchart（过程类） |
+| `MULTIMODAL_PROVIDER=agnes` + 有效 Key | 文生图 + `CONCISE_IMAGE_CARD_RULES` 精简提示词 |
+| 复杂知识 | Mermaid 可 4 层；文生图仍限制 3–4 个视觉元素 |
+
+### 任务
+
+- [x] `uses_real_image_generation()` 检测真实文生图 Provider
+- [x] `MultimodalResourceService.generate_image` Mermaid 兜底
+- [x] `CONCISE_MERMAID_RULES` / `CONCISE_IMAGE_CARD_RULES` 约束复杂度
+- [x] Agent 工具 `generate_educational_image` 返回 mindmap/diagram 资源引用
+- [x] Supervisor 系统提示补充双路径说明
+- [x] `.env.example` 注释说明 mock 行为
+
+### Sprint 7 核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| 兜底路由 | `pytest tests/test_knowledge_card_fallback.py -q` | 3 passed |
+| 视觉服务 | `pytest tests/test_visual_resource_services.py tests/test_knowledge_card_fallback.py -q` | 8 passed |
 
 ---
 

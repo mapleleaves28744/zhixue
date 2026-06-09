@@ -7,6 +7,7 @@ import {
   resumeAgentTask,
   streamAgentTaskEvents,
 } from "@/services/agentService"
+import { normalizeAgentAnswer } from "@/lib/normalizeAgentAnswer"
 import type { AgentTask, AgentTaskEvent } from "@/types/agent"
 
 export function useAgentTaskStream() {
@@ -44,7 +45,7 @@ export function useAgentTaskStream() {
             setEvents((prev) => [...prev, { type: eventType, data }])
           }
           if (eventType === "completed") {
-            setFinalAnswer(String(data.final_answer || ""))
+            setFinalAnswer(normalizeAgentAnswer(String(data.final_answer || "")))
           }
           if (eventType === "failed") {
             setError(String(data.error_message || "任务失败"))

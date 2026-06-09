@@ -7,6 +7,7 @@ from uuid import UUID
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.agent_runtime.answer_text import extract_final_answer_text
 from app.agent_runtime.graph import LearningAgentGraph
 from app.agent_runtime.service_tools import build_learning_tool_registry
 from app.agent_runtime.supervisor import MiMoSupervisor
@@ -174,6 +175,7 @@ class AgentRuntimeService:
             values.update(status="waiting_confirmation", requires_confirmation=True, risk_level="high")
         elif event_type == "completed":
             values["status"] = "succeeded"
+            payload = await self._attach_knowledge_extract(current, payload)
         elif event_type == "failed":
             values["status"] = "failed"
         await self.tasks.update_task(current, **values)
@@ -200,6 +202,45 @@ class AgentRuntimeService:
                 )
         await self.db.commit()
         await self.broker.publish(task.id, event_type, {**payload, "sequence_no": event.sequence_no})
+
+    async def _attach_knowledge_extract(
+        self,
+        task: AgentTask,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        answer = str(payload.get("final_answer") or "").strip()
+        question = str(task.task_goal or (task.input_payload or {}).get("user_input") or "").strip()
+        if not answer or not question:
+            return payload
+        try:
+            user = await self._get_user(task.user_id)
+            from app.services.chat_knowledge_pipeline import (
+                extract_knowledge_from_dialogue,
+                publish_chat_completed,
+                summarize_extract_for_ui,
+            )
+
+            extract_result = await extract_knowledge_from_dialogue(
+                self.db,
+                current_user=user,
+                course_id=task.course_id,
+                question=question,
+                answer=answer,
+            )
+            summary = summarize_extract_for_ui(extract_result)
+            payload = {**payload, "knowledge_extract": summary}
+            await publish_chat_completed(
+                user_id=task.user_id,
+                course_id=task.course_id,
+                question=question,
+                answer=answer,
+                message_id=str(task.id),
+                extract_result=extract_result,
+                source="agent_runtime_service",
+            )
+        except Exception:
+            pass
+        return payload
 
     async def _mark_failed(self, task: AgentTask, exc: Exception) -> None:
         current = await self.tasks.get_by_id(task.id)
@@ -281,7 +322,7 @@ class AgentRuntimeService:
                 user_id=current.user_id,
                 task_id=current.id,
                 role="assistant",
-                content=str(result.get("final_answer") or ""),
+                content=extract_final_answer_text(result.get("final_answer") or ""),
                 payload={
                     "artifacts": result.get("artifacts") or [],
                     "citations": result.get("citations") or [],

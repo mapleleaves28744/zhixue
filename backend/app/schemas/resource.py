@@ -83,6 +83,8 @@ class GeneratedResourceRead(BaseModel):
     prompt_version_id: UUID | None = None
     status: str
     created_at: datetime
+    media_asset_id: UUID | None = None
+    media_mime_type: str | None = None
 
 
 class ResourceGenerateResponse(BaseModel):

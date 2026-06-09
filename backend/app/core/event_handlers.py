@@ -38,26 +38,84 @@ async def on_diagnosis_complete(event: Event) -> None:
 
 
 async def on_quiz_submit(event: Event) -> None:
-    """答题提交 → 触发记忆反思（轻量级，不阻塞）。"""
+    """答题提交 → 记忆反思 + 掌握度更新。"""
     user_id = event.data.get("user_id")
     course_id = event.data.get("course_id")
     if not user_id:
         return
 
-    logger.debug("EventBus: quiz_submit for user=%s, triggering memory reflect", user_id)
+    logger.debug("EventBus: quiz_submit for user=%s", user_id)
 
     try:
+        from uuid import UUID
+
         from app.db.session import AsyncSessionLocal
+        from app.services.mastery_service import MasteryService
         from app.services.memory_service import MemoryService
 
         async with AsyncSessionLocal() as db:
+            mastery = MasteryService(db)
+            for item in event.data.get("answers") or []:
+                kid = item.get("knowledge_id")
+                if not kid:
+                    continue
+                await mastery.apply_practice_update(
+                    user_id=UUID(str(user_id)),
+                    course_id=UUID(str(course_id)),
+                    knowledge_id=UUID(str(kid)),
+                    is_correct=bool(item.get("is_correct")),
+                )
+            if course_id:
+                await mastery.sync_profile_snapshot(
+                    user_id=UUID(str(user_id)),
+                    course_id=UUID(str(course_id)),
+                )
             await MemoryService(db).reflect(
                 user_id=user_id,
                 course_id=course_id,
             )
             await db.commit()
     except Exception:
-        logger.exception("EventBus: memory reflect failed after quiz_submit")
+        logger.exception("EventBus: quiz_submit handler failed")
+
+
+async def on_chat_completed(event: Event) -> None:
+    """对话完成 → 掌握度轻量更新 + 异步图谱抽取。"""
+    user_id = event.data.get("user_id")
+    course_id = event.data.get("course_id")
+    knowledge_id = event.data.get("knowledge_id")
+    if not user_id or not course_id:
+        return
+
+    try:
+        from uuid import UUID
+
+        from app.db.session import AsyncSessionLocal
+        from app.services.mastery_service import MasteryService
+
+        async with AsyncSessionLocal() as db:
+            if knowledge_id:
+                mastery = MasteryService(db)
+                await mastery.apply_ask_update(
+                    user_id=UUID(str(user_id)),
+                    course_id=UUID(str(course_id)),
+                    knowledge_id=UUID(str(knowledge_id)),
+                    understood=False,
+                )
+                await mastery.sync_profile_snapshot(
+                    user_id=UUID(str(user_id)),
+                    course_id=UUID(str(course_id)),
+                )
+                await db.commit()
+    except Exception:
+        logger.exception("EventBus: chat mastery update failed")
+
+    if event.data.get("skip_graph_extract"):
+        return
+
+    from app.workers.knowledge_extract_worker import handle_chat_completed
+
+    await handle_chat_completed(event)
 
 
 async def on_profile_update(event: Event) -> None:
@@ -93,4 +151,5 @@ def register_default_handlers() -> None:
     bus.subscribe("diagnosis_complete", on_diagnosis_complete)
     bus.subscribe("quiz_submit", on_quiz_submit)
     bus.subscribe("profile_update", on_profile_update)
+    bus.subscribe("chat_completed", on_chat_completed)
     logger.info("EventBus: default handlers registered")

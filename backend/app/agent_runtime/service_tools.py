@@ -22,12 +22,14 @@ def build_learning_tool_registry(
     async def search_knowledge(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
         from app.services.knowledge_search_service import KnowledgeSearchService
 
-        items = await KnowledgeSearchService(db).search(
+        payload = await KnowledgeSearchService(db).search(
             current_user=current_user,
             course_id=context.course_id,
             query=str(arguments["query"]),
             top_k=int(arguments.get("top_k") or 5),
         )
+        items = payload.get("items") or []
+        graph_context = payload.get("graph_context") or {}
         citations = [
             {
                 "source_type": "document",
@@ -40,7 +42,11 @@ def build_learning_tool_registry(
             }
             for item in items
         ]
-        return ToolExecutionResult(output={"items": items}, evidence=citations, citations=citations)
+        return ToolExecutionResult(
+            output={"items": items, "graph_context": graph_context},
+            evidence=citations,
+            citations=citations,
+        )
 
     async def answer_question(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
         from app.schemas.tutor import TutorChatRequest
@@ -447,6 +453,22 @@ def build_learning_tool_registry(
             requirement=str(arguments.get("requirement") or "") or None,
             tool_context=context,
         )
+        mode = str(result.get("generation_mode") or "image")
+        if mode.startswith("mermaid"):
+            subtype = str(result.get("subtype") or "mindmap")
+            return ToolExecutionResult(
+                output=result,
+                evidence=result.get("citations") or [],
+                citations=result.get("citations") or [],
+                artifact_refs=[
+                    {
+                        "type": "resource",
+                        "subtype": subtype,
+                        "id": result["resource_id"],
+                        "title": result.get("title"),
+                    }
+                ],
+            )
         return ToolExecutionResult(
             output=result,
             evidence=result.get("citations") or [],

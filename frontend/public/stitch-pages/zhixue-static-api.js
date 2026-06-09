@@ -227,6 +227,14 @@
     return request(`/wiki/pages?${query}`);
   }
 
+  async function getWikiGraph(courseId, params = {}) {
+    const query = new URLSearchParams({
+      course_id: courseId,
+      view: params.view || "merged",
+    });
+    return request(`/wiki/graph?${query}`);
+  }
+
   async function getWikiPage(pageId) {
     return request(`/wiki/pages/${pageId}`);
   }
@@ -769,6 +777,7 @@
     getMediaAsset,
     getPageMascot,
     getWikiPage,
+    getWikiGraph,
     mediaAssetFileUrl,
     renderArtifactCard,
     getMe,

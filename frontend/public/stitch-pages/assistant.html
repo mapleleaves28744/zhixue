@@ -731,6 +731,8 @@
               provider: "xiaomi_mimo",
               model: "mimo-v2.5",
               agent_run_id: task.id,
+              knowledge_extract: data.knowledge_extract || {},
+              graph_context: data.graph_context || task.plan_json?.graph_context || {},
             });
           }
         },
@@ -868,6 +870,36 @@
     };
   }
 
+  function showKnowledgeExtractToast(extract) {
+    if (!extract || typeof extract !== "object") return;
+    const created = Number(extract.created_entities || 0);
+    const relations = Number(extract.created_relations || 0);
+    const merged = Number(extract.entities_merged || 0);
+    if (created <= 0 && relations <= 0 && merged <= 0) return;
+    const parts = [];
+    if (created > 0) parts.push(`${created} 个新知识点`);
+    if (relations > 0) parts.push(`${relations} 条关系`);
+    if (merged > 0 && parts.length === 0) parts.push(`${merged} 个知识点已关联对话`);
+    if (!parts.length) return;
+    api.toast(`已沉淀到个人知识图谱：${parts.join("、")}`, "success");
+  }
+
+  function formatGraphContextSummary(graphContext) {
+    if (!graphContext || typeof graphContext !== "object") return "";
+    const seeds = graphContext.seed_nodes || [];
+    const expanded = graphContext.expanded_nodes || [];
+    const paths = graphContext.relation_paths || [];
+    if (!seeds.length && !expanded.length && !paths.length) return "";
+    const parts = [];
+    if (seeds.length) parts.push(`种子节点：${seeds.slice(0, 4).join("、")}`);
+    if (expanded.length) parts.push(`图谱扩展：${expanded.slice(0, 4).join("、")}`);
+    if (paths.length) {
+      const rel = paths[0]?.type || "related";
+      parts.push(`关系路径 ${paths.length} 条（如 ${rel}）`);
+    }
+    return parts.join(" · ");
+  }
+
   function appendAiMessage(payload, sources, model) {
     if (!chatArea) {
       return;
@@ -880,6 +912,16 @@
     const related = data.related_knowledge_points || [];
     const followUps = data.follow_up_questions || [];
     const messageId = data.message_id;
+    const graphSummary = formatGraphContextSummary(data.graph_context);
+    const graphHtml = graphSummary
+      ? `<div class="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-xs text-on-surface-variant">
+          <div class="flex items-center gap-2 font-bold text-primary mb-1">
+            <span class="material-symbols-outlined text-[16px]">hub</span>
+            图谱扩展检索依据
+          </div>
+          <p>${escapeHtml(graphSummary)}</p>
+        </div>`
+      : "";
     const fallbackHtml = data.fallback_used ? `
       <div class="rounded-2xl border border-error/20 bg-error-container/20 text-on-error-container px-4 py-3 text-label-sm font-bold">
         真实模型 ${escapeHtml(data.failed_provider || "unknown")} 调用失败，当前已自动切换到 Mock 兜底。${data.fallback_reason ? `原因：${escapeHtml(data.fallback_reason)}` : ""}
@@ -921,6 +963,7 @@
       <div class="flex flex-col gap-3 max-w-[85%]">
         <div class="chat-bubble-ai rounded-[24px] rounded-tl-sm p-6 shadow-sm space-y-4">
           <p class="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap">${escapeHtml(answer)}</p>
+          ${graphHtml}
           ${fallbackHtml}
           <div class="text-label-sm text-outline font-bold">Provider: ${escapeHtml(data.provider || "unknown")} · Model: ${escapeHtml(data.model || model || "unknown")} · Agent: ${escapeHtml(data.agent_run_id || "pending")}</div>
           <div class="mt-4 pt-4 border-t border-outline-variant/30 flex gap-3 overflow-x-auto pb-2">${sourceHtml}</div>
@@ -962,6 +1005,7 @@
         }
       });
     });
+    showKnowledgeExtractToast(data.knowledge_extract);
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 

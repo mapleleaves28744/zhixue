@@ -220,8 +220,10 @@
 </div>
 </main>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="/stitch-pages/zhixue-ui.js"></script>
 <script src="/stitch-pages/zhixue-static-api.js"></script>
+<script src="/stitch-pages/zhixue-force-graph.js"></script>
 <script>
 (() => {
   const api = window.ZhixueStatic;
@@ -452,26 +454,28 @@
     }
   }
 
+  let wikiGraphInstance = null;
+
   async function renderWikiGraph() {
     if (!sliceGrid) return;
     setKnowledgeTab("图谱视图");
-    detailTitle.textContent = "课程 Wiki 知识图谱";
+    detailTitle.textContent = "个人 LLM-Wiki 知识图谱";
     if (detailMeta) {
       detailMeta.innerHTML = `
-        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">hub</span>来自 /api/v1/wiki/graph</span>
-        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">touch_app</span>点击节点打开 Wiki 详情</span>`;
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">hub</span>Obsidian 式力导向网络 · merged 视图</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">palette</span>节点颜色 = 掌握度</span>`;
     }
     if (detailChunkBadge) detailChunkBadge.textContent = "加载中";
     sliceGrid.innerHTML = `
       <div class="col-span-2 bg-white/80 rounded-xl border border-primary/15 p-6">
         <div class="ai-thinking-indicator">
           <img src="${window.ZhixueUI?.stickerUrl?.("zhizhi", "searching") || "/stickers/zhizhi/08_searching.png"}" alt="加载图谱"/>
-          <span class="text-sm text-on-surface-variant font-label-md">正在读取真实 Wiki 节点与关系…</span>
+          <span class="text-sm text-on-surface-variant font-label-md">正在构建力导向知识网络…</span>
         </div>
       </div>`;
     try {
       currentCourseId = currentCourseId || await api.resolveCourseId();
-      const graph = await api.request(`/wiki/graph?course_id=${encodeURIComponent(currentCourseId)}`);
+      const graph = await (api.getWikiGraph ? api.getWikiGraph(currentCourseId, { view: "merged" }) : api.request(`/wiki/graph?course_id=${encodeURIComponent(currentCourseId)}&view=merged`));
       const nodes = graph.nodes || [];
       const links = graph.links || [];
       if (detailChunkBadge) detailChunkBadge.textContent = `${nodes.length} 节点 · ${links.length} 关系`;
@@ -479,45 +483,49 @@
         sliceGrid.innerHTML = "";
         window.ZhixueUI?.renderEmptyState?.(sliceGrid, {
           mascot: "zhizhi",
-          title: "还没有可展示的 Wiki 图谱",
-          description: "先从课程资料生成 Wiki 页面，图谱会展示真实页面节点与关系。",
+          title: "还没有可展示的个人 Wiki 图谱",
+          description: "与 AI 助手对话或从资料生成 Wiki 后，节点与关系会在此以力导向图呈现。",
         });
         return;
       }
-      const nodeById = new Map(nodes.map((node) => [node.id, node]));
       sliceGrid.innerHTML = `
-        <section class="col-span-2 bg-white/75 rounded-xl border border-primary/15 p-5">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="font-headline-sm text-on-surface">真实 Wiki 关系网络</h3>
-              <p class="text-xs text-on-surface-variant mt-1">节点来自 Wiki 页面，连线来自 wiki_links。</p>
+        <section class="col-span-2 bg-white/75 rounded-xl border border-primary/15 p-5 flex flex-col lg:flex-row gap-4" style="min-height:520px">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="font-headline-sm text-on-surface">力导向知识网络</h3>
+                <p class="text-xs text-on-surface-variant mt-1">拖拽节点 · 滚轮缩放 · 实线=个人边 · 虚线=公有邻居</p>
+              </div>
+              <span class="text-xs font-bold text-primary">${nodes.length} 节点 · ${links.length} 关系</span>
             </div>
-            <span class="text-xs font-bold text-primary">${nodes.length} 节点 · ${links.length} 关系</span>
+            <div id="wiki-force-graph-host" class="rounded-xl bg-surface-container-low/55 border border-white/90 relative" style="height:480px"></div>
           </div>
-          <div class="rounded-xl bg-surface-container-low/55 border border-white/90 p-4" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
-            ${nodes.map((node) => `
-              <button type="button" data-wiki-page-id="${node.id}" class="rounded-xl bg-white/95 border border-primary/25 shadow-sm hover:border-primary transition-all p-3 text-left" style="min-height:96px">
-                <span class="material-symbols-outlined text-primary text-[20px]">hub</span>
-                <strong class="block text-xs text-on-surface mt-1" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escapeHtml(node.title)}</strong>
-                <span class="text-[10px] text-on-surface-variant">v${node.current_version || 1}</span>
-              </button>`).join("")}
-          </div>
-          <div class="mt-4 space-y-2">
-            ${links.map((link) => {
-              const source = nodeById.get(link.source_page_id);
-              const target = nodeById.get(link.target_page_id);
-              if (!source || !target) return "";
-              return `<div class="rounded-lg border border-primary/10 bg-white/70 px-3 py-2 text-xs text-on-surface-variant flex items-center gap-2">
-                <span class="font-bold text-on-surface">${escapeHtml(source.title)}</span>
-                <span class="material-symbols-outlined text-primary text-[16px]">arrow_forward</span>
-                <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">${escapeHtml(link.relation_type || "related")}</span>
-                <span class="material-symbols-outlined text-primary text-[16px]">arrow_forward</span>
-                <span class="font-bold text-on-surface">${escapeHtml(target.title)}</span>
-              </div>`;
-            }).join("") || '<p class="text-xs text-on-surface-variant">当前已有 Wiki 节点，但尚未生成页面关系；后续生成带层级的知识点后会出现关系记录。</p>'}
-          </div>
+          <aside id="wiki-graph-detail" class="w-full lg:w-72 shrink-0 rounded-xl bg-white/90 border border-primary/10 p-4 text-sm text-on-surface-variant">
+            <p class="text-xs font-bold text-primary mb-2">节点详情</p>
+            <p>点击左侧节点查看 Wiki 摘要与掌握度。</p>
+          </aside>
         </section>`;
-      bindWikiPageButtons();
+      if (wikiGraphInstance?.destroy) wikiGraphInstance.destroy();
+      const host = document.getElementById("wiki-force-graph-host");
+      const detailPanel = document.getElementById("wiki-graph-detail");
+      wikiGraphInstance = window.ZhixueForceGraph?.render(host, {
+        graph: { nodes, links },
+        height: 480,
+        onNodeClick(node) {
+          if (!detailPanel) return;
+          const masteryPct = Math.round((Number(node.mastery_score) || 0) * 100);
+          detailPanel.innerHTML = `
+            <p class="text-xs font-bold text-primary mb-2">节点详情</p>
+            <h4 class="font-headline-sm text-on-surface mb-1">${escapeHtml(node.title)}</h4>
+            <p class="text-xs mb-2">${escapeHtml(node.summary || "暂无摘要")}</p>
+            <div class="flex flex-wrap gap-2 text-[11px] mb-3">
+              <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">掌握 ${masteryPct}%</span>
+              <span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">${escapeHtml(node.scope || "personal")}</span>
+            </div>
+            ${node.page_type === "wiki" && !String(node.id).startsWith("kp:") ? `<button type="button" data-wiki-page-id="${node.id}" class="text-xs font-bold text-primary hover:underline">打开 Wiki 详情 →</button>` : `<p class="text-[11px]">公有知识邻居，可在对话/练习中逐步掌握。</p>`}`;
+          bindWikiPageButtons();
+        },
+      });
     } catch (error) {
       api.toast(error.message || "知识图谱加载失败", "error");
       sliceGrid.innerHTML = "";

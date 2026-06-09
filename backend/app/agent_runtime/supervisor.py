@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from pydantic import ValidationError
 
+from app.agent_runtime.answer_text import extract_final_answer_text
 from app.agent_runtime.state import AgentDecision, PlannedToolCall
 from app.agent_runtime import supervisor_intents
 from app.llm.schemas import ChatMessage, ToolCall
@@ -32,6 +33,9 @@ class MiMoSupervisor:
         bounded_decision = self._profile_update_only_decision(state, tool_schemas)
         if bounded_decision is not None:
             return bounded_decision
+        early_complete = self._deliverables_complete_decision(state, tool_schemas)
+        if early_complete is not None:
+            return early_complete
         messages = self._build_messages(state)
         chat_kwargs: dict[str, Any] = {
             "thinking": {"type": "disabled"},
@@ -70,6 +74,8 @@ class MiMoSupervisor:
                 decision = AgentDecision.model_validate(data)
                 if decision.tool_calls and decision.status == "complete":
                     decision.status = "continue"
+                if decision.final_answer:
+                    decision.final_answer = extract_final_answer_text(decision.final_answer)
                 return decision
             if isinstance(data, dict):
                 raw_calls = data.get("tool_calls")
@@ -105,11 +111,12 @@ class MiMoSupervisor:
                     )
         except (json.JSONDecodeError, ValidationError, TypeError):
             pass
-        if content.strip():
+        extracted = extract_final_answer_text(content)
+        if extracted:
             return AgentDecision(
                 status="complete",
                 summary="Supervisor 直接完成回答。",
-                final_answer=content.strip(),
+                final_answer=extracted,
             )
         return AgentDecision(
             status="failed",
@@ -132,6 +139,26 @@ class MiMoSupervisor:
         if decision.tool_calls:
             if decision.status == "complete":
                 decision.status = "continue"
+            decision.tool_calls = [
+                call for call in decision.tool_calls if call.name not in completed_tools
+            ]
+            if not decision.tool_calls:
+                if not pending_deliverables:
+                    return AgentDecision(
+                        status="complete",
+                        summary="所需交付物已全部生成。",
+                        final_answer=self._build_completion_answer(state),
+                        reasoning_content=decision.reasoning_content,
+                    )
+                tool_name = pending_deliverables[0]
+                label = supervisor_intents.deliverable_label(tool_name)
+                return self._force_tool(
+                    tool_name,
+                    goal,
+                    state,
+                    decision,
+                    reason=f"用户要求的{label}尚未生成，禁止重复调用已完成工具",
+                )
             decision.tool_calls = self._filter_tool_calls_for_profile_only(goal, decision.tool_calls)
             decision.tool_calls = self._align_tool_calls_with_deliverables(
                 goal,
@@ -151,16 +178,6 @@ class MiMoSupervisor:
             return self._force_tool(hint, goal, state, decision, reason="用户指定工具")
 
         pending_deliverables = self._pending_deliverables(goal, available, completed_tools, skip_tools)
-        if decision.status == "complete" and pending_deliverables:
-            tool_name = pending_deliverables[0]
-            label = supervisor_intents.deliverable_label(tool_name)
-            return self._force_tool(
-                tool_name,
-                goal,
-                state,
-                decision,
-                reason=f"用户要求的{label}尚未生成，禁止仅用文字/Markdown 代替",
-            )
 
         if (
             decision.status == "complete"
@@ -174,6 +191,17 @@ class MiMoSupervisor:
                 state,
                 decision,
                 reason="用户明确要求基于课程资料回答，必须先检索",
+            )
+
+        if decision.status == "complete" and pending_deliverables:
+            tool_name = pending_deliverables[0]
+            label = supervisor_intents.deliverable_label(tool_name)
+            return self._force_tool(
+                tool_name,
+                goal,
+                state,
+                decision,
+                reason=f"用户要求的{label}尚未生成，禁止仅用文字/Markdown 代替",
             )
 
         if decision.status == "complete" and self._should_use_fallback_planner(
@@ -370,6 +398,45 @@ class MiMoSupervisor:
                 )
             ]
         return tool_calls
+
+    def _deliverables_complete_decision(
+        self,
+        state: dict[str, Any],
+        tool_schemas: list[dict[str, Any]],
+    ) -> AgentDecision | None:
+        goal = str(state.get("goal") or "")
+        required = self._required_deliverables(goal)
+        if not required:
+            return None
+        available = self._available_tool_names(tool_schemas)
+        completed_tools = self._completed_tool_names(state)
+        skip_tools = set(state.get("skip_tools") or [])
+        pending = self._pending_deliverables(goal, available, completed_tools, skip_tools)
+        if pending:
+            return None
+        return AgentDecision(
+            status="complete",
+            summary="所需交付物已全部生成。",
+            final_answer=self._build_completion_answer(state),
+        )
+
+    def _build_completion_answer(self, state: dict[str, Any]) -> str:
+        artifacts = state.get("artifacts") or []
+        lines = ["所需学习内容已生成，请查看下方产物卡片或资源侧栏。"]
+        for artifact in artifacts:
+            if not isinstance(artifact, dict):
+                continue
+            title = str(artifact.get("title") or artifact.get("name") or "学习产物")
+            subtype = str(artifact.get("subtype") or artifact.get("asset_type") or artifact.get("type") or "")
+            if subtype == "image" or artifact.get("mime_type", "").startswith("image/"):
+                lines.append(f"- 教学插图：{title}")
+            elif subtype in {"mindmap", "diagram"} or artifact.get("type") == "resource":
+                lines.append(f"- 知识卡片/资源：{title}")
+            elif artifact.get("type") == "media_asset":
+                lines.append(f"- 多模态产物：{title}")
+        if len(lines) == 1 and state.get("observations"):
+            lines.append("- 相关工具已执行完成，可在执行详情中查看输出。")
+        return "\n".join(lines)
 
     def _profile_update_only_decision(
         self,
@@ -674,6 +741,9 @@ class MiMoSupervisor:
             "纯答疑→answer_course_question，文字讲解资源→generate_explanation。"
             "禁止把文字资源、Markdown 或摘要冒充语音/视频/图片结果。"
             "当用户要求语音时，先准备讲解文本（检索/生成），再 synthesize_speech。"
+            "当用户要求插图/知识卡片时：有文生图 API 则 generate_educational_image；"
+            "无 API 时同一工具会自动产出简明 Mermaid 知识卡片（思维导图或流程图）。"
+            "Mermaid 与文生图均应保持节点/元素简明，复杂知识用多层而非单节点堆字。"
             "只有在任务真正完成、且不需要再调用工具时，才返回纯文本 final_answer。"
             "若仍需工具，请直接发起 tool call，不要只返回 JSON 计划。"
             "不要输出隐式思维链，只输出简洁决策摘要。"

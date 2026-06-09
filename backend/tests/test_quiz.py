@@ -10,9 +10,27 @@ import pytest
 
 from app.agents.quiz_agent import QuizAgent
 from app.llm.adapters.mock_provider import MockLLMProvider
+from app.llm.prompt_renderer import PromptRenderer
+from app.services.prompt_service import DEFAULT_PROMPTS
 from app.llm.schemas import ChatMessage
 from app.schemas.quiz import QuizGenerateRequest, QuizSubmitRequest
 from app.services.quiz_service import QuizService
+
+
+def test_quiz_agent_prompt_renders_without_missing_variables() -> None:
+    template = DEFAULT_PROMPTS[("QuizAgent", "quiz.generate")]
+    rendered = PromptRenderer().render(
+        template,
+        {
+            "knowledge_name": "栈与队列",
+            "knowledge_description": "先进先出与后进先出",
+            "question_types": "single_choice",
+            "difficulty": "medium",
+            "count": 5,
+        },
+    )
+    assert "栈与队列" in rendered
+    assert "single_choice" in rendered
 
 
 def test_quiz_generate_request_defaults() -> None:

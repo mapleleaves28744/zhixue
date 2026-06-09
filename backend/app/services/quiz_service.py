@@ -211,6 +211,17 @@ class QuizService:
                     "score": score,
                     "correct_count": correct_count,
                     "total_questions": len(records),
+                    "answers": [
+                        {
+                            "question_id": str(record.question_id),
+                            "knowledge_id": str(questions_by_id[record.question_id].knowledge_id)
+                            if questions_by_id.get(record.question_id)
+                            and questions_by_id[record.question_id].knowledge_id
+                            else None,
+                            "is_correct": record.is_correct,
+                        }
+                        for record in records
+                    ],
                 },
                 source="quiz_service",
             )

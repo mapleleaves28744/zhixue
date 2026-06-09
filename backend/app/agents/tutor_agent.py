@@ -8,7 +8,7 @@ from app.agents.context import AgentContext, AgentResult
 from app.agents.registry import AgentRegistry
 from app.llm import ChatMessage, get_llm_provider
 from app.models.wiki import WikiPage
-from app.rag.hybrid_retriever import HybridRetriever as VectorRetriever
+from app.rag.graph_retriever import GraphRetriever
 from app.repositories.course_repository import CourseRepository
 from app.repositories.wiki_repository import WikiRepository
 from app.services.memory_service import MemoryService
@@ -60,6 +60,7 @@ class TutorAgent(BaseAgent):
                     "should_reflect": True,
                     "reason": "本次问答可作为学生关注知识点和解释偏好的证据。",
                 },
+                "graph_context": prepared.get("graph_context") or {},
             },
             message="问答完成",
             evidence=prepared["evidence"],
@@ -76,19 +77,25 @@ class TutorAgent(BaseAgent):
         knowledge_id = self._optional_uuid(context.params.get("knowledge_id"))
         wiki_page_id = self._optional_uuid(context.params.get("wiki_page_id"))
 
-        retriever = VectorRetriever(self.db)
-        results = []
+        retrieval_items: list[dict[str, Any]] = []
+        graph_context: dict[str, Any] = {}
         retrieved_context = "未检索到相关资料"
         if use_rag:
             try:
-                results = await retriever.search(
+                payload = await GraphRetriever(self.db).search(
                     course_id=context.course_id,
                     query=question,
                     user_id=context.user_id,
-                    top_k=context.params.get("top_k", 5),
-                    knowledge_id=knowledge_id,
+                    top_k=int(context.params.get("top_k") or 5),
+                    expand_hops=1,
                 )
-                retrieved_context = "\n\n".join(r.content for r in results) if results else "未检索到相关资料"
+                retrieval_items = list(payload.get("items") or [])
+                graph_context = dict(payload.get("graph_context") or {})
+                retrieved_context = (
+                    "\n\n".join(str(item.get("content") or "") for item in retrieval_items)
+                    if retrieval_items
+                    else "未检索到相关资料"
+                )
             except Exception:
                 retrieved_context = "未检索到相关资料"
 
@@ -103,7 +110,7 @@ class TutorAgent(BaseAgent):
         student_profile = await self._load_profile(context.user_id, use_profile)
         memory_context = await self._load_memory(context.user_id, context.course_id, use_profile)
 
-        citations = self._build_citations(results, wiki_pages)
+        citations = self._build_citations(retrieval_items, wiki_pages)
         if not citations:
             citations.append(
                 {
@@ -115,6 +122,7 @@ class TutorAgent(BaseAgent):
             )
         related_knowledge_points = self._related_knowledge_points(question, wiki_pages)
         follow_up_questions = self._follow_up_questions(related_knowledge_points)
+        graph_context_text = self._format_graph_context(graph_context)
 
         rendered = await PromptService(self.db).render_prompt(
             agent_name="TutorAgent",
@@ -125,6 +133,7 @@ class TutorAgent(BaseAgent):
                 "wiki_context": wiki_context[:3000],
                 "student_profile": student_profile[:1200],
                 "memory_context": memory_context[:1200],
+                "graph_context": graph_context_text[:1500],
             },
         )
         return {
@@ -134,9 +143,11 @@ class TutorAgent(BaseAgent):
             "citations": citations,
             "related_knowledge_points": related_knowledge_points,
             "follow_up_questions": follow_up_questions,
+            "graph_context": graph_context,
             "evidence": [
-                f"基于 {len(results)} 个文档片段检索",
+                f"基于 {len(retrieval_items)} 个文档/图谱检索片段",
                 f"关联 {len(wiki_pages)} 个 Wiki 页面",
+                f"图谱扩展 {len(graph_context.get('expanded_nodes') or [])} 个邻居节点",
             ],
         }
 
@@ -230,20 +241,38 @@ class TutorAgent(BaseAgent):
             for page in pages
         )
 
-    def _build_citations(self, results: list[Any], wiki_pages: list[WikiPage]) -> list[dict[str, Any]]:
+    def _build_citations(
+        self,
+        retrieval_items: list[Any],
+        wiki_pages: list[WikiPage],
+    ) -> list[dict[str, Any]]:
         citations: list[dict[str, Any]] = []
-        for result in results[:5]:
-            citations.append(
-                {
-                    "source_type": "document",
-                    "title": result.source_title or "课程资料片段",
-                    "source_id": str(result.material_id),
-                    "chunk_id": str(result.chunk_id),
-                    "page_no": result.page_no,
-                    "score": round(result.score, 4),
-                    "quote": result.content[:160],
-                }
-            )
+        for item in retrieval_items[:5]:
+            if isinstance(item, dict):
+                mode = str(item.get("retrieval_mode") or "hybrid")
+                citations.append(
+                    {
+                        "source_type": "graph" if mode == "graph" else "document",
+                        "title": item.get("source_title") or "课程资料片段",
+                        "source_id": str(item.get("material_id") or ""),
+                        "chunk_id": str(item.get("chunk_id") or ""),
+                        "page_no": item.get("page_no"),
+                        "score": round(float(item.get("score") or 0), 4),
+                        "quote": str(item.get("content") or "")[:160],
+                    }
+                )
+            else:
+                citations.append(
+                    {
+                        "source_type": "document",
+                        "title": item.source_title or "课程资料片段",
+                        "source_id": str(item.material_id),
+                        "chunk_id": str(item.chunk_id),
+                        "page_no": item.page_no,
+                        "score": round(item.score, 4),
+                        "quote": item.content[:160],
+                    }
+                )
         for page in wiki_pages[:3]:
             citations.append(
                 {
@@ -255,6 +284,23 @@ class TutorAgent(BaseAgent):
                 }
             )
         return citations
+
+    def _format_graph_context(self, graph_context: dict[str, Any]) -> str:
+        if not graph_context:
+            return "未启用图谱扩展检索"
+        seeds = graph_context.get("seed_nodes") or []
+        expanded = graph_context.get("expanded_nodes") or []
+        paths = graph_context.get("relation_paths") or []
+        lines: list[str] = []
+        if seeds:
+            lines.append(f"检索种子节点：{', '.join(str(x) for x in seeds[:8])}")
+        if expanded:
+            lines.append(f"1-hop 扩展节点：{', '.join(str(x) for x in expanded[:8])}")
+        for path in paths[:5]:
+            rel_type = path.get("type") or "related"
+            evidence = path.get("evidence") or "知识图谱关系"
+            lines.append(f"关系扩展：{rel_type}（{evidence}）")
+        return "\n".join(lines) if lines else "图谱未扩展出额外邻居"
 
     def _related_knowledge_points(
         self,

@@ -1,6 +1,8 @@
 "use client"
 
 import type { ReactNode } from "react"
+import { MarkdownRenderer } from "@/components/markdown/MarkdownRenderer"
+import { normalizeAgentAnswer } from "@/lib/normalizeAgentAnswer"
 import type { AgentTaskEvent } from "@/types/agent"
 import { eventLabel } from "./streamLabels"
 
@@ -155,9 +157,9 @@ export function AgentEventDetail({ event, index }: AgentEventDetailProps) {
       )}
 
       {type === "completed" && data.final_answer ? (
-        <p className="mt-1 line-clamp-4 text-xs text-on-surface-variant">
-          {String(data.final_answer)}
-        </p>
+        <div className="mt-1 max-h-40 overflow-hidden text-xs">
+          <MarkdownRenderer content={normalizeAgentAnswer(String(data.final_answer))} />
+        </div>
       ) : null}
 
       {type === "failed" && (

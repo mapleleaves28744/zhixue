@@ -1,5 +1,6 @@
 "use client"
 
+import { MediaAssetPreview } from "@/components/assistant/MediaAssetPreview"
 import { MarkdownRenderer } from "@/components/markdown/MarkdownRenderer"
 import {
   Dialog,
@@ -23,10 +24,13 @@ const TYPE_LABELS: Record<string, string> = {
   review: "错题解析",
   mindmap: "思维导图",
   diagram: "图解",
+  image: "教学插图",
 }
 
 export function ResourceDetailDrawer({ resource, open, onOpenChange }: ResourceDetailDrawerProps) {
   if (!resource) return null
+
+  const isImageResource = resource.resource_type === "image" && resource.media_asset_id
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -38,11 +42,22 @@ export function ResourceDetailDrawer({ resource, open, onOpenChange }: ResourceD
             {new Date(resource.created_at).toLocaleString()}
           </p>
         </DialogHeader>
-        <MarkdownRenderer content={resource.content} />
+        {isImageResource ? (
+          <MediaAssetPreview
+            assetId={resource.media_asset_id!}
+            mimeType={resource.media_mime_type}
+            title={resource.title}
+          />
+        ) : (
+          <MarkdownRenderer content={resource.content} />
+        )}
         {resource.personalized_reason && (
           <p className="mt-4 rounded-xl bg-primary/5 p-3 text-sm text-on-surface-variant">
             {resource.personalized_reason}
           </p>
+        )}
+        {isImageResource && resource.content && (
+          <p className="text-xs text-outline">{resource.content}</p>
         )}
       </DialogContent>
     </Dialog>

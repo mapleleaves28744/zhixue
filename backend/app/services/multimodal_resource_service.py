@@ -9,15 +9,27 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agent_runtime.tools import ToolContext
 from app.core.config import settings
-from app.llm.multimodal_provider import build_multimodal_provider
+from app.llm.multimodal_provider import build_multimodal_provider, uses_real_image_generation
 from app.models.user import User
 from app.repositories.media_repository import MediaRepository
 from app.repositories.resource_repository import ResourceRepository
 from app.services.course_service import CourseService
 from app.services.courseware_service import CoursewareService
+from app.services.diagram_service import CONCISE_IMAGE_CARD_RULES, DiagramService
 from app.services.media_storage_service import MediaStorageService
+from app.services.mindmap_service import MindmapService
 from app.services.multimodal_brief_service import MultimodalBriefService
 from app.services.video_render_service import VideoRenderService, build_storyboard
+
+
+def mermaid_fallback_kind(image_type: str) -> str:
+    return "diagram" if image_type in {"process_visual", "analogy"} else "mindmap"
+
+
+def mermaid_fallback_depth(requirement: str | None) -> int:
+    if requirement and any(k in requirement for k in ("复杂", "多层", "详细")):
+        return 4
+    return 3
 
 
 class MultimodalResourceService:
@@ -41,6 +53,14 @@ class MultimodalResourceService:
         tool_context: ToolContext | None = None,
     ) -> dict[str, Any]:
         await CourseService(self.db).get_readable_course(course_id, current_user)
+        if not uses_real_image_generation(self.provider):
+            return await self._generate_mermaid_knowledge_card(
+                current_user=current_user,
+                course_id=course_id,
+                topic=topic,
+                image_type=image_type,
+                requirement=requirement,
+            )
         brief = await MultimodalBriefService(self.db).build_brief(
             current_user=current_user,
             course_id=course_id,
@@ -86,7 +106,7 @@ class MultimodalResourceService:
             render_meta={"image_type": image_type, "size": size, "raw": result.raw},
         )
         await self.db.commit()
-        return self._asset_response(asset, resource_id=resource.id)
+        return {**self._asset_response(asset, resource_id=resource.id), "generation_mode": "image"}
 
     async def generate_storyboard_html(
         self,
@@ -291,8 +311,48 @@ class MultimodalResourceService:
             f"风格：{style or brief.get('style_hint')}\n"
             f"要求：{requirement or ''}\n"
             f"必须表达的课程依据：\n{brief.get('source_summary') or ''}\n"
-            "不要生成真实人物、商标、政治敏感元素。画面应简洁、教育用途、适合课堂展示。"
+            f"{CONCISE_IMAGE_CARD_RULES}\n"
+            "不要生成真实人物、商标、政治敏感元素。"
         )
+
+    async def _generate_mermaid_knowledge_card(
+        self,
+        *,
+        current_user: User,
+        course_id: UUID,
+        topic: str,
+        image_type: str,
+        requirement: str | None,
+    ) -> dict[str, Any]:
+        """无文生图 API 时：用简明 Mermaid 思维导图/流程图作为知识卡片兜底。"""
+        use_flowchart = mermaid_fallback_kind(image_type) == "diagram"
+        if use_flowchart:
+            result = await DiagramService(self.db).generate(
+                current_user=current_user,
+                course_id=course_id,
+                concept=topic,
+                diagram_type="flowchart",
+            )
+            return {
+                **result,
+                "generation_mode": "mermaid_diagram",
+                "subtype": "diagram",
+                "fallback_reason": "未配置文生图 API，已用 Mermaid 流程图生成简明知识卡片",
+            }
+        depth = mermaid_fallback_depth(requirement)
+        result = await MindmapService(self.db).generate(
+            current_user=current_user,
+            course_id=course_id,
+            topic=topic,
+            scope="course",
+            depth=depth,
+        )
+        return {
+            **result,
+            "generation_mode": "mermaid_mindmap",
+            "subtype": "mindmap",
+            "fallback_reason": "未配置文生图 API，已用 Mermaid 思维导图生成简明知识卡片",
+        }
 
     def _asset_response(
         self,

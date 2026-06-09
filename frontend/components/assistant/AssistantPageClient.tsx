@@ -31,6 +31,7 @@ import type { AgentMessage, AgentTask, AgentTaskEvent, AssistantMode } from "@/t
 import type { Course } from "@/types/course"
 import type { WikiPageSummary } from "@/services/wikiService"
 import type { TutorCitation } from "@/types/tutor"
+import { normalizeAgentAnswer } from "@/lib/normalizeAgentAnswer"
 
 const COURSE_KEY = "zhixue_current_course_id"
 const CONVERSATION_KEY = "zhixue_agent_conversation_id"
@@ -61,6 +62,29 @@ type DetailTarget =
   | { kind: "tutor"; messageId: string }
   | { kind: "agent"; taskId: string }
 
+const RESOURCE_ARTIFACT_TYPES = new Set(["resource", "media_asset"])
+
+function isResourceArtifact(ref: unknown): boolean {
+  if (!ref || typeof ref !== "object") return false
+  const item = ref as Record<string, unknown>
+  const type = String(item.type || "")
+  if (RESOURCE_ARTIFACT_TYPES.has(type)) return true
+  return Boolean(item.resource_id)
+}
+
+function eventProducesResource(eventType: string, data: Record<string, unknown>): boolean {
+  if (eventType === "tool_completed" && data.success === false) return false
+  if (eventType === "tool_completed") {
+    const refs = data.artifact_refs
+    return Array.isArray(refs) && refs.some(isResourceArtifact)
+  }
+  if (eventType === "completed") {
+    const artifacts = data.artifacts
+    return Array.isArray(artifacts) && artifacts.some(isResourceArtifact)
+  }
+  return false
+}
+
 function messagesFromHistory(items: AgentMessage[]): ChatItem[] {
   return items.slice(-40).map((m) => {
     if (m.role === "user") {
@@ -74,7 +98,7 @@ function messagesFromHistory(items: AgentMessage[]): ChatItem[] {
         userQuestion: "",
         events: [],
         task: null,
-        finalAnswer: m.content,
+        finalAnswer: normalizeAgentAnswer(m.content),
         streaming: false,
         error: null,
       }
@@ -104,8 +128,14 @@ export function AssistantPageClient() {
   const [sending, setSending] = useState(false)
   const [activeTutorId, setActiveTutorId] = useState<string | null>(null)
   const [detailTarget, setDetailTarget] = useState<DetailTarget | null>(null)
+  const [resourceRefreshSignal, setResourceRefreshSignal] = useState(0)
   const listRef = useRef<HTMLDivElement>(null)
   const watchingTasksRef = useRef<Set<string>>(new Set())
+  const resourceSyncedTasksRef = useRef<Set<string>>(new Set())
+
+  const bumpResourceList = useCallback(() => {
+    setResourceRefreshSignal((n) => n + 1)
+  }, [])
 
   const tutor = useTutorStream()
 
@@ -242,7 +272,7 @@ export function AssistantPageClient() {
                 task,
                 events,
                 finalAnswer: completed
-                  ? String(completed.data.final_answer || m.finalAnswer)
+                  ? normalizeAgentAnswer(String(completed.data.final_answer || m.finalAnswer))
                   : m.finalAnswer,
                 error: failed
                   ? String(failed.data.error_message || "任务失败")
@@ -251,6 +281,14 @@ export function AssistantPageClient() {
               }
             }),
           )
+          if (
+            task.status === "succeeded" &&
+            !resourceSyncedTasksRef.current.has(taskId) &&
+            events.some((e) => eventProducesResource(e.type, e.data as Record<string, unknown>))
+          ) {
+            resourceSyncedTasksRef.current.add(taskId)
+            bumpResourceList()
+          }
         } catch {
           /* ignore poll errors */
         }
@@ -276,7 +314,7 @@ export function AssistantPageClient() {
                   events,
                   finalAnswer:
                     eventType === "completed"
-                      ? String(data.final_answer || m.finalAnswer)
+                      ? normalizeAgentAnswer(String(data.final_answer || m.finalAnswer))
                       : m.finalAnswer,
                   error:
                     eventType === "failed"
@@ -286,6 +324,10 @@ export function AssistantPageClient() {
                 }
               }),
             )
+
+            if (eventProducesResource(eventType, data as Record<string, unknown>)) {
+              bumpResourceList()
+            }
 
             if (["tool_started", "tool_completed", "plan_created", "completed"].includes(eventType)) {
               try {
@@ -309,7 +351,7 @@ export function AssistantPageClient() {
         watchingTasksRef.current.delete(taskId)
       }
     },
-    [patchAgentMessage],
+    [bumpResourceList, patchAgentMessage],
   )
 
   const approveAgentTask = async (taskId: string, approved: boolean) => {
@@ -528,7 +570,11 @@ export function AssistantPageClient() {
           </div>
         </section>
 
-        <ResourceSidePanel courseId={courseId} wikiPageId={wikiPageId || null} />
+        <ResourceSidePanel
+          courseId={courseId}
+          wikiPageId={wikiPageId || null}
+          refreshSignal={resourceRefreshSignal}
+        />
       </div>
 
       {detailTarget?.kind === "tutor" && detailMessage?.kind === "tutor" && (

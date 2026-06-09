@@ -13,6 +13,21 @@ from app.repositories.resource_repository import ResourceRepository
 from app.services.knowledge_search_service import KnowledgeSearchService
 
 
+# 知识卡片生成约束：复杂度过高会导致文生图乱码或 Mermaid 渲染拥挤
+CONCISE_MERMAID_RULES = (
+    "节点标签尽量短（每个不超过 10 个汉字）；"
+    "可多层展开，但每层分支不超过 5 个；"
+    "总节点数不超过 15 个；"
+    "优先表达核心概念与关系，细节放文字讲解而非图中。"
+)
+
+CONCISE_IMAGE_CARD_RULES = (
+    "单张简明知识卡片：扁平教育插画，留白充足；"
+    "最多 3–4 个视觉元素；"
+    "文字标签短、对比清晰；"
+    "避免拥挤、过多箭头或过细线条（易乱码/乱套）。"
+)
+
 DIAGRAM_PROMPTS = {
     "flowchart": "生成一个 Mermaid flowchart TD 流程图，展示 {concept} 的执行流程或逻辑关系。",
     "sequence": "生成一个 Mermaid sequenceDiagram 时序图，展示 {concept} 中各组件的交互过程。",
@@ -100,7 +115,8 @@ class DiagramService:
         return (
             f"{instruction}\n\n"
             f"参考知识片段：\n{context or '暂无检索片段'}\n\n"
-            "要求：只输出 Mermaid 代码；节点命名简短；无法从资料确认的内容标注为 AI 推断内容。"
+            f"要求：只输出 Mermaid 代码；{CONCISE_MERMAID_RULES} "
+            "无法从资料确认的内容标注为 AI 推断内容。"
         )
 
     def _extract_mermaid(self, content: str, *, concept: str, diagram_type: str) -> str:

@@ -26,6 +26,7 @@ class DirectCompleteProvider:
         ("讲解一下队列是什么", ["answer_course_question"], ["generate_explanation"]),
         ("画一张栈的入栈出栈流程图", ["generate_diagram"], ["generate_educational_image"]),
         ("给队列概念配一张教学插图", ["generate_educational_image"], []),
+        ("生成讲解队列的知识卡片", ["generate_educational_image"], ["generate_explanation"]),
         ("识别这段语音并转成文字", ["transcribe_audio"], ["synthesize_speech"]),
         ("把这段文字朗读出来", ["synthesize_speech"], ["transcribe_audio", "generate_explanation"]),
     ],
@@ -136,6 +137,59 @@ async def test_supervisor_native_tool_calls_not_overridden_by_keywords() -> None
         ],
     )
     assert decision.tool_calls[0].name == "answer_course_question"
+
+
+@pytest.mark.asyncio
+async def test_supervisor_stops_after_knowledge_card_image_generated() -> None:
+    class RegenerateImageProvider:
+        async def chat(self, messages, **kwargs):
+            return ChatResponse(
+                content="",
+                finish_reason="tool_calls",
+                tool_calls=[
+                    ToolCall(
+                        id="call_img2",
+                        name="generate_educational_image",
+                        arguments={"topic": "队列"},
+                    ),
+                ],
+            )
+
+    supervisor = MiMoSupervisor(provider=RegenerateImageProvider())
+    decision = await supervisor.decide(
+        {
+            "goal": "生成讲解队列的知识卡片",
+            "messages": [],
+            "observations": [
+                {
+                    "success": True,
+                    "tool_name": "generate_educational_image",
+                    "output": {"generation_mode": "image"},
+                }
+            ],
+            "artifacts": [
+                {
+                    "type": "media_asset",
+                    "subtype": "image",
+                    "title": "队列知识卡片",
+                    "mime_type": "image/png",
+                }
+            ],
+            "tool_calls": [],
+        },
+        [
+            {
+                "type": "function",
+                "function": {
+                    "name": "generate_educational_image",
+                    "description": "插图",
+                    "parameters": {"type": "object"},
+                },
+            }
+        ],
+    )
+    assert decision.status == "complete"
+    assert decision.tool_calls == []
 
 
 @pytest.mark.asyncio

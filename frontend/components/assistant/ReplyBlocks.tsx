@@ -1,6 +1,7 @@
 "use client"
 
 import { MarkdownRenderer } from "@/components/markdown/MarkdownRenderer"
+import { normalizeAgentAnswer } from "@/lib/normalizeAgentAnswer"
 import { StreamActivityLine } from "@/components/assistant/StreamActivityLine"
 import { truncateText } from "@/components/assistant/streamLabels"
 import type { SpeechAudioPayload } from "@/components/assistant/extractSpeechAudio"
@@ -76,6 +77,8 @@ export function AgentReplyBlock({
   speechAudio,
   onOpenDetail,
 }: AgentReplyBlockProps) {
+  const answer = normalizeAgentAnswer(finalAnswer)
+
   if (streaming) {
     return (
       <div className="flex w-full max-w-[88%] flex-col gap-2">
@@ -83,8 +86,8 @@ export function AgentReplyBlock({
           icon="smart_toy"
           label={statusLabel}
           preview={
-            finalAnswer
-              ? truncateText(finalAnswer, 96)
+            answer
+              ? truncateText(answer, 96)
               : toolCount > 0
                 ? `已调用 ${toolCount} 个工具，点击可查看过程`
                 : "智能体正在执行…"
@@ -98,9 +101,9 @@ export function AgentReplyBlock({
             <InlineAudioPlayer audio={speechAudio} />
           </div>
         ) : null}
-        {finalAnswer ? (
+        {answer ? (
           <div className="glass-card rounded-3xl rounded-tl-md p-4">
-            <MarkdownRenderer content={finalAnswer} />
+            <MarkdownRenderer content={answer} />
           </div>
         ) : null}
       </div>
@@ -123,9 +126,9 @@ export function AgentReplyBlock({
           <InlineAudioPlayer audio={speechAudio} />
         </div>
       ) : null}
-      {finalAnswer ? (
+      {answer ? (
         <div className="glass-card rounded-3xl rounded-tl-md p-4 shadow-sm">
-          <MarkdownRenderer content={finalAnswer} />
+          <MarkdownRenderer content={answer} />
         </div>
       ) : error ? (
         <p className="text-sm text-destructive">{error}</p>

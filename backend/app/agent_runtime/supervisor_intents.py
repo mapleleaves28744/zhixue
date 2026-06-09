@@ -53,7 +53,13 @@ def courseware_intent(goal: str) -> bool:
     return any(k in goal for k in ("互动课件", "交互课件", "可交互", "拖拽", "仿真", "演示页面"))
 
 
+def knowledge_card_intent(goal: str) -> bool:
+    return "知识卡片" in goal
+
+
 def image_intent(goal: str) -> bool:
+    if knowledge_card_intent(goal):
+        return True
     return any(
         k in goal
         for k in (
@@ -88,6 +94,8 @@ def learning_path_intent(goal: str) -> bool:
 
 def explanation_resource_intent(goal: str) -> bool:
     if speech_intent(goal) or video_intent(goal):
+        return False
+    if knowledge_card_intent(goal) or image_intent(goal) or mindmap_intent(goal) or diagram_intent(goal):
         return False
     if any(k in goal for k in ("讲解资料", "配套讲解", "生成讲解", "个性化讲解")):
         return True
@@ -168,6 +176,9 @@ def plan_required_tools(goal: str, *, is_profile_update_only: bool) -> list[str]
         tools.append("reflect_learning_memory")
     if explanation_resource_intent(goal) and "generate_explanation" not in tools:
         tools.append("generate_explanation")
+    if knowledge_card_intent(goal) and "generate_educational_image" not in tools:
+        tools = [name for name in tools if name != "generate_explanation"]
+        tools.append("generate_educational_image")
     if any(
         k in goal
         for k in (
@@ -202,7 +213,9 @@ def required_deliverables(goal: str) -> list[str]:
         deliverables.append("generate_lesson_video")
     if courseware_intent(goal):
         deliverables.append("generate_interactive_courseware")
-    if image_intent(goal) and not diagram_intent(goal):
+    if knowledge_card_intent(goal):
+        deliverables.append("generate_educational_image")
+    elif image_intent(goal) and not diagram_intent(goal):
         deliverables.append("generate_educational_image")
     elif diagram_intent(goal):
         deliverables.append("generate_diagram")

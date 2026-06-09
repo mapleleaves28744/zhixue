@@ -7,6 +7,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
 
+from app.agent_runtime.answer_text import extract_final_answer_text
 from app.agent_runtime.state import AgentState
 from app.agent_runtime.supervisor import Supervisor
 from app.agent_runtime.tools import ToolContext, ToolRegistry
@@ -343,7 +344,7 @@ class LearningAgentGraph:
         status = state.get("status")
         if status not in {"failed", "waiting_confirmation"}:
             status = "completed"
-        answer = state.get("final_answer") or self._budget_message(state)
+        answer = extract_final_answer_text(state.get("final_answer") or "") or self._budget_message(state)
         event_type = "completed" if status == "completed" else status
         await self.event_sink(
             event_type,

@@ -6,6 +6,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
+from app.rag.graph_retriever import GraphRetriever
 from app.rag.hybrid_retriever import HybridRetriever
 from app.services.course_service import CourseService
 
@@ -22,10 +23,33 @@ class KnowledgeSearchService:
         query: str,
         top_k: int = 5,
         knowledge_id: UUID | None = None,
+    ) -> dict[str, Any]:
+        await CourseService(self.db).get_readable_course(course_id, current_user)
+        return await GraphRetriever(self.db).search(
+            course_id=course_id,
+            query=query,
+            user_id=current_user.id,
+            top_k=top_k,
+            expand_hops=1,
+        )
+
+
+class KnowledgeSearchServiceLegacy:
+    """保留旧签名兼容测试。"""
+
+    def __init__(self, db: AsyncSession) -> None:
+        self.db = db
+
+    async def search_flat(
+        self,
+        *,
+        current_user: User,
+        course_id: UUID,
+        query: str,
+        top_k: int = 5,
+        knowledge_id: UUID | None = None,
     ) -> list[dict[str, Any]]:
         await CourseService(self.db).get_readable_course(course_id, current_user)
-        # 课程可读权限已在 Service 层校验；检索范围限定在 course_id 内即可，
-        # 不再按 uploaded_by 二次过滤，避免公共课/协作上传资料被误排除。
         results = await HybridRetriever(self.db).search(
             course_id=course_id,
             query=query,

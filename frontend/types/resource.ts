@@ -6,6 +6,7 @@ export type ResourceType =
   | "review"
   | "mindmap"
   | "diagram"
+  | "image"
 
 export interface ResourceCitation {
   source_type: string
@@ -33,6 +34,8 @@ export interface GeneratedResource {
   prompt_version_id?: string | null
   status: string
   created_at: string
+  media_asset_id?: string | null
+  media_mime_type?: string | null
 }
 
 export interface ResourceGeneratePayload {

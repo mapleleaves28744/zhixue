@@ -14,6 +14,8 @@ from app.models.diagnosis import DiagnosisReport
 from app.models.evolution import EvolutionEvent, EvolutionStrategy
 from app.models.feedback import UserFeedback
 from app.models.knowledge import KnowledgePoint
+from app.models.knowledge_relation import KnowledgeRelation
+from app.models.student_knowledge_mastery import StudentKnowledgeMastery
 from app.models.learning_path import LearningPath, LearningPathItem
 from app.models.learning_record import LearningRecord
 from app.models.material import CourseMaterial
@@ -45,6 +47,8 @@ __all__ = [
     "EvolutionStrategy",
     "GeneratedResource",
     "KnowledgePoint",
+    "KnowledgeRelation",
+    "StudentKnowledgeMastery",
     "LearningPath",
     "LearningPathItem",
     "LearningRecord",

@@ -10,7 +10,7 @@ from app.llm.provider import get_llm_provider
 from app.llm.schemas import ChatMessage
 from app.models.user import User
 from app.repositories.resource_repository import ResourceRepository
-from app.services.knowledge_search_service import KnowledgeSearchService
+from app.services.diagram_service import CONCISE_MERMAID_RULES
 
 
 class MindmapService:
@@ -83,7 +83,7 @@ class MindmapService:
             f"1. 使用 Mermaid mindmap 语法\n"
             f"2. 最大深度 {depth} 层\n"
             f"3. 中心节点为「{topic}」\n"
-            f"4. 节点体现知识依赖和逻辑关系\n"
+            f"4. {CONCISE_MERMAID_RULES}\n"
             f"5. 只输出 Mermaid 代码，不要其他解释\n"
         )
 

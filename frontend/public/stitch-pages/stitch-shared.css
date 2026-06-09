@@ -557,6 +557,61 @@ body {
     radial-gradient(circle at 90% 80%, rgba(125, 83, 84, 0.03) 0%, transparent 40%);
 }
 
+.practice-quiz-panel {
+  transition: box-shadow var(--motion-normal) var(--motion-ease), border-color var(--motion-normal) var(--motion-ease);
+}
+
+.practice-quiz-enter {
+  animation: practice-quiz-enter 420ms var(--motion-enter) both;
+}
+
+@keyframes practice-quiz-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.practice-side-card {
+  transition: transform var(--motion-normal) var(--motion-ease), box-shadow var(--motion-normal) var(--motion-ease);
+}
+
+.practice-stat-pill {
+  transition: transform var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
+}
+
+.practice-stat-pill:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.practice-progress-bar {
+  transition: width 600ms var(--motion-enter);
+}
+
+#question-type-group button,
+#difficulty-group button {
+  transition: transform var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease),
+    background var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+}
+
+#question-type-group button:active,
+#difficulty-group button:active {
+  transform: scale(0.97);
+}
+
+#generate-quiz-button:not(:disabled):hover {
+  box-shadow: 0 14px 28px -8px rgba(131, 84, 0, 0.35);
+}
+
+.practice-select:focus {
+  box-shadow: 0 0 0 4px rgba(131, 84, 0, 0.12);
+}
+
 .mascot-badge {
   display: inline-flex;
   align-items: center;

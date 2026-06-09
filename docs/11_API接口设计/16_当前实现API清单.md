@@ -2,7 +2,7 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
-> HTTP 操作数：**128**
+> HTTP 操作数：**130**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
@@ -62,6 +62,7 @@
 | `GET` | `/api/v1/evolution/strategies/{strategy_id}` | JWT | strategy_id* | - |
 | `POST` | `/api/v1/evolution/strategies/{strategy_id}/rollback` | JWT | strategy_id* | - |
 | `POST` | `/api/v1/knowledge/extract-from-material` | JWT | - | application/json: `ExtractKnowledgeRequest` |
+| `GET` | `/api/v1/knowledge/graph/subgraph` | JWT | course_id*, center_id*, depth | - |
 | `POST` | `/api/v1/knowledge/search` | JWT | - | application/json: `KnowledgeSearchRequest` |
 | `GET` | `/api/v1/knowledge/seed-quality-report` | JWT | - | - |
 | `GET` | `/api/v1/learning-paths` | JWT | course_id, status, page, page_size | - |
@@ -122,7 +123,8 @@
 | `GET` | `/api/v1/tutor/ping` | JWT | - | - |
 | `GET` | `/api/v1/users/me` | JWT | - | - |
 | `GET` | `/api/v1/users/ping` | JWT | - | - |
-| `GET` | `/api/v1/wiki/graph` | JWT | course_id* | - |
+| `GET` | `/api/v1/wiki/graph` | JWT | course_id*, view | - |
+| `GET` | `/api/v1/wiki/graph/subgraph` | JWT | course_id*, center_id*, depth | - |
 | `GET` | `/api/v1/wiki/pages` | JWT | course_id*, status, page, page_size | - |
 | `POST` | `/api/v1/wiki/pages` | JWT | - | application/json: `WikiPageCreate` |
 | `POST` | `/api/v1/wiki/pages/generate-from-material` | JWT | - | application/json: `GenerateFromMaterialRequest` |

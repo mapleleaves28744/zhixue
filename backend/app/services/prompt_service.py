@@ -103,7 +103,7 @@ DEFAULT_PROMPTS: dict[tuple[str, str], str] = {
         "题型契约：\n"
         "- single_choice：options 为 A/B/C/D 对象，standard_answer 为单个选项字母。\n"
         "- multiple_choice：options 为 A/B/C/D 对象，standard_answer 为多个选项字母组合，例如 AC。\n"
-        "- judge：options 为 {\"正确\":\"正确\",\"错误\":\"错误\"}，standard_answer 为 正确 或 错误。\n"
+        "- judge：options 为 {{\"正确\":\"正确\",\"错误\":\"错误\"}}，standard_answer 为 正确 或 错误。\n"
         "- short_answer：options 为空数组，standard_answer 为简短参考答案。\n"
         "- fill_blank：题干必须包含 ____，options 为空数组，standard_answer 为填空答案。\n"
         "- coding：options 为空数组，standard_answer 描述关键伪代码步骤和边界条件。\n\n"
