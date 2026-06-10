@@ -1,0 +1,7 @@
+# 复制为 ssh-cursor-proxy.config 并按本机 Cursor/代理端口修改 ProxyCommand
+Host zhixue-deploy
+    HostName YOUR_SERVER_IP
+    User ubuntu
+    Port 22
+    ProxyCommand "C:/Program Files/Git/mingw64/bin/connect.exe" -S 127.0.0.1:YOUR_PROXY_PORT %h %p
+    StrictHostKeyChecking accept-new

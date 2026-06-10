@@ -8,9 +8,22 @@
   function getApiBaseUrl() {
     const queryBase = getParentSearchParams().get("api_base") || new URLSearchParams(window.location.search).get("api_base");
     if (queryBase) {
+      window.localStorage.setItem("zhixue_api_base", queryBase);
       return queryBase;
     }
-    return window.localStorage.getItem("zhixue_api_base") || DEFAULT_API_BASE_URL;
+    const stored = window.localStorage.getItem("zhixue_api_base");
+    const host = window.location.hostname;
+    if (stored) {
+      const pointsToLocal = stored.includes("localhost") || stored.includes("127.0.0.1");
+      if (!(host !== "localhost" && host !== "127.0.0.1" && pointsToLocal)) {
+        return stored;
+      }
+      window.localStorage.removeItem("zhixue_api_base");
+    }
+    if (host && host !== "localhost" && host !== "127.0.0.1") {
+      return `${window.location.origin}/api/v1`;
+    }
+    return DEFAULT_API_BASE_URL;
   }
 
   function getToken() {

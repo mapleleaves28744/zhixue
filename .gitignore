@@ -34,3 +34,6 @@ Thumbs.db
 uploads/
 storage/
 *.log
+
+# 本地 SSH 代理配置（含个人端口，勿提交）
+deploy/ssh-cursor-proxy.config
