@@ -1,11 +1,23 @@
 # 12_Agent调度接口
 
-> 用途：Agent 执行、运行状态、执行日志查询接口。
+> 文档状态：**当前实现事实源**
+>
+> 模块：Agent 调度与日志
+>
+> Router tag：`agents`
+> HTTP 操作数：**4**
 
-## 编写状态
+| 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
+|---|---|---|---|---|
+| `GET` | `/api/v1/agents/ping` | JWT | - | - |
+| `POST` | `/api/v1/agents/run` | JWT | - | application/json: `AgentRunRequest` |
+| `GET` | `/api/v1/agents/runs` | JWT | task_type, status, page, page_size | - |
+| `GET` | `/api/v1/agents/runs/{run_id}` | JWT | run_id* | - |
 
-- [ ] 待补充
+## 维护说明
 
-## 建议内容
+请求与响应精确 Schema 以 `docs/assets/api/openapi-current.json` 和运行时 Swagger 为准。修改 Router 或 Schema 后执行：
 
-请根据项目当前实现情况补充本文件内容。
+```powershell
+python scripts/export_implementation_docs.py
+```

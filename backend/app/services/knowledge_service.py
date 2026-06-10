@@ -10,6 +10,7 @@ from app.core.error_codes import ErrorCode
 from app.core.exceptions import BusinessException
 from app.models.knowledge import KnowledgePoint
 from app.models.material import CourseMaterial
+from app.models.user import User
 from app.repositories.chunk_repository import ChunkRepository
 from app.repositories.course_repository import CourseRepository
 from app.repositories.knowledge_repository import KnowledgeRepository
@@ -26,7 +27,12 @@ class KnowledgeService:
         self.chunks = ChunkRepository(db)
         self.knowledge = KnowledgeRepository(db)
 
-    async def extract_from_material(self, material_id: UUID) -> list[KnowledgePoint]:
+    async def extract_from_material(
+        self,
+        material_id: UUID,
+        *,
+        current_user: User | None = None,
+    ) -> tuple[list[KnowledgePoint], int]:
         material = await self.materials.get_by_id(material_id)
         if material is None:
             raise BusinessException(
@@ -76,10 +82,32 @@ class KnowledgeService:
             scope=scope,
             items=extracted,
         )
+
+        relations_created = 0
+        actor = current_user
+        if actor is None:
+            from sqlalchemy import select
+
+            from app.models.user import User
+
+            actor = (
+                await self.db.execute(select(User).where(User.id == material.uploaded_by))
+            ).scalar_one_or_none()
+        if actor is not None and points:
+            from app.services.knowledge_graph_service import KnowledgeGraphService
+
+            relations_created = await KnowledgeGraphService(self.db).infer_relations_after_material_extract(
+                current_user=actor,
+                course_id=material.course_id,
+                owner_id=material.uploaded_by,
+                material_text=full_text,
+                new_points=points,
+            )
+
         await self.db.commit()
         for p in points:
             await self.db.refresh(p)
-        return points
+        return points, relations_created
 
     def _extract_by_rules(self, text: str) -> list[dict]:
         """Rule-based knowledge point extraction from text."""

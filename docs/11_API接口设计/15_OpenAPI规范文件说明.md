@@ -1,11 +1,19 @@
 # 15_OpenAPI规范文件说明
 
-> 用途：说明 openapi.yaml 的生成、维护和使用方式。
+> 文档状态：**当前实现**
 
-## 编写状态
+FastAPI 是 OpenAPI 的唯一生成源。不要手工维护另一份 YAML 接口定义。
 
-- [ ] 待补充
+## 文件与入口
 
-## 建议内容
+- 版本化快照：`docs/assets/api/openapi-current.json`
+- 人工阅读清单：`docs/11_API接口设计/16_当前实现API清单.md`
+- 运行时 Swagger：`http://127.0.0.1:8000/docs`
 
-请根据项目当前实现情况补充本文件内容。
+## 更新命令
+
+```powershell
+python scripts/export_implementation_docs.py
+```
+
+提交 API 变更前必须重新生成快照并检查对应模块文档。

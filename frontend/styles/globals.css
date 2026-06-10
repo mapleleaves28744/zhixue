@@ -1,3 +1,5 @@
+@import "./landing.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -64,11 +66,21 @@ select {
   background: #faf9f8;
 }
 
-.stitch-frame {
-  display: block;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  border: 0;
-  background: #faf9f8;
+.prose pre {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0.75rem 1rem;
+}
+
+.zhixue-markdown ul,
+.zhixue-markdown ol {
+  padding-left: 1.25rem;
+}
+
+.zhixue-markdown code:not(pre code) {
+  border-radius: 0.25rem;
+  background: rgba(131, 84, 0, 0.08);
+  padding: 0.1rem 0.35rem;
+  font-size: 0.85em;
 }

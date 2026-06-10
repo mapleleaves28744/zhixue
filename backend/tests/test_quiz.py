@@ -10,9 +10,27 @@ import pytest
 
 from app.agents.quiz_agent import QuizAgent
 from app.llm.adapters.mock_provider import MockLLMProvider
+from app.llm.prompt_renderer import PromptRenderer
+from app.services.prompt_service import DEFAULT_PROMPTS
 from app.llm.schemas import ChatMessage
 from app.schemas.quiz import QuizGenerateRequest, QuizSubmitRequest
 from app.services.quiz_service import QuizService
+
+
+def test_quiz_agent_prompt_renders_without_missing_variables() -> None:
+    template = DEFAULT_PROMPTS[("QuizAgent", "quiz.generate")]
+    rendered = PromptRenderer().render(
+        template,
+        {
+            "knowledge_name": "栈与队列",
+            "knowledge_description": "先进先出与后进先出",
+            "question_types": "single_choice",
+            "difficulty": "medium",
+            "count": 5,
+        },
+    )
+    assert "栈与队列" in rendered
+    assert "single_choice" in rendered
 
 
 def test_quiz_generate_request_defaults() -> None:
@@ -79,6 +97,21 @@ def test_quiz_service_normalizes_agent_questions() -> None:
     assert len(items) == 2
     assert items[0]["standard_answer"] == "先进先出"
     assert items[1]["question_type"] == "short_answer"
+
+
+def test_quiz_service_fallback_questions_match_question_type() -> None:
+    service = QuizService.__new__(QuizService)
+
+    judge = service._fallback_question(index=0, topic="栈", question_type="judge", difficulty="easy")
+    fill_blank = service._fallback_question(index=1, topic="队列", question_type="fill_blank", difficulty="medium")
+    coding = service._fallback_question(index=2, topic="二叉树遍历", question_type="coding", difficulty="hard")
+
+    assert judge["options"] == {"正确": "正确", "错误": "错误"}
+    assert judge["standard_answer"] in {"正确", "错误"}
+    assert "____" in fill_blank["question_text"]
+    assert fill_blank["options"] == []
+    assert "代码" in coding["question_text"] or "伪代码" in coding["question_text"]
+    assert coding["options"] == []
 
 
 def test_quiz_service_grades_objective_answers() -> None:

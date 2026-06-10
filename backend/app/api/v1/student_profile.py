@@ -5,7 +5,8 @@ from app.core.deps import get_current_user
 from app.core.response import success_response
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.profile import ProfileUpdate
+from app.schemas.profile import ProfileDialogueIngestRequest, ProfileUpdate
+from app.services.course_service import CourseService
 from app.services.profile_service import ProfileService
 
 router = APIRouter()
@@ -50,6 +51,24 @@ async def rebuild_profile(
 ) -> dict[str, object]:
     profile = await ProfileService(db).rebuild(current_user.id)
     return success_response(profile.model_dump(mode="json"), request=request)
+
+
+@router.post("/dialogue-ingest")
+async def ingest_dialogue_profile(
+    payload: ProfileDialogueIngestRequest,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    if payload.course_id is not None:
+        await CourseService(db).get_readable_course(payload.course_id, current_user)
+    result = await ProfileService(db).ingest_dialogue_profile(
+        user_id=current_user.id,
+        course_id=payload.course_id,
+        dialogue_text=payload.dialogue_text,
+        source_message_id=payload.source_message_id,
+    )
+    return success_response(result.model_dump(mode="json"), request=request)
 
 
 @router.get("/preferences")

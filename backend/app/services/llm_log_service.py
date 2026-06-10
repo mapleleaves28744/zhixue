@@ -94,6 +94,8 @@ class LLMLogService:
                     "role": message.role,
                     "content_preview": self.sanitize_text(message.content)[:300],
                     "content_length": len(message.content),
+                    "tool_call_count": len(message.tool_calls),
+                    "has_reasoning_content": bool(message.reasoning_content),
                 }
                 for message in (messages or [])[:10]
             ],
@@ -126,6 +128,11 @@ class LLMLogService:
                 "content_length": len(response.content),
                 "usage": response.usage,
                 "model": response.model,
+                "finish_reason": response.finish_reason,
+                "tool_calls": [
+                    {"id": item.id, "name": item.name}
+                    for item in response.tool_calls
+                ],
             }
         if embedding_response is not None:
             return {

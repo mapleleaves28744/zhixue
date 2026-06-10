@@ -1,0 +1,214 @@
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - iframe [active] [ref=e3]:
+      - generic [ref=f4e1]:
+        - navigation [ref=f4e2]:
+          - generic "当前用户" [ref=f4e3]:
+            - generic [ref=f4e4]: school
+          - link "home" [ref=f4e5] [cursor=pointer]:
+            - /url: /
+            - generic [ref=f4e6]: home
+          - link "grid_view" [ref=f4e7] [cursor=pointer]:
+            - /url: /courses
+            - generic [ref=f4e8]: grid_view
+          - link "smart_toy" [ref=f4e9] [cursor=pointer]:
+            - /url: /assistant
+            - generic [ref=f4e11]: smart_toy
+          - link "inventory_2" [ref=f4e12] [cursor=pointer]:
+            - /url: /practice
+            - generic [ref=f4e13]: inventory_2
+          - link "dashboard" [ref=f4e14] [cursor=pointer]:
+            - /url: /dashboard
+            - generic [ref=f4e15]: dashboard
+          - link "menu_book" [ref=f4e16] [cursor=pointer]:
+            - /url: /knowledge
+            - generic [ref=f4e17]: menu_book
+          - link "route" [ref=f4e18] [cursor=pointer]:
+            - /url: /path-profile
+            - generic [ref=f4e19]: route
+          - button "logout" [ref=f4e20] [cursor=pointer]:
+            - generic [ref=f4e21]: logout
+        - generic [ref=f4e22]:
+          - banner [ref=f4e23]:
+            - generic [ref=f4e25]: 智能问答
+            - generic [ref=f4e26]:
+              - generic [ref=f4e27]:
+                - generic [ref=f4e28]: search
+                - textbox "搜索对话历史..." [ref=f4e29]
+              - button "notifications" [ref=f4e30] [cursor=pointer]:
+                - generic [ref=f4e31]: notifications
+              - button "help_outline" [ref=f4e32] [cursor=pointer]:
+                - generic [ref=f4e33]: help_outline
+              - generic "当前用户" [ref=f4e34]:
+                - generic [ref=f4e35]: school
+          - main [ref=f4e36]:
+            - generic [ref=f4e37]:
+              - generic [ref=f4e38]:
+                - generic [ref=f4e39]:
+                  - generic [ref=f4e40]:
+                    - generic [ref=f4e41]:
+                      - combobox [ref=f4e42] [cursor=pointer]:
+                        - option "数据结构" [selected]
+                        - option "数据结构 Overlay 验收课"
+                      - generic: expand_more
+                    - generic [ref=f4e43]:
+                      - combobox [ref=f4e44] [cursor=pointer]:
+                        - option "尚无 Wiki 页面，基于资料库生成" [selected]
+                      - generic: expand_more
+                  - generic [ref=f4e45]:
+                    - generic [ref=f4e46] [cursor=pointer]:
+                      - checkbox "基于资料库" [checked] [ref=f4e48]
+                      - generic [ref=f4e51]: 基于资料库
+                    - generic [ref=f4e52] [cursor=pointer]:
+                      - checkbox "基于 Wiki" [ref=f4e54]
+                      - generic [ref=f4e57]: 基于 Wiki
+                - generic [ref=f4e58]:
+                  - generic [ref=f4e125]: LangGraph Agent 已连接 · MiMo 动态规划
+                  - generic [ref=f4e126]:
+                    - generic [ref=f4e128]: auto_awesome
+                    - generic [ref=f4e129]:
+                      - paragraph [ref=f4e130]: 直接告诉我你的问题或学习目标。MiMo Supervisor 会动态规划、选择专业 Agent 与工具，并根据执行观察继续或重新规划。
+                      - generic [ref=f4e131]: 试试：我最近图和排序不太会，帮我生成一套学习计划、讲解资料和练习题。
+                  - generic [ref=f4e136]:
+                    - generic [ref=f4e138]: person
+                    - paragraph [ref=f4e140]: 请帮我生成一张 BFS 广度优先搜索的教学插图，清晰标注队列进出过程
+                  - generic [ref=f4e141]:
+                    - generic [ref=f4e220]: account_tree
+                    - generic [ref=f4e221]:
+                      - generic [ref=f4e222]:
+                        - generic [ref=f4e223]:
+                          - generic [ref=f4e224]: LangGraph Agent · langgraph
+                          - heading "请帮我生成一张 BFS 广度优先搜索的教学插图，清晰标注队列进出过程" [level=3] [ref=f4e225]
+                        - generic [ref=f4e226]: 已完成
+                      - generic [ref=f4e227]:
+                        - generic [ref=f4e228]:
+                          - text: 风险
+                          - strong [ref=f4e229]: low
+                        - generic [ref=f4e230]:
+                          - text: 循环
+                          - strong [ref=f4e231]: "1"
+                        - generic [ref=f4e232]:
+                          - text: 工具调用
+                          - strong [ref=f4e233]: "0"
+                      - generic [ref=f4e234]:
+                        - generic [ref=f4e235]: Current Plan
+                        - generic [ref=f4e237]:
+                          - generic [ref=f4e238]: "1."
+                          - generic [ref=f4e239]: BFS教学插图生成完成。已创建清晰标注队列进出过程的广度优先搜索教学插图，包含完整的算法步骤、队列状态变化和搜索过程可视化。
+                      - generic [ref=f4e240]:
+                        - generic [ref=f4e241]: Plan · Act · Observe · Replan
+                        - generic [ref=f4e242]:
+                          - generic [ref=f4e243]:
+                            - generic [ref=f4e244]: radio_button_checked
+                            - generic [ref=f4e245]:
+                              - generic [ref=f4e246]: 进入后台队列
+                              - generic [ref=f4e247]: 任务已进入持久后台队列
+                            - generic [ref=f4e248]: "#1"
+                          - generic [ref=f4e249]:
+                            - generic [ref=f4e250]: sync
+                            - generic [ref=f4e251]:
+                              - generic [ref=f4e252]: 加载上下文并规划
+                              - generic [ref=f4e253]: 加载会话、课程、画像与长期记忆
+                            - generic [ref=f4e254]: "#2"
+                          - generic [ref=f4e255]:
+                            - generic [ref=f4e256]: radio_button_checked
+                            - generic [ref=f4e257]:
+                              - generic [ref=f4e258]: MiMo 制定计划
+                              - generic [ref=f4e259]: BFS教学插图生成完成。已创建清晰标注队列进出过程的广度优先搜索教学插图，包含完整的算法步骤、队列状态变化和搜索过程可视化。
+                            - generic [ref=f4e260]: "#3"
+                          - generic [ref=f4e261]:
+                            - generic [ref=f4e262]: radio_button_checked
+                            - generic [ref=f4e264]: Review Agent 审查
+                            - generic [ref=f4e265]: "#4"
+                          - generic [ref=f4e266]:
+                            - generic [ref=f4e267]: radio_button_checked
+                            - generic [ref=f4e268]:
+                              - generic [ref=f4e269]: 提炼长期学习记忆
+                              - generic [ref=f4e270]: 长期学习记忆反思完成
+                            - generic [ref=f4e271]: "#5"
+                          - generic [ref=f4e272]:
+                            - generic [ref=f4e273]: check_circle
+                            - generic [ref=f4e275]: 任务完成
+                            - generic [ref=f4e276]: "#6"
+                  - generic [ref=f4e277]:
+                    - generic [ref=f4e279]: auto_awesome
+                    - generic [ref=f4e280]:
+                      - generic [ref=f4e281]:
+                        - paragraph [ref=f4e282]: "# BFS 广度优先搜索教学插图 ## 📊 BFS算法概述 **广度优先搜索（BFS）** 是一种用于遍历或搜索树或图的算法。它从根节点开始，逐层访问所有相邻节点，使用**队列（Queue）**数据结构来管理待访问节点。 ## 🎯 BFS核心特点 1. **层次遍历**：按距离起点的远近顺序访问节点 2. **队列管理**：先进先出（FIFO）原则 3. **最短路径**：在无权图中能找到最短路径 4. **空间复杂度**：O(V)，其中V是顶点数 ## 📈 BFS算法步骤 ### 步骤1：初始化 - 创建空队列 `Q` - 将起始节点标记为已访问，加入队列 - 初始化距离数组 ### 步骤2：循环处理 ```python def bfs(graph, start): queue = deque([start]) visited = {start} distance = {start: 0} while queue: node = queue.popleft() # 从队列前端取出节点 for neighbor in graph[node]: if neighbor not in visited: visited.add(neighbor) distance[neighbor] = distance[node] + 1 queue.append(neighbor) # 加入队列后端 return distance ``` ## 🖼️ BFS教学插图 ### 示例图结构 ``` A / \\ B C / \\ \\ D E F ``` ### BFS遍历过程（从节点A开始） #### 阶段1：初始化 - **队列状态**: `[A]` - **已访问**: `{A}` - **距离**: `{A: 0}` #### 阶段2：处理A - **操作**: 从队列取出A，访问其邻居B、C - **队列变化**: `[A]` → `[]` → `[B, C]` - **已访问**: `{A, B, C}` - **距离**: `{A: 0, B: 1, C: 1}` #### 阶段3：处理B - **操作**: 从队列取出B，访问其邻居D、E - **队列变化**: `[B, C]` → `[C]` → `[C, D, E]` - **已访问**: `{A, B, C, D, E}` - **距离**: `{A: 0, B: 1, C: 1, D: 2, E: 2}` #### 阶段4：处理C - **操作**: 从队列取出C，访问其邻居F - **队列变化**: `[C, D, E]` → `[D, E]` → `[D, E, F]` - **已访问**: `{A, B, C, D, E, F}` - **距离**: `{A: 0, B: 1, C: 1, D: 2, E: 2, F: 2}` #### 阶段5：处理D、E、F - **队列变化**: `[D, E, F]` → `[E, F]` → `[F]` → `[]` - **最终距离**: `{A: 0, B: 1, C: 1, D: 2, E: 2, F: 2}` ## 📊 可视化表示 ### 队列状态变化图 ``` 初始状态: [A] 处理A后: [B, C] 处理B后: [C, D, E] 处理C后: [D, E, F] 处理D后: [E, F] 处理E后: [F] 处理F后: [] ``` ### 搜索层次图 ``` 层次0: A 层次1: B, C 层次2: D, E, F ``` ## 🔍 关键要点 1. **队列操作**：`popleft()`（出队）和`append()`（入队） 2. **访问标记**：避免重复访问节点 3. **距离记录**：记录从起点到每个节点的最短距离 4. **层次遍历**：按层次顺序访问节点 ## 💡 应用场景 1. **最短路径问题**：无权图中的最短路径 2. **层序遍历**：二叉树的层序遍历 3. **网络爬虫**：网页爬取策略 4. **社交网络分析**：查找一度、二度好友 ## 📝 总结 BFS使用队列实现层次遍历，确保按距离起点的远近顺序访问节点。这种特性使其特别适合解决最短路径问题和层次结构分析。通过清晰的队列状态变化，可以直观理解BFS的工作原理。"
+                        - generic [ref=f4e283]: "Provider: xiaomi_mimo · Model: mimo-v2.5 · Agent: 86b4aa4a-a448-4356-8aa0-10f99b301d7e"
+                        - generic [ref=f4e285]:
+                          - generic [ref=f4e286]: info
+                          - generic [ref=f4e287]: 未检索到来源，建议核对课程资料。
+                        - generic [ref=f4e289]: 真实语音接口暂不可用，已使用 Mock 兜底
+                      - generic [ref=f4e291]:
+                        - button "bookmark_add 保存到 Wiki" [disabled] [ref=f4e292]:
+                          - generic [ref=f4e293]: bookmark_add
+                          - text: 保存到 Wiki
+                        - button "volume_up 朗读" [ref=f4e294] [cursor=pointer]:
+                          - generic [ref=f4e295]: volume_up
+                          - text: 朗读
+                        - button "thumb_up" [disabled] [ref=f4e296]:
+                          - generic [ref=f4e297]: thumb_up
+                        - button "thumb_down" [disabled] [ref=f4e298]:
+                          - generic [ref=f4e299]: thumb_down
+                - generic [ref=f4e68]:
+                  - button "attach_file" [ref=f4e69] [cursor=pointer]:
+                    - generic [ref=f4e70]: attach_file
+                  - textbox "输入问题，按 Enter 发送..." [ref=f4e71]
+                  - button "send" [ref=f4e72] [cursor=pointer]:
+                    - generic [ref=f4e174]: send
+              - generic [ref=f4e74]:
+                - generic [ref=f4e75]:
+                  - heading "auto_fix_high 生成学习资源" [level=3] [ref=f4e76]:
+                    - generic [ref=f4e77]: auto_fix_high
+                    - text: 生成学习资源
+                  - generic [ref=f4e78]:
+                    - generic [ref=f4e79]:
+                      - generic [ref=f4e80]: 选择资源类型
+                      - generic [ref=f4e81]:
+                        - button "讲解" [ref=f4e82] [cursor=pointer]
+                        - button "总结" [ref=f4e83] [cursor=pointer]
+                        - button "例题" [ref=f4e84] [cursor=pointer]
+                        - button "复习卡" [ref=f4e85] [cursor=pointer]
+                        - button "错题解析" [ref=f4e86] [cursor=pointer]
+                        - button "思维导图" [ref=f4e87] [cursor=pointer]
+                        - button "图解" [ref=f4e88] [cursor=pointer]
+                    - generic [ref=f4e89]:
+                      - generic [ref=f4e90]: 个性化要求
+                      - textbox "例如：用适合初学者的方式解释，并给出一个小例题" [ref=f4e91]
+                    - button "auto_fix_high 生成资源" [ref=f4e92] [cursor=pointer]:
+                      - generic [ref=f4e93]: auto_fix_high
+                      - text: 生成资源
+                    - generic [ref=f4e94]:
+                      - generic [ref=f4e95]:
+                        - generic [ref=f4e96]: Agent 执行状态
+                        - generic [ref=f4e97]: 等待生成
+                      - generic [ref=f4e99]:
+                        - generic [ref=f4e100]:
+                          - generic [ref=f4e101]: radio_button_unchecked
+                          - generic [ref=f4e102]: 选择课程与 Wiki 来源
+                        - generic [ref=f4e103]:
+                          - generic [ref=f4e104]: radio_button_unchecked
+                          - generic [ref=f4e105]: Resource Agent 生成资源
+                        - generic [ref=f4e106]:
+                          - generic [ref=f4e107]: radio_button_unchecked
+                          - generic [ref=f4e108]: Review Agent 校验来源与风险
+                - generic [ref=f4e109]:
+                  - generic [ref=f4e110]:
+                    - heading "资源预览" [level=4] [ref=f4e111]
+                    - button "save 保存到 Wiki" [disabled] [ref=f4e113]:
+                      - generic [ref=f4e114]: save
+                      - text: 保存到 Wiki
+                  - generic [ref=f4e117]: 选择类型后生成学习资源
+                  - generic [ref=f4e118]:
+                    - generic [ref=f4e119]:
+                      - generic [ref=f4e120]: 历史记录
+                      - generic [ref=f4e121] [cursor=pointer]: history
+                    - generic [ref=f4e132]:
+                      - img "暂无生成记录" [ref=f4e133]
+                      - generic [ref=f4e134]: 暂无生成记录
+                      - paragraph [ref=f4e135]: 生成学习资源后，会在这里保留最近记录。
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e9] [cursor=pointer]:
+    - img [ref=e10]
+  - alert [ref=e13]

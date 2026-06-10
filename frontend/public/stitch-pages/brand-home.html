@@ -3,74 +3,8 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
 <title>智学工坊 - AI 原生学习伴侣</title>
 <link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
+<link href="/stitch-pages/stitch-shared.css" rel="stylesheet"/>
 <link href="/fonts/material-symbols.css" rel="stylesheet"/>
-
-<style>
-        body { font-family: 'Manrope', sans-serif; background-color: #fcf9f8; overflow-x: hidden; }
-        .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.45);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px 0 rgba(131, 84, 0, 0.05);
-        }
-        .mesh-gradient {
-            background: radial-gradient(at 0% 0%, rgba(249, 168, 38, 0.08) 0, transparent 50%),
-                        radial-gradient(at 100% 0%, rgba(125, 83, 84, 0.08) 0, transparent 50%),
-                        radial-gradient(at 100% 100%, rgba(131, 84, 0, 0.05) 0, transparent 50%),
-                        radial-gradient(at 0% 100%, rgba(88, 95, 102, 0.08) 0, transparent 50%);
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-        }
-        .text-gradient {
-            background: linear-gradient(135deg, #835400 0%, #7d5354 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .zhixue-auth-modal {
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            background: rgba(49, 48, 48, 0.32);
-            backdrop-filter: blur(18px);
-        }
-        .zhixue-auth-modal[data-open="true"] {
-            display: flex;
-        }
-        .zhixue-auth-panel {
-            width: min(92vw, 460px);
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.52);
-            background: rgba(255, 255, 255, 0.78);
-            box-shadow: 0 24px 80px rgba(131, 84, 0, 0.18);
-            overflow: hidden;
-        }
-        .zhixue-auth-field {
-            width: 100%;
-            border: 1px solid rgba(133, 116, 98, 0.32);
-            border-radius: 18px;
-            background: rgba(252, 249, 248, 0.82);
-            padding: 14px 16px;
-            color: #1c1b1b;
-            outline: none;
-            transition: border-color 160ms ease, box-shadow 160ms ease;
-        }
-        .zhixue-auth-field:focus {
-            border-color: #835400;
-            box-shadow: 0 0 0 4px rgba(131, 84, 0, 0.12);
-        }
-        .zhixue-auth-message[data-kind="error"] {
-            color: #93000a;
-        }
-        .zhixue-auth-message[data-kind="success"] {
-            color: #835400;
-        }
-    </style>
 </head>
 <body class="mesh-gradient min-h-screen text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
 <!-- TopAppBar -->
@@ -130,7 +64,7 @@
 <div class="relative">
 <div class="glass-card rounded-[32px] p-4 relative overflow-hidden aspect-square flex items-center justify-center group shadow-2xl">
 <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"></div>
-<img class="rounded-3xl w-full h-full object-cover shadow-inner transform group-hover:scale-105 transition-transform duration-700" data-alt="A futuristic, high-end digital desk mockup featuring a translucent tablet displaying complex data visualizations and academic knowledge maps. The lighting is warm and golden, reflecting the Luminous Warmth brand identity, with soft bokeh effects in the background. The scene is clean, minimal, and premium, representing advanced AI academic tools in a serene workspace environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJGd_-l7KBYh0_hB_dK1fjBqIgeuBLvsmmAsDmNjC7-A9kC3ET5IxCLXxDvG0dmndpebfNob3RwwWESgTArBZfDY9KHPWjJPPsQsMiw5_K6U39AyPjYGZ1FjgDU3inF3PdMNC7yYjJliGjNnSb4udYMjP9diKnyzJ1Mef9RmxWvuY1d8i_sHmlX8GGMb2RTh6Bmkg7DPfrt-ukIo-OmkWTMi4BfMBtfiP-40yO3If3cYNfOly7xvz7UGYQ_Z2W6GgbQkUl-XZBOxI" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+<img class="rounded-3xl w-full h-full object-contain bg-gradient-to-br from-[#fff8ea] via-white to-[#eef8f3] p-6 shadow-inner transform group-hover:scale-105 transition-transform duration-700" data-alt="智学工坊本地品牌 IP，展示学习智能体与知识空间。" src="/brand/zhixue-ip-mascot-v1.png" loading="lazy" decoding="async">
 <div class="absolute -bottom-6 -right-6 glass-card p-6 rounded-3xl shadow-xl border border-white/40 max-w-[200px] animate-bounce">
 <div class="flex gap-2 items-center mb-2">
 <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
@@ -165,7 +99,7 @@
 </a>
 </div>
 <div class="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-outline-variant/30">
-<img class="w-full h-full object-cover" data-alt="A highly detailed 3D visualization of a knowledge graph with glowing nodes and golden fiber-optic connections floating in a clean, off-white space. The aesthetic is professional, with thin strokes and translucent elements. Soft ambient shadows provide depth, matching the premium Glassmorphism theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5wQSBDtY0VtRD05BfjWu3RdTfDoF9EhibGcb-Y5gO0I9gt31RVDCadLsMhY0bkQXRsdi7K1Lsuf6RFT0uQERA_ZAGp5V9VxOdh91U3SyuOePl7dgTB2ONfRKzEKih_5wKWrkMdnDmZPPqeulAqRkRHUZW5N33DKdSwodLr3Wpg73KKo5VdgG9Ty6KCSsQQRZaGQQKKuxBaXI5Oycj4s-lgleSb-GTraHOzyd-Daa8ZoOeXlrm-Lxo-ViOqdnkgX0PmS2XGlVTfhs" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+<img class="w-full h-full object-cover" data-alt="本地化的知识图谱视觉图，展示发光节点与语义关联网络。" src="/brand/stitch-knowledge-graph-original.png" loading="lazy" decoding="async">
 </div>
 </div>
 </div>
@@ -351,6 +285,7 @@
 </div>
 </div>
 </div>
+<script src="/stitch-pages/zhixue-ui.js"></script>
 <script>
         // Simple micro-interactions for the cards
         document.querySelectorAll('.glass-card').forEach(card => {

@@ -6,6 +6,8 @@ from typing import Any
 from app.agents.base_agent import BaseAgent
 from app.agents.context import AgentContext, AgentResult
 from app.agents.registry import AgentRegistry
+from app.agents.structured_chat_utils import call_structured_chat_or_none
+from app.agents.structured_outputs import QuizGenerationOutput
 from app.llm import ChatMessage, get_llm_provider
 from app.services.prompt_service import PromptService
 
@@ -44,24 +46,53 @@ class QuizAgent(BaseAgent):
             agent_run_id=context.run_id,
             prompt_version_id=rendered.prompt_version_id,
         )
-        response = await llm.chat(
-            [ChatMessage(role="user", content=rendered.content)],
+        messages = [ChatMessage(role="user", content=rendered.content)]
+        structured = await call_structured_chat_or_none(
+            llm,
+            messages,
+            QuizGenerationOutput,
             temperature=0.4,
             max_tokens=4096,
         )
-        questions = self._parse_questions(
-            response.content,
-            knowledge_name=knowledge_name,
-            question_types=question_types,
-            difficulty=difficulty,
-            count=count,
-        )
+        if structured is not None:
+            questions = []
+            for index, item in enumerate(structured.questions[:count]):
+                questions.append(
+                    self._normalize_item(
+                        item.model_dump(exclude_none=True),
+                        index=index,
+                        knowledge_name=knowledge_name,
+                        question_type=question_types[index % len(question_types)],
+                        difficulty=difficulty,
+                    )
+                )
+            while len(questions) < count:
+                index = len(questions)
+                questions.append(
+                    self._fallback_question(
+                        index=index,
+                        knowledge_name=knowledge_name,
+                        question_type=question_types[index % len(question_types)],
+                        difficulty=difficulty,
+                    )
+                )
+            model_name = getattr(llm, "provider_name", "llm")
+        else:
+            response = await llm.chat(messages, temperature=0.4, max_tokens=4096)
+            questions = self._parse_questions(
+                response.content,
+                knowledge_name=knowledge_name,
+                question_types=question_types,
+                difficulty=difficulty,
+                count=count,
+            )
+            model_name = response.model
 
         return self.success_result(
             data={
                 "title": f"{knowledge_name}练习",
                 "questions": questions,
-                "model_name": response.model,
+                "model_name": model_name,
                 "prompt_version_id": str(rendered.prompt_version_id) if rendered.prompt_version_id else None,
                 "agent_run_id": str(context.run_id) if context.run_id else None,
             },

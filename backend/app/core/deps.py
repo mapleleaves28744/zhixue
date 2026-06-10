@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import Depends
+from fastapi import Depends, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,18 +15,8 @@ from app.repositories.user_repository import UserRepository
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
-    db: AsyncSession = Depends(get_db),
-) -> User:
-    if credentials is None or credentials.scheme.lower() != "bearer":
-        raise BusinessException(
-            code=ErrorCode.UNAUTHORIZED,
-            detail="缺少 Bearer Token",
-            status_code=401,
-        )
-
-    payload = decode_token(credentials.credentials, expected_type="access")
+async def _user_from_access_token(token: str, db: AsyncSession) -> User:
+    payload = decode_token(token, expected_type="access")
     try:
         user_id = UUID(str(payload["sub"]))
     except (KeyError, ValueError) as exc:
@@ -50,6 +40,50 @@ async def get_current_user(
             status_code=403,
         )
     return user
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        raise BusinessException(
+            code=ErrorCode.UNAUTHORIZED,
+            detail="缺少 Bearer Token",
+            status_code=401,
+        )
+    return await _user_from_access_token(credentials.credentials, db)
+
+
+async def get_current_user_bearer_or_query(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    access_token: str | None = Query(default=None, alias="access_token"),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    token: str | None = None
+    if credentials is not None and credentials.scheme.lower() == "bearer":
+        token = credentials.credentials
+    elif access_token:
+        token = access_token
+    if not token:
+        raise BusinessException(
+            code=ErrorCode.UNAUTHORIZED,
+            detail="缺少 Bearer Token",
+            status_code=401,
+        )
+    return await _user_from_access_token(token, db)
+
+
+async def require_student_bearer_or_query(
+    current_user: User = Depends(get_current_user_bearer_or_query),
+) -> User:
+    if current_user.role != "student":
+        raise BusinessException(
+            code=ErrorCode.FORBIDDEN,
+            detail="需要学生权限",
+            status_code=403,
+        )
+    return current_user
 
 
 async def require_admin(current_user: User = Depends(get_current_user)) -> User:

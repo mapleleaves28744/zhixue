@@ -1,0 +1,168 @@
+"use client"
+
+import { MarkdownRenderer } from "@/components/markdown/MarkdownRenderer"
+import { normalizeAgentAnswer } from "@/lib/normalizeAgentAnswer"
+import { StreamActivityLine } from "@/components/assistant/StreamActivityLine"
+import { truncateText } from "@/components/assistant/streamLabels"
+import type { ChatArtifactRef, ChatMediaArtifactRef } from "@/components/assistant/extractChatArtifacts"
+import type { SpeechAudioPayload } from "@/components/assistant/extractSpeechAudio"
+import { InlineAudioPlayer } from "@/components/assistant/InlineAudioPlayer"
+import { InlineChatResources } from "@/components/assistant/InlineChatResources"
+import { InlineMediaArtifacts } from "@/components/assistant/InlineMediaArtifacts"
+
+interface TutorReplyBlockProps {
+  content: string
+  progress?: string
+  streaming: boolean
+  onOpenDetail?: () => void
+}
+
+export function TutorReplyBlock({
+  content,
+  progress,
+  streaming,
+  onOpenDetail,
+}: TutorReplyBlockProps) {
+  if (streaming) {
+    return (
+      <div className="flex w-full max-w-[88%] flex-col gap-2">
+        <StreamActivityLine
+          icon="psychology"
+          label={progress || "AI 正在回答…"}
+          preview={content ? truncateText(content, 96) : "内容流式生成中…"}
+          streaming
+          onClick={onOpenDetail}
+        />
+        {content ? (
+          <div className="glass-card rounded-3xl rounded-tl-md p-4">
+            <MarkdownRenderer content={content} />
+          </div>
+        ) : null}
+      </div>
+    )
+  }
+
+  if (!content) {
+    return (
+      <StreamActivityLine
+        icon="psychology"
+        label="AI 回答"
+        preview="暂无内容"
+        onClick={onOpenDetail}
+        className="max-w-[88%]"
+      />
+    )
+  }
+
+  return (
+    <div className="glass-card max-w-[88%] rounded-3xl rounded-tl-md p-4 shadow-sm">
+      <MarkdownRenderer content={content} />
+    </div>
+  )
+}
+
+interface AgentReplyBlockProps {
+  statusLabel: string
+  finalAnswer: string
+  streaming: boolean
+  error?: string | null
+  toolCount?: number
+  speechAudio?: SpeechAudioPayload | null
+  chatArtifacts?: ChatArtifactRef[]
+  mediaArtifacts?: ChatMediaArtifactRef[]
+  onOpenDetail?: () => void
+}
+
+function shouldShowStandaloneSpeech(
+  speechAudio: SpeechAudioPayload | null | undefined,
+  chatArtifacts: ChatArtifactRef[],
+  mediaArtifacts: ChatMediaArtifactRef[],
+): boolean {
+  if (!speechAudio) return false
+  if (chatArtifacts.length > 0) return false
+  if (mediaArtifacts.length > 0) return false
+  return true
+}
+
+export function AgentReplyBlock({
+  statusLabel,
+  finalAnswer,
+  streaming,
+  error,
+  toolCount = 0,
+  speechAudio,
+  chatArtifacts = [],
+  mediaArtifacts = [],
+  onOpenDetail,
+}: AgentReplyBlockProps) {
+  const answer = normalizeAgentAnswer(finalAnswer)
+  const showStandaloneSpeech = shouldShowStandaloneSpeech(speechAudio, chatArtifacts, mediaArtifacts)
+
+  if (streaming) {
+    return (
+      <div className="flex w-full max-w-[88%] flex-col gap-2">
+        <StreamActivityLine
+          icon="smart_toy"
+          label={statusLabel}
+          preview={
+            answer
+              ? truncateText(answer, 96)
+              : toolCount > 0
+                ? `已调用 ${toolCount} 个工具，点击可查看过程`
+                : "智能体正在执行…"
+          }
+          streaming
+          error={error}
+          onClick={onOpenDetail}
+        />
+        {chatArtifacts.length ? <InlineChatResources refs={chatArtifacts} /> : null}
+        {mediaArtifacts.length ? <InlineMediaArtifacts refs={mediaArtifacts} /> : null}
+        {showStandaloneSpeech && speechAudio ? (
+          <div className="glass-card rounded-3xl rounded-tl-md p-4">
+            <InlineAudioPlayer audio={speechAudio} />
+          </div>
+        ) : null}
+        {answer ? (
+          <div className="glass-card rounded-3xl rounded-tl-md p-4">
+            <MarkdownRenderer content={answer} />
+          </div>
+        ) : null}
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex w-full max-w-[88%] flex-col gap-2">
+      {toolCount > 0 && onOpenDetail ? (
+        <StreamActivityLine
+          icon="smart_toy"
+          label={`智能体执行完成 · ${toolCount} 次工具调用`}
+          preview="点击查看完整执行过程"
+          onClick={onOpenDetail}
+          className="max-w-full"
+        />
+      ) : null}
+      {chatArtifacts.length ? <InlineChatResources refs={chatArtifacts} /> : null}
+      {mediaArtifacts.length ? <InlineMediaArtifacts refs={mediaArtifacts} /> : null}
+      {showStandaloneSpeech && speechAudio ? (
+        <div className="glass-card rounded-3xl rounded-tl-md p-4 shadow-sm">
+          <InlineAudioPlayer audio={speechAudio} />
+        </div>
+      ) : null}
+      {answer ? (
+        <div className="glass-card rounded-3xl rounded-tl-md p-4 shadow-sm">
+          <MarkdownRenderer content={answer} />
+        </div>
+      ) : error ? (
+        <p className="text-sm text-destructive">{error}</p>
+      ) : (
+        <StreamActivityLine
+          icon="smart_toy"
+          label="智能体任务"
+          preview="未生成回答"
+          onClick={onOpenDetail}
+        />
+      )}
+    </div>
+  )
+}

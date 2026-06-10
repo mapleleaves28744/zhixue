@@ -1,0 +1,145 @@
+{
+  "source_root": "data\\seed_knowledge\\data_structure",
+  "raw_document_count": 21,
+  "source_count": 6,
+  "approved_source_count": 6,
+  "importable_source_count": 5,
+  "chapter_count": 19,
+  "covered_chapter_count": 19,
+  "chapter_coverage_rate": 1.0,
+  "normalized_document_count": 32,
+  "source_traceability_rate": 1.0,
+  "standard_question_count": 30,
+  "graph": {
+    "entity_count": 10,
+    "relation_count": 8,
+    "claim_count": 6
+  },
+  "public_kb": {
+    "course_id": "0b41dca8-3e7d-420b-9769-b4fe623e482f",
+    "course_code": "DS-PUBLIC",
+    "course_visibility": "public_template",
+    "corpus_stats": {
+      "materials": 32,
+      "chunks": 1608,
+      "embedded_chunks": 1608,
+      "knowledge_points": 125
+    },
+    "embedding": {
+      "provider": "sentence_transformers",
+      "model": "BAAI/bge-large-zh-v1.5",
+      "dimension": 1024,
+      "allow_mock_fallback": false
+    },
+    "indexes": [
+      "document_chunks_pkey",
+      "idx_document_chunks_chapter_id_expr",
+      "idx_document_chunks_chunk_index",
+      "idx_document_chunks_chunk_type_expr",
+      "idx_document_chunks_content_trgm",
+      "idx_document_chunks_course_id",
+      "idx_document_chunks_embedding_hnsw",
+      "idx_document_chunks_extra_meta_gin",
+      "idx_document_chunks_knowledge_id",
+      "idx_document_chunks_material_id",
+      "idx_document_chunks_source_id_expr"
+    ],
+    "metrics": {
+      "question_count": 30,
+      "retrieval_recall": 0.9667,
+      "answer_accuracy": 0.9667,
+      "hallucination_rate": 0.0333,
+      "citation_rate": 1.0
+    },
+    "llm_sample_count": 3,
+    "real_llm_sample_count": 3
+  },
+  "pipeline_stages": [
+    {
+      "stage_id": "raw_documents",
+      "name": "原始文档",
+      "status": "ready",
+      "evidence": "raw 文件 21 份；normalized 文档 32 份。",
+      "next_action": "继续补充权威资料下载清单，并保留 license/source_url。"
+    },
+    {
+      "stage_id": "document_parsing",
+      "name": "文档解析",
+      "status": "ready",
+      "evidence": "ingest_course_materials.py 已支持 HTML/Markdown/RST/PDF 到 normalized Markdown。",
+      "next_action": "后续可扩展 Word/Excel 解析并记录页码、表格坐标。"
+    },
+    {
+      "stage_id": "cleaning_normalization",
+      "name": "清洗与格式统一",
+      "status": "ready",
+      "evidence": "normalized docs: 32; source traceability: 100%",
+      "next_action": "补充更严格的噪声去除、重复段落检测和表格/公式规范化。"
+    },
+    {
+      "stage_id": "hierarchy_chunking",
+      "name": "层级切片",
+      "status": "ready",
+      "evidence": "backend/app/rag/chunking.py 保留 heading_path，并保护代码块。",
+      "next_action": "构建入库时由 ChunkService 写入 source/chapter/heading/license metadata。"
+    },
+    {
+      "stage_id": "embedding",
+      "name": "Embedding",
+      "status": "ready",
+      "evidence": "1608/1608 chunks 已使用 sentence_transformers / BAAI/bge-large-zh-v1.5 / 1024 维真实向量化；allow_mock_fallback=False。",
+      "next_action": "保持模型、维度和 pgvector 字段一致；更换模型时重新构建和评测。"
+    },
+    {
+      "stage_id": "indexing",
+      "name": "索引",
+      "status": "ready",
+      "evidence": "pgvector HNSW、内容 pg_trgm 关键词索引和 extra_meta GIN 元数据索引均已建立。",
+      "next_action": "持续用 EXPLAIN ANALYZE 观察查询计划；数据量增大后调优索引参数。"
+    },
+    {
+      "stage_id": "retrieval",
+      "name": "检索",
+      "status": "ready",
+      "evidence": "HybridRetriever 已完成向量、关键词、metadata 混合检索；30 个标准问题检索召回率 97%。",
+      "next_action": "持续记录漏召回问题并优化切片、关键词权重和来源多样性。"
+    },
+    {
+      "stage_id": "rerank",
+      "name": "Rerank",
+      "status": "ready",
+      "evidence": "HybridRetriever 已执行向量分数、关键词分数、metadata 与来源多样性的轻量规则 rerank。",
+      "next_action": "Phase 5 可在规则 rerank 后增加 cross-encoder/LLM rerank。"
+    },
+    {
+      "stage_id": "llm_answer",
+      "name": "LLM 回答",
+      "status": "ready",
+      "evidence": "已通过真实 LLM 完成 3 个 RAG 样例回答，fallback_used=false。",
+      "next_action": "扩大真实 LLM 抽样规模，并持续审查回答依据。"
+    },
+    {
+      "stage_id": "citations",
+      "name": "引用来源",
+      "status": "ready",
+      "evidence": "标准问题评测引用率 100%；Tutor 输出可追溯 citations。",
+      "next_action": "PDF/网页导入时继续补页码、URL fragment、段落定位。"
+    },
+    {
+      "stage_id": "feedback_optimization",
+      "name": "反馈优化",
+      "status": "ready",
+      "evidence": "已生成标准问题逐题命中记录；回答准确率 97%，幻觉率 3%。",
+      "next_action": "记录标准问题的漏召回、错答和低质量引用，反哺 chunking/rerank/source review。"
+    }
+  ],
+  "pipeline_summary": {
+    "ready": 11,
+    "ready_for_build": 0,
+    "ready_for_query_after_build": 0,
+    "partial": 0,
+    "planned": 0,
+    "missing": 0
+  },
+  "graphrag_ready": true
+}

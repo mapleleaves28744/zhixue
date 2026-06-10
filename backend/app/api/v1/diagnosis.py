@@ -80,3 +80,19 @@ async def get_mastery(
         course_id=course_id,
     )
     return success_response(mastery, request=request)
+
+
+@router.get("/difficulty")
+async def get_difficulty(
+    request: Request,
+    course_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    from app.services.difficulty_service import DifficultyService
+
+    difficulty = await DifficultyService(db).get_difficulty(
+        user_id=current_user.id,
+        course_id=course_id,
+    )
+    return success_response({"difficulty": difficulty}, request=request)

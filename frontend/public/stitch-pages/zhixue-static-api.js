@@ -49,9 +49,20 @@
     window.location.href = path;
   }
 
+  function getCurrentRouteForRedirect() {
+    try {
+      if (window.parent && window.parent.location) {
+        return `${window.parent.location.pathname}${window.parent.location.search || ""}`;
+      }
+    } catch {
+      // Keep iframe pages resilient if parent access is unavailable.
+    }
+    return `${window.location.pathname}${window.location.search || ""}`;
+  }
+
   function logout() {
     clearAuthSession();
-    navigate("/login");
+    navigate("/?auth=login");
   }
 
   function mountLogoutButton() {
@@ -116,7 +127,8 @@
     if (!response.ok || !payload || payload.code !== 0) {
       const detailText = normalizeErrorDetail(payload && payload.detail);
       if (response.status === 401) {
-        navigate(`/login?redirect=${encodeURIComponent(getParentSearchParams().toString() ? `${window.parent.location.pathname}?${getParentSearchParams()}` : "/courses")}`);
+        clearAuthSession();
+        navigate(`/?auth=login&redirect=${encodeURIComponent(getCurrentRouteForRedirect() || "/courses")}`);
       }
       throw new Error(detailText || (payload && payload.message) || "请求失败，请稍后重试");
     }
@@ -124,6 +136,15 @@
   }
 
   function toast(message, type = "info") {
+    if (window.ZhixueUI && typeof window.ZhixueUI.toast === "function" && !toast.__usingSharedUi) {
+      try {
+        toast.__usingSharedUi = true;
+        window.ZhixueUI.toast(message, type);
+        return;
+      } finally {
+        toast.__usingSharedUi = false;
+      }
+    }
     let node = document.getElementById("zhixue-static-toast");
     if (!node) {
       node = document.createElement("div");
@@ -181,6 +202,13 @@
     });
   }
 
+  async function updateCourse(courseId, payload) {
+    return request(`/courses/${courseId}`, {
+      method: "PUT",
+      body: payload,
+    });
+  }
+
   async function getCourse(courseId) {
     return request(`/courses/${courseId}`);
   }
@@ -199,6 +227,22 @@
     return request(`/wiki/pages?${query}`);
   }
 
+  async function getWikiGraph(courseId, params = {}) {
+    const query = new URLSearchParams({
+      course_id: courseId,
+      view: params.view || "merged",
+    });
+    return request(`/wiki/graph?${query}`);
+  }
+
+  async function getWikiPage(pageId) {
+    return request(`/wiki/pages/${pageId}`);
+  }
+
+  async function listWikiVersions(pageId) {
+    return request(`/wiki/pages/${pageId}/versions`);
+  }
+
   async function listMaterials(courseId, params = {}) {
     const query = new URLSearchParams({
       course_id: courseId,
@@ -206,6 +250,22 @@
       page_size: String(params.pageSize || 20),
     });
     return request(`/materials?${query}`);
+  }
+
+  function materialDownloadUrl(materialId) {
+    return `${getApiBaseUrl()}/materials/${materialId}/download`;
+  }
+
+  async function getMaterialParsedText(materialId) {
+    return request(`/materials/${materialId}/parsed-text`);
+  }
+
+  async function listMaterialChunks(materialId, params = {}) {
+    const query = new URLSearchParams({
+      page: String(params.page || 1),
+      page_size: String(params.pageSize || 20),
+    });
+    return request(`/materials/${materialId}/chunks?${query}`);
   }
 
   async function createWikiPage(payload) {
@@ -220,6 +280,10 @@
       method: "POST",
       body: payload,
     });
+  }
+
+  async function getResource(resourceId) {
+    return request(`/resources/${resourceId}`);
   }
 
   async function listResources(courseId, params = {}) {
@@ -313,6 +377,44 @@
     return request(`/learning-records?${query}`);
   }
 
+  async function trackLearningEvents(events) {
+    try {
+      if (!Array.isArray(events) || !events.length) {
+        return { recorded: 0 };
+      }
+      return await request("/learning-records/events/batch", {
+        method: "POST",
+        body: {
+          events: events.map((event) => ({
+            ...event,
+            event_source: event.event_source || "stitch_frontend",
+            event_payload: event.event_payload || {},
+          })),
+        },
+      });
+    } catch {
+      return { recorded: 0, ignored: true };
+    }
+  }
+
+  async function trackLearningEvent(event) {
+    return trackLearningEvents([event]);
+  }
+
+  async function transcribeAudio(payload) {
+    return request("/audio/transcribe", {
+      method: "POST",
+      body: payload,
+    });
+  }
+
+  async function synthesizeSpeech(payload) {
+    return request("/audio/synthesize", {
+      method: "POST",
+      body: payload,
+    });
+  }
+
   async function listAgentRuns(params = {}) {
     const query = new URLSearchParams({
       page: String(params.page || 1),
@@ -325,6 +427,136 @@
       query.set("status", params.status);
     }
     return request(`/agents/runs?${query}`);
+  }
+
+  async function createAgentTask(payload) {
+    return request("/agent-tasks/create", {
+      method: "POST",
+      body: payload,
+    });
+  }
+
+  async function getAgentTask(taskId) {
+    return request(`/agent-tasks/${taskId}`);
+  }
+
+  async function getAgentTaskSteps(taskId) {
+    return request(`/agent-tasks/${taskId}/steps`);
+  }
+
+  async function confirmAgentTask(taskId) {
+    return request(`/agent-tasks/${taskId}/confirm`, { method: "POST" });
+  }
+
+  async function runAgentTask(taskId) {
+    return request(`/agent-tasks/${taskId}/run`, { method: "POST" });
+  }
+
+  async function cancelAgentTask(taskId) {
+    return request(`/agent-tasks/${taskId}/cancel`, { method: "POST" });
+  }
+
+  async function createAgentConversation(payload) {
+    return request("/agent/conversations", {
+      method: "POST",
+      body: payload,
+    });
+  }
+
+  async function listAgentConversations() {
+    return request("/agent/conversations");
+  }
+
+  async function listAgentConversationMessages(conversationId) {
+    return request(`/agent/conversations/${conversationId}/messages`);
+  }
+
+  async function sendAgentConversationMessage(conversationId, content) {
+    return request(`/agent/conversations/${conversationId}/messages`, {
+      method: "POST",
+      body: { content },
+    });
+  }
+
+  async function getDynamicAgentTask(taskId) {
+    return request(`/agent/tasks/${taskId}`);
+  }
+
+  async function resumeDynamicAgentTask(taskId, approved = true) {
+    return request(`/agent/tasks/${taskId}/resume`, {
+      method: "POST",
+      body: { approved },
+    });
+  }
+
+  async function cancelDynamicAgentTask(taskId) {
+    return request(`/agent/tasks/${taskId}/cancel`, { method: "POST" });
+  }
+
+  async function requeueDynamicAgentTask(taskId) {
+    return request(`/agent/tasks/${taskId}/requeue`, { method: "POST" });
+  }
+
+  async function ingestProfileDialogue(payload) {
+    return request("/student/profile/dialogue-ingest", {
+      method: "POST",
+      body: payload,
+    });
+  }
+
+  async function streamDynamicAgentTaskEvents(taskId, handlers = {}) {
+    const token = getToken();
+    if (!token) {
+      throw new Error("请先登录后再操作");
+    }
+    const response = await fetch(`${getApiBaseUrl()}/agent/tasks/${taskId}/events`, {
+      headers: {
+        Accept: "text/event-stream",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
+      throw new Error(normalizeErrorDetail(payload && payload.detail) || (payload && payload.message) || "Agent 事件流连接失败");
+    }
+    if (!response.body) {
+      throw new Error("浏览器不支持 Agent 实时事件流");
+    }
+
+    handlers.onOpen?.();
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+
+    function consumeEvent(rawEvent) {
+      const lines = rawEvent.split("\n").map((line) => line.trimEnd());
+      const eventName = (lines.find((line) => line.startsWith("event:")) || "event: message").slice(6).trim();
+      const dataLines = lines.filter((line) => line.startsWith("data:")).map((line) => line.slice(5).trimStart());
+      if (!dataLines.length) {
+        return;
+      }
+      const eventData = JSON.parse(dataLines.join("\n"));
+      handlers.onEvent?.(eventName, eventData);
+    }
+
+    while (true) {
+      const { value, done } = await reader.read();
+      buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+      const events = buffer.split("\n\n");
+      buffer = events.pop() || "";
+      for (const eventText of events) {
+        if (eventText.trim()) {
+          consumeEvent(eventText);
+        }
+      }
+      if (done) {
+        break;
+      }
+    }
+    if (buffer.trim()) {
+      consumeEvent(buffer);
+    }
+    handlers.onClose?.();
   }
 
   async function refreshRecommendations(courseId) {
@@ -429,29 +661,171 @@
     });
   }
 
-  async function resolveCourseId() {
-    const courseId = getCourseIdFromUrl();
-    if (courseId) {
-      return courseId;
+  const CURRENT_COURSE_KEY = "zhixue_current_course_id";
+
+  async function pickCourseIdWithMostWiki(courses) {
+    let bestCourse = courses[0];
+    let bestWikiCount = -1;
+    for (const course of courses) {
+      try {
+        const wikiPage = await listWikiPages(course.id, { pageSize: 1 });
+        const wikiCount = Number(wikiPage.total ?? (wikiPage.items || []).length) || 0;
+        if (wikiCount > bestWikiCount) {
+          bestWikiCount = wikiCount;
+          bestCourse = course;
+        }
+      } catch {
+        // Keep scanning other courses when one course lookup fails.
+      }
     }
-    const page = await listCourses({ pageSize: 1 });
-    const firstCourse = page.items && page.items[0];
-    if (!firstCourse) {
+    return bestCourse.id;
+  }
+
+  async function resolveCourseId() {
+    const page = await listCourses({ pageSize: 50, status: "active" });
+    const courses = page.items || [];
+    if (!courses.length) {
       throw new Error("请先创建课程，再继续操作");
     }
-    return firstCourse.id;
+
+    const urlCourseId = getCourseIdFromUrl();
+    if (urlCourseId && courses.some((course) => course.id === urlCourseId)) {
+      window.localStorage.setItem(CURRENT_COURSE_KEY, urlCourseId);
+      return urlCourseId;
+    }
+
+    const storedCourseId = window.localStorage.getItem(CURRENT_COURSE_KEY);
+    if (storedCourseId && courses.some((course) => course.id === storedCourseId)) {
+      return storedCourseId;
+    }
+
+    const bestCourseId = await pickCourseIdWithMostWiki(courses);
+    window.localStorage.setItem(CURRENT_COURSE_KEY, bestCourseId);
+    return bestCourseId;
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? "" : value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  async function getMediaAsset(assetId) {
+    return request(`/media-assets/${assetId}`);
+  }
+
+  function mediaAssetFileUrl(assetId) {
+    const base = getApiBaseUrl().replace(/\/$/, "");
+    const url = `${base}/media-assets/${assetId}/file`;
+    const token = getToken();
+    if (!token) {
+      return url;
+    }
+    return `${url}?access_token=${encodeURIComponent(token)}`;
+  }
+
+  function renderArtifactCard(artifact) {
+    const type = artifact.subtype || artifact.type;
+    const title = artifact.title || "学习产物";
+    if (artifact.type === "media_job") {
+      return `
+        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+          <div class="text-sm text-[#8a5a00] font-bold">视频生成任务</div>
+          <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
+          <div class="mt-3 h-2 rounded-full bg-[#f5e4c8] overflow-hidden">
+            <div class="h-full bg-[#8a5a00]" style="width:${Number(artifact.progress || 0)}%"></div>
+          </div>
+          <div class="mt-2 text-xs text-[#7c6b58]">${escapeHtml(artifact.stage || artifact.status || "queued")}</div>
+        </div>`;
+    }
+    if (artifact.type === "media_review") {
+      const passed = artifact.passed === true;
+      const risk = artifact.risk_level || "unknown";
+      const tone = passed ? "border-green-200 bg-green-50/80" : risk === "high" ? "border-red-200 bg-red-50/80" : "border-amber-200 bg-amber-50/80";
+      return `
+        <div class="rounded-3xl border ${tone} p-5 shadow-sm">
+          <div class="text-sm font-bold text-[#8a5a00]">多模态安全审核</div>
+          <div class="mt-1 text-lg font-black text-[#2b2118]">${passed ? "通过" : "需关注"} · 风险 ${escapeHtml(risk)}</div>
+          <div class="mt-2 text-xs text-[#7c6b58]">asset ${escapeHtml(artifact.asset_id || "-")}</div>
+        </div>`;
+    }
+    if (artifact.type === "media_asset" && type === "image") {
+      const url = mediaAssetFileUrl(artifact.asset_id);
+      return `
+        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+          <div class="text-sm text-[#8a5a00] font-bold">教学插图</div>
+          <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
+          <img class="mt-4 w-full rounded-2xl border border-[#f5e4c8]" src="${url}" alt="${escapeHtml(title)}" />
+        </div>`;
+    }
+    if (artifact.type === "media_asset" && (type === "courseware" || type === "storyboard" || artifact.mime_type === "text/html")) {
+      const url = mediaAssetFileUrl(artifact.asset_id);
+      return `
+        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+          <div class="text-sm text-[#8a5a00] font-bold">${type === "storyboard" ? "讲解分镜" : "互动课件"}</div>
+          <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
+          <iframe class="mt-4 w-full h-[520px] rounded-2xl border border-[#f5e4c8] bg-white" src="${url}" sandbox="allow-scripts"></iframe>
+        </div>`;
+    }
+    if (artifact.type === "media_asset" && (type === "audio" || String(artifact.mime_type || "").startsWith("audio/"))) {
+      const url = mediaAssetFileUrl(artifact.asset_id);
+      return `
+        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+          <div class="text-sm text-[#8a5a00] font-bold">语音讲解</div>
+          <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
+          <audio class="mt-4 w-full" src="${url}" controls preload="metadata"></audio>
+        </div>`;
+    }
+    if (artifact.type === "media_asset" && (type === "video" || String(artifact.mime_type || "").startsWith("video/"))) {
+      const url = mediaAssetFileUrl(artifact.asset_id);
+      return `
+        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+          <div class="text-sm text-[#8a5a00] font-bold">讲解视频</div>
+          <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
+          <video class="mt-4 w-full rounded-2xl border border-[#f5e4c8] bg-black" src="${url}" controls preload="metadata"></video>
+        </div>`;
+    }
+    return `<pre class="rounded-2xl bg-white/80 p-4 text-xs overflow-auto">${escapeHtml(JSON.stringify(artifact, null, 2))}</pre>`;
+  }
+
+  function getPageMascot() {
+    if (window.ZhixueUI && typeof window.ZhixueUI.getPageMascot === "function") {
+      return window.ZhixueUI.getPageMascot();
+    }
+    return null;
   }
 
   window.ZhixueStatic = {
     formatDate,
     formatSize,
     chatWithTutor,
+    cancelAgentTask,
+    cancelDynamicAgentTask,
+    requeueDynamicAgentTask,
+    confirmAgentTask,
     streamTutorChat,
+    streamDynamicAgentTaskEvents,
+    createAgentConversation,
+    createAgentTask,
     createCourse,
     createWikiPage,
     generateResource,
+    getResource,
     getCourse,
+    getAgentTask,
+    getAgentTaskSteps,
+    getDynamicAgentTask,
+    getMediaAsset,
+    getPageMascot,
+    getWikiPage,
+    getWikiGraph,
+    mediaAssetFileUrl,
+    renderArtifactCard,
     getMe,
+    ingestProfileDialogue,
     getMastery,
     getCourseIdFromUrl,
     getParentSearchParams,
@@ -459,22 +833,36 @@
     logout,
     listCourses,
     listAgentRuns,
+    listAgentConversations,
+    listAgentConversationMessages,
     listDiagnosisReports,
     listLearningRecords,
     listMaterials,
+    listMaterialChunks,
+    getMaterialParsedText,
+    materialDownloadUrl,
     listMistakes,
     listQuizzes,
     listRecommendations,
     listResources,
+    listWikiVersions,
     listWikiPages,
     navigate,
     request,
     resolveCourseId,
     refreshRecommendations,
+    resumeDynamicAgentTask,
+    runAgentTask,
+    sendAgentConversationMessage,
     saveResourceToWiki,
     saveTutorAnswerToWiki,
     submitTutorFeedback,
     toast,
+    trackLearningEvent,
+    trackLearningEvents,
+    transcribeAudio,
+    synthesizeSpeech,
+    updateCourse,
   };
 
   if (document.readyState === "loading") {

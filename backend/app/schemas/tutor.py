@@ -50,6 +50,8 @@ class TutorChatResponse(BaseModel):
     fallback_used: bool = False
     failed_provider: str | None = None
     fallback_reason: str | None = None
+    knowledge_extract: dict[str, Any] = Field(default_factory=dict)
+    graph_context: dict[str, Any] = Field(default_factory=dict)
 
 
 class TutorSaveToWikiRequest(BaseModel):

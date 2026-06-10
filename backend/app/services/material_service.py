@@ -196,3 +196,33 @@ class MaterialService:
             text_length=int(extra_meta.get("text_length") or 0),
             parsed_text_path=extra_meta.get("parsed_text_path"),
         )
+
+    async def get_material_file_path(self, material_id: UUID, current_user: User) -> tuple[Path, str]:
+        material = await self.get_readable_material(material_id, current_user)
+        path = Path(material.storage_path)
+        if not path.is_file():
+            raise BusinessException(
+                code=ErrorCode.NOT_FOUND,
+                detail="资料文件不存在",
+                status_code=404,
+            )
+        return path, material.file_name
+
+    async def get_parsed_text(self, material_id: UUID, current_user: User) -> str:
+        material = await self.get_readable_material(material_id, current_user)
+        extra_meta = material.extra_meta or {}
+        parsed_text_path = extra_meta.get("parsed_text_path")
+        if not parsed_text_path:
+            raise BusinessException(
+                code=ErrorCode.PARAM_ERROR,
+                detail="资料尚未解析，请先调用解析接口",
+                status_code=400,
+            )
+        path = Path(parsed_text_path)
+        if not path.is_file():
+            raise BusinessException(
+                code=ErrorCode.NOT_FOUND,
+                detail="解析文本不存在",
+                status_code=404,
+            )
+        return path.read_text(encoding="utf-8")

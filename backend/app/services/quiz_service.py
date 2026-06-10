@@ -48,6 +48,19 @@ class QuizService:
         knowledge = await self._get_knowledge(payload.knowledge_id, course, current_user)
         topic = self._topic(payload.topic, knowledge, course)
 
+        # 自适应难度：未显式指定时读取推荐难度
+        difficulty = payload.difficulty
+        if not difficulty or difficulty == "medium":
+            try:
+                from app.services.difficulty_service import DifficultyService
+
+                difficulty = await DifficultyService(self.db).get_difficulty(
+                    user_id=current_user.id,
+                    course_id=course.id,
+                )
+            except Exception:
+                difficulty = payload.difficulty or "medium"
+
         result = await AgentService(self.db).run_task(
             task_type="generate_quiz",
             user_id=current_user.id,
@@ -57,7 +70,7 @@ class QuizService:
                 "knowledge_name": topic,
                 "knowledge_description": knowledge.description if knowledge else "",
                 "question_types": payload.question_types,
-                "difficulty": payload.difficulty,
+                "difficulty": difficulty,
                 "count": payload.count,
                 "quiz_type": payload.quiz_type,
             },
@@ -184,6 +197,61 @@ class QuizService:
 
         correct_count = sum(1 for record in records if record.is_correct)
         score = round((correct_count / len(records)) * 100, 2) if records else 0.0
+
+        try:
+            from app.services.mastery_service import MasteryService
+
+            mastery_svc = MasteryService(self.db)
+            for record in records:
+                question = questions_by_id.get(record.question_id)
+                kid = question.knowledge_id if question and question.knowledge_id else quiz.knowledge_id
+                if not kid:
+                    continue
+                await mastery_svc.apply_practice_update(
+                    user_id=current_user.id,
+                    course_id=quiz.course_id,
+                    knowledge_id=kid,
+                    is_correct=bool(record.is_correct),
+                )
+            await mastery_svc.sync_profile_snapshot(
+                user_id=current_user.id,
+                course_id=quiz.course_id,
+            )
+            await self.db.commit()
+        except Exception:
+            pass
+
+        # ── 发布答题完成事件 ──
+        try:
+            from app.core.event_bus import get_event_bus
+
+            await get_event_bus().publish(
+                "quiz_submit",
+                {
+                    "user_id": current_user.id,
+                    "course_id": quiz.course_id,
+                    "quiz_id": quiz.id,
+                    "quiz_knowledge_id": str(quiz.knowledge_id) if quiz.knowledge_id else None,
+                    "score": score,
+                    "correct_count": correct_count,
+                    "total_questions": len(records),
+                    "answers": [
+                        {
+                            "question_id": str(record.question_id),
+                            "knowledge_id": str(questions_by_id[record.question_id].knowledge_id)
+                            if questions_by_id.get(record.question_id)
+                            and questions_by_id[record.question_id].knowledge_id
+                            else None,
+                            "is_correct": record.is_correct,
+                        }
+                        for record in records
+                    ],
+                },
+                source="quiz_service",
+            )
+        except Exception:
+            pass
+
         return QuizSubmitResponse(
             quiz_id=quiz.id,
             total_questions=len(records),
@@ -363,6 +431,39 @@ class QuizService:
         difficulty: str,
     ) -> dict[str, Any]:
         labels = ["A", "B", "C", "D"]
+        if question_type == "judge":
+            return {
+                "question_type": question_type,
+                "difficulty": difficulty,
+                "question_text": f"判断：学习「{topic}」时，只记住定义而忽略操作过程和边界条件也能稳定掌握。",
+                "options": {"正确": "正确", "错误": "错误"},
+                "standard_answer": "错误",
+                "analysis": f"第 {index + 1} 题用于检查对{topic}学习方法的判断。数据结构概念需要结合定义、操作、复杂度和边界条件。",
+                "error_tags": ["概念理解偏差", "边界条件忽略"],
+                "created_by": "system",
+            }
+        if question_type == "fill_blank":
+            return {
+                "question_type": question_type,
+                "difficulty": difficulty,
+                "question_text": f"填空：学习「{topic}」时，应同时关注定义、操作过程、____ 和应用场景。",
+                "options": [],
+                "standard_answer": "复杂度",
+                "analysis": f"第 {index + 1} 题用于检查是否能把{topic}与复杂度分析联系起来。",
+                "error_tags": ["复杂度意识不足"],
+                "created_by": "system",
+            }
+        if question_type == "coding":
+            return {
+                "question_type": question_type,
+                "difficulty": difficulty,
+                "question_text": f"请写出或描述一段伪代码，展示「{topic}」的核心操作过程，并说明关键边界条件。",
+                "options": [],
+                "standard_answer": f"应给出{topic}核心操作的伪代码，并说明空结构、越界或终止条件等边界情况。",
+                "analysis": f"第 {index + 1} 题用于检查是否能把{topic}从概念迁移到可执行步骤。",
+                "error_tags": ["过程推演不足", "边界条件忽略"],
+                "created_by": "system",
+            }
         return {
             "question_type": question_type,
             "difficulty": difficulty,

@@ -6,41 +6,9 @@
 <title>智学工坊 - 学习路径与个人模型</title>
 <link href="/fonts/material-symbols.css" rel="stylesheet"/>
 <link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
-<style>
-        body {
-            background-color: #fcf9f8;
-            background-image: radial-gradient(at 0% 0%, rgba(249, 168, 38, 0.05) 0px, transparent 50%),
-                              radial-gradient(at 100% 100%, rgba(125, 83, 84, 0.05) 0px, transparent 50%);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 8px 32px -4px rgba(131, 84, 0, 0.04);
-        }
-        .sidebar-glass {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(24px);
-            border-right: 1px solid rgba(215, 195, 174, 0.3);
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(133, 116, 98, 0.2);
-            border-radius: 10px;
-        }
-    </style>
+<link href="/stitch-pages/stitch-shared.css" rel="stylesheet"/>
 </head>
-<body class="font-body-md text-on-surface">
+<body class="font-body-md text-on-surface mesh-gradient min-h-screen">
 <div class="flex min-h-screen">
 <!-- Sidebar Navigation -->
 <nav class="fixed h-screen w-20 left-0 top-0 sidebar-glass flex flex-col items-center py-6 gap-4 z-50 hidden md:flex">
@@ -383,6 +351,7 @@
         });
     });
 </script>
+<script src="/stitch-pages/zhixue-ui.js"></script>
 <script src="/stitch-pages/zhixue-static-api.js"></script>
 <script>
 (() => {
@@ -396,6 +365,20 @@
       '"': "&quot;",
       "'": "&#39;",
     }[char]));
+  }
+
+  function profileEmptyStateHtml(title, description, scene = "empty", compact = false) {
+    return window.ZhixueUI?.emptyState?.({
+      mascot: "lulu",
+      scene,
+      title,
+      description,
+      compact,
+    })?.outerHTML || `
+      <div class="p-5 bg-surface-container-low rounded-xl border border-outline-variant/20 text-center">
+        <p class="font-bold text-body-md">${escapeHtml(title)}</p>
+        <p class="text-label-sm text-on-surface-variant mt-1">${escapeHtml(description)}</p>
+      </div>`;
   }
 
   function findSectionByTitle(title) {
@@ -425,6 +408,29 @@
       profile.learning_goal,
       profile.major,
     ].filter(Boolean).slice(0, 4);
+    const dialogueProfile = profile.strategy_summary?.dialogue_profile || {};
+    const dialogueDimensions = dialogueProfile.dimensions || {};
+    const dimensionLabels = {
+      major: "专业",
+      grade: "年级",
+      learning_goal: "目标",
+      answer_length: "回答长度",
+      explanation_style: "解释风格",
+      resource_preferences: "资源偏好",
+      weak_points: "薄弱点",
+      error_patterns: "错误模式",
+    };
+    const evidenceItems = Object.entries(dialogueDimensions).map(([key, dimension]) => {
+      const items = Array.isArray(dimension.items) ? dimension.items : [];
+      const value = dimension.value || items.map((item) => item.knowledge_name || item.pattern || item.name).filter(Boolean).join("、");
+      const evidence = Array.isArray(dimension.evidence) ? dimension.evidence[dimension.evidence.length - 1] : null;
+      return {
+        label: dimensionLabels[key] || key,
+        value,
+        confidence: Math.round(Number(dimension.confidence || 0.8) * 100),
+        quote: evidence?.quote || "",
+      };
+    }).filter((item) => item.value).slice(0, 3);
 
     section.innerHTML = `
       <h3 class="font-headline-md text-headline-md mb-8 flex items-center">
@@ -453,6 +459,25 @@
             `).join("")}
           </div>
           <p class="text-label-md text-on-surface-variant leading-relaxed">${escapeHtml(profile.profile_summary || "画像已由后端创建，后续会根据答疑、资料、练习和记忆持续更新。")}</p>
+          ${evidenceItems.length ? `
+            <div class="rounded-2xl bg-primary/5 border border-primary/15 p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <p class="text-label-sm font-bold text-primary flex items-center">
+                  <span class="material-symbols-outlined text-base mr-1">verified</span>对话证据
+                </p>
+                <span class="text-[11px] font-bold text-outline">来源 ${dialogueProfile.source_count || evidenceItems.length} 条</span>
+              </div>
+              ${evidenceItems.map((item) => `
+                <div class="min-w-0">
+                  <div class="flex items-center justify-between gap-3">
+                    <p class="text-xs font-bold text-on-surface truncate">${escapeHtml(item.label)}：${escapeHtml(item.value)}</p>
+                    <span class="text-[11px] font-bold text-primary shrink-0">${item.confidence}%</span>
+                  </div>
+                  <p class="text-[11px] text-on-surface-variant leading-5 line-clamp-2">${window.ZhixueUI?.renderMarkdown ? window.ZhixueUI.renderMarkdown(item.quote) : escapeHtml(item.quote)}</p>
+                </div>
+              `).join("")}
+            </div>
+          ` : ""}
         </div>
         <div class="pt-6 mt-6 border-t border-outline-variant/30 flex justify-between items-end">
           <div>
@@ -495,10 +520,7 @@
             </div>
           </div>
         `).join("") : `
-          <div class="p-5 bg-surface-container-low rounded-xl border border-outline-variant/20">
-            <p class="font-bold text-body-md">暂无长期记忆</p>
-            <p class="text-label-sm text-on-surface-variant mt-1">点击下方按钮，让 Memory Agent 基于学习行为生成第一批记忆。</p>
-          </div>`}
+          ${profileEmptyStateHtml("暂无长期记忆", "点击下方按钮，让 Memory Agent 基于学习行为生成第一批记忆。", "reminder", true)}`}
       </div>
       <button id="memory-reflect-button" class="w-full mt-6 py-3 rounded-xl border-2 border-dashed border-outline-variant/50 text-on-surface-variant text-label-md hover:border-primary hover:text-primary hover:bg-primary/5 transition-all">
         触发 Memory Agent 反思
@@ -548,16 +570,13 @@
           <span class="material-symbols-outlined mr-2 text-primary" style="font-variation-settings: 'FILL' 1;">bolt</span>自进化策略
         </h3>
         <div class="flex space-x-2">
+          <a href="/evolution" target="_parent" class="px-4 py-1.5 text-label-sm font-bold glass-card rounded-lg hover:bg-white transition-colors border border-primary/20 text-primary">策略仪表盘</a>
           <button id="evolution-analyze-button" class="px-4 py-1.5 text-label-sm font-bold bg-primary text-white rounded-lg hover:shadow-lg shadow-primary/20 transition-all">触发分析</button>
           <button id="evolution-refresh-button" class="px-4 py-1.5 text-label-sm font-bold glass-card rounded-lg hover:bg-white transition-colors border border-outline-variant/30">刷新</button>
         </div>
       </div>
       ${displayStrategies.length === 0 ? `
-        <div class="flex flex-col items-center justify-center py-12 text-on-surface-variant">
-          <span class="material-symbols-outlined text-4xl mb-3 opacity-40">psychology</span>
-          <p class="text-body-md mb-2">暂无策略建议</p>
-          <p class="text-label-md text-outline">点击"触发分析"，让 EvolutionAgent 基于学习数据生成策略建议</p>
-        </div>
+        ${profileEmptyStateHtml("暂无策略建议", "点击“触发分析”，让 Evolution Agent 基于学习数据生成策略建议。", "thinking")}
       ` : `
         <div class="overflow-x-auto">
           <table class="w-full text-left border-separate border-spacing-y-2">
@@ -658,11 +677,7 @@
         </div>
       </div>
       ${!path ? `
-        <div class="flex flex-col items-center justify-center py-14 text-center text-on-surface-variant">
-          <span class="material-symbols-outlined text-5xl mb-4 text-primary/40">route</span>
-          <p class="text-body-lg font-bold text-on-surface mb-2">暂无学习路径</p>
-          <p class="text-label-md max-w-xl">点击生成路径，PlannerAgent 会基于课程知识点、画像薄弱点和 Wiki 线索生成第一条可执行路径。</p>
-        </div>
+        ${profileEmptyStateHtml("暂无学习路径", "点击生成路径，Planner Agent 会基于课程知识点、画像薄弱点和 Wiki 线索生成第一条可执行路径。", "searching")}
       ` : `
         <div class="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>

@@ -5,90 +5,8 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Zhixue Gongfang - My Course Space</title>
 <link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
+<link href="/stitch-pages/stitch-shared.css" rel="stylesheet"/>
 <link href="/fonts/material-symbols.css" rel="stylesheet"/>
-<style>
-        body { background-color: #fcf9f8; overflow-x: hidden; }
-        
-        /* New Glassmorphism Styles */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 24px;
-            box-shadow: 0 4px 20px -2px rgba(131, 84, 0, 0.04);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .glass-panel:hover {
-            background: rgba(255, 255, 255, 0.85);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px -4px rgba(131, 84, 0, 0.08);
-            border-color: rgba(255, 255, 255, 0.8);
-        }
-        
-        .glass-well {
-            background: rgba(240, 237, 237, 0.4);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .glass-button-primary {
-            background: #835400;
-            color: white;
-            box-shadow: 0 4px 12px rgba(131, 84, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-        }
-        
-        .glass-button-secondary {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(131, 84, 0, 0.2);
-            color: #835400;
-            border-radius: 12px;
-        }
-
-        /* Ambient Orbs - Updated for warm theme */
-        .ambient-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(120px);
-            z-index: -1;
-            opacity: 0.4;
-            pointer-events: none;
-        }
-        .orb-1 { top: -5%; left: -5%; width: 35vw; height: 35vw; background: rgba(249, 168, 38, 0.12); }
-        .orb-2 { bottom: -10%; right: -5%; width: 45vw; height: 45vw; background: rgba(125, 83, 84, 0.08); }
-        .orb-3 { top: 30%; left: 25%; width: 25vw; height: 25vw; background: rgba(131, 84, 0, 0.05); }
-        .zhixue-modal {
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            background: rgba(49, 48, 48, 0.28);
-            backdrop-filter: blur(18px);
-        }
-        .zhixue-modal[data-open="true"] {
-            display: flex;
-        }
-        .zhixue-field {
-            width: 100%;
-            border: 1px solid rgba(133, 116, 98, 0.32);
-            border-radius: 16px;
-            background: rgba(252, 249, 248, 0.82);
-            padding: 12px 14px;
-            color: #1c1b1b;
-            outline: none;
-        }
-        .zhixue-field:focus {
-            border-color: #835400;
-            box-shadow: 0 0 0 4px rgba(131, 84, 0, 0.12);
-        }
-    </style>
 </head>
 <body class="font-body-md text-on-surface antialiased min-h-screen overflow-x-hidden">
 <!-- Ambient Background Elements -->
@@ -175,7 +93,7 @@
 <!-- Hero Course Overview -->
 <div class="lg:col-span-8 glass-panel p-container-padding-desktop relative overflow-hidden flex flex-col justify-between min-h-[320px]">
 <div class="absolute -right-10 -bottom-10 w-64 h-64 opacity-15 pointer-events-none">
-<img alt="AI Core" class="w-full h-full object-cover mix-blend-multiply rounded-full blur-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT-IX0HfdaA2Ohin9WL-sbkEzDNH7AYlSHECL8N-r56FkYIHUn2-uXb2hm5DcmGx0F3cem2MU5bpZdTAV3wnkoxb1EvxrnNWMC84XD87s927nKr2sXr3-iXzFkrn3OpPziouuSg4TBCKfZY8zxS6FdyVRkrwKqwcr2xhWh0IgdnDFGprTgdOD2u1GXfIFkt1DVyHe3Q_gCfu8L75YHoPA-7pFe_cukyDqZuSnBYKi5XL05XQzJIAVsjKaV3UGL9IwSlnVqUZz7ktA" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+<img alt="智学工坊品牌 IP 装饰" class="w-full h-full object-contain mix-blend-multiply rounded-full blur-2xl" src="/brand/zhixue-ip-mascot-v1.png" loading="lazy" decoding="async">
 </div>
 <div class="relative z-10">
 <div class="flex items-center gap-3 mb-4">
@@ -355,6 +273,7 @@
 </form>
 </div>
 </div>
+<script src="/stitch-pages/zhixue-ui.js"></script>
 <script src="/stitch-pages/zhixue-static-api.js"></script>
 <script>
 (() => {
@@ -362,6 +281,8 @@
   const createButton = Array.from(document.querySelectorAll("button")).find((button) => button.textContent.includes("创建课程"));
   const importButton = Array.from(document.querySelectorAll("button")).find((button) => button.textContent.includes("导入示例数据"));
   const modal = document.getElementById("course-create-modal");
+  const modalTitle = document.getElementById("course-create-title");
+  const modalSubtitle = modal?.querySelector("p.font-body-md");
   const closeButton = document.getElementById("course-create-close");
   const cancelButton = document.getElementById("course-create-cancel");
   const form = document.getElementById("course-create-form");
@@ -372,11 +293,26 @@
   const currentCourseTitle = document.querySelector(".relative.group.z-20 h2");
   const recentList = document.querySelector(".lg\\:col-span-12.glass-panel .flex.flex-col.gap-3");
   let courses = [];
+  let editingCourse = null;
 
-  function openModal() {
+  function openModal(course = null) {
+    editingCourse = course;
     modal.dataset.open = "true";
     modal.setAttribute("aria-hidden", "false");
     message.textContent = "";
+    if (modalTitle) {
+      modalTitle.textContent = editingCourse ? "编辑课程空间" : "创建课程空间";
+    }
+    if (modalSubtitle) {
+      modalSubtitle.textContent = editingCourse
+        ? "更新课程名称、代码、学科方向和描述；资料、Wiki 与学习记录不会被覆盖。"
+        : "用现有课程页创建真实课程，后续资料和 Wiki 都会绑定到这个空间。";
+    }
+    document.getElementById("course-title").value = editingCourse?.title || "";
+    document.getElementById("course-code").value = editingCourse?.course_code || "";
+    document.getElementById("course-subject").value = editingCourse?.subject || "";
+    document.getElementById("course-description").value = editingCourse?.description || "";
+    submitButton.textContent = editingCourse ? "保存修改" : "创建课程";
     setTimeout(() => document.getElementById("course-title").focus(), 40);
   }
 
@@ -385,6 +321,8 @@
     modal.setAttribute("aria-hidden", "true");
     form.reset();
     message.textContent = "";
+    editingCourse = null;
+    submitButton.textContent = "创建课程";
   }
 
   function escapeHtml(value) {
@@ -441,17 +379,20 @@
       mainGrid.prepend(panel);
     }
     if (!courses.length) {
-      panel.innerHTML = `
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h4 class="font-headline-md text-headline-md text-on-surface">我的真实课程</h4>
-            <p class="font-body-md text-body-md text-on-surface-variant mt-2">还没有课程。点击右上角“创建课程”，这里会显示真实课程卡片。</p>
-          </div>
-          <button data-action="create-course-empty" class="glass-button-primary font-label-md text-label-md px-6 py-3 flex items-center gap-2 justify-center">
-            <span class="material-symbols-outlined text-sm">add</span>创建第一门课程
-          </button>
-        </div>`;
-      panel.querySelector("[data-action='create-course-empty']").addEventListener("click", openModal);
+      panel.innerHTML = '<h4 class="font-headline-md text-headline-md text-on-surface mb-4">我的真实课程</h4>';
+      const emptyNode = window.ZhixueUI?.emptyState?.({
+        mascot: "zhizhi",
+        scene: "greeting",
+        title: "还没有课程",
+        description: "创建第一门课程后，这里会显示资料、Wiki、练习诊断与推荐入口。",
+        actionLabel: "创建第一门课程",
+        actionOnClick: openModal,
+      });
+      if (emptyNode) {
+        panel.appendChild(emptyNode);
+      } else {
+        panel.innerHTML += '<p class="font-body-md text-body-md text-on-surface-variant mt-2">还没有课程。点击右上角“创建课程”，这里会显示真实课程卡片。</p>';
+      }
       return;
     }
     panel.innerHTML = `
@@ -474,6 +415,9 @@
               <button class="w-9 h-9 rounded-xl bg-white/70 text-outline hover:text-[#93000a] transition-colors ${isPublicCourse(course) ? "opacity-40 cursor-not-allowed" : ""}" data-action="archive-course" data-course-id="${course.id}" data-readonly="${isPublicCourse(course) ? "true" : "false"}" title="${isPublicCourse(course) ? "公共课程不可归档" : "归档课程"}">
                 <span class="material-symbols-outlined text-[18px]">archive</span>
               </button>
+              <button class="w-9 h-9 rounded-xl bg-white/70 text-outline hover:text-primary transition-colors ${isPublicCourse(course) ? "opacity-40 cursor-not-allowed" : ""}" data-action="edit-course" data-course-id="${course.id}" data-readonly="${isPublicCourse(course) ? "true" : "false"}" title="${isPublicCourse(course) ? "公共课程只读" : "编辑课程"}">
+                <span class="material-symbols-outlined text-[18px]">edit</span>
+              </button>
             </div>
             <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 min-h-[52px]">${escapeHtml(course.description || "暂无描述，进入知识库上传资料后继续构建学习空间。")}</p>
             <div class="flex justify-between items-center mt-5 text-[12px] text-on-surface-variant font-semibold">
@@ -484,8 +428,22 @@
         `).join("")}
       </div>`;
 
-    panel.querySelectorAll("[data-course-id]").forEach((card) => {
+    panel.querySelectorAll("article[data-course-id]").forEach((card) => {
       card.addEventListener("click", () => api.navigate(`/knowledge?course_id=${card.dataset.courseId}`));
+    });
+    panel.querySelectorAll("[data-action='edit-course']").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (button.dataset.readonly === "true") {
+          api.toast("公共课程由系统维护，学生端不可编辑。", "info");
+          return;
+        }
+        const course = courses.find((item) => item.id === button.dataset.courseId);
+        if (course) {
+          openModal(course);
+        }
+      });
     });
     panel.querySelectorAll("[data-action='archive-course']").forEach((button) => {
       button.addEventListener("click", async (event) => {
@@ -540,7 +498,7 @@
     }
   }
 
-  createButton?.addEventListener("click", openModal);
+  createButton?.addEventListener("click", () => openModal());
   closeButton?.addEventListener("click", closeModal);
   cancelButton?.addEventListener("click", closeModal);
   modal.addEventListener("click", (event) => {
@@ -564,20 +522,25 @@
       message.textContent = "请填写课程标题。";
       return;
     }
+    const wasEditing = Boolean(editingCourse);
     submitButton.disabled = true;
-    submitButton.textContent = "正在创建...";
+    submitButton.textContent = wasEditing ? "正在保存..." : "正在创建...";
     message.textContent = "";
     try {
-      const course = await api.request("/courses", { method: "POST", body: payload });
-      api.toast("课程创建成功", "success");
+      const course = wasEditing
+        ? await api.updateCourse(editingCourse.id, payload)
+        : await api.request("/courses", { method: "POST", body: payload });
+      api.toast(wasEditing ? "课程已更新" : "课程创建成功", "success");
       closeModal();
       await loadCourses();
-      api.navigate(`/knowledge?course_id=${course.id}`);
+      if (!wasEditing) {
+        api.navigate(`/knowledge?course_id=${course.id}`);
+      }
     } catch (error) {
       message.textContent = error.message || "创建失败，请稍后重试。";
     } finally {
       submitButton.disabled = false;
-      submitButton.textContent = "创建课程";
+      submitButton.textContent = editingCourse ? "保存修改" : "创建课程";
     }
   });
 

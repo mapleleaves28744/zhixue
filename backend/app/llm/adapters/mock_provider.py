@@ -8,7 +8,7 @@ import struct
 from collections.abc import AsyncIterator
 
 from app.llm.adapters.base import BaseLLMProvider
-from app.llm.schemas import ChatMessage, ChatResponse, EmbeddingResponse, LLMModelConfig
+from app.llm.schemas import ChatMessage, ChatResponse, EmbeddingResponse, LLMModelConfig, ToolCall
 
 
 class MockLLMProvider(BaseLLMProvider):
@@ -31,7 +31,21 @@ class MockLLMProvider(BaseLLMProvider):
             (m.content for m in reversed(messages) if m.role == "user"),
             "",
         )
-        content = self._generate_response(last_user)
+        tools = kwargs.get("tools")
+        if isinstance(tools, list) and tools:
+            planned = self._supervisor_tool_call(messages, tools)
+            if planned is not None:
+                return planned
+        response_format = kwargs.get("response_format")
+        schema_name = None
+        if isinstance(response_format, dict):
+            json_schema = response_format.get("json_schema")
+            if isinstance(json_schema, dict):
+                schema_name = json_schema.get("name")
+        if schema_name:
+            content = self._generate_structured_response(schema_name, last_user)
+        else:
+            content = self._generate_response(last_user)
         return ChatResponse(
             content=content,
             model=model or (model_config.model if model_config else None) or "mock-learning-model",
@@ -82,6 +96,62 @@ class MockLLMProvider(BaseLLMProvider):
             raw={"provider": "mock", "input_count": len(texts)},
             provider=self.provider_name,
         )
+
+    def _generate_structured_response(self, schema_name: str, user_input: str) -> str:
+        topic = self._detect_topic(user_input)
+        if schema_name == "QuizGenerationOutput":
+            return self._generate_quiz_response(user_input, topic)
+        if schema_name == "ReviewOutput":
+            return json.dumps(
+                {
+                    "pass": True,
+                    "risk_level": "low",
+                    "issues": [],
+                    "revision_suggestions": "内容结构清晰，建议继续补充课程引用。",
+                },
+                ensure_ascii=False,
+            )
+        if schema_name == "EvolutionAnalysisOutput":
+            return json.dumps(
+                {
+                    "strategies": [
+                        {
+                            "strategy_type": "recommendation",
+                            "before_value": {"focus": topic},
+                            "after_value": {"focus": f"{topic}薄弱点强化"},
+                            "description": f"基于近期学习证据，建议优先复习{topic}相关练习。",
+                            "risk_level": "low",
+                        }
+                    ]
+                },
+                ensure_ascii=False,
+            )
+        if schema_name == "MemoryReflectOutput":
+            return json.dumps(
+                {
+                    "memories": [
+                        {
+                            "memory_type": "insight",
+                            "content": f"学生近期围绕{topic}进行了多次学习活动，建议保持练习频率。",
+                            "evidence": ["mock-learning-records"],
+                            "confidence": 0.82,
+                        }
+                    ]
+                },
+                ensure_ascii=False,
+            )
+        if schema_name == "ProfileRebuildOutput":
+            return json.dumps(
+                {
+                    "profile_summary": f"基于学习记录，该学生在{topic}上需要继续巩固。",
+                    "mastery_snapshot": {topic: 0.62},
+                    "weak_points": [topic],
+                    "error_patterns": ["边界条件遗漏"],
+                    "strategy_summary": {"建议": "先复习定义，再做小练习验证。"},
+                },
+                ensure_ascii=False,
+            )
+        return self._generate_response(user_input)
 
     def _generate_response(self, user_input: str) -> str:
         if not user_input:
@@ -245,6 +315,73 @@ class MockLLMProvider(BaseLLMProvider):
             if match:
                 return max(1, min(20, int(match.group(1))))
         return 5
+
+    def _supervisor_tool_call(
+        self,
+        messages: list[ChatMessage],
+        tools: list[dict[str, object]],
+    ) -> ChatResponse | None:
+        goal, completed_tools = self._extract_supervisor_state(messages)
+        if not goal:
+            return None
+        from app.agent_runtime import supervisor_intents
+
+        available = {
+            str(item.get("function", {}).get("name"))
+            for item in tools
+            if isinstance(item, dict) and item.get("function", {}).get("name")
+        }
+        profile_only = supervisor_intents.plan_required_tools(goal, is_profile_update_only=True) == [
+            "update_profile_from_dialogue"
+        ] and any(
+            k in goal
+            for k in (
+                "请记住",
+                "记住我的学习偏好",
+                "更新我的画像",
+                "记录我的学习偏好",
+                "保存我的学习偏好",
+            )
+        )
+        planned = supervisor_intents.plan_required_tools(goal, is_profile_update_only=profile_only)
+        for name in planned:
+            if name in available and name not in completed_tools:
+                return ChatResponse(
+                    content="",
+                    finish_reason="tool_calls",
+                    tool_calls=[
+                        ToolCall(
+                            id=f"mock_{name}",
+                            name=name,
+                            arguments={},
+                        )
+                    ],
+                    provider=self.provider_name,
+                    model="mock-learning-model",
+                )
+        return None
+
+    def _extract_supervisor_state(self, messages: list[ChatMessage]) -> tuple[str, set[str]]:
+        goal = ""
+        completed: set[str] = set()
+        for message in reversed(messages):
+            content = message.content or ""
+            if content.startswith("当前任务状态："):
+                try:
+                    payload = json.loads(content.removeprefix("当前任务状态："))
+                except json.JSONDecodeError:
+                    continue
+                goal = str(payload.get("goal") or goal)
+                for item in payload.get("observations") or []:
+                    if isinstance(item, dict) and item.get("success") is True and item.get("tool_name"):
+                        completed.add(str(item["tool_name"]))
+                break
+        if not goal:
+            for message in reversed(messages):
+                if message.role == "user" and not (message.content or "").startswith("当前任务状态："):
+                    goal = message.content or ""
+                    break
+        return goal, completed
 
     def _detect_difficulty(self, user_input: str) -> str:
         if "hard" in user_input or "挑战" in user_input:

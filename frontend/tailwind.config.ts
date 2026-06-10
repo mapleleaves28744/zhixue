@@ -81,6 +81,8 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)"
       },
       fontFamily: {
+        display: ["var(--font-instrument-serif)", "serif"],
+        body: ["var(--font-inter)", "sans-serif"],
         "display-lg": ["Plus Jakarta Sans", "sans-serif"],
         "headline-md": ["Plus Jakarta Sans", "sans-serif"],
         "headline-sm": ["Plus Jakarta Sans", "sans-serif"],
@@ -101,6 +103,24 @@ const config: Config = {
       boxShadow: {
         glass: "0 24px 70px rgba(131, 84, 0, 0.08)",
         glow: "0 16px 34px rgba(249, 168, 38, 0.22)"
+      },
+      spacing: {
+        unit: "8px",
+        gutter: "16px",
+        "card-gap": "24px",
+        "container-padding-mobile": "20px",
+        "container-padding-desktop": "48px"
+      },
+      keyframes: {
+        "fade-rise": {
+          from: { opacity: "0", transform: "translateY(24px)" },
+          to: { opacity: "1", transform: "translateY(0)" }
+        }
+      },
+      animation: {
+        "fade-rise": "fade-rise 0.8s ease-out both",
+        "fade-rise-delay": "fade-rise 0.8s ease-out 0.2s both",
+        "fade-rise-delay-2": "fade-rise 0.8s ease-out 0.4s both"
       }
     }
   },

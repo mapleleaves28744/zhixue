@@ -2,13 +2,17 @@ param(
     [switch]$Backend,
     [switch]$Frontend,
     [switch]$Database,
+    [switch]$MainChain,
+    [string]$MainChainBaseUrl = "http://127.0.0.1:8000/api/v1",
+    [switch]$AgentDemo,
+    [string]$AgentDemoBaseUrl = "http://127.0.0.1:8000/api/v1",
     [switch]$All
 )
 
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 
-if (-not ($Backend -or $Frontend -or $Database -or $All)) {
+if (-not ($Backend -or $Frontend -or $Database -or $MainChain -or $AgentDemo -or $All)) {
     $All = $true
 }
 
@@ -54,6 +58,22 @@ if ($All -or $Frontend) {
     Run-Step "Frontend build" {
         Push-Location "$Root\frontend"
         npm run build
+        Pop-Location
+    }
+}
+
+if ($MainChain) {
+    Run-Step "Real LLM main chain acceptance" {
+        Push-Location $Root
+        python scripts/main_chain_check.py --base-url $MainChainBaseUrl
+        Pop-Location
+    }
+}
+
+if ($AgentDemo) {
+    Run-Step "Phase 3.1 Agent demo acceptance" {
+        Push-Location $Root
+        python scripts/agent_demo_check.py --base-url $AgentDemoBaseUrl
         Pop-Location
     }
 }

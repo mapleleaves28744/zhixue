@@ -1,0 +1,31 @@
+claims:
+  - claim_id: claim_stack_lifo
+    claim_type: definition
+    source_id: self-curated-draft
+    chapter_id: ch05
+    text: 栈是一种后进先出的线性结构，插入和删除通常发生在栈顶。
+  - claim_id: claim_queue_fifo
+    claim_type: definition
+    source_id: self-curated-draft
+    chapter_id: ch06
+    text: 队列是一种先进先出的线性结构，适合按到达顺序处理任务。
+  - claim_id: claim_bfs_queue
+    claim_type: applicable_condition
+    source_id: runestone-pythonds
+    chapter_id: ch13
+    text: BFS 通常借助队列按层扩展顶点，适合求无权图最短路径。
+  - claim_id: claim_dijkstra_condition
+    claim_type: applicable_condition
+    source_id: mit-ocw-6006
+    chapter_id: ch15
+    text: Dijkstra 算法适用于边权非负的单源最短路径问题。
+  - claim_id: claim_array_linked_list_compare
+    claim_type: comparison
+    source_id: open-data-structures
+    chapter_id: ch03
+    text: 顺序结构支持高效随机访问，链式结构更适合在已知结点附近插入和删除。
+  - claim_id: claim_hash_load_factor
+    claim_type: misconception
+    source_id: open-data-structures
+    chapter_id: ch11
+    text: 哈希表平均复杂度依赖哈希函数、冲突处理和装填因子，不能只背 O(1)。

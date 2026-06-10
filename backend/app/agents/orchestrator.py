@@ -11,6 +11,7 @@ from app.services.agent_log_service import AgentLogService
 logger = logging.getLogger(__name__)
 
 TASK_AGENT_PLAN: dict[str, list[str]] = {
+    "route_intent": ["IntentRouterAgent"],
     "document_to_wiki": ["WikiAgent"],
     "course_qa": ["TutorAgent"],
     "extract_knowledge": ["KnowledgeAgent"],

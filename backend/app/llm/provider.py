@@ -362,7 +362,11 @@ class LoggingLLMProvider(BaseLLMProvider):
             from app.services.llm_log_service import LLMLogService
 
             await LLMLogService(self.db).record_call(
-                provider=self.inner.provider_name,
+                provider=(
+                    (response.provider if response else None)
+                    or (embedding_response.provider if embedding_response else None)
+                    or self.inner.provider_name
+                ),
                 model_name=model or (model_config.model if model_config else None) or settings.llm_model_name,
                 operation=operation,
                 messages=messages,
@@ -393,12 +397,14 @@ class LoggingLLMProvider(BaseLLMProvider):
         return None
 
 
-def build_llm_provider() -> BaseLLMProvider:
+def build_llm_provider(*, allow_mock_fallback: bool = True) -> BaseLLMProvider:
     provider = settings.llm_provider.lower().replace("-", "_")
     if provider in ("openai", "compatible", "openai_compatible", "mimo", "xiaomi_mimo"):
         from app.llm.adapters.mock_provider import MockLLMProvider
 
         if not settings.llm_api_key:
+            if not allow_mock_fallback:
+                raise RuntimeError("Real LLM provider is required for this operation")
             return MockLLMProvider()
         from app.llm.adapters.openai_compatible import OpenAICompatibleLLMProvider
 
@@ -410,10 +416,14 @@ def build_llm_provider() -> BaseLLMProvider:
             embedding_model=settings.embedding_model,
             embedding_dimension=settings.embedding_dimension,
         )
-        return FallbackLLMProvider(primary, MockLLMProvider())
+        if allow_mock_fallback:
+            return FallbackLLMProvider(primary, MockLLMProvider())
+        return primary
 
     from app.llm.adapters.mock_provider import MockLLMProvider
 
+    if not allow_mock_fallback:
+        raise RuntimeError("Real LLM provider is required for this operation")
     return MockLLMProvider()
 
 
@@ -423,8 +433,9 @@ def get_llm_provider(
     course_id: UUID | None = None,
     agent_run_id: UUID | None = None,
     prompt_version_id: UUID | None = None,
+    allow_mock_fallback: bool = True,
 ) -> BaseLLMProvider:
-    provider = build_llm_provider()
+    provider = build_llm_provider(allow_mock_fallback=allow_mock_fallback)
     if db is None:
         return provider
     return LoggingLLMProvider(

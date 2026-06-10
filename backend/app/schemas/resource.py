@@ -13,11 +13,42 @@ RESOURCE_TYPE_ALIASES: dict[str, str] = {
     "例题": "example",
     "复习卡": "flashcard",
     "错题解析": "review",
+    "思维导图": "mindmap",
+    "脑图": "mindmap",
+    "图解": "diagram",
+    "流程图": "diagram",
+    "架构图": "diagram",
+    "示意图": "diagram",
     "explain": "explanation",
     "note": "summary",
+    "mind_map": "mindmap",
+    "图片": "image",
+    "教学插图": "image",
+    "视频": "video",
+    "讲解视频": "video",
+    "动画": "animation",
+    "互动课件": "interactive_courseware",
+    "交互课件": "interactive_courseware",
+    "代码实操": "code_project",
+    "实践项目": "code_project",
+    "拓展阅读": "reading_pack",
 }
 
-VALID_RESOURCE_TYPES = {"explanation", "summary", "example", "flashcard", "review"}
+VALID_RESOURCE_TYPES = {
+    "explanation",
+    "summary",
+    "example",
+    "flashcard",
+    "review",
+    "mindmap",
+    "diagram",
+    "image",
+    "video",
+    "animation",
+    "interactive_courseware",
+    "code_project",
+    "reading_pack",
+}
 
 
 class ResourceGenerateRequest(BaseModel):
@@ -52,10 +83,18 @@ class GeneratedResourceRead(BaseModel):
     prompt_version_id: UUID | None = None
     status: str
     created_at: datetime
+    media_asset_id: UUID | None = None
+    media_mime_type: str | None = None
+    media_asset_type: str | None = None
+    media_file_url: str | None = None
+    content_format: str | None = None
+    preview_mode: str | None = None
 
 
 class ResourceGenerateResponse(BaseModel):
     resource_id: UUID
+    id: UUID
+    resource_type: str
     title: str
     content: str
     citations: list[Any] = Field(default_factory=list)
@@ -64,3 +103,10 @@ class ResourceGenerateResponse(BaseModel):
     review_result: dict[str, Any] = Field(default_factory=dict)
     status: str
     wiki_page_id: UUID | None = None
+    created_at: datetime
+    media_asset_id: UUID | None = None
+    media_mime_type: str | None = None
+    media_asset_type: str | None = None
+    media_file_url: str | None = None
+    content_format: str | None = None
+    preview_mode: str | None = None

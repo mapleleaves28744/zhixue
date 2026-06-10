@@ -1,0 +1,528 @@
+
+<!DOCTYPE html>
+
+
+
+
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>9.8. Stacks &mdash; OpenDSA Data Structures and Algorithms Modules Collection</title>
+    
+    
+      <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../lib/normalize.css" type="text/css" />
+    <link rel="stylesheet" href="../../../lib/JSAV.css" type="text/css" />
+    <link rel="stylesheet" href="../../../lib/odsaMOD-min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../lib/jquery.ui.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../lib/odsaStyle-min.css" type="text/css" />
+    
+  <script type="text/javascript">
+    var DOCUMENTATION_OPTIONS = {
+      URL_ROOT:    './',
+      VERSION:     '0.4.1',
+      COLLAPSE_INDEX: false,
+      FILE_SUFFIX: '.html',
+      HAS_SOURCE:  true
+    };
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+      },
+      "HTML-CSS": {
+        scale: "80"
+      }
+    });
+  </script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="index" title="OpenDSA Data Structures and Algorithms Modules Collection" href="index.html" />
+    <link rel="next" title="9. Linked Stacks" href="StackLinked.html" />
+    <link rel="prev" title="7. List Element Implementations" href="ListElement.html" />
+
+  </head>
+
+  <body>
+
+
+    <div class="header">
+      
+
+    <script type="text/javascript" src="../../../lib/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../lib/jquery.migrate.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.9.0/localforage.min.js"></script>
+  <script type="text/javascript" src="../../../lib/jquery.scrolldepth.js"></script>
+  <script type="text/javascript" src="../../../lib/timeme.js"></script>
+  <script type="text/javascript" src="../../../lib/jquery.ui.min.js"></script>
+  <script type="text/javascript" src="../../../lib/jquery.transit.js"></script>
+  <script type="text/javascript" src="../../../lib/raphael.js"></script>
+  <script type="text/javascript" src="../../../lib/JSAV-min.js"></script>
+  <script type="text/javascript" src="_static/config.js"></script>
+  <script type="text/javascript" src="../../../lib/timeme-min.js"></script>
+  <script type="text/javascript" src="../../../lib/odsaUtils-min.js"></script>
+  <script type="text/javascript" src="../../../lib/odsaMOD-min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+  <script type="text/javascript" src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
+  <script type="text/javascript" src="../../../lib/dataStructures.js"></script>
+  <script type="text/javascript" src="../../../lib/conceptMap.js"></script>
+  <script type="text/javascript" src="../../../lib/splice-iframe.js"></script>
+
+      
+
+
+      
+
+
+        <img class="leftlogo" src="_static/OpenDSALogoT64.png" alt="OpenDSA Logo"/>
+      <div class="title-wrapper">
+        <div class="title-inbetween" style="display: table-cell; vertical-align: middle;">
+          <div class="title-content">
+            <h1 class="heading" ><a href="index.html">
+              <span>OpenDSA Data Structures and Algorithms Modules Collection</span></a></h1>
+            <h2 class="heading" ><span>Chapter 9 Linear Structures</span></h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="topnav">
+      <p>
+          <a class="abt" style="float:left;color:blue;" href="#" rel="nofollow">| About</a>&#160;&#160;
+
+        
+      «&#160;&#160;<a id="prevmod" href="ListElement.html">9.<span class="section-number">7. </span>List Element Implementations</a>
+      &#160;&#160;::&#160;&#160;
+      <a  class="uplink" href="index.html">Contents</a>
+      &#160;&#160;::&#160;&#160;
+      <a  id="nextmod" href="StackLinked.html">9.<span class="section-number">9. </span>Linked Stacks</a>&#160;&#160;»
+
+
+      </p>
+    </div>
+     
+    <div class="content">
+      
+      
+  <blockquote>
+<div><script type="text/javascript">
+ $(function () {
+   var moduleName = "stacks";
+   var sections = ['stack-terminology-and-implementation', 'array-based-stacks', 'pop'];
+   TimeMe.initialize({
+     idleTimeoutInSeconds: 10
+   });
+   sections.forEach(function (section, i) {
+     TimeMe.trackTimeOnElement(section);
+   });
+   var timeObj = {};
+   setInterval(function () {
+     timeObj[moduleName.substring(0, 5)] = TimeMe.getTimeOnCurrentPageInSeconds().toFixed(2);
+     sections.forEach(function (section, i) {
+       timeObj[i + "-" + section.substring(0, 5)] = TimeMe.getTimeOnElementInSeconds(section).toFixed(2);
+     });
+     for (var sec of sections) {
+     }
+   }, 2000);
+
+   // NOTE: Scroll depth tracking was investigated but not implemented
+   // Canvas LTI limitations documented in GitHub issue #523:
+   // - Cross-site scripting security limitations prevent access to Canvas parent scroller
+   // - Canvas automatically optimizes iframe height, eliminating internal scrolling
+   // - Two-scroller approach was tested but was too awkward for user experience
+   // - Future implementation would require Canvas-side cooperation
+ });
+</script></div></blockquote>
+<script>
+if (typeof ODSA === 'undefined') { window.ODSA = {}; }
+if (typeof ODSA.SETTINGS === 'undefined') { ODSA.SETTINGS = {}; }
+ODSA.SETTINGS.DISP_MOD_COMP = true;ODSA.SETTINGS.MODULE_NAME = "StackArray";ODSA.SETTINGS.MODULE_LONG_NAME = "Stacks";ODSA.SETTINGS.MODULE_CHAPTER = "Linear Structures"; ODSA.SETTINGS.BUILD_DATE = "2025-10-15 12:47:16"; ODSA.SETTINGS.BUILD_CMAP = false;JSAV_OPTIONS['lang']='en';JSAV_EXERCISE_OPTIONS['code']='java';
+</script><link href="../../../AV/List/astackCON.css" rel="stylesheet" type="text/css" />
+<section id="stacks">
+<h1>9.<span class="section-number">8. </span>Stacks<a class="headerlink" href="#stacks" title="Link to this heading">¶</a></h1>
+<section id="stack-terminology-and-implementation">
+<h2>9.<span class="section-number">8.1. </span>Stack Terminology and Implementation<a class="headerlink" href="#stack-terminology-and-implementation" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="Glossary.html#term-stack"><span class="xref std std-term">stack</span></a> is a list-like structure
+in which elements may be inserted or removed from only one end.
+While this restriction makes stacks less flexible than lists,
+it also makes stacks both efficient (for those operations they can do)
+and easy to implement.
+Many applications require only the limited form of
+insert and remove operations that stacks provide.
+In such cases, it is more efficient to use the simpler stack data
+structure rather than the generic list.
+For example, the <a class="reference internal" href="Freelist.html#freelist"><span class="std std-ref">freelist</span></a> is really a
+stack.</p>
+<p>Despite their restrictions, stacks have many uses.
+Thus, a special vocabulary for stacks has developed.
+Accountants used stacks long before the invention of the computer.
+They called the stack a “<a class="reference internal" href="Glossary.html#term-LIFO"><span class="xref std std-term">LIFO</span></a>” list,
+which stands for “Last-In, First-Out.”
+Note that one implication of the LIFO policy is that stacks
+remove elements in reverse order of their arrival.</p>
+<p>The accessible element of the stack is called the <code class="docutils literal notranslate"><span class="pre">top</span></code> element.
+Elements are not said to be inserted, they are <a class="reference internal" href="Glossary.html#term-push"><span class="xref std std-term">pushed</span></a>
+onto the stack.
+When removed, an element is said to be <a class="reference internal" href="Glossary.html#term-pop"><span class="xref std std-term">popped</span></a> from the
+stack.
+Here is a simple stack <a class="reference internal" href="Glossary.html#term-ADT"><span class="xref std std-term">ADT</span></a>.</p>
+<div id="Stack_Stack_code"><ul><li><a href="#Stack_Stack_code_Java">Java</a></li><li><a href="#Stack_Stack_code_Java_Generic">Java (Generic)</a></li></ul><div id="Stack_Stack_code_Java"><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">Stack</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// Stack class ADT</span>
+<span class="w">  </span><span class="c1">// Reinitialize the stack.</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">// Push &quot;it&quot; onto the top of the stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">push</span><span class="p">(</span><span class="n">Object</span><span class="w"> </span><span class="n">it</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Remove and return the element at the top of the stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="nf">pop</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">// Return a copy of the top element</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="nf">topValue</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">// Return the number of elements in the stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">length</span><span class="p">();</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">// Return true if the stack is empty </span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">isEmpty</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div id="Stack_Stack_code_Java_Generic"><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">Stack</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// Stack class ADT</span>
+<span class="w">  </span><span class="c1">// Reinitialize the stack.</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">// Push &quot;it&quot; onto the top of the stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">push</span><span class="p">(</span><span class="n">E</span><span class="w"> </span><span class="n">it</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Remove and return the element at the top of the stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="nf">pop</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">// Return a copy of the top element</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="nf">topValue</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">// Return the number of elements in the stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">length</span><span class="p">();</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">// Tell if the stack is empty or not</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">isEmpty</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></div><script>$(function() {$( "#Stack_Stack_code" ).tabs();});</script><p>As with lists, there are many variations on stack implementation.
+The two approaches presented here are the <a class="reference internal" href="Glossary.html#term-array-based-stack"><span class="xref std std-term">array-based stack</span></a>
+and the <a class="reference internal" href="StackLinked.html#stacklinked"><span class="std std-ref">linked stack</span></a>,
+which are analogous to array-based and linked lists, respectively.</p>
+<section id="array-based-stacks">
+<h3>9.<span class="section-number">8.1.1. </span>Array-Based Stacks<a class="headerlink" href="#array-based-stacks" title="Link to this heading">¶</a></h3>
+<p>Here is a complete implementation for
+the array-based stack class.</p>
+<div id="AStack_AStack1_AStack2_code"><ul><li><a href="#AStack_AStack1_AStack2_code_Java">Java</a></li><li><a href="#AStack_AStack1_AStack2_code_Java_Generic">Java (Generic)</a></li></ul><div id="AStack_AStack1_AStack2_code_Java"><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">class</span> <span class="nc">AStack</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">Stack</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="n">stackArray</span><span class="o">[]</span><span class="p">;</span><span class="w">    </span><span class="c1">// Array holding stack</span>
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">DEFAULT_SIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxSize</span><span class="p">;</span><span class="w">            </span><span class="c1">// Maximum size of stack</span>
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">top</span><span class="p">;</span><span class="w">                </span><span class="c1">// First free position at top</span>
+
+<span class="w">  </span><span class="c1">// Constructors</span>
+<span class="w">  </span><span class="n">AStack</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">maxSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<span class="w">    </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">stackArray</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Object</span><span class="o">[</span><span class="n">size</span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="c1">// Create stackArray</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">AStack</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">this</span><span class="p">(</span><span class="n">DEFAULT_SIZE</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">    </span><span class="c1">// Reinitialize stack</span>
+
+<span class="c1">// Push &quot;it&quot; onto stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">push</span><span class="p">(</span><span class="n">Object</span><span class="w"> </span><span class="n">it</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">top</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">maxSize</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="w">    </span><span class="n">stackArray</span><span class="o">[</span><span class="n">top</span><span class="o">++]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">it</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="c1">// Remove and return top element</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="nf">pop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">stackArray</span><span class="o">[--</span><span class="n">top</span><span class="o">]</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="nf">topValue</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">          </span><span class="c1">// Return top element</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">stackArray</span><span class="o">[</span><span class="n">top</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">length</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">top</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c1">// Return stack size</span>
+
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">isEmpty</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c1">// Check if the stack is empty</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div id="AStack_AStack1_AStack2_code_Java_Generic"><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">class</span> <span class="nc">AStack</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">Stack</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">stackArray</span><span class="o">[]</span><span class="p">;</span><span class="w">         </span><span class="c1">// Array holding stack</span>
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">DEFAULT_SIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxSize</span><span class="p">;</span><span class="w">            </span><span class="c1">// Maximum size of stack</span>
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">top</span><span class="p">;</span><span class="w">                </span><span class="c1">// First free position at top</span>
+
+<span class="w">  </span><span class="c1">// Constructors</span>
+<span class="w">  </span><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">&quot;unchecked&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// Generic array allocation</span>
+<span class="w">  </span><span class="n">AStack</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">maxSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<span class="w">    </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">stackArray</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">E</span><span class="o">[]</span><span class="p">)</span><span class="k">new</span><span class="w"> </span><span class="n">Object</span><span class="o">[</span><span class="n">size</span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="c1">// Create stackArray</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">AStack</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">this</span><span class="p">(</span><span class="n">DEFAULT_SIZE</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">    </span><span class="c1">// Reinitialize stack</span>
+
+<span class="c1">// Push &quot;it&quot; onto stack</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">push</span><span class="p">(</span><span class="n">E</span><span class="w"> </span><span class="n">it</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">top</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">maxSize</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="n">stackArray</span><span class="o">[</span><span class="n">top</span><span class="o">++]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">it</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="c1">// Remove and return top element</span>
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="nf">pop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">stackArray</span><span class="o">[--</span><span class="n">top</span><span class="o">]</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="nf">topValue</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">          </span><span class="c1">// Return top element</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">stackArray</span><span class="o">[</span><span class="n">top</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">length</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">top</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c1">// Return stack size</span>
+
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">isEmpty</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1">// Tell if the stack is empty</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></div><script>$(function() {$( "#AStack_AStack1_AStack2_code" ).tabs();});</script><div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div>
+<div id="astackVarCON" class="ssAV" data-points="0.0" data-threshold="1.0" data-type="ss" data-required="False" data-short-name="astackVarCON" data-long-name="Array stack variables slideshow" data-exer-id="" alt="Array stack variables slideshow" tabIndex="-1">
+ <span class="jsavcounter"></span>
+ <a class="jsavsettings" href="#">Settings</a>
+ <div class="jsavcontrols"></div>
+ <p class="jsavoutput jsavline"></p>
+ <div class="jsavcanvas"></div>
+ <div class="prof_indicators">
+  <img id="astackVarCON_check_mark" class="prof_check_mark" src="_static/Images/green_check.png" alt="Proficient" />
+  <span id="astackVarCON_cm_saving_msg" class="cm_saving_msg">Saving...</span>
+  <span id="astackVarCON_cm_error_msg" class="cm_error_msg">
+   <img id="astackVarCON_cm_warning_icon" class="cm_warning_icon" src="_static/Images/warning.png" alt="Error Saving" /><br />
+   Server Error<br />
+   <a href="#" class="resubmit_link">Resubmit</a>
+  </span>
+ </div>
+</div>
+<p></p>
+</div>
+<p>The array-based stack implementation is essentially
+a simplified version of the array-based list.
+The only important design decision to be made is which end of the
+array should represent the top of the stack.</p>
+<div>
+<div id="astackTopCON" class="ssAV" data-points="0.0" data-threshold="1.0" data-type="ss" data-required="False" data-short-name="astackTopCON" data-long-name="Array stack top position slideshow" data-exer-id="" alt="Array stack top position slideshow" tabIndex="-1">
+ <span class="jsavcounter"></span>
+ <a class="jsavsettings" href="#">Settings</a>
+ <div class="jsavcontrols"></div>
+ <p class="jsavoutput jsavline"></p>
+ <div class="jsavcanvas"></div>
+ <div class="prof_indicators">
+  <img id="astackTopCON_check_mark" class="prof_check_mark" src="_static/Images/green_check.png" alt="Proficient" />
+  <span id="astackTopCON_cm_saving_msg" class="cm_saving_msg">Saving...</span>
+  <span id="astackTopCON_cm_error_msg" class="cm_error_msg">
+   <img id="astackTopCON_cm_warning_icon" class="cm_warning_icon" src="_static/Images/warning.png" alt="Error Saving" /><br />
+   Server Error<br />
+   <a href="#" class="resubmit_link">Resubmit</a>
+  </span>
+ </div>
+</div>
+<p></p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div>
+<div id="astackPushCON" class="ssAV" data-points="0.0" data-threshold="1.0" data-type="ss" data-required="False" data-short-name="astackPushCON" data-long-name="Array stack push slideshow" data-exer-id="" alt="Array stack push slideshow" tabIndex="-1">
+ <span class="jsavcounter"></span>
+ <a class="jsavsettings" href="#">Settings</a>
+ <div class="jsavcontrols"></div>
+ <p class="jsavoutput jsavline"></p>
+ <div class="jsavcanvas"></div>
+ <div class="prof_indicators">
+  <img id="astackPushCON_check_mark" class="prof_check_mark" src="_static/Images/green_check.png" alt="Proficient" />
+  <span id="astackPushCON_cm_saving_msg" class="cm_saving_msg">Saving...</span>
+  <span id="astackPushCON_cm_error_msg" class="cm_error_msg">
+   <img id="astackPushCON_cm_warning_icon" class="cm_warning_icon" src="_static/Images/warning.png" alt="Error Saving" /><br />
+   Server Error<br />
+   <a href="#" class="resubmit_link">Resubmit</a>
+  </span>
+ </div>
+</div>
+<p></p>
+</div>
+<div
+    id="AstackPushPRO"
+    class="embedContainer"
+    data-exer-name="AstackPushPRO"
+    data-long-name="Array-based Stack Push Exercise"
+    data-short-name="AstackPushPRO"
+    data-frame-src="../../../Exercises/List/AstackPushPRO.html?localMode=true&amp;module=StackArray&amp;selfLoggingEnabled=false&amp;JXOP-debug=true&amp;JOP-lang=en&amp;JXOP-code=java"
+    data-frame-width="950"
+    data-frame-height="780"
+    data-vertical-scrolling="no"
+    data-external="false"
+    data-points="1.0"
+    data-required="False"
+    data-showhide="show"
+    data-threshold="5"
+    data-type="ka"
+    data-exer-id="">
+  
+  <div class="center">
+    <div id="AstackPushPRO_iframe"></div>
+  </div>
+</div>
+</section>
+</section>
+<section id="pop">
+<h2>9.<span class="section-number">8.2. </span>Pop<a class="headerlink" href="#pop" title="Link to this heading">¶</a></h2>
+<div>
+<div id="astackPopCON" class="ssAV" data-points="0.0" data-threshold="1.0" data-type="ss" data-required="False" data-short-name="astackPopCON" data-long-name="Array stack pop slideshow" data-exer-id="" alt="Array stack pop slideshow" tabIndex="-1">
+ <span class="jsavcounter"></span>
+ <a class="jsavsettings" href="#">Settings</a>
+ <div class="jsavcontrols"></div>
+ <p class="jsavoutput jsavline"></p>
+ <div class="jsavcanvas"></div>
+ <div class="prof_indicators">
+  <img id="astackPopCON_check_mark" class="prof_check_mark" src="_static/Images/green_check.png" alt="Proficient" />
+  <span id="astackPopCON_cm_saving_msg" class="cm_saving_msg">Saving...</span>
+  <span id="astackPopCON_cm_error_msg" class="cm_error_msg">
+   <img id="astackPopCON_cm_warning_icon" class="cm_warning_icon" src="_static/Images/warning.png" alt="Error Saving" /><br />
+   Server Error<br />
+   <a href="#" class="resubmit_link">Resubmit</a>
+  </span>
+ </div>
+</div>
+<p></p>
+</div>
+<div
+    id="AstackPopPRO"
+    class="embedContainer"
+    data-exer-name="AstackPopPRO"
+    data-long-name="Array-based Stack Pop Exercise"
+    data-short-name="AstackPopPRO"
+    data-frame-src="../../../Exercises/List/AstackPopPRO.html?localMode=true&amp;module=StackArray&amp;selfLoggingEnabled=false&amp;JXOP-debug=true&amp;JOP-lang=en&amp;JXOP-code=java"
+    data-frame-width="950"
+    data-frame-height="750"
+    data-vertical-scrolling="no"
+    data-external="false"
+    data-points="1.0"
+    data-required="False"
+    data-showhide="show"
+    data-threshold="5"
+    data-type="ka"
+    data-exer-id="">
+  
+  <div class="center">
+    <div id="AstackPopPRO_iframe"></div>
+  </div>
+</div>
+<script type="text/javascript" src="../../../AV/List/astackVarCON.js"></script>
+<script type="text/javascript" src="../../../AV/List/astackTopCON.js"></script>
+<script type="text/javascript" src="../../../AV/List/astackPushCON.js"></script>
+<script type="text/javascript" src="../../../AV/List/astackPopCON.js"></script>
+</section>
+</section>
+
+
+    </div>
+    <div class="bottomnav">
+    <p><span class="email_div" style="display:inline;"><a style="float:left;color:blue;" rel="nofollow" href="../../../lib/Privacy.html" target="_blank"> Privacy |</a> <a style="float:left;color:blue;" rel="nofollow" href="../../../lib/license.html" target="_blank">| License</a></span>&#160;&#160;
+    
+      «&#160;&#160;<a id="prevmod1" href="ListElement.html">9.<span class="section-number">7. </span>List Element Implementations</a>
+      &#160;&#160;::&#160;&#160;
+      <a  class="uplink" href="index.html">Contents</a>
+      &#160;&#160;::&#160;&#160;
+      <a  id="nextmod1" href="StackLinked.html">9.<span class="section-number">9. </span>Linked Stacks</a>&#160;&#160;»
+
+</p>
+    </div>
+    <img style="float:right;" src="_static/nsf1.gif" height="62" width="62" alt=""/>
+
+
+    <div class="footer">
+      <p>
+        <span class="email_div" style="display:inline;">
+          <a id="contact_us" class="contact" style="float:left;color:blue;" rel="nofollow" href="mailto:">Contact Us |</a>
+          <a id="bugreport-link" style="float:left;color:blue;" class="bugreport-link" href="#">| Report a bug</a>
+        </span>
+      </p>
+        &copy; Copyright 2011-2025 by OpenDSA Project Contributors and distributed under an MIT license.
+      Last updated on Oct 15, 2025.
+      Created using <a target="_blank" href="http://sphinx-doc.org/">Sphinx</a> 8.2.0.
+    </div>
+    
+<div id="bugreport-box" class="bugreport-popup ">
+  <a href="#" class="close"><img src="_static/Images/close_pop.png" class="btn_close" title="Close Window" alt="Close Window" /></a>
+  <form method="post" class="report" action="https://#">
+    <fieldset class="textbox">
+      <div id="bug_error" class="error"></div>
+      <label>
+        <span>Summary*:</span>
+        <input type="text" id="b_title" placeholder="Summary" />
+
+      </label>
+
+      <label class="os">
+        <span>Operating system*:</span>
+        <select id="b_os">
+          <option value="windows">Windows</option>
+          <option value="macos">Mac OS</option>
+          <option value="linux">Linux</option>
+          <option value="ios">iOS</option>
+          <option value="android">Android</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+
+      <label class="browser">
+        <span>Browser*:</span>
+        <select id="b_browser">
+          <option value="chrome">Chrome</option>
+          <option value="safari">Safari</option>
+          <option value="internetexplorer">Internet Explorer</option>
+          <option value="opera">Opera</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+
+      <label class="description">
+        <span>Description*:</span><br>
+        <textarea id="b_description" rows="5" cols="25" placeholder="***BUG** Please enter: (1) a consice description of the problem. (2) steps to reproduce bug. (3) the version of your browser and operating system."></textarea>
+      </label>
+
+      <label class="screenshot">
+        <span>Attach a screenshot (optional):</span>
+        <input type="file" id="b_screenshot" accept="image/*" placeholder="Attach a screenshot (optional)">
+      </label>
+
+      <p>
+        <input type="submit" id="bug-submit-button" value="Submit &rarr;"/>
+      </p>
+    </fieldset>
+  </form>
+</div>
+
+  </body>
+</html>

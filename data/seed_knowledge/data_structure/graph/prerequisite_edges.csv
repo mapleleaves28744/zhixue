@@ -1,0 +1,13 @@
+source_id,target_id,relation_type,reason
+ch01,ch02,prerequisite,复杂度分析需要先理解算法和数据结构基本概念
+ch03,ch04,prerequisite,链表是线性表的链式存储实现
+ch03,ch05,prerequisite,栈是受限线性表
+ch03,ch06,prerequisite,队列是受限线性表
+ch05,ch07,prerequisite,递归调用可通过栈解释
+ch08,ch09,prerequisite,二叉树是树的特殊形式
+ch09,ch10,prerequisite,堆通常用完全二叉树表示
+ch12,ch13,prerequisite,BFS 需要图的表示和邻接关系
+ch12,ch14,prerequisite,DFS 需要图的表示和邻接关系
+ch13,ch15,prerequisite,最短路径学习需要图搜索基础
+ch14,ch15,prerequisite,最短路径学习需要图搜索基础
+ch12,ch16,prerequisite,并查集常用于图连通性问题

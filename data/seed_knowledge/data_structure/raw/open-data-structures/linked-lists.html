@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>3. Linked Lists</TITLE>
+<META NAME="description" CONTENT="3. Linked Lists">
+<META NAME="keywords" CONTENT="ods-python-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="4_Skiplists.html">
+<LINK REL="previous" HREF="2_Array_Based_Lists.html">
+<LINK REL="up" HREF="ods-python-html.html">
+<LINK REL="next" HREF="3_1_SLList_Singly_Linked_Li.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html502"
+  HREF="3_1_SLList_Singly_Linked_Li.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html496"
+  HREF="ods-python-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html490"
+  HREF="2_7_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html498"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html500"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html503"
+  HREF="3_1_SLList_Singly_Linked_Li.html">3.1 SLList: A Singly-Linked</A>
+<B> Up:</B> <A NAME="tex2html497"
+  HREF="ods-python-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html491"
+  HREF="2_7_Discussion_Exercises.html">2.7 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html499"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html501"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00600000000000000000"></A>
+<A NAME="chap:linkedlists"></A>
+<BR>
+<SPAN CLASS="arabic">3</SPAN>. Linked Lists
+</H1>
+
+<P>
+<A NAME="13077"></A>In this chapter, we continue to study implementations of the List
+interface, this time using pointer-based data structures rather than
+arrays.  The structures in this chapter are made up of nodes that
+contain the list items.  Using references (pointers), the nodes are
+linked together into a sequence.  We first study singly-linked lists,
+which can implement Stack and (FIFO) Queue operations in constant
+time per operation and then move on to doubly-linked lists, which can
+implement Deque operations in constant time.
+
+<P>
+Linked lists have advantages and disadvantages when compared to array-based
+implementations of the List interface.  The primary disadvantage is that
+we lose the ability to access any element using <!-- MATH
+ $\ensuremath{\mathrm{get}(\ensuremath{\mathit{i}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1121.png"
+ ALT="$ \ensuremath{\mathrm{get}(\ensuremath{\mathit{i}})}$"></SPAN> or <!-- MATH
+ $\ensuremath{\mathrm{set}(\ensuremath{\mathit{i}},\ensuremath{\mathit{x}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="53" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1122.png"
+ ALT="$ \ensuremath{\mathrm{set}(\ensuremath{\mathit{i}},\ensuremath{\mathit{x}})}$"></SPAN>
+in constant time.  Instead, we have to walk through the list, one element
+at a time, until we reach the <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{i}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1123.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN>th element.  The primary advantage is
+that they are more dynamic:  Given a reference to any list node <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{u}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1124.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN>, we
+can delete <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{u}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1125.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> or insert a node adjacent to <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{u}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1126.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> in constant time. This
+is true no matter where <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{u}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1127.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{u}}}$"></SPAN> is in the list.
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html504"
+  HREF="3_1_SLList_Singly_Linked_Li.html"><SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">1</SPAN> SLList: A Singly-Linked List</A>
+<LI><A NAME="tex2html505"
+  HREF="3_2_DLList_Doubly_Linked_Li.html"><SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">2</SPAN> DLList: A Doubly-Linked List</A>
+<LI><A NAME="tex2html506"
+  HREF="3_3_SEList_Space_Efficient_.html"><SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN> SEList: A Space-Efficient Linked List</A>
+<LI><A NAME="tex2html507"
+  HREF="3_4_Discussion_Exercises.html"><SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">4</SPAN> Discussion and Exercises</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html502"
+  HREF="3_1_SLList_Singly_Linked_Li.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html496"
+  HREF="ods-python-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html490"
+  HREF="2_7_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html498"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html500"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html503"
+  HREF="3_1_SLList_Singly_Linked_Li.html">3.1 SLList: A Singly-Linked</A>
+<B> Up:</B> <A NAME="tex2html497"
+  HREF="ods-python-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html491"
+  HREF="2_7_Discussion_Exercises.html">2.7 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html499"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html501"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

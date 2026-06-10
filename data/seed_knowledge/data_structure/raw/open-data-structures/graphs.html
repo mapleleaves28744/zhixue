@@ -1,0 +1,472 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>12. Graphs</TITLE>
+<META NAME="description" CONTENT="12. Graphs">
+<META NAME="keywords" CONTENT="ods-python-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="13_Data_Structures_Integers.html">
+<LINK REL="previous" HREF="11_Sorting_Algorithms.html">
+<LINK REL="up" HREF="ods-python-html.html">
+<LINK REL="next" HREF="12_1_AdjacencyMatrix_Repres.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html1121"
+  HREF="12_1_AdjacencyMatrix_Repres.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1115"
+  HREF="ods-python-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1109"
+  HREF="11_3_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1117"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1119"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1122"
+  HREF="12_1_AdjacencyMatrix_Repres.html">12.1 AdjacencyMatrix: Representing a</A>
+<B> Up:</B> <A NAME="tex2html1116"
+  HREF="ods-python-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html1110"
+  HREF="11_3_Discussion_Exercises.html">11.3 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html1118"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1120"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001500000000000000000"></A>
+<A NAME="chap:graphs"></A>
+<BR>
+<SPAN CLASS="arabic">12</SPAN>. Graphs
+</H1>
+
+<P>
+In this chapter, we study two representations of graphs and basic
+algorithms that use these representations.  
+
+<P>
+Mathematically, a <SPAN  CLASS="textit">(directed) graph</SPAN>
+<A NAME="54946"></A><A NAME="54947"></A>is a pair <SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4512.png"
+ ALT="$ G=(V,E)$"></SPAN> where
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4513.png"
+ ALT="$ V$"></SPAN> is a set of <SPAN  CLASS="textit">vertices</SPAN>
+<A NAME="54949"></A>and <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4514.png"
+ ALT="$ E$"></SPAN> is a set of ordered pairs
+of vertices called <SPAN  CLASS="textit">edges</SPAN>.
+<A NAME="54951"></A>An edge <!-- MATH
+ $\ensuremath{(\ensuremath{\mathit{i}},\ensuremath{\mathit{j}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="30" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4515.png"
+ ALT="$ \ensuremath{(\ensuremath{\mathit{i}},\ensuremath{\mathit{j}})}$"></SPAN> is <SPAN  CLASS="textit">directed</SPAN>
+<A NAME="54955"></A>from <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{i}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4516.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN> to <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{j}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4517.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{j}}}$"></SPAN>;  <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{i}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4518.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN> is called the <SPAN  CLASS="textit">source</SPAN>
+<A NAME="54960"></A> of the edge and <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{j}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4519.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{j}}}$"></SPAN>
+is called the <SPAN  CLASS="textit">target</SPAN>.
+<A NAME="54963"></A>  A <SPAN  CLASS="textit">path</SPAN><A NAME="54965"></A> in <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4520.png"
+ ALT="$ G$"></SPAN> is a sequence of
+vertices <!-- MATH
+ $v_0,\ldots,v_k$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4521.png"
+ ALT="$ v_0,\ldots,v_k$"></SPAN> such that, for every <!-- MATH
+ $i\in\{1,\ldots,k\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4522.png"
+ ALT="$ i\in\{1,\ldots,k\}$"></SPAN>,
+the edge <!-- MATH
+ $(v_{i-1},v_{i})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="61" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4523.png"
+ ALT="$ (v_{i-1},v_{i})$"></SPAN> is in <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4524.png"
+ ALT="$ E$"></SPAN>.  A path <!-- MATH
+ $v_0,\ldots,v_k$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4525.png"
+ ALT="$ v_0,\ldots,v_k$"></SPAN> is a
+<SPAN  CLASS="textit">cycle</SPAN>
+<A NAME="54969"></A>if, additionally, the edge <SPAN CLASS="MATH"><IMG
+ WIDTH="51" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4526.png"
+ ALT="$ (v_k,v_0)$"></SPAN> is in <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4527.png"
+ ALT="$ E$"></SPAN>.  A path (or
+cycle) is <SPAN  CLASS="textit">simple</SPAN>
+<A NAME="54971"></A>if all of its vertices are unique.  If there
+is a path from some vertex <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4528.png"
+ ALT="$ v_i$"></SPAN> to some vertex <SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4529.png"
+ ALT="$ v_j$"></SPAN> then we say that
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4530.png"
+ ALT="$ v_j$"></SPAN> is <SPAN  CLASS="textit">reachable</SPAN>
+<A NAME="54973"></A> from <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4531.png"
+ ALT="$ v_i$"></SPAN>.  An example of a graph is shown
+in Figure&nbsp;<A HREF="#fig:graph">12.1</A>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:graph"></A><A NAME="54979"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 12.1:</STRONG>
+A graph with twelve vertices.  Vertices are drawn as numbered
+    circles and edges are drawn as pointed curves pointing from source
+    to target.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="308" HEIGHT="215" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4532.png"
+ ALT="\includegraphics[scale=0.90909]{figs-python/graph}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Due to their ability to model so many phenomena, graphs have an enormous
+number of applications. There are many obvious examples. Computer
+networks can be modelled as graphs, with vertices corresponding to
+computers and edges corresponding to (directed) communication links
+between those computers.  City streets can be modelled as graphs,
+with vertices representing intersections and edges representing streets
+joining consecutive intersections.
+
+<P>
+Less obvious examples occur as soon as we realize that graphs can model
+any pairwise relationships within a set. For example, in a university
+setting we might have a timetable <SPAN  CLASS="textit">conflict graph</SPAN>
+<A NAME="54983"></A>whose vertices represent
+courses offered in the university and in which the edge <!-- MATH
+ $\ensuremath{(\ensuremath{\mathit{i}},\ensuremath{\mathit{j}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="30" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4533.png"
+ ALT="$ \ensuremath{(\ensuremath{\mathit{i}},\ensuremath{\mathit{j}})}$"></SPAN> is present
+if and only if there is at least one student that is taking both class
+<!-- MATH
+ $\ensuremath{\ensuremath{\mathit{i}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4534.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN> and class <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{j}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4535.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{j}}}$"></SPAN>.  Thus, an edge indicates that the exam for class <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{i}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4536.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{i}}}$"></SPAN>
+should not be scheduled at the same time as the exam for class <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{j}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4537.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{j}}}$"></SPAN>.
+
+<P>
+Throughout this section, we will use <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4538.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{n}}}$"></SPAN> to denote the number of vertices
+of <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4539.png"
+ ALT="$ G$"></SPAN> and <!-- MATH
+ $\ensuremath{\ensuremath{\mathit{m}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4540.png"
+ ALT="$ \ensuremath{\ensuremath{\mathit{m}}}$"></SPAN> to denote the number of edges of <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4541.png"
+ ALT="$ G$"></SPAN>.  That is, <!-- MATH
+ $\ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}=|V|$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4542.png"
+ ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}=\vert V\vert$"></SPAN>
+and <!-- MATH
+ $\ensuremath{\ensuremath{\ensuremath{\mathit{m}}}}=|E|$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="52" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4543.png"
+ ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{m}}}}=\vert E\vert$"></SPAN>. Furthermore, we will assume that <!-- MATH
+ $V=\{0,\ldots,\ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="115" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4544.png"
+ ALT="$ V=\{0,\ldots,\ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}-1\}$"></SPAN>.
+Any other data that we would like to associate with the elements of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4545.png"
+ ALT="$ V$"></SPAN>
+can be stored in an array of length <!-- MATH
+ $\ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4546.png"
+ ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{n}}}}$"></SPAN>.
+
+<P>
+Some typical operations performed on graphs are:
+
+<UL>
+<LI><!-- MATH
+ $\ensuremath{\mathrm{add\_edge}(\ensuremath{\mathit{i}},\ensuremath{\mathit{j}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="95" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4547.png"
+ ALT="$ \ensuremath{\mathrm{add\_edge}(\ensuremath{\mathit{i}},\ensuremath{\mathit{j}})}$"></SPAN>: Add the edge <!-- MATH
+ $(\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{j}}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="30" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4548.png"
+ ALT="$ (\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{j}}}})$"></SPAN> to <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4549.png"
+ ALT="$ E$"></SPAN>.
+</LI>
+<LI><!-- MATH
+ $\ensuremath{\mathrm{remove\_edge}(\ensuremath{\mathit{i}},\ensuremath{\mathit{j}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="120" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4550.png"
+ ALT="$ \ensuremath{\mathrm{remove\_edge}(\ensuremath{\mathit{i}},\ensuremath{\mathit{j}})}$"></SPAN>: Remove the edge <!-- MATH
+ $(\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{j}}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="30" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4551.png"
+ ALT="$ (\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{j}}}})$"></SPAN> from <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4552.png"
+ ALT="$ E$"></SPAN>.
+</LI>
+<LI><!-- MATH
+ $\ensuremath{\mathrm{has\_edge}(\ensuremath{\mathit{i}},\ensuremath{\mathit{j}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="92" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4553.png"
+ ALT="$ \ensuremath{\mathrm{has\_edge}(\ensuremath{\mathit{i}},\ensuremath{\mathit{j}})}$"></SPAN>: Check if the edge <!-- MATH
+ $(\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{j}}}})\in E$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4554.png"
+ ALT="$ (\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{j}}}})\in E$"></SPAN> 
+</LI>
+<LI><!-- MATH
+ $\ensuremath{\mathrm{out\_edges}(\ensuremath{\mathit{i}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="88" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4555.png"
+ ALT="$ \ensuremath{\mathrm{out\_edges}(\ensuremath{\mathit{i}})}$"></SPAN>: Return a List of all integers <!-- MATH
+ $\ensuremath{\ensuremath{\ensuremath{\mathit{j}}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4556.png"
+ ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{j}}}}$"></SPAN> such that
+  <!-- MATH
+ $(\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{j}}}})\in E$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4557.png"
+ ALT="$ (\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{j}}}})\in E$"></SPAN>
+</LI>
+<LI><!-- MATH
+ $\ensuremath{\mathrm{in\_edges}(\ensuremath{\mathit{i}})}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="79" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4558.png"
+ ALT="$ \ensuremath{\mathrm{in\_edges}(\ensuremath{\mathit{i}})}$"></SPAN>: Return a List of all integers <!-- MATH
+ $\ensuremath{\ensuremath{\ensuremath{\mathit{j}}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="9" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4559.png"
+ ALT="$ \ensuremath{\ensuremath{\ensuremath{\mathit{j}}}}$"></SPAN> such that
+  <!-- MATH
+ $(\ensuremath{\ensuremath{\ensuremath{\mathit{j}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}})\in E$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4560.png"
+ ALT="$ (\ensuremath{\ensuremath{\ensuremath{\mathit{j}}}},\ensuremath{\ensuremath{\ensuremath{\mathit{i}}}})\in E$"></SPAN>
+</LI>
+</UL>
+
+<P>
+Note that these operations are not terribly difficult to implement
+efficiently. For example, the first three operations can be implemented
+directly by using a USet, so they can be implemented in constant
+expected time using the hash tables discussed in Chapter&nbsp;<A HREF="5_Hash_Tables.html#chap:hashing">5</A>.
+The last two operations can be implemented in constant time by storing,
+for each vertex, a list of its adjacent vertices.
+
+<P>
+However, different applications of graphs have different performance
+requirements for these operations and, ideally, we can use the simplest
+implementation that satisfies all the application's requirements.
+For this reason, we discuss two broad categories of graph representations.
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html1123"
+  HREF="12_1_AdjacencyMatrix_Repres.html"><SPAN CLASS="arabic">12</SPAN>.<SPAN CLASS="arabic">1</SPAN> AdjacencyMatrix: Representing a Graph by a Matrix</A>
+<LI><A NAME="tex2html1124"
+  HREF="12_2_AdjacencyLists_Graph_a.html"><SPAN CLASS="arabic">12</SPAN>.<SPAN CLASS="arabic">2</SPAN> AdjacencyLists: A Graph as a Collection of Lists</A>
+<LI><A NAME="tex2html1125"
+  HREF="12_3_Graph_Traversal.html"><SPAN CLASS="arabic">12</SPAN>.<SPAN CLASS="arabic">3</SPAN> Graph Traversal</A>
+<LI><A NAME="tex2html1126"
+  HREF="12_4_Discussion_Exercises.html"><SPAN CLASS="arabic">12</SPAN>.<SPAN CLASS="arabic">4</SPAN> Discussion and Exercises</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1121"
+  HREF="12_1_AdjacencyMatrix_Repres.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1115"
+  HREF="ods-python-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1109"
+  HREF="11_3_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1117"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1119"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1122"
+  HREF="12_1_AdjacencyMatrix_Repres.html">12.1 AdjacencyMatrix: Representing a</A>
+<B> Up:</B> <A NAME="tex2html1116"
+  HREF="ods-python-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html1110"
+  HREF="11_3_Discussion_Exercises.html">11.3 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html1118"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1120"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

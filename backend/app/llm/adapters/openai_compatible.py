@@ -9,7 +9,7 @@ import httpx
 from app.core.error_codes import ErrorCode
 from app.core.exceptions import BusinessException
 from app.llm.adapters.base import BaseLLMProvider
-from app.llm.schemas import ChatMessage, ChatResponse, EmbeddingResponse, LLMModelConfig
+from app.llm.schemas import ChatMessage, ChatResponse, EmbeddingResponse, LLMModelConfig, ToolCall
 
 logger = logging.getLogger(__name__)
 
@@ -50,10 +50,14 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
         cfg = model_config or LLMModelConfig()
         payload = {
             "model": model or cfg.model or self._model,
-            "messages": [{"role": m.role, "content": m.content} for m in messages],
+            "messages": [m.as_openai_dict() for m in messages],
             "temperature": cfg.temperature if model_config else temperature,
             "max_tokens": cfg.max_tokens if model_config else max_tokens,
         }
+        for key in ("tools", "tool_choice", "response_format", "thinking", "parallel_tool_calls"):
+            value = kwargs.get(key)
+            if value is not None:
+                payload[key] = value
         try:
             async with httpx.AsyncClient(timeout=cfg.timeout_seconds or self._timeout) as client:
                 resp = await client.post(
@@ -73,9 +77,10 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
 
         try:
             choice = data["choices"][0]
+            message = choice["message"]
             usage = data.get("usage", {})
             return ChatResponse(
-                content=choice["message"]["content"],
+                content=message.get("content") or "",
                 model=data.get("model", payload["model"]),
                 usage={
                     "prompt_tokens": usage.get("prompt_tokens", 0),
@@ -84,6 +89,9 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
                 },
                 raw=data,
                 provider=self.provider_name,
+                finish_reason=choice.get("finish_reason") or "",
+                reasoning_content=message.get("reasoning_content"),
+                tool_calls=self._parse_tool_calls(message.get("tool_calls") or []),
             )
         except (KeyError, IndexError, TypeError) as exc:
             raise BusinessException(
@@ -105,11 +113,15 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
         cfg = model_config or LLMModelConfig()
         payload = {
             "model": model or cfg.model or self._model,
-            "messages": [{"role": m.role, "content": m.content} for m in messages],
+            "messages": [m.as_openai_dict() for m in messages],
             "temperature": cfg.temperature if model_config else temperature,
             "max_tokens": cfg.max_tokens if model_config else max_tokens,
             "stream": True,
         }
+        for key in ("tools", "tool_choice", "response_format", "thinking", "parallel_tool_calls"):
+            value = kwargs.get(key)
+            if value is not None:
+                payload[key] = value
         try:
             async with httpx.AsyncClient(timeout=cfg.timeout_seconds or self._timeout) as client:
                 async with client.stream(
@@ -157,7 +169,11 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
                 resp = await client.post(
                     f"{self._base_url}/embeddings",
                     headers=self._headers(),
-                    json={"model": selected_model, "input": texts},
+                    json={
+                        "model": selected_model,
+                        "input": texts,
+                        "dimensions": self._embedding_dimension,
+                    },
                 )
                 resp.raise_for_status()
                 data = resp.json()
@@ -186,3 +202,28 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
             "Authorization": f"Bearer {self._api_key}",
             "Content-Type": "application/json",
         }
+
+    def _parse_tool_calls(self, values: list[dict[str, object]]) -> list[ToolCall]:
+        parsed: list[ToolCall] = []
+        for value in values:
+            function = value.get("function")
+            if not isinstance(function, dict):
+                continue
+            raw_arguments = function.get("arguments") or "{}"
+            try:
+                arguments = (
+                    json.loads(raw_arguments)
+                    if isinstance(raw_arguments, str)
+                    else dict(raw_arguments)
+                )
+            except (json.JSONDecodeError, TypeError, ValueError):
+                arguments = {"_raw": str(raw_arguments)}
+            parsed.append(
+                ToolCall(
+                    id=str(value.get("id") or ""),
+                    type=str(value.get("type") or "function"),
+                    name=str(function.get("name") or ""),
+                    arguments=arguments,
+                )
+            )
+        return parsed

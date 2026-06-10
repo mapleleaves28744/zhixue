@@ -6,6 +6,8 @@ import logging
 from app.agents.base_agent import BaseAgent
 from app.agents.context import AgentContext, AgentResult
 from app.agents.registry import AgentRegistry
+from app.agents.structured_chat_utils import call_structured_chat_or_none
+from app.agents.structured_outputs import EvolutionAnalysisOutput
 from app.llm import ChatMessage, get_llm_provider
 from app.services.prompt_service import PromptService
 
@@ -35,16 +37,24 @@ class EvolutionAgent(BaseAgent):
             course_id=context.course_id,
             agent_run_id=context.run_id,
         )
-        response = await llm.chat(
-            [ChatMessage(role="user", content=rendered.content)],
+        messages = [ChatMessage(role="user", content=rendered.content)]
+        structured = await call_structured_chat_or_none(
+            llm,
+            messages,
+            EvolutionAnalysisOutput,
             temperature=0.3,
             max_tokens=3000,
         )
-
-        strategies = self._parse_strategies(response.content)
+        if structured is not None:
+            strategies = [item.model_dump(exclude_none=True) for item in structured.strategies]
+            raw_response = json.dumps({"strategies": strategies}, ensure_ascii=False)
+        else:
+            response = await llm.chat(messages, temperature=0.3, max_tokens=3000)
+            strategies = self._parse_strategies(response.content)
+            raw_response = response.content
 
         return self.success_result(
-            data={"strategies": strategies, "raw_response": response.content},
+            data={"strategies": strategies, "raw_response": raw_response},
             message="自进化策略分析完成",
             evidence=[evidence[:200]],
         )

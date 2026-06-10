@@ -11,8 +11,14 @@ import { Input } from "@/components/ui/input"
 import { getDefaultRouteByRole } from "@/lib/auth"
 import { login as loginRequest } from "@/services/authService"
 import { useAuthStore } from "@/stores/authStore"
+import { cn } from "@/lib/utils"
 
-export function LoginForm() {
+type LoginFormProps = {
+  variant?: "light" | "dark" | "landing"
+  onSwitchToRegister?: () => void
+}
+
+export function LoginForm({ variant = "light", onSwitchToRegister }: LoginFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const auth = useAuthStore()
@@ -44,32 +50,85 @@ export function LoginForm() {
     }
   }
 
+  const labelClass =
+    variant === "landing"
+      ? "text-sm font-medium tracking-[0.04em] text-muted-foreground"
+      : variant === "dark"
+        ? "text-sm font-medium text-muted-foreground"
+        : "text-sm font-bold text-[#524434]"
+  const footerClass =
+    variant === "landing"
+      ? "text-center text-sm leading-[1.85] tracking-[0.02em] text-muted-foreground"
+      : variant === "dark"
+        ? "text-center text-sm text-muted-foreground"
+        : "text-center text-sm text-[#524434]"
+  const errorClass =
+    variant === "dark"
+      ? "rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-200"
+      : "rounded-2xl border border-[#ffdad6] bg-[#ffdad6]/45 px-4 py-3 text-sm font-semibold text-[#93000a]"
+  const inputClass =
+    variant === "landing"
+      ? "landing-auth-input"
+      : variant === "dark"
+        ? "border-white/15 bg-white/5 text-foreground placeholder:text-muted-foreground focus:border-white/30 focus:bg-white/10"
+        : undefined
+
   return (
-    <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
-      <label className="flex flex-col gap-2">
-        <span className="text-sm font-bold text-[#524434]">账号</span>
-        <Input autoComplete="username" onChange={(event) => setUsername(event.target.value)} placeholder="student_demo" value={username} />
+    <form className={cn("flex flex-col", variant === "landing" ? "gap-6" : "gap-5")} onSubmit={handleSubmit}>
+      <label className="flex flex-col gap-2.5">
+        <span className={labelClass}>账号</span>
+        <Input
+          autoComplete="username"
+          className={inputClass}
+          onChange={(event) => setUsername(event.target.value)}
+          placeholder="student_demo"
+          value={username}
+        />
       </label>
-      <label className="flex flex-col gap-2">
-        <span className="text-sm font-bold text-[#524434]">密码</span>
-        <PasswordInput id="password" onChange={setPassword} placeholder="请输入密码" value={password} />
+      <label className="flex flex-col gap-2.5">
+        <span className={labelClass}>密码</span>
+        <PasswordInput
+          id="password"
+          inputClassName={inputClass}
+          onChange={setPassword}
+          placeholder="请输入密码"
+          value={password}
+        />
       </label>
 
-      {error ? (
-        <div className="rounded-2xl border border-[#ffdad6] bg-[#ffdad6]/45 px-4 py-3 text-sm font-semibold text-[#93000a]">
-          {error}
-        </div>
-      ) : null}
+      {error ? <div className={errorClass}>{error}</div> : null}
 
-      <Button disabled={submitting} size="lg" type="submit" variant="accent">
-        {submitting ? "登录中" : "登录"}
+      <Button
+        className={cn(
+          variant === "landing" && "landing-auth-submit w-full border-0 text-base",
+          variant === "dark" && "bg-foreground text-background hover:bg-foreground/90"
+        )}
+        disabled={submitting}
+        size="lg"
+        type="submit"
+        variant={variant === "landing" ? "default" : variant === "dark" ? "default" : "accent"}
+      >
+        {submitting ? "登录中…" : "登录"}
       </Button>
 
-      <p className="text-center text-sm text-[#524434]">
+      <p className={footerClass}>
         还没有账号？
-        <Link className="ml-2 font-bold text-primary hover:underline" href="/register">
-          创建学生账号
-        </Link>
+        {onSwitchToRegister ? (
+          <button
+            className={cn(
+              "ml-1.5 font-semibold transition-colors hover:underline",
+              variant === "landing" ? "text-primary" : "text-foreground"
+            )}
+            onClick={onSwitchToRegister}
+            type="button"
+          >
+            创建学生账号
+          </button>
+        ) : (
+          <Link className="ml-2 font-bold text-primary hover:underline" href="/register">
+            创建学生账号
+          </Link>
+        )}
       </p>
     </form>
   )

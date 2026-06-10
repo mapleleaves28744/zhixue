@@ -66,6 +66,34 @@ def test_diagnosis_error_patterns_use_answer_tags() -> None:
     assert patterns[0]["count"] == 2
 
 
+def test_diagnosis_builds_generated_learning_event_payload() -> None:
+    service = DiagnosisService.__new__(DiagnosisService)
+    report_id = uuid4()
+    weak_points = [{"knowledge_name": "栈"}, {"knowledge_name": "递归"}]
+    actions = [{"title": "复习栈"}, {"title": "练习递归"}]
+
+    payload = service._build_diagnosis_generated_event_payload(
+        report_id=report_id,
+        weak_points=weak_points,
+        recommended_actions=actions,
+    )
+
+    assert payload["report_id"] == str(report_id)
+    assert payload["weak_points_count"] == 2
+    assert payload["recommended_actions_count"] == 2
+
+
+def test_evolution_auto_evolve_gate_uses_accuracy_and_weak_points() -> None:
+    from app.services.evolution_service import EvolutionService
+
+    service = EvolutionService.__new__(EvolutionService)
+
+    assert service._should_auto_evolve_from_diagnosis({"accuracy": 0.75, "weak_points": []}) is False
+    assert service._should_auto_evolve_from_diagnosis({"accuracy": 0.5, "weak_points": []}) is True
+    assert service._should_auto_evolve_from_diagnosis({"accuracy": 0.8, "weak_points": [{}, {}]}) is True
+    assert service._should_auto_evolve_from_diagnosis({"accuracy": 0, "total_questions": 0, "weak_points": []}) is False
+
+
 @pytest.mark.asyncio
 async def test_recommendation_update_status_rejects_invalid_status() -> None:
     service = RecommendationService.__new__(RecommendationService)

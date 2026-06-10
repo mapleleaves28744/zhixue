@@ -1,0 +1,307 @@
+# change_1 分支任务进度
+
+| 项目 | 说明 |
+|------|------|
+| 分支 | `change_1` |
+| 基准 | `main` @ 文档提交后 |
+| 开始日期 | 2026-06-02 |
+| 参考文档 | [`前端高级化升级方案.md`](前端高级化升级方案.md)、[`功能完成度与待完善清单.md`](功能完成度与待完善清单.md) |
+
+**核验约定**：每完成一项，在「核验记录」填写命令/结果，再将 `[ ]` 改为 `[x]`。
+
+---
+
+## Sprint 1：设计基座统一
+
+- [x] 确认 `frontend/public/stitch-pages/stitch-shared.css` 内容完整
+- [x] 确认 `frontend/public/stitch-pages/zhixue-ui.js` 内容完整
+- [x] 复制 IP 贴纸至 `frontend/public/stickers/{zhizhi,lulu,diandian}/`
+- [x] 8 个 Stitch HTML 引用 `stitch-shared.css` + `zhixue-ui.js`，删除重复 glass `<style>`
+- [x] `tailwind.config.ts` 补充 spacing token（gutter、card-gap）
+- [x] **Sprint 1 总验**：`cd frontend; npm run typecheck; npm run build`
+
+### Sprint 1 核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| stitch-shared.css | 人工审阅：含 glass、动效、auth/modal、empty、agent-timeline 等 | 通过；补充 `.zhixue-field`、`.mask-gradient`、`.body-practice-bg` |
+| zhixue-ui.js | 人工审阅：skeleton、emptyState、toast、scrollReveal、getPageMascot | 通过 |
+| IP 贴纸 | `Get-ChildItem frontend/public/stickers -Recurse -Filter *.png` | 36 个 PNG（每角色 12 张） |
+| 8 页引用共享层 | `rg stitch-shared.css frontend/public/stitch-pages/*.html` | 8/8 命中；已移除页内重复 `<style>` |
+| tailwind spacing | `npm run typecheck` | 通过 |
+| Sprint 1 总验 | `npm run typecheck` + `npm run build` | 均通过（Next.js 14.2.35） |
+
+---
+
+## Sprint 2：API 与 P0 功能
+
+- [x] 扩展 `zhixue-static-api.js`：`getPageMascot`、`getWikiPage`、`updateCourse`、401 品牌页登录跳转、与 `ZhixueUI` 协作
+- [x] `/knowledge`：Wiki 详情 `GET /wiki/pages/{id}`，替换静态正文并展示来源、版本、AI 推断提示
+- [x] `/knowledge`：Wiki 列表点击切换详情（最小可用），无页面时展示真实空状态
+- [x] `/practice`：历史诊断 `GET /diagnosis/reports` 优先展示；无历史时再引导运行分析
+- [x] `/courses`：课程编辑 `PUT /courses/{id}`，公共课程保持只读提示
+- [x] **Sprint 2 总验**：主链路手动点检 + `npm run typecheck` + `npm run build`
+
+### Sprint 2 执行口径修正
+
+1. 本 Sprint 优先补真实 API 联动，不做全站重排和大范围动效。
+2. `StitchFrame` 的 `framer-motion` 路由淡入、品牌页 IP 海报和外链图清理后移到 Sprint 3/4。
+3. 每个勾选项必须至少满足：真实接口已调用、空状态/错误态可见、构建检查通过；涉及页面交互的项还需浏览器点检。
+4. 若后端接口存在但 Stitch 页面未接，不得宣称对应功能完成。
+
+### Sprint 2 核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| 共享 API | 代码审阅 + 内联脚本语法检查 | 通过；新增 Wiki 详情、版本、课程更新、401 品牌页登录跳转 |
+| `/knowledge` Wiki 详情 | 浏览器未登录烟测 + DOM 检查 | 通过基础加载；点击 Wiki Tab 可进入真实空状态。完整详情需登录态与真实 Wiki 数据继续点检 |
+| `/practice` 历史诊断 | 浏览器未登录烟测 | 通过基础加载；未登录时展示“历史诊断加载失败”，登录后应显示 `GET /diagnosis/reports` 历史列表 |
+| `/courses` 编辑课程 | 浏览器未登录烟测 + 创建弹窗检查 | 创建/编辑共用弹窗脚本通过；无课程数据时未出现编辑按钮，需登录后用真实课程点检 PUT |
+| Sprint 2 登录态总验 | 浏览器 E2E：注册临时学生账号 → 创建课程 → 编辑课程 → API 上传资料并生成 Wiki → 页面点击 Wiki 详情 → 生成练习 → 提交答案 → 运行诊断 → 回到历史诊断列表 | 通过；课程标题更新为“已编辑”，Wiki 详情显示正文/来源/版本/AI 核对提示，诊断历史显示新报告、100% 正确率和 Agent 生成标记 |
+| 前端构建 | `npm run build` | 通过（Next.js 14.2.35；普通沙箱因 worker spawn EPERM，提升权限后通过） |
+| 类型检查 | `npm run typecheck` | 通过 |
+
+---
+
+## Sprint 3：动效与壳层
+
+- [x] `StitchFrame` 安装 `framer-motion`，路由淡入 ~200ms
+- [x] `scrollReveal` / 区块进入动效在关键页启用
+- [x] **Sprint 3 总验**：路由切换无白屏闪烁；build 通过
+
+### Sprint 3 核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| Sprint 3 静态检查 | `node scripts/check-sprint3-ui.mjs` | 通过；校验 Framer 壳层、200ms 过渡、scrollReveal 防御逻辑与 reduced motion |
+| 类型检查 | `npm run typecheck` | 通过 |
+| 前端构建 | `npm run build` | 通过（Next.js 14.2.35） |
+| Stitch 动效烟测 | 浏览器直开 `/stitch-pages/{practice,knowledge,dashboard,courses}.html` | 通过；`reveal-on-scroll` 已注入，当前时间之后无新增 console error |
+| 路由切换烟测 | 浏览器依次访问 `/practice`、`/knowledge`、`/dashboard`、`/courses`、`/practice` | 通过；iframe 尺寸稳定，shell opacity 最终为 1，当前时间之后无新增 console error |
+
+---
+
+## Sprint 4：IP 与演示抛光
+
+- [x] `brand-home.html` 使用 `public/brand` IP 图，去除外链占位图
+- [x] 各页空状态使用 `ZhixueUI.emptyState` + 贴纸
+- [x] 编写或更新 `docs/ip-assets/UI集成规范.md`（可选）
+- [x] **Sprint 4 总验**：390/768/1024 三档目视 + 全链路演示
+
+### Sprint 4 核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| 品牌页 IP 图 | `rg -n "googleusercontent|aida-public" frontend/public/stitch-pages --glob "*.html"` | 通过；`brand-home.html` 主视觉改用本地 IP 单体图，知识图谱图位恢复旧视觉并本地化到 `public/brand` |
+| 其余外链图清理 | 同上 + 代码审阅 | 通过；`home.html`、`courses.html` 残留外链装饰图已替换为本地品牌 IP 资产 |
+| 空状态 IP 化 | `node scripts/check-sprint4-ip.mjs` | 通过；课程、练习、助手、首页、路径画像等关键空状态已接 `ZhixueUI.emptyState` / `renderEmptyState` |
+| IP 集成规范 | 人工审阅 `docs/ip-assets/UI集成规范.md` | 已补页面 mascot 映射、贴纸 scene 用途、实现约定和当前接入范围 |
+| Sprint 4 视口总验 | Playwright CLI：390/768/1024 视口截图 `/`、`/practice`、`/path-profile` | 通过；截图保存在 `%TEMP%/zhixue-sprint4-viewports`，抽检未见白屏、图片缺失或明显文字压缩 |
+
+---
+
+## 主链路稳定性与安全专项
+
+- [x] 新增真实 LLM 主链路验收脚本，覆盖资料上传到 Agent 日志的 23 个步骤
+- [x] 使用 `xiaomi_mimo / mimo-v2.5` 实际跑通，`fallback_used=false`
+- [x] 后端 pytest、Alembic、前端 typecheck/build 通过
+- [x] Next.js 14.2.35 升级到 16.2.7，PostCSS 统一到 8.5.15
+- [x] `npm audit --audit-level=moderate` 归零
+- [x] 更新 README、阶段验收清单与专项验收记录
+
+### 专项核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| 真实 LLM 整链 | `python scripts/main_chain_check.py` | 23 步通过；生成 5 个知识点、5 个 Wiki 页面、3 道练习、1 份诊断、1 条自进化策略；Agent 日志 6 条 |
+| 真实 Provider | Tutor 响应元数据 | `provider=xiaomi_mimo`、`model=mimo-v2.5`、`fallback_used=false` |
+| 后端与数据库 | `python -m pytest -q`、`python -m alembic upgrade head` | 91 passed；migration head 通过 |
+| 前端安全升级 | `npm run typecheck`、`npm run build`、`npm audit --audit-level=moderate` | Next.js 16.2.7 构建通过；0 vulnerabilities |
+| Next 16 浏览器烟测 | 品牌首页 + 6 个关键 Stitch 页面逐页加载 | 通过；逐页导航未新增控制台错误 |
+
+---
+
+## 文档事实源校准专项
+
+- [x] 建立当前实现基线和文档状态优先级
+- [x] 从 FastAPI OpenAPI 自动生成当前 API 文档与接口清单
+- [x] 从 SQLAlchemy metadata 自动生成当前数据库清单
+- [x] 按当前 Stitch 页面架构更新前端页面与路由文档
+- [x] 更新功能完成度、系统架构与各目标设计文档的状态说明
+- [x] 在 `AGENTS.md` 中加入事实源读取和文档同步规则
+
+### 专项核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| API 文档同步 | `python scripts/export_implementation_docs.py` | 通过；导出 89 个 HTTP 操作与 OpenAPI 当前快照 |
+| 数据库文档同步 | 同上 | 通过；导出 28 张 ORM 表 |
+| 同步脚本语法 | `python -m py_compile scripts/export_implementation_docs.py` | 通过 |
+| 文档格式检查 | `git diff --check` | 通过 |
+| 项目回归 | `scripts/local_check.ps1 -All` | 通过；Alembic head、91 个后端测试、FastAPI import、前端 typecheck/build 均通过 |
+
+---
+
+## 文档目录整合专项
+
+- [x] 25 个编号目录建立同名总文档和目录导读
+- [x] 删除并吸收 232 份空白、占位或重复文档
+- [x] 保留 API/数据库事实清单、验收记录和本地启动指南
+- [x] 更新文档索引、引用与 API 自动生成目标
+- [x] 新增文档结构、占位和断链检查脚本
+- [x] 对照当前代码逐目录核验文档事实
+
+### 专项核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| 目录入口 | `python scripts/check_docs.py` | 通过；25 个编号目录、73 份 Markdown，无占位模板和本地断链 |
+| 当前事实 | FastAPI OpenAPI、SQLAlchemy metadata、前端路由、Agent、migration 清点 | 89 API、28 表、10 Next 页面、8 Stitch 页面、13 Agent、16 migration |
+| 逐目录事实核验 | `docs/文档整理核验报告.md` | 25 个编号目录均已记录核验结论 |
+| 项目回归 | `scripts/local_check.ps1 -All` | 通过；Alembic head、91 个后端测试、FastAPI import、前端 typecheck/build 均通过 |
+
+---
+
+## 练习与知识库交互修复
+
+- [x] 练习生成后保留顶部配置表单，并在下方展示本次生成题目
+- [x] “答题竞技”继续使用独立答题视图，不被练习生成模式覆盖
+- [x] 课程 Wiki、资料库、图谱视图标签高亮跟随当前内容切换
+- [x] Wiki 详情增加明确的“返回 Wiki 列表”按钮
+- [x] 图谱视图接入真实 `/api/v1/wiki/graph`，使用 Obsidian 式 D3 力导向网络图（`zhixue-force-graph.js`），支持掌握度着色与节点详情侧栏
+
+### 专项核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| 静态交互契约 | `node scripts/check-knowledge-practice-ui.mjs` | 练习内嵌、答题竞技独立模式、Wiki 高亮/返回、D3 力导向图谱绑定通过 |
+| 浏览器交互 | `/knowledge` 标签切换、力导向图谱与详情侧栏 | 高亮正确切换；真实 Wiki 节点力导向展示，节点可进入详情并返回列表 |
+| 前端回归 | `npm run typecheck`、`npm run build` | 通过 |
+
+---
+
+## Sprint 5：体验问题审计与修复（UX Sprint）
+
+> 依据「体验问题审计与修复计划」并行推进：助手 React 化、Markdown 全站、资源持久化、知识库可读。
+
+### P0 体验问题追踪
+
+| ID | 问题 | 状态 |
+|----|------|------|
+| A1 | 无流式正文，仅 Agent 进度 | 已修复：快速模式 Tutor SSE |
+| A2 | 无快速/智能体模式切换 | 已修复：ModeToggle |
+| A3 | Agent 卡片不可折叠、内容重复 | 已修复：AgentTaskCard |
+| A4 | 对话区无限拉长 | 已修复：固定高度 + 内部滚动 |
+| A5 | Markdown 不渲染 | 已修复：MarkdownRenderer |
+| A6 | 资源刷新后预览丢失 | 已修复：last_resource_id 恢复 |
+| A7 | 多模态产物全尺寸撑爆 | 已修复：ArtifactCard 缩略 |
+| A8 | 假控件未接线 | 已修复：资料库/Wiki 开关已接线 |
+| A9 | 初始假对话闪现 | 已修复：React 页无静态占位 |
+
+### P1/P2 追踪
+
+| ID | 问题 | 状态 |
+|----|------|------|
+| K1-K6 | 知识库资料/切片不可读等 | 已修复：material API + knowledge UI |
+| G1-G5 | 工具栏、Agent 详情、message_id | 已修复：ToolSelector + AgentEventDetail + 内联音频 |
+| X1-X7 | Mermaid、类型不一致、home 提问等 | 部分修复：Markdown 基座、home 跳转助手 |
+
+### Sprint 5 任务清单
+
+- [x] MarkdownRenderer 基座 + 依赖
+- [x] 后端 materials download / parsed-text / chunks API
+- [x] 后端 resources generate 响应对齐 + tool_hints
+- [x] `/assistant` React 化：布局、快速模式、智能体模式
+- [x] 资源缩略图 + DetailDrawer + 刷新恢复
+- [x] knowledge 资料预览 + 切片浏览器
+- [x] check-assistant-ui.mjs + E2E 烟测
+
+### Sprint 5 核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| 助手 React 化 | `node scripts/check-assistant-ui.mjs` | 19/19 PASS |
+| 前端构建 | `npm run typecheck`、`npm run build` | 通过 |
+| 资源 Schema | `pytest tests/test_resource.py` | 28 passed |
+| 知识库资料可读 | knowledge.html 下载/全文/切片按钮 | 已实现 |
+| Markdown 全站 | Wiki/练习/画像/助手 | 已接入 |
+
+---
+
+## Sprint 6：Supervisor LLM 主导与助手语音闭环
+
+> 目标：**LLM 主导规划、规则只做安全网**；智能体完成后在对话区直接展示 Markdown 与可播放语音，不再依赖弹窗才能看完整回答。
+
+### 架构（Supervisor）
+
+- [x] 有 tools 时优先 **native function calling**（不再绑定 `response_format: json_object`）
+- [x] `_apply_safety_net` 替代 keyword 主导的 `_enforce_execution_policy`
+- [x] 安全网仅介入：必交付物缺失、显式检索约束、用户 `tool_hints`、Mock fallback（纯答疑不强制补工具）
+- [x] Mock Provider 在有 tools 时按 `plan_required_tools` 返回 native `tool_calls`
+- [x] `supervisor_intents` 删除不可达 `elif diagram_intent` 分支
+- [x] `ab_test_service.assign_user` 改用 `INSERT ON CONFLICT DO NOTHING` 消除 TOCTOU
+
+### 助手体验（React `/assistant`）
+
+- [x] `ReplyBlocks`：完成后内联完整 Markdown；流式时单行摘要 + 实时正文
+- [x] `InlineAudioPlayer` + `extractSpeechAudio`：对话区与详情内嵌音频播放
+- [x] `AgentEventDetail` / `ActivityDetailDialog`：规划思路、工具参数、TTS 事件
+- [x] `synthesize_speech` 持久化 `media_assets` 并返回 `artifact_refs`
+- [x] `AGENT_INLINE_FALLBACK`：Worker 未启动时 API 进程内联执行兜底
+
+### Sprint 6 核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| Supervisor 意图回归 | `pytest tests/test_supervisor_intents.py tests/test_agent_runtime.py -q` | 44 passed |
+| 助手 React 契约 | `node scripts/check-assistant-ui.mjs` | 19/19 PASS |
+| 全量后端 | `pytest -q` | 214 passed；1 项 harness 待修（显式检索 vs 交付物顺序，`test_agent_harness.py`） |
+| API/DB 事实源 | `python scripts/export_implementation_docs.py` | 128 API、37 表 |
+| 前端构建 | `npm run typecheck`、`npm run build` | 待本地复验 |
+
+### 已知后续
+
+1. `_apply_safety_net`：用户同时要求「基于资料 + 插图」时，应先 `search_course_knowledge` 再 `generate_educational_image`（harness 用例待对齐）。
+2. 浏览器 E2E：「生成讲解队列的语音」→ 对话区播放器 + 完整 Markdown 需人工或 Playwright 复验。
+
+---
+
+## Sprint 7：知识卡片双路径（文生图 / Mermaid 兜底）
+
+> 赛题「文生图导出知识卡片」策略：**有 API 用精简文生图提示词；无 API 用简明 Mermaid 思维导图/流程图兜底**，均强调「节点/元素简明、可多层但不堆字」。
+
+### 策略
+
+| 条件 | 行为 |
+|------|------|
+| `MULTIMODAL_PROVIDER=mock` 或未配置 `AGNES_API_KEY` | `generate_educational_image` → Mermaid mindmap（默认 3 层）或 flowchart（过程类） |
+| `MULTIMODAL_PROVIDER=agnes` + 有效 Key | 文生图 + `CONCISE_IMAGE_CARD_RULES` 精简提示词 |
+| 复杂知识 | Mermaid 可 4 层；文生图仍限制 3–4 个视觉元素 |
+
+### 任务
+
+- [x] `uses_real_image_generation()` 检测真实文生图 Provider
+- [x] `MultimodalResourceService.generate_image` Mermaid 兜底
+- [x] `CONCISE_MERMAID_RULES` / `CONCISE_IMAGE_CARD_RULES` 约束复杂度
+- [x] Agent 工具 `generate_educational_image` 返回 mindmap/diagram 资源引用
+- [x] Supervisor 系统提示补充双路径说明
+- [x] `.env.example` 注释说明 mock 行为
+
+### Sprint 7 核验记录
+
+| 任务 | 核验 | 结果 |
+|------|------|------|
+| 兜底路由 | `pytest tests/test_knowledge_card_fallback.py -q` | 3 passed |
+| 视觉服务 | `pytest tests/test_visual_resource_services.py tests/test_knowledge_card_fallback.py -q` | 8 passed |
+
+---
+
+## 提交记录（change_1）
+
+| 日期 | Commit | 说明 |
+|------|--------|------|
+| 2026-06-02 | `978fd45` | Sprint 1：共享设计层 + 贴纸 + 8 页引用 |
+| 2026-06-05 | `fdbf630` | Sprint 2：课程编辑、Wiki 详情、历史诊断总验链路 |
+| 2026-06-05 | `1098ac0` | Sprint 3/4 前置视觉小修：外链图本地化、知识图谱旧图恢复 |
+| 2026-06-05 | `21809c2` | Sprint 3：StitchFrame 路由淡入、scrollReveal 与壳层稳定性 |
+| 2026-06-06 | `aab1343` | 真实 LLM 整链验收与 Next.js 安全升级 |

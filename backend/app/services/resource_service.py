@@ -14,6 +14,7 @@ from app.models.user import User
 from app.models.wiki import WikiPage
 from app.repositories.course_repository import CourseRepository
 from app.repositories.knowledge_repository import KnowledgeRepository
+from app.repositories.media_repository import MediaRepository
 from app.repositories.resource_repository import ResourceRepository
 from app.repositories.wiki_repository import WikiRepository
 from app.schemas.resource import (
@@ -26,6 +27,8 @@ from app.schemas.resource import (
 )
 from app.services.agent_service import AgentService
 from app.services.course_service import CourseService
+from app.services.resource_media_service import ResourceMediaService
+from app.utils.mermaid_util import is_mermaid_code
 
 
 class ResourceService:
@@ -103,6 +106,12 @@ class ResourceService:
             model_name=str(data.get("model_name") or "") or None,
             prompt_version_id=self._uuid(data.get("prompt_version_id")),
         )
+        await ResourceMediaService(self.db).enrich_after_generate(
+            resource=resource,
+            current_user=current_user,
+            resource_type=resource_type,
+            requirement=payload.requirement,
+        )
         await self.db.commit()
         await self.db.refresh(resource)
 
@@ -116,17 +125,16 @@ class ResourceService:
             if refreshed is not None:
                 resource = refreshed
 
-        return ResourceGenerateResponse(
-            resource_id=resource.id,
-            title=resource.title,
-            content=resource.content,
-            citations=resource.citations,
-            personalized_reason=resource.personalized_reason,
-            agent_run_id=self._uuid(data.get("agent_run_id")),
-            review_result=review_result,
-            status=resource.status,
-            wiki_page_id=resource.wiki_page_id,
+        response_data = await self._with_media_fields(resource, current_user.id)
+        response_data.update(
+            {
+                "resource_id": resource.id,
+                "id": resource.id,
+                "agent_run_id": self._uuid(data.get("agent_run_id")),
+                "review_result": review_result,
+            }
         )
+        return ResourceGenerateResponse.model_validate(response_data)
 
     async def list_resources(
         self,
@@ -150,7 +158,11 @@ class ResourceService:
             page=page,
             page_size=page_size,
         )
-        return [GeneratedResourceRead.model_validate(item) for item in items], total
+        enriched: list[GeneratedResourceRead] = []
+        for item in items:
+            payload = await self._with_media_fields(item, current_user.id)
+            enriched.append(GeneratedResourceRead.model_validate(payload))
+        return enriched, total
 
     async def get_resource(
         self,
@@ -159,7 +171,8 @@ class ResourceService:
         current_user: User,
     ) -> GeneratedResourceRead:
         resource = await self._get_owned_resource(resource_id, current_user.id)
-        return GeneratedResourceRead.model_validate(resource)
+        data = await self._with_media_fields(resource, current_user.id)
+        return GeneratedResourceRead.model_validate(data)
 
     async def archive_resource(
         self,
@@ -369,6 +382,29 @@ class ResourceService:
         )
         return copied
 
+    async def _with_media_fields(self, resource: GeneratedResource, user_id: UUID) -> dict[str, Any]:
+        data = GeneratedResourceRead.model_validate(resource).model_dump(mode="json")
+        asset = await MediaRepository(self.db).get_asset_for_resource(resource.id, user_id)
+        if asset is not None:
+            data["media_asset_id"] = str(asset.id)
+            data["media_mime_type"] = asset.mime_type
+            data["media_asset_type"] = asset.asset_type
+            data["media_file_url"] = f"/api/v1/media-assets/{asset.id}/file"
+        data["content_format"] = "mermaid" if is_mermaid_code(resource.content) else "markdown"
+        data["preview_mode"] = self._preview_mode(resource.resource_type, asset)
+        return data
+
+    @staticmethod
+    def _preview_mode(resource_type: str, asset: Any) -> str:
+        if asset is not None:
+            if asset.asset_type == "audio" or str(asset.mime_type or "").startswith("audio/"):
+                return "audio"
+            if asset.asset_type == "image" or str(asset.mime_type or "").startswith("image/"):
+                return "image"
+        if resource_type in {"mindmap", "diagram"}:
+            return "mermaid"
+        return "text"
+
     async def _get_owned_resource(
         self,
         resource_id: UUID,
@@ -389,7 +425,7 @@ class ResourceService:
         if normalized not in VALID_RESOURCE_TYPES:
             raise BusinessException(
                 code=ErrorCode.PARAM_ERROR,
-                detail="resource_type 只能是 explanation / summary / example / flashcard / review",
+                detail="resource_type 只能是 explanation / summary / example / flashcard / review / mindmap / diagram",
                 status_code=400,
             )
         return normalized
@@ -406,6 +442,14 @@ class ResourceService:
             "example": "例题",
             "flashcard": "复习卡",
             "review": "错题解析",
+            "mindmap": "思维导图",
+            "diagram": "图解",
+            "image": "教学插图",
+            "video": "讲解视频",
+            "animation": "动画",
+            "interactive_courseware": "互动课件",
+            "code_project": "代码实操项目",
+            "reading_pack": "拓展阅读包",
         }
         topic = knowledge.name if knowledge else wiki_page.title if wiki_page else "数据结构"
         return f"{topic}{labels[resource_type]}"

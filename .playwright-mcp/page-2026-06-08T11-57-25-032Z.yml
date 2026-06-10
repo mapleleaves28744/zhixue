@@ -1,0 +1,128 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - iframe [ref=e3]:
+      - generic [active] [ref=f4e1]:
+        - navigation [ref=f4e2]:
+          - generic "当前用户" [ref=f4e3]:
+            - generic [ref=f4e4]: school
+          - link "home" [ref=f4e5] [cursor=pointer]:
+            - /url: /
+            - generic [ref=f4e6]: home
+          - link "grid_view" [ref=f4e7] [cursor=pointer]:
+            - /url: /courses
+            - generic [ref=f4e8]: grid_view
+          - link "smart_toy" [ref=f4e9] [cursor=pointer]:
+            - /url: /assistant
+            - generic [ref=f4e11]: smart_toy
+          - link "inventory_2" [ref=f4e12] [cursor=pointer]:
+            - /url: /practice
+            - generic [ref=f4e13]: inventory_2
+          - link "dashboard" [ref=f4e14] [cursor=pointer]:
+            - /url: /dashboard
+            - generic [ref=f4e15]: dashboard
+          - link "menu_book" [ref=f4e16] [cursor=pointer]:
+            - /url: /knowledge
+            - generic [ref=f4e17]: menu_book
+          - link "route" [ref=f4e18] [cursor=pointer]:
+            - /url: /path-profile
+            - generic [ref=f4e19]: route
+          - button "logout" [ref=f4e20] [cursor=pointer]:
+            - generic [ref=f4e21]: logout
+        - generic [ref=f4e22]:
+          - banner [ref=f4e23]:
+            - generic [ref=f4e25]: 智能问答
+            - generic [ref=f4e26]:
+              - generic [ref=f4e27]:
+                - generic [ref=f4e28]: search
+                - textbox "搜索对话历史..." [ref=f4e29]
+              - button "notifications" [ref=f4e30] [cursor=pointer]:
+                - generic [ref=f4e31]: notifications
+              - button "help_outline" [ref=f4e32] [cursor=pointer]:
+                - generic [ref=f4e33]: help_outline
+              - generic "当前用户" [ref=f4e34]:
+                - generic [ref=f4e35]: school
+          - main [ref=f4e36]:
+            - generic [ref=f4e37]:
+              - generic [ref=f4e38]:
+                - generic [ref=f4e39]:
+                  - generic [ref=f4e40]:
+                    - generic [ref=f4e41]:
+                      - combobox [ref=f4e42] [cursor=pointer]:
+                        - option "高等数学 (上)" [selected]
+                        - option "线性代数"
+                        - option "大学物理"
+                      - generic: expand_more
+                    - generic [ref=f4e43]:
+                      - combobox [ref=f4e44] [cursor=pointer]:
+                        - option "第三章：微积分基础" [selected]
+                        - option "第四章：多元函数"
+                      - generic: expand_more
+                  - generic [ref=f4e45]:
+                    - generic [ref=f4e46] [cursor=pointer]:
+                      - checkbox "基于资料库" [checked] [ref=f4e48]
+                      - generic [ref=f4e51]: 基于资料库
+                    - generic [ref=f4e52] [cursor=pointer]:
+                      - checkbox "基于 Wiki" [ref=f4e54]
+                      - generic [ref=f4e57]: 基于 Wiki
+                - generic [ref=f4e58]:
+                  - generic [ref=f4e60]: LangGraph Agent 已连接 · MiMo 动态规划
+                  - generic [ref=f4e61]:
+                    - generic [ref=f4e63]: auto_awesome
+                    - generic [ref=f4e64]:
+                      - paragraph [ref=f4e65]: 直接告诉我你的问题或学习目标。MiMo Supervisor 会动态规划、选择专业 Agent 与工具，并根据执行观察继续或重新规划。
+                      - generic [ref=f4e66]: 试试：我最近图和排序不太会，帮我生成一套学习计划、讲解资料和练习题。
+                - generic [ref=f4e68]:
+                  - button "attach_file" [ref=f4e69] [cursor=pointer]:
+                    - generic [ref=f4e70]: attach_file
+                  - textbox "输入问题，按 Enter 发送..." [ref=f4e71]
+                  - button "send" [ref=f4e72] [cursor=pointer]:
+                    - generic [ref=f4e73]: send
+              - generic [ref=f4e74]:
+                - generic [ref=f4e75]:
+                  - heading "auto_fix_high 生成学习资源" [level=3] [ref=f4e76]:
+                    - generic [ref=f4e77]: auto_fix_high
+                    - text: 生成学习资源
+                  - generic [ref=f4e78]:
+                    - generic [ref=f4e79]:
+                      - generic [ref=f4e80]: 选择资源类型
+                      - generic [ref=f4e81]:
+                        - button "讲解" [ref=f4e82] [cursor=pointer]
+                        - button "总结" [ref=f4e83] [cursor=pointer]
+                        - button "例题" [ref=f4e84] [cursor=pointer]
+                        - button "复习卡" [ref=f4e85] [cursor=pointer]
+                        - button "错题解析" [ref=f4e86] [cursor=pointer]
+                        - button "思维导图" [ref=f4e87] [cursor=pointer]
+                        - button "图解" [ref=f4e88] [cursor=pointer]
+                    - generic [ref=f4e89]:
+                      - generic [ref=f4e90]: 个性化要求
+                      - textbox "例如：用适合初学者的方式解释，并给出一个小例题" [ref=f4e91]
+                    - button "auto_fix_high 生成资源" [ref=f4e92] [cursor=pointer]:
+                      - generic [ref=f4e93]: auto_fix_high
+                      - text: 生成资源
+                    - generic [ref=f4e94]:
+                      - generic [ref=f4e95]:
+                        - generic [ref=f4e96]: Agent 执行状态
+                        - generic [ref=f4e97]: 等待生成
+                      - generic [ref=f4e99]:
+                        - generic [ref=f4e100]:
+                          - generic [ref=f4e101]: radio_button_unchecked
+                          - generic [ref=f4e102]: 选择课程与 Wiki 来源
+                        - generic [ref=f4e103]:
+                          - generic [ref=f4e104]: radio_button_unchecked
+                          - generic [ref=f4e105]: Resource Agent 生成资源
+                        - generic [ref=f4e106]:
+                          - generic [ref=f4e107]: radio_button_unchecked
+                          - generic [ref=f4e108]: Review Agent 校验来源与风险
+                - generic [ref=f4e109]:
+                  - generic [ref=f4e110]:
+                    - heading "资源预览" [level=4] [ref=f4e111]
+                    - button "save 保存到 Wiki" [disabled] [ref=f4e113]:
+                      - generic [ref=f4e114]: save
+                      - text: 保存到 Wiki
+                  - generic [ref=f4e117]: 选择类型后生成学习资源
+                  - generic [ref=f4e118]:
+                    - generic [ref=f4e119]:
+                      - generic [ref=f4e120]: 历史记录
+                      - generic [ref=f4e121] [cursor=pointer]: history
+                    - generic [ref=f4e123]: 生成后会显示在这里
+  - region "Notifications alt+T"

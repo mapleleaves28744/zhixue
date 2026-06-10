@@ -5,47 +5,8 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>AI 学习助手 - 智学工坊</title>
 <link href="/stitch-pages/stitch-tailwind.css" rel="stylesheet"/>
+<link href="/stitch-pages/stitch-shared.css" rel="stylesheet"/>
 <link href="/fonts/material-symbols.css" rel="stylesheet"/>
-<style>
-        body { background-color: #fcf9f8; overflow-x: hidden; }
-        .glass-shell { 
-            background: rgba(255, 255, 255, 0.45); 
-            backdrop-filter: blur(40px); 
-            -webkit-backdrop-filter: blur(40px); 
-            border: 1px solid rgba(255, 255, 255, 0.8); 
-            border-radius: 40px; 
-            box-shadow: 0 40px 100px -20px rgba(131, 84, 0, 0.05), 0 30px 60px -30px rgba(0, 0, 0, 0.02); 
-        }
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.7); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.9); 
-            border-radius: 24px; 
-            box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.04); 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        .glass-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.06); border-color: rgba(255, 255, 255, 1); }
-        .ambient-blob { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.5; pointer-events: none; }
-        .blob-1 { top: -10%; left: -5%; width: 45vw; height: 45vw; background: rgba(249, 168, 38, 0.12); }
-        .blob-2 { bottom: -10%; right: -5%; width: 55vw; height: 55vw; background: rgba(255, 221, 181, 0.25); }
-        .blob-3 { top: 35%; left: 25%; width: 35vw; height: 35vw; background: rgba(125, 83, 84, 0.08); }
-        
-        .chat-bubble-ai {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(255, 255, 255, 1);
-            box-shadow: 0 4px 20px -4px rgba(0,0,0,0.03);
-        }
-        .chat-bubble-user {
-            background: linear-gradient(135deg, rgba(249, 168, 38, 0.08) 0%, rgba(249, 168, 38, 0.04) 100%);
-            border: 1px solid rgba(249, 168, 38, 0.15);
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(215, 195, 174, 0.5); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(133, 116, 98, 0.5); }
-    </style>
 </head>
 <body class="text-on-background font-body-md min-h-screen">
 <!-- Ambient Background Blobs -->
@@ -229,7 +190,8 @@
 <!-- Input Area -->
 <div class="p-5 border-t border-white/60 bg-white/40 backdrop-blur-xl">
 <div class="relative bg-white/80 border border-white/90 rounded-2xl p-3 shadow-sm focus-within:ring-4 focus-within:ring-primary/10 transition-all flex items-end">
-<button class="p-2.5 text-outline hover:text-primary transition-colors shrink-0 rounded-xl hover:bg-white/50">
+<input id="audio-upload-input" type="file" accept="audio/*" class="hidden" />
+<button id="audio-upload-button" class="p-2.5 text-outline hover:text-primary transition-colors shrink-0 rounded-xl hover:bg-white/50" title="上传音频提问">
 <span class="material-symbols-outlined">attach_file</span>
 </button>
 <textarea class="w-full bg-transparent border-none focus:ring-0 resize-none max-h-32 py-2 px-3 text-body-md text-on-surface placeholder-outline-variant outline-none" placeholder="输入问题，按 Enter 发送..." rows="1"></textarea>
@@ -256,6 +218,8 @@
 <button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="example">例题</button>
 <button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="flashcard">复习卡</button>
 <button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="review">错题解析</button>
+<button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="mindmap">思维导图</button>
+<button class="resource-type-button px-4 py-2 bg-white/60 border border-white/90 text-on-surface-variant hover:bg-white rounded-xl font-bold text-label-md transition-all shadow-sm" data-resource-type="diagram">图解</button>
 </div>
 </div>
 <div>
@@ -317,15 +281,7 @@
 <span class="material-symbols-outlined text-lg text-outline cursor-pointer hover:text-primary transition-all">history</span>
 </div>
 <div id="resource-history" class="space-y-3">
-<div class="group flex items-center gap-4 p-3.5 bg-white/30 rounded-2xl border border-transparent shadow-sm">
-<div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shrink-0 border border-primary/20 group-hover:scale-105 transition-transform">
-<span class="material-symbols-outlined text-xl">auto_fix_high</span>
-</div>
-<div class="flex-1 min-w-0">
-<p class="font-bold text-on-surface truncate text-label-md">暂无生成记录</p>
-<p class="text-xs text-outline font-semibold mt-0.5">生成后会显示在这里</p>
-</div>
-</div>
+<div class="text-xs text-outline font-semibold bg-white/30 rounded-2xl p-4">生成后会显示在这里</div>
 </div>
 </div>
 </div>
@@ -333,7 +289,9 @@
 </div>
 </main>
 </div>
+<script src="/stitch-pages/zhixue-ui.js"></script>
 <script src="/stitch-pages/zhixue-static-api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
 (() => {
   const api = window.ZhixueStatic;
@@ -342,6 +300,8 @@
   const chatArea = document.querySelector(".flex-1.overflow-y-auto.p-8.space-y-8");
   const textarea = document.querySelector("textarea[placeholder='输入问题，按 Enter 发送...']");
   const sendButton = textarea?.parentElement?.querySelector("button:last-child");
+  const audioUploadInput = document.getElementById("audio-upload-input");
+  const audioUploadButton = document.getElementById("audio-upload-button");
   const resourceButtons = document.querySelectorAll(".resource-type-button");
   const generateResourceButton = document.getElementById("generate-resource-button");
   const saveResourceButton = document.getElementById("save-resource-to-wiki-button");
@@ -350,6 +310,7 @@
   const resourceHistory = document.getElementById("resource-history");
   const resourceAgentStatus = document.getElementById("resource-agent-status");
   let currentCourseId = null;
+  let currentConversationId = null;
   let currentResource = null;
   let selectedResourceType = "explanation";
   let sending = false;
@@ -377,15 +338,15 @@
     }
     chatArea.innerHTML = `
       <div class="flex justify-center">
-        <span class="px-5 py-1.5 bg-surface-container-high/40 text-outline rounded-full text-label-sm font-bold backdrop-blur-sm" id="tutor-provider-status">Tutor API 已连接 · 等待模型响应</span>
+        <span class="px-5 py-1.5 bg-surface-container-high/40 text-outline rounded-full text-label-sm font-bold backdrop-blur-sm" id="tutor-provider-status">LangGraph Agent 已连接 · MiMo 动态规划</span>
       </div>
       <div class="flex items-start gap-4">
         <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20 text-primary shadow-sm backdrop-blur-md">
           <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
         </div>
         <div class="chat-bubble-ai rounded-[24px] rounded-tl-sm p-6 shadow-sm space-y-3 max-w-[85%]">
-          <p class="text-body-md text-on-surface leading-relaxed">可以直接提问了。我会调用真实 /api/v1/tutor/chat，并把引用、相关知识点、反馈与保存到 Wiki 串进学习闭环。</p>
-          <div class="text-label-sm text-outline font-bold">试试：什么是栈？它和队列有什么区别？</div>
+          <p class="text-body-md text-on-surface leading-relaxed">直接告诉我你的问题或学习目标。MiMo Supervisor 会动态规划、选择专业 Agent 与工具，并根据执行观察继续或重新规划。</p>
+          <div class="text-label-sm text-outline font-bold">试试：我最近图和排序不太会，帮我生成一套学习计划、讲解资料和练习题。</div>
         </div>
       </div>`;
   }
@@ -449,6 +410,7 @@
       )).join("");
       await loadWikiPages();
       await loadResourceHistory();
+      await loadAgentConversationHistory();
     } catch (error) {
       api.toast(error.message || "课程加载失败", "error");
     }
@@ -492,6 +454,305 @@
       </div>`;
     chatArea.appendChild(wrapper);
     chatArea.scrollTop = chatArea.scrollHeight;
+  }
+
+  const taskStatusLabels = {
+    queued: "等待执行",
+    planned: "计划已生成",
+    waiting_confirmation: "等待确认",
+    running: "执行中",
+    succeeded: "已完成",
+    failed: "执行失败",
+    cancelled: "已取消",
+  };
+  const agentEventLabels = {
+    queued: "进入后台队列",
+    planning: "加载上下文并规划",
+    plan_created: "MiMo 制定计划",
+    tool_started: "开始调用工具",
+    tool_completed: "工具执行完成",
+    observation: "观察执行结果",
+    replanned: "根据观察重新规划",
+    waiting_confirmation: "等待风险操作确认",
+    reviewed: "Review Agent 审查",
+    memory_reflected: "提炼长期学习记忆",
+    artifact_created: "创建学习产物",
+    multimodal_progress: "多模态生成进度",
+    completed: "任务完成",
+    failed: "任务失败",
+    cancelled: "任务已取消",
+  };
+
+  async function ensureAgentConversation() {
+    if (!currentCourseId) {
+      throw new Error("请先创建或选择课程");
+    }
+    const storageKey = `zhixue_agent_conversation_${currentCourseId}`;
+    const storedId = localStorage.getItem(storageKey);
+    const page = await api.listAgentConversations();
+    const conversations = page.items || [];
+    const selected = conversations.find((item) => item.id === storedId && item.course_id === currentCourseId)
+      || conversations.find((item) => item.course_id === currentCourseId);
+    if (selected) {
+      currentConversationId = selected.id;
+    } else {
+      const created = await api.createAgentConversation({
+        course_id: currentCourseId,
+        title: "新对话",
+      });
+      currentConversationId = created.id;
+    }
+    localStorage.setItem(storageKey, currentConversationId);
+    return currentConversationId;
+  }
+
+  async function loadAgentConversationHistory() {
+    if (!chatArea || !currentCourseId) {
+      return;
+    }
+    resetChatToApiReady();
+    try {
+      const conversationId = await ensureAgentConversation();
+      const page = await api.listAgentConversationMessages(conversationId);
+      const messages = page.items || [];
+      if (!messages.length) {
+        return;
+      }
+      for (const message of messages) {
+        if (message.role === "user") {
+          appendUserMessage(message.content);
+          if (message.task_id) {
+            const task = await api.getDynamicAgentTask(message.task_id);
+            const wrapper = appendDynamicAgentTaskCard(task);
+            wrapper.__answerRendered = true;
+            await hydrateHistoricalAgentTask(wrapper);
+          }
+        } else if (message.role === "assistant") {
+          appendAiMessage({
+            answer: message.content,
+            citations: message.payload?.citations || [],
+            provider: "xiaomi_mimo",
+            model: "mimo-v2.5",
+            agent_run_id: message.task_id,
+          });
+        }
+      }
+    } catch (error) {
+      api.toast(error.message || "Agent 会话历史加载失败", "error");
+    }
+  }
+
+  async function hydrateHistoricalAgentTask(wrapper) {
+    const taskId = wrapper?.dataset?.taskId;
+    if (!taskId) {
+      return;
+    }
+    wrapper.__agentEvents = [];
+    await api.streamDynamicAgentTaskEvents(taskId, {
+      onEvent: (eventType, data) => {
+        if (eventType !== "heartbeat") {
+          wrapper.__agentEvents.push({ type: eventType, data });
+        }
+      },
+    });
+    renderDynamicAgentTaskCard(wrapper, wrapper.__agentTask);
+  }
+
+  async function refreshDynamicAgentTaskCard(wrapper, knownTask = null) {
+    const taskId = wrapper?.dataset?.taskId;
+    if (!taskId) return null;
+    const task = knownTask || await api.getDynamicAgentTask(taskId);
+    wrapper.__agentTask = task;
+    renderDynamicAgentTaskCard(wrapper, task);
+    return task;
+  }
+
+  function renderDynamicAgentTaskCard(wrapper, task) {
+    const plan = task.plan_json || {};
+    const artifacts = plan.artifact_refs || [];
+    const citations = plan.citations || [];
+    const events = wrapper.__agentEvents || [];
+    const terminal = ["succeeded", "failed", "cancelled"].includes(task.status);
+    const statusTone = task.status === "succeeded"
+      ? "text-green-700 bg-green-50 border-green-200"
+      : task.status === "failed"
+        ? "text-error bg-error-container/20 border-error/20"
+        : task.status === "running"
+          ? "text-primary bg-primary/5 border-primary/20"
+          : "text-on-surface-variant bg-white/70 border-white";
+    const planHtml = (plan.plan || []).map((item, index) => (
+      `<div class="flex items-start gap-2 text-xs text-on-surface-variant"><span class="font-bold text-primary">${index + 1}.</span><span>${escapeHtml(item)}</span></div>`
+    )).join("");
+    const eventHtml = events.map((event) => {
+      const isFailure = event.type === "failed" || event.data?.success === false;
+      const isActive = !terminal && event.type === "tool_started";
+      const icon = isFailure ? "error" : event.type === "completed" ? "check_circle" : isActive ? "sync" : "radio_button_checked";
+      const tone = isFailure ? "text-error" : event.type === "completed" ? "text-green-700" : isActive ? "text-primary" : "text-outline";
+      const detail = event.data?.summary || event.data?.message || event.data?.tool_name || event.data?.error_message || "";
+      return `
+        <div class="grid grid-cols-[24px_1fr_auto] gap-3 items-start py-3 border-b border-outline-variant/20 last:border-0">
+          <span class="material-symbols-outlined text-[19px] ${tone} ${isActive ? "animate-spin" : ""}">${icon}</span>
+          <div class="min-w-0">
+            <div class="font-bold text-sm text-on-surface">${escapeHtml(agentEventLabels[event.type] || event.type)}</div>
+            ${detail ? `<div class="text-xs text-outline mt-1">${escapeHtml(detail)}</div>` : ""}
+          </div>
+          <span class="text-xs font-bold text-outline whitespace-nowrap">#${escapeHtml(event.data?.sequence_no || events.indexOf(event) + 1)}</span>
+        </div>`;
+    }).join("");
+    const artifactHtml = artifacts.map((ref) => {
+      if (api.renderArtifactCard && (ref.type === "media_asset" || ref.type === "media_job" || ref.type === "media_review")) {
+        return api.renderArtifactCard(ref);
+      }
+      return `<div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10 text-xs font-bold text-primary">
+        <span class="material-symbols-outlined text-[16px]">inventory_2</span>
+        <span>${escapeHtml(ref.type || "artifact")}${ref.title ? ` · ${escapeHtml(ref.title)}` : ""}</span>
+      </div>`;
+    }).join("");
+    const controls = terminal ? "" : `
+      <div class="flex flex-wrap gap-2 pt-4 border-t border-outline-variant/20">
+        ${task.status === "waiting_confirmation" ? `<button data-task-action="approve" class="px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold shadow-sm">允许本次操作</button><button data-task-action="reject" class="px-4 py-2 rounded-xl bg-white/80 border border-white text-error text-xs font-bold">拒绝操作</button>` : ""}
+        <button data-task-action="cancel" class="px-4 py-2 rounded-xl bg-white/80 border border-white text-error text-xs font-bold">取消任务</button>
+      </div>`;
+    wrapper.innerHTML = `
+      <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20 text-primary shadow-sm">
+        <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">account_tree</span>
+      </div>
+      <div class="chat-bubble-ai rounded-[24px] rounded-tl-sm p-6 shadow-sm space-y-4 max-w-[88%] w-full">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="text-xs font-bold text-primary uppercase tracking-widest">LangGraph Agent · ${escapeHtml(task.runtime_mode)}</div>
+            <h3 class="font-bold text-on-surface mt-1">${escapeHtml(task.task_goal)}</h3>
+          </div>
+          <span class="px-3 py-1.5 rounded-full border text-xs font-bold whitespace-nowrap ${statusTone}">${escapeHtml(taskStatusLabels[task.status] || task.status)}</span>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-xs">
+          <div class="rounded-xl bg-white/60 border border-white px-3 py-2"><span class="text-outline">风险</span><strong class="block mt-1 text-on-surface">${escapeHtml(task.risk_level)}</strong></div>
+          <div class="rounded-xl bg-white/60 border border-white px-3 py-2"><span class="text-outline">循环</span><strong class="block mt-1 text-on-surface">${task.iteration_count || 0}</strong></div>
+          <div class="rounded-xl bg-white/60 border border-white px-3 py-2"><span class="text-outline">工具调用</span><strong class="block mt-1 text-on-surface">${task.tool_call_count || 0}</strong></div>
+        </div>
+        ${planHtml ? `<div><div class="text-xs font-bold text-outline uppercase tracking-widest mb-2">Current Plan</div><div class="rounded-2xl bg-white/55 border border-white p-4 space-y-2">${planHtml}</div></div>` : ""}
+        <div>
+          <div class="text-xs font-bold text-outline uppercase tracking-widest mb-2">Plan · Act · Observe · Replan</div>
+          <div class="rounded-2xl bg-white/55 border border-white px-4 max-h-72 overflow-y-auto">${eventHtml || '<div class="py-4 text-xs text-outline">任务已入队，等待 Worker 接管</div>'}</div>
+        </div>
+        ${artifactHtml ? `<div><div class="text-xs font-bold text-outline uppercase tracking-widest mb-2">Artifacts</div><div class="grid gap-2">${artifactHtml}</div></div>` : ""}
+        ${citations.length ? `<div class="text-xs font-bold text-primary">已绑定 ${citations.length} 条课程来源引用</div>` : ""}
+        ${task.error_message ? `<div class="rounded-xl bg-error-container/20 text-error px-4 py-3 text-xs font-bold">${escapeHtml(task.error_message)}</div>` : ""}
+        ${controls}
+      </div>`;
+    wrapper.querySelectorAll("[data-task-action]").forEach((button) => {
+      button.addEventListener("click", () => handleDynamicAgentTaskAction(wrapper, button.dataset.taskAction, button));
+    });
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+
+  function appendDynamicAgentTaskCard(task) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "flex items-start gap-4";
+    wrapper.dataset.taskId = task.id;
+    wrapper.__agentTask = task;
+    wrapper.__agentEvents = [];
+    chatArea.appendChild(wrapper);
+    renderDynamicAgentTaskCard(wrapper, task);
+    return wrapper;
+  }
+
+  async function handleDynamicAgentTaskAction(wrapper, action, button) {
+    const taskId = wrapper.dataset.taskId;
+    if (!taskId || button.disabled) return;
+    button.disabled = true;
+    const original = button.textContent;
+    button.textContent = "处理中...";
+    try {
+      let task;
+      if (action === "approve") task = await api.resumeDynamicAgentTask(taskId, true);
+      if (action === "reject") task = await api.resumeDynamicAgentTask(taskId, false);
+      if (action === "cancel") task = await api.cancelDynamicAgentTask(taskId);
+      await refreshDynamicAgentTaskCard(wrapper, task);
+      if (action === "approve" || action === "reject") void watchDynamicAgentTask(wrapper);
+    } catch (error) {
+      api.toast(error.message || "Agent 操作失败", "error");
+      button.disabled = false;
+      button.textContent = original;
+    }
+  }
+
+  async function watchDynamicAgentTask(wrapper) {
+    const taskId = wrapper.dataset.taskId;
+    let requeueAttempted = false;
+    const queuedGuard = window.setInterval(async () => {
+      const task = wrapper.__agentTask;
+      if (!task || task.status !== "queued" || requeueAttempted) {
+        return;
+      }
+      const createdAt = Date.parse(task.created_at || "");
+      if (!Number.isFinite(createdAt) || Date.now() - createdAt < 12000) {
+        return;
+      }
+      requeueAttempted = true;
+      try {
+        const refreshed = await api.requeueDynamicAgentTask(taskId);
+        wrapper.__agentTask = refreshed;
+        wrapper.__agentEvents.push({
+          type: "queued",
+          data: { message: "任务长时间未启动，已尝试重新入队" },
+        });
+        await refreshDynamicAgentTaskCard(wrapper, refreshed);
+        api.toast("检测到 Worker 可能未启动，已尝试重新入队。若仍无进展，请运行 scripts/start_dev.ps1。", "info");
+      } catch (error) {
+        wrapper.__agentEvents.push({
+          type: "failed",
+          data: { error_message: error.message || "任务重新入队失败" },
+        });
+        await refreshDynamicAgentTaskCard(wrapper);
+      }
+    }, 3000);
+    try {
+      await api.streamDynamicAgentTaskEvents(taskId, {
+        onEvent: async (eventType, data) => {
+          if (eventType !== "heartbeat") {
+            wrapper.__agentEvents.push({ type: eventType, data });
+          }
+          if (eventType === "multimodal_progress" && data?.job_id && wrapper.__agentTask?.plan_json) {
+            const refs = wrapper.__agentTask.plan_json.artifact_refs || [];
+            refs.forEach((ref) => {
+              if (ref.job_id === data.job_id) {
+                ref.progress = data.progress;
+                ref.stage = data.stage;
+                ref.status = data.stage;
+              }
+            });
+          }
+          const task = await refreshDynamicAgentTaskCard(wrapper);
+          if (eventType === "completed" && !wrapper.__answerRendered) {
+            wrapper.__answerRendered = true;
+            appendAiMessage({
+              answer: data.final_answer,
+              citations: data.citations || task.plan_json?.citations || [],
+              provider: "xiaomi_mimo",
+              model: "mimo-v2.5",
+              agent_run_id: task.id,
+              knowledge_extract: data.knowledge_extract || {},
+              graph_context: data.graph_context || task.plan_json?.graph_context || {},
+            });
+          }
+        },
+      });
+      await refreshDynamicAgentTaskCard(wrapper);
+    } catch (error) {
+      wrapper.__agentEvents.push({ type: "failed", data: { error_message: error.message || "事件流连接失败" } });
+      await refreshDynamicAgentTaskCard(wrapper).catch(() => renderDynamicAgentTaskCard(wrapper, wrapper.__agentTask));
+    } finally {
+      window.clearInterval(queuedGuard);
+    }
+  }
+
+  async function sendDynamicAgentMessage(userInput) {
+    const conversationId = await ensureAgentConversation();
+    const accepted = await api.sendAgentConversationMessage(conversationId, userInput);
+    const wrapper = appendDynamicAgentTaskCard(accepted.task);
+    void watchDynamicAgentTask(wrapper);
+    api.toast("目标已交给 MiMo Supervisor，Agent 正在后台自动执行。", "success");
   }
 
   function formatElapsed(startedAt) {
@@ -610,6 +871,36 @@
     };
   }
 
+  function showKnowledgeExtractToast(extract) {
+    if (!extract || typeof extract !== "object") return;
+    const created = Number(extract.created_entities || 0);
+    const relations = Number(extract.created_relations || 0);
+    const merged = Number(extract.entities_merged || 0);
+    if (created <= 0 && relations <= 0 && merged <= 0) return;
+    const parts = [];
+    if (created > 0) parts.push(`${created} 个新知识点`);
+    if (relations > 0) parts.push(`${relations} 条关系`);
+    if (merged > 0 && parts.length === 0) parts.push(`${merged} 个知识点已关联对话`);
+    if (!parts.length) return;
+    api.toast(`已沉淀到个人知识图谱：${parts.join("、")}`, "success");
+  }
+
+  function formatGraphContextSummary(graphContext) {
+    if (!graphContext || typeof graphContext !== "object") return "";
+    const seeds = graphContext.seed_nodes || [];
+    const expanded = graphContext.expanded_nodes || [];
+    const paths = graphContext.relation_paths || [];
+    if (!seeds.length && !expanded.length && !paths.length) return "";
+    const parts = [];
+    if (seeds.length) parts.push(`种子节点：${seeds.slice(0, 4).join("、")}`);
+    if (expanded.length) parts.push(`图谱扩展：${expanded.slice(0, 4).join("、")}`);
+    if (paths.length) {
+      const rel = paths[0]?.type || "related";
+      parts.push(`关系路径 ${paths.length} 条（如 ${rel}）`);
+    }
+    return parts.join(" · ");
+  }
+
   function appendAiMessage(payload, sources, model) {
     if (!chatArea) {
       return;
@@ -622,6 +913,16 @@
     const related = data.related_knowledge_points || [];
     const followUps = data.follow_up_questions || [];
     const messageId = data.message_id;
+    const graphSummary = formatGraphContextSummary(data.graph_context);
+    const graphHtml = graphSummary
+      ? `<div class="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-xs text-on-surface-variant">
+          <div class="flex items-center gap-2 font-bold text-primary mb-1">
+            <span class="material-symbols-outlined text-[16px]">hub</span>
+            图谱扩展检索依据
+          </div>
+          <p>${escapeHtml(graphSummary)}</p>
+        </div>`
+      : "";
     const fallbackHtml = data.fallback_used ? `
       <div class="rounded-2xl border border-error/20 bg-error-container/20 text-on-error-container px-4 py-3 text-label-sm font-bold">
         真实模型 ${escapeHtml(data.failed_provider || "unknown")} 调用失败，当前已自动切换到 Mock 兜底。${data.fallback_reason ? `原因：${escapeHtml(data.fallback_reason)}` : ""}
@@ -663,6 +964,7 @@
       <div class="flex flex-col gap-3 max-w-[85%]">
         <div class="chat-bubble-ai rounded-[24px] rounded-tl-sm p-6 shadow-sm space-y-4">
           <p class="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap">${escapeHtml(answer)}</p>
+          ${graphHtml}
           ${fallbackHtml}
           <div class="text-label-sm text-outline font-bold">Provider: ${escapeHtml(data.provider || "unknown")} · Model: ${escapeHtml(data.model || model || "unknown")} · Agent: ${escapeHtml(data.agent_run_id || "pending")}</div>
           <div class="mt-4 pt-4 border-t border-outline-variant/30 flex gap-3 overflow-x-auto pb-2">${sourceHtml}</div>
@@ -672,6 +974,10 @@
           <button class="tutor-save-answer flex items-center gap-1.5 text-label-sm font-bold text-primary hover:bg-primary/5 px-3 py-1.5 rounded-full transition-all border border-transparent hover:border-primary/10 ${messageId ? "" : "opacity-50"}" ${messageId ? "" : "disabled"}>
             <span class="material-symbols-outlined text-[18px]">bookmark_add</span>
             保存到 Wiki
+          </button>
+          <button class="tutor-read-answer flex items-center gap-1.5 text-label-sm font-bold text-primary hover:bg-primary/5 px-3 py-1.5 rounded-full transition-all border border-transparent hover:border-primary/10">
+            <span class="material-symbols-outlined text-[18px]">volume_up</span>
+            朗读
           </button>
           <button class="tutor-feedback p-1.5 text-outline-variant hover:text-primary transition-colors rounded-full hover:bg-white/50" data-feedback-type="useful" ${messageId ? "" : "disabled"}>
             <span class="material-symbols-outlined text-[20px]">thumb_up</span>
@@ -688,6 +994,7 @@
       chatArea.appendChild(relatedNode.firstElementChild);
     }
     wrapper.querySelector(".tutor-save-answer")?.addEventListener("click", () => saveTutorAnswer(messageId));
+    wrapper.querySelector(".tutor-read-answer")?.addEventListener("click", (event) => readTutorAnswer(answer, event.currentTarget, wrapper));
     wrapper.querySelectorAll(".tutor-feedback").forEach((button) => {
       button.addEventListener("click", () => submitTutorFeedback(messageId, button.dataset.feedbackType || "useful", button));
     });
@@ -699,6 +1006,7 @@
         }
       });
     });
+    showKnowledgeExtractToast(data.knowledge_extract);
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 
@@ -735,6 +1043,42 @@
     }
   }
 
+  async function readTutorAnswer(answer, button, wrapper) {
+    if (!answer || !currentCourseId) {
+      api.toast("暂无可朗读内容", "info");
+      return;
+    }
+    const original = button?.innerHTML;
+    try {
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span> 合成中';
+      }
+      const result = await api.synthesizeSpeech({
+        text: answer.slice(0, 1200),
+        model_type: "tts",
+        response_format: "mp3",
+      });
+      const bubble = wrapper.querySelector(".chat-bubble-ai");
+      bubble?.querySelector(".speech-player")?.remove();
+      const audioType = result.format === "mp3" ? "audio/mpeg" : "audio/wav";
+      const player = document.createElement("div");
+      player.className = "speech-player rounded-2xl bg-primary/5 border border-primary/15 px-4 py-3 space-y-2";
+      player.innerHTML = `
+        <div class="text-xs font-bold text-primary">${result.fallback_used ? "真实语音接口暂不可用，已使用 Mock 兜底" : `语音合成完成 · ${escapeHtml(result.provider || "audio")}`}</div>
+        <audio controls class="w-full" src="data:${audioType};base64,${result.audio_base64 || ""}"></audio>
+      `;
+      bubble?.appendChild(player);
+    } catch (error) {
+      api.toast(error.message || "朗读任务创建失败", "error");
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.innerHTML = original;
+      }
+    }
+  }
+
   function setSending(next) {
     sending = next;
     if (sendButton) {
@@ -743,6 +1087,46 @@
       sendButton.innerHTML = next
         ? '<span class="material-symbols-outlined animate-spin">sync</span>'
         : '<span class="material-symbols-outlined">send</span>';
+    }
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const value = String(reader.result || "");
+        resolve(value.includes(",") ? value.split(",").pop() : value);
+      };
+      reader.onerror = () => reject(reader.error || new Error("音频读取失败"));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleAudioUpload(file) {
+    if (!file || !textarea) {
+      return;
+    }
+    if (file.size > 12 * 1024 * 1024) {
+      api.toast("音频文件过大，请选择 12MB 以内的文件", "error");
+      return;
+    }
+    try {
+      const audioBase64 = await fileToBase64(file);
+      api.toast("正在识别音频...", "info");
+      const result = await api.transcribeAudio({
+        audio_base64: audioBase64,
+        filename: file.name,
+        language: "zh",
+      });
+      textarea.value = result.text || "";
+      textarea.focus();
+      api.toast(result.fallback_used ? "真实语音接口暂不可用，已使用 Mock 兜底。" : "语音识别完成，可继续编辑后发送。", "success");
+    } catch (error) {
+      api.toast(error.message || "语音识别失败，可改用文字输入", "error");
+    } finally {
+      if (audioUploadInput) {
+        audioUploadInput.value = "";
+      }
     }
   }
 
@@ -758,48 +1142,15 @@
     textarea.value = "";
     appendUserMessage(question);
     setSending(true);
-    const progress = createTutorProgressMessage();
     try {
-      let finalMeta = null;
-      const payload = {
+      void api.trackLearningEvent?.({
         course_id: currentCourseId,
-        question,
-        wiki_page_id: chapterSelect?.value || null,
-        top_k: 5,
-        use_rag: true,
-        use_wiki: true,
-        use_profile: true,
-      };
-      if (api.streamTutorChat) {
-        finalMeta = await api.streamTutorChat(payload, {
-          onDelta: (chunk) => progress.appendDelta(chunk),
-          onProgress: (event) => progress.updateStage(event.message),
-          onDone: (meta) => { finalMeta = meta; },
-        });
-      } else {
-        const data = await api.chatWithTutor(payload);
-        progress.appendDelta(data.answer || "");
-        finalMeta = data;
-      }
-      const data = {
-        ...(finalMeta || {}),
-        answer: progress.getAnswer() || finalMeta?.answer || "",
-      };
-      const providerStatus = document.getElementById("tutor-provider-status");
-      if (providerStatus) {
-        if (data.fallback_used) {
-          providerStatus.textContent = `${data.failed_provider || "真实模型"} 调用失败 · 已切换 Mock 兜底`;
-          providerStatus.classList.add("text-error");
-        } else {
-          const providerName = data.provider === "xiaomi_mimo" ? "小米 MiMo" : (data.provider || "未知 Provider");
-          providerStatus.textContent = `${providerName} 已响应 · ${data.model || "未返回模型名"}`;
-        }
-      }
-      progress.complete();
-      progress.remove();
-      appendAiMessage(data);
+        event_type: "tutor_ask",
+        event_payload: { mode: "dynamic_agent", question_length: question.length },
+      });
+      await sendDynamicAgentMessage(question);
     } catch (error) {
-      progress.fail(error.message || "AI Tutor 请求失败，请稍后重试。");
+      api.toast(error.message || "Agent 任务创建失败", "error");
     } finally {
       setSending(false);
     }
@@ -891,7 +1242,119 @@
       example: "例题",
       flashcard: "复习卡",
       review: "错题解析",
+      mindmap: "思维导图",
+      diagram: "图解",
     }[type] || "资源";
+  }
+
+  function resourceTypeIcon(type, previewMode) {
+    if (previewMode === "audio") return "volume_up";
+    if (previewMode === "image" || previewMode === "mermaid") return "account_tree";
+    return {
+      explanation: "menu_book",
+      summary: "summarize",
+      example: "quiz",
+      flashcard: "style",
+      review: "error",
+      mindmap: "account_tree",
+      diagram: "schema",
+    }[type] || "auto_fix_high";
+  }
+
+  function isMermaidContent(content) {
+    const trimmed = String(content || "").trim();
+    return /^(mindmap|flowchart\s+(TD|LR|BT|RL)|sequenceDiagram|classDiagram|erDiagram)\b/.test(trimmed);
+  }
+
+  function mediaPreviewUrl(resource) {
+    if (!resource?.media_asset_id || !api.mediaAssetFileUrl) {
+      return "";
+    }
+    return api.mediaAssetFileUrl(resource.media_asset_id);
+  }
+
+  function imagePreviewHtml(resource) {
+    const url = mediaPreviewUrl(resource);
+    if (!url) {
+      return "";
+    }
+    return `
+      <div class="rounded-2xl bg-white border border-primary/15 overflow-hidden shadow-sm">
+        <img class="w-full max-h-[520px] object-contain bg-white" src="${url}" alt="${escapeHtml(resource.title || "资源预览")}" />
+      </div>`;
+  }
+
+  function audioPreviewHtml(resource) {
+    const url = mediaPreviewUrl(resource);
+    if (!url) {
+      return "";
+    }
+    return `
+      <div class="rounded-2xl bg-primary/5 border border-primary/15 p-5 shadow-sm">
+        <div class="flex items-center gap-2 text-sm font-bold text-primary mb-3">
+          <span class="material-symbols-outlined">volume_up</span>
+          语音讲解
+        </div>
+        <audio controls class="w-full" src="${url}" preload="metadata"></audio>
+      </div>`;
+  }
+
+  function mermaidPreviewHtml(content) {
+    const id = `resource-mermaid-${Date.now()}`;
+    return `
+      <div class="rounded-2xl bg-white border border-primary/15 overflow-hidden shadow-sm">
+        <div class="flex items-center justify-between px-4 py-3 bg-primary/5 border-b border-primary/10">
+          <div class="flex items-center gap-2 text-sm font-bold text-primary">
+            <span class="material-symbols-outlined text-lg">account_tree</span>
+            思维导图 / 图解
+          </div>
+        </div>
+        <div id="${id}" class="p-4 overflow-auto min-h-[280px] flex items-center justify-center bg-white"></div>
+        <details class="border-t border-primary/10 px-4 py-3 bg-white/70">
+          <summary class="text-xs font-bold text-outline cursor-pointer">查看 Mermaid 源码</summary>
+          <pre class="mt-2 max-h-[220px] overflow-auto text-xs leading-6 text-on-surface whitespace-pre-wrap">${escapeHtml(content || "")}</pre>
+        </details>
+      </div>`;
+  }
+
+  async function paintMermaidPreview(content) {
+    if (!window.mermaid || !isMermaidContent(content)) {
+      return;
+    }
+    const host = resourcePreview?.querySelector("[id^='resource-mermaid-']");
+    if (!host) {
+      return;
+    }
+    try {
+      window.mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
+      const { svg } = await window.mermaid.render(`mmd-${Date.now()}`, content);
+      host.innerHTML = svg;
+    } catch (error) {
+      host.innerHTML = `<div class="text-sm text-error font-bold">图谱渲染失败，请展开源码核对。</div>`;
+    }
+  }
+
+  function buildResourceBodyHtml(resource) {
+    const previewMode = resource.preview_mode || (isMermaidContent(resource.content) ? "mermaid" : "text");
+    if (previewMode === "image" && resource.media_asset_id) {
+      return imagePreviewHtml(resource);
+    }
+    if (previewMode === "audio" && resource.media_asset_id) {
+      const textBlock = resource.resource_type === "explanation"
+        ? `<details class="rounded-2xl bg-white/70 border border-white/90 p-4 shadow-sm">
+            <summary class="text-sm font-bold text-primary cursor-pointer">展开文字讲稿</summary>
+            <div class="mt-3">${markdownToHtml(resource.content)}</div>
+          </details>`
+        : "";
+      return `${audioPreviewHtml(resource)}${textBlock}`;
+    }
+    if (previewMode === "mermaid" || isMermaidContent(resource.content)) {
+      if (resource.media_asset_id) {
+        return `${imagePreviewHtml(resource)}${mermaidPreviewHtml(resource.content)}`;
+      }
+      return mermaidPreviewHtml(resource.content);
+    }
+    return `<div class="rounded-2xl bg-white/70 border border-white/90 p-5 shadow-sm">${markdownToHtml(resource.content)}</div>`;
   }
 
   function markdownToHtml(markdown) {
@@ -938,7 +1401,7 @@
     return html.join("");
   }
 
-  function renderResource(resource) {
+  async function renderResource(resource) {
     if (!resourcePreview || !resource) {
       return;
     }
@@ -957,19 +1420,30 @@
           <div class="text-[11px] font-bold text-primary uppercase tracking-widest mb-2">${resourceTypeLabel(resource.resource_type)}</div>
           <h3 class="text-xl font-bold text-on-surface leading-snug">${escapeHtml(resource.title)}</h3>
         </div>
-        <div class="rounded-2xl bg-white/70 border border-white/90 p-5 shadow-sm">
-          ${markdownToHtml(resource.content)}
-        </div>
-        <div class="rounded-2xl bg-primary/5 border border-primary/15 p-4">
-          <div class="text-label-sm font-bold text-primary mb-2">个性化原因</div>
-          <p class="text-sm leading-6 text-on-surface-variant">${escapeHtml(resource.personalized_reason || "暂无个性化证据，建议结合学习记录继续校准。")}</p>
-        </div>
+        ${buildResourceBodyHtml(resource)}
+        <details class="rounded-2xl bg-primary/5 border border-primary/15 p-4">
+          <summary class="text-label-sm font-bold text-primary cursor-pointer">个性化原因</summary>
+          <p class="mt-2 text-sm leading-6 text-on-surface-variant">${escapeHtml(resource.personalized_reason || "暂无个性化证据，建议结合学习记录继续校准。")}</p>
+        </details>
         <div>
           <div class="text-label-sm font-bold text-outline-variant mb-2">引用来源</div>
           <div class="grid gap-2">${citationHtml}</div>
         </div>
       </article>`;
+    if (isMermaidContent(resource.content)) {
+      await paintMermaidPreview(resource.content);
+    }
     updateSaveButton();
+  }
+
+  function resourceHistoryEmptyHtml() {
+    return window.ZhixueUI?.emptyState?.({
+      mascot: "zhizhi",
+      scene: "thinking",
+      title: "暂无生成记录",
+      description: "生成学习资源后，会在这里保留最近记录。",
+      compact: true,
+    })?.outerHTML || '<div class="text-xs font-bold text-outline bg-white/50 rounded-xl p-3">暂无生成记录</div>';
   }
 
   function updateSaveButton() {
@@ -1029,7 +1503,7 @@
         use_profile: true,
         save_to_wiki: false,
       });
-      renderResource(resource);
+      await renderResource(resource);
       stopActiveResourceProgress();
       setResourceStatus("done", "Review Agent 已校验");
       api.toast("学习资源已生成", "success");
@@ -1068,6 +1542,18 @@
     }
   }
 
+  async function openResourceById(resourceId) {
+    if (!resourceId) {
+      return;
+    }
+    try {
+      const resource = await api.getResource(resourceId);
+      await renderResource(resource);
+    } catch (error) {
+      api.toast(error.message || "资源加载失败", "error");
+    }
+  }
+
   async function loadResourceHistory() {
     if (!resourceHistory || !currentCourseId) {
       return;
@@ -1076,34 +1562,22 @@
       const page = await api.listResources(currentCourseId, { pageSize: 4, status: "all" });
       const items = page.items || [];
       if (!items.length) {
-        resourceHistory.innerHTML = `
-          <div class="group flex items-center gap-4 p-3.5 bg-white/30 rounded-2xl border border-transparent shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shrink-0 border border-primary/20">
-              <span class="material-symbols-outlined text-xl">auto_fix_high</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-bold text-on-surface truncate text-label-md">暂无生成记录</p>
-              <p class="text-xs text-outline font-semibold mt-0.5">生成后会显示在这里</p>
-            </div>
-          </div>`;
+        resourceHistory.innerHTML = resourceHistoryEmptyHtml();
         return;
       }
       resourceHistory.innerHTML = items.map((item) => `
         <button class="w-full group flex items-center gap-4 p-3.5 bg-white/30 hover:bg-white/80 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-white shadow-sm text-left" data-resource-id="${item.id}">
           <div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shrink-0 border border-primary/20 group-hover:scale-105 transition-transform">
-            <span class="material-symbols-outlined text-xl">${item.status === "saved_to_wiki" ? "bookmark_added" : "auto_fix_high"}</span>
+            <span class="material-symbols-outlined text-xl">${item.status === "saved_to_wiki" ? "bookmark_added" : resourceTypeIcon(item.resource_type, item.preview_mode)}</span>
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-bold text-on-surface truncate text-label-md">${escapeHtml(item.title)}</p>
-            <p class="text-xs text-outline font-semibold mt-0.5">${resourceTypeLabel(item.resource_type)} · ${api.formatDate(item.created_at)}</p>
+            <p class="text-xs text-outline font-semibold mt-0.5">${resourceTypeLabel(item.resource_type)}${item.preview_mode === "audio" ? " · 可播放" : item.preview_mode === "image" || item.preview_mode === "mermaid" ? " · 可视化" : ""} · ${api.formatDate(item.created_at)}</p>
           </div>
         </button>`).join("");
       resourceHistory.querySelectorAll("[data-resource-id]").forEach((button) => {
         button.addEventListener("click", () => {
-          const resource = items.find((item) => item.id === button.dataset.resourceId);
-          if (resource) {
-            renderResource(resource);
-          }
+          void openResourceById(button.dataset.resourceId);
         });
       });
     } catch (error) {
@@ -1113,12 +1587,14 @@
 
   courseSelect?.addEventListener("change", () => {
     currentCourseId = courseSelect.value || null;
+    currentConversationId = null;
     if (currentCourseId) {
       localStorage.setItem("zhixue_current_course_id", currentCourseId);
     }
     currentResource = null;
     void loadWikiPages();
     void loadResourceHistory();
+    void loadAgentConversationHistory();
   });
 
   chapterSelect?.addEventListener("change", updateSaveButton);
@@ -1130,6 +1606,10 @@
 
   resetChatToApiReady();
   sendButton?.addEventListener("click", sendQuestion);
+  audioUploadButton?.addEventListener("click", () => audioUploadInput?.click());
+  audioUploadInput?.addEventListener("change", () => {
+    void handleAudioUpload(audioUploadInput.files?.[0]);
+  });
   textarea?.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();

@@ -1,4 +1,12 @@
-export type ResourceType = "explanation" | "summary" | "example" | "flashcard" | "review"
+export type ResourceType =
+  | "explanation"
+  | "summary"
+  | "example"
+  | "flashcard"
+  | "review"
+  | "mindmap"
+  | "diagram"
+  | "image"
 
 export interface ResourceCitation {
   source_type: string
@@ -26,6 +34,12 @@ export interface GeneratedResource {
   prompt_version_id?: string | null
   status: string
   created_at: string
+  media_asset_id?: string | null
+  media_mime_type?: string | null
+  media_asset_type?: string | null
+  media_file_url?: string | null
+  content_format?: string | null
+  preview_mode?: "image" | "audio" | "mermaid" | "text" | null
 }
 
 export interface ResourceGeneratePayload {
@@ -40,6 +54,8 @@ export interface ResourceGeneratePayload {
 
 export interface ResourceGenerateResult {
   resource_id: string
+  id: string
+  resource_type: ResourceType
   title: string
   content: string
   citations: ResourceCitation[]
@@ -48,4 +64,11 @@ export interface ResourceGenerateResult {
   review_result: Record<string, unknown>
   status: string
   wiki_page_id?: string | null
+  created_at?: string
+  media_asset_id?: string | null
+  media_mime_type?: string | null
+  media_asset_type?: string | null
+  media_file_url?: string | null
+  content_format?: string | null
+  preview_mode?: "image" | "audio" | "mermaid" | "text" | null
 }

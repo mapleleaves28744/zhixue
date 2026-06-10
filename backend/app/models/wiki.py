@@ -39,6 +39,11 @@ class WikiPage(Base):
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
+    knowledge_id: Mapped[UUID | None] = mapped_column(
+        PgUUID(as_uuid=True),
+        ForeignKey("knowledge_points.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(255), nullable=False)
     summary: Mapped[str | None] = mapped_column(Text)

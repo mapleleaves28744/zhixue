@@ -1,4 +1,7 @@
+"use client"
+
 import type { CSSProperties } from "react"
+import { AnimatePresence, motion } from "framer-motion"
 
 type StitchFrameProps = {
   title: string
@@ -24,8 +27,18 @@ const frameStyle: CSSProperties = {
 
 export function StitchFrame({ title, src }: StitchFrameProps) {
   return (
-    <main className="stitch-shell" style={shellStyle}>
-      <iframe className="stitch-frame" src={src} style={frameStyle} title={title} />
-    </main>
+    <AnimatePresence mode="wait">
+      <motion.main
+        animate={{ opacity: 1 }}
+        className="stitch-shell"
+        exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        key={src}
+        style={shellStyle}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+      >
+        <iframe className="stitch-frame" key={src} src={src} style={frameStyle} title={title} />
+      </motion.main>
+    </AnimatePresence>
   )
 }

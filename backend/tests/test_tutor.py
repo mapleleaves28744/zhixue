@@ -53,6 +53,20 @@ def test_tutor_save_and_feedback_requests() -> None:
     assert feedback_request.rating == 5
 
 
+def test_tutor_agent_formats_graph_context() -> None:
+    agent = TutorAgent(db=None)  # type: ignore[arg-type]
+    text = agent._format_graph_context(
+        {
+            "seed_nodes": ["栈", "队列"],
+            "expanded_nodes": ["BFS"],
+            "relation_paths": [{"type": "prerequisite", "evidence": "先修关系"}],
+        }
+    )
+    assert "栈" in text
+    assert "BFS" in text
+    assert "prerequisite" in text
+
+
 def test_tutor_agent_builds_wiki_related_points() -> None:
     agent = TutorAgent(db=None)  # type: ignore[arg-type]
     wiki_page = SimpleNamespace(id=uuid4(), title="递归调用栈")
