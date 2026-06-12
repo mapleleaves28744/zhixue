@@ -364,17 +364,18 @@ rm -f {remote_hf}
             if code != 0:
                 print("[WARN] 模型缓存同步失败，首次 embedding 时会重新下载", file=sys.stderr)
 
-    if args.skip_build:
-        print("==> 重启 backend / worker / frontend / nginx ...")
-        up = f"cd {REMOTE_DIR} && docker compose -f docker-compose.prod.yml up -d backend worker frontend nginx"
-    else:
-        print("==> 启动全部服务（镜像已有则跳过 rebuild，避免 SSH 卡死）...")
-        up = (
-            f"cd {REMOTE_DIR} && "
-            "export COMPOSE_DOCKER_CLI_BUILD=1 NODE_OPTIONS=--max-old-space-size=1536; "
-            "docker compose -f docker-compose.prod.yml up -d postgres redis && sleep 5 && "
-            "docker compose -f docker-compose.prod.yml up -d backend worker frontend nginx 2>&1 | tail -n 20"
-        )
+        if args.skip_build:
+            print("==> 重启 backend / worker / frontend / nginx ...")
+            up = f"cd {REMOTE_DIR} && docker compose -f docker-compose.prod.yml up -d backend worker frontend nginx"
+        else:
+            print("==> 启动全部服务（镜像已有则跳过 rebuild，避免 SSH 卡死）...")
+            up = (
+                f"cd {REMOTE_DIR} && "
+                "export COMPOSE_DOCKER_CLI_BUILD=1 NODE_OPTIONS=--max-old-space-size=1536; "
+                "docker compose -f docker-compose.prod.yml up -d postgres redis && sleep 5 && "
+                "docker compose -f docker-compose.prod.yml up -d backend worker frontend nginx 2>&1 | tail -n 20"
+            )
+
         code, out, err = run_script(client, up, sudo=True, timeout=3600)
         print(out)
         if err.strip():
