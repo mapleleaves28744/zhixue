@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
+from dataclasses import dataclass
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,8 +16,20 @@ from app.repositories.chunk_repository import ChunkRepository
 from app.repositories.course_repository import CourseRepository
 from app.repositories.knowledge_repository import KnowledgeRepository
 from app.repositories.material_repository import MaterialRepository
+from app.services.knowledge_normalization_service import (
+    KnowledgeCandidate,
+    KnowledgeNormalizationResult,
+    KnowledgeNormalizationService,
+)
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class KnowledgeExtractionResult:
+    points: list[KnowledgePoint]
+    relations_created: int
+    normalization: KnowledgeNormalizationResult
 
 
 class KnowledgeService:
@@ -26,13 +39,14 @@ class KnowledgeService:
         self.courses = CourseRepository(db)
         self.chunks = ChunkRepository(db)
         self.knowledge = KnowledgeRepository(db)
+        self.normalizer = KnowledgeNormalizationService(db)
 
     async def extract_from_material(
         self,
         material_id: UUID,
         *,
         current_user: User | None = None,
-    ) -> tuple[list[KnowledgePoint], int]:
+    ) -> KnowledgeExtractionResult:
         material = await self.materials.get_by_id(material_id)
         if material is None:
             raise BusinessException(
@@ -49,18 +63,8 @@ class KnowledgeService:
                 status_code=400,
             )
 
-        # Combine chunk texts for extraction
         full_text = "\n\n".join(c.content for c in chunks)
-
-        # Rule-based extraction: split by chapter headings and key patterns
-        extracted = self._extract_by_rules(full_text)
-
-        if not extracted:
-            # Fallback: treat each chunk as a potential knowledge point
-            extracted = [
-                {"name": f"知识点-{i + 1}", "description": c.content[:200]}
-                for i, c in enumerate(chunks[:10])
-            ]
+        candidates = self._extract_candidates_from_chunks(chunks)
 
         course = await self.courses.get_by_id(material.course_id)
         if course is None:
@@ -75,13 +79,64 @@ class KnowledgeService:
             else "personal"
         )
 
-        # Deduplicate and persist within the material owner's knowledge overlay.
+        normalization = await self.normalizer.normalize(
+            candidates=candidates,
+            course_id=material.course_id,
+            owner_id=material.uploaded_by,
+        )
+        if not normalization.items:
+            raise BusinessException(
+                code=ErrorCode.PARAM_ERROR,
+                detail="当前资料未整理出合格知识点，请检查资料结构和内容",
+                status_code=400,
+            )
+
+        extracted = [
+            {
+                "name": item.canonical_name,
+                "chapter": item.chapter,
+                "description": item.description,
+                "difficulty": item.difficulty,
+                "importance": item.importance,
+                "sort_order": item.sort_order,
+            }
+            for item in normalization.items
+        ]
         points, new_count = await self.knowledge.create_batch_if_not_exists(
             course_id=material.course_id,
             owner_id=material.uploaded_by,
             scope=scope,
             items=extracted,
         )
+        _ = new_count
+        point_by_name = {point.name.casefold(): point for point in points}
+        item_by_name = {item.canonical_name.casefold(): item for item in normalization.items}
+        for point in points:
+            item = item_by_name[point.name.casefold()]
+            parent = point_by_name.get((item.parent_name or "").casefold())
+            source_chunk_ids = [str(chunk_id) for chunk_id in item.source_chunk_ids]
+            await self.knowledge.apply_normalization(
+                point,
+                chapter=item.chapter,
+                parent_id=parent.id if parent else None,
+                description=item.description,
+                difficulty=item.difficulty,
+                importance=item.importance,
+                sort_order=item.sort_order,
+                normalization_meta={
+                    "aliases": item.aliases,
+                    "confidence": item.confidence,
+                    "decision_reason": item.decision_reason,
+                    "source_chunk_ids": source_chunk_ids,
+                    "source_material_ids": [str(material.id)],
+                    "used_llm": normalization.used_llm,
+                    "fallback_reason": normalization.fallback_reason,
+                },
+            )
+            await self.chunks.bind_knowledge(
+                chunk_ids=item.source_chunk_ids,
+                knowledge_id=point.id,
+            )
 
         relations_created = 0
         actor = current_user
@@ -107,25 +162,45 @@ class KnowledgeService:
         await self.db.commit()
         for p in points:
             await self.db.refresh(p)
-        return points, relations_created
+        return KnowledgeExtractionResult(
+            points=points,
+            relations_created=relations_created,
+            normalization=normalization,
+        )
 
-    def _extract_by_rules(self, text: str) -> list[dict]:
-        """Rule-based knowledge point extraction from text."""
-        results: list[dict] = []
+    def _extract_candidates_from_chunks(self, chunks: list[object]) -> list[KnowledgeCandidate]:
+        candidates: list[KnowledgeCandidate] = []
+        for chunk_order, chunk in enumerate(chunks):
+            items = self._extract_by_rules(str(getattr(chunk, "content", "")))
+            chunk_id = getattr(chunk, "id")
+            for local_order, item in enumerate(items):
+                candidates.append(
+                    KnowledgeCandidate(
+                        raw_name=item["name"],
+                        description=item.get("description") or "",
+                        chapter=item.get("chapter"),
+                        source_chunk_ids=[chunk_id],
+                        source_order=chunk_order * 100 + local_order,
+                    )
+                )
+                if len(candidates) >= 80:
+                    return candidates
+        return candidates
+
+    def _extract_by_rules(self, text: str) -> list[dict[str, object]]:
+        results: list[dict[str, object]] = []
         seen_names: set[str] = set()
 
-        # Pattern 1: Chapter headings (第X章, 第X节, Chapter X, etc.)
         chapter_pattern = re.compile(
-            r"(?:^|\n|(?<=\.))(?:第[一二三四五六七八九十百千\d]+[章节篇]"
+            r"(?:^|\n)\s*(?:#{1,6}\s*|第[一二三四五六七八九十百千\d]+[章节篇]"
             r"|Chapter\s+\d+[:：]?\s*"
             r"|[一二三四五六七八九十]+[、.]\s*)"
-            r"(.+)",
+            r"([^\n]+)",
             re.MULTILINE,
         )
         current_chapter = None
         for match in chapter_pattern.finditer(text):
             name = match.group(1).strip()
-            # Clean up the name
             name = re.sub(r"^[：:]\s*", "", name)
             name = re.sub(r"[（(].+?[）)]", "", name).strip()
             if name and name not in seen_names and len(name) <= 64:
@@ -139,7 +214,6 @@ class KnowledgeService:
                     }
                 )
 
-        # Pattern 2: Definition-like sentences (XX是..., XX指..., XX：)
         def_pattern = re.compile(
             r"(?:^|[\n。])([^\n。]{2,20}?)(?:是|指|为|：)\s*([^\n。]{5,200})",
             re.MULTILINE,
@@ -147,7 +221,6 @@ class KnowledgeService:
         for match in def_pattern.finditer(text):
             name = match.group(1).strip()
             desc = match.group(2).strip()
-            # Filter out noise
             if (
                 name
                 and name not in seen_names
@@ -163,7 +236,6 @@ class KnowledgeService:
                     }
                 )
 
-        # Pattern 3: Bold / numbered items (1. XXX, （一）XXX)
         item_pattern = re.compile(
             r"(?:^|\n)\s*(?:\d+[.、）)]\s*|[（(][一二三四五六七八九十\d]+[）)]\s*)([^\n]{2,64})",
             re.MULTILINE,
@@ -180,4 +252,4 @@ class KnowledgeService:
                     }
                 )
 
-        return results[:50]  # Cap at 50 knowledge points per material
+        return results[:40]

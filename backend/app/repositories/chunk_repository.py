@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.chunk import DocumentChunk
@@ -51,3 +51,16 @@ class ChunkRepository:
     async def update_embedding(self, chunk: DocumentChunk, embedding: list[float]) -> None:
         chunk.embedding = embedding  # type: ignore[assignment]
         await self.db.flush()
+
+    async def bind_knowledge(self, *, chunk_ids: list[UUID], knowledge_id: UUID) -> int:
+        if not chunk_ids:
+            return 0
+        result = await self.db.execute(
+            update(DocumentChunk)
+            .where(
+                DocumentChunk.id.in_(chunk_ids),
+                DocumentChunk.knowledge_id.is_(None),
+            )
+            .values(knowledge_id=knowledge_id)
+        )
+        return result.rowcount  # type: ignore[return-value]

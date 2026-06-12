@@ -143,3 +143,44 @@ class KnowledgeRepository:
             if is_new:
                 new_count += 1
         return created, new_count
+
+    async def apply_normalization(
+        self,
+        point: KnowledgePoint,
+        *,
+        chapter: str | None,
+        parent_id: UUID | None,
+        description: str | None,
+        difficulty: str | None,
+        importance: str | None,
+        sort_order: int,
+        normalization_meta: dict[str, object],
+    ) -> KnowledgePoint:
+        point.chapter = chapter or point.chapter
+        point.parent_id = parent_id or point.parent_id
+        point.description = point.description or description
+        point.difficulty = difficulty or point.difficulty
+        point.importance = importance or point.importance
+        point.sort_order = sort_order
+        extra_meta = dict(point.extra_meta or {})
+        existing = dict(extra_meta.get("normalization") or {})
+        for list_key in ("aliases", "source_chunk_ids", "source_material_ids"):
+            existing[list_key] = list(
+                dict.fromkeys(
+                    [
+                        *(existing.get(list_key) or []),
+                        *(normalization_meta.get(list_key) or []),
+                    ]
+                )
+            )
+        existing.update(
+            {
+                key: value
+                for key, value in normalization_meta.items()
+                if key not in {"aliases", "source_chunk_ids", "source_material_ids"}
+            }
+        )
+        extra_meta["normalization"] = existing
+        point.extra_meta = extra_meta
+        await self.db.flush()
+        return point

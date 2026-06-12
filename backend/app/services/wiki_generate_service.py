@@ -60,18 +60,13 @@ class WikiGenerateService:
             )
 
         knowledge_points = await self.knowledge.list_by_owner(course_id, owner_id)
+        knowledge_points = self._filter_material_knowledge_points(knowledge_points, material_id)
         if not knowledge_points:
             raise BusinessException(
                 code=ErrorCode.PARAM_ERROR,
-                detail="课程尚无知识点，请先执行知识点抽取",
+                detail="当前资料尚无已整理知识点，请先执行知识点抽取",
                 status_code=400,
             )
-
-        # Build chunk content by knowledge point
-        chunks_by_kp: dict[UUID | None, list[str]] = {}
-        for chunk in chunks:
-            kid = chunk.knowledge_id
-            chunks_by_kp.setdefault(kid, []).append(chunk.content)
 
         created_pages: list[WikiPage] = []
 
@@ -96,9 +91,10 @@ class WikiGenerateService:
             # Build batch prompt with all knowledge points
             kp_entries = []
             for kp in batch:
-                related_chunks = chunks_by_kp.get(kp.id, [])
+                source_chunks = self._source_chunks_for_point(kp, chunks)
+                related_chunks = [chunk.content for chunk in source_chunks]
                 if not related_chunks:
-                    related_chunks = chunks_by_kp.get(None, [])[:3]
+                    related_chunks = [chunk.content for chunk in chunks[:3]]
                 chunk_text = "\n\n".join(related_chunks[:5])
                 kp_entries.append({
                     "name": kp.name,
@@ -135,15 +131,14 @@ class WikiGenerateService:
                     source_id=kp.id,
                     source_title=kp.name,
                 )
-                for chunk in chunks:
-                    if chunk.knowledge_id == kp.id:
-                        await self.wiki.create_source(
-                            page_id=page.id,
-                            source_type="chunk",
-                            source_id=chunk.id,
-                            source_title=chunk.source_title or material.file_name,
-                            quote_text=chunk.content[:200],
-                        )
+                for chunk in self._source_chunks_for_point(kp, chunks):
+                    await self.wiki.create_source(
+                        page_id=page.id,
+                        source_type="chunk",
+                        source_id=chunk.id,
+                        source_title=chunk.source_title or material.file_name,
+                        quote_text=chunk.content[:200],
+                    )
 
                 created_pages.append(page)
 
@@ -171,6 +166,38 @@ class WikiGenerateService:
         for page in created_pages:
             await self.db.refresh(page)
         return created_pages
+
+    @staticmethod
+    def _filter_material_knowledge_points(
+        knowledge_points: list[object],
+        material_id: UUID,
+    ) -> list[object]:
+        material_key = str(material_id)
+        return [
+            point
+            for point in knowledge_points
+            if material_key
+            in (
+                ((getattr(point, "extra_meta", None) or {}).get("normalization") or {}).get(
+                    "source_material_ids", []
+                )
+            )
+        ]
+
+    @staticmethod
+    def _source_chunks_for_point(point: object, chunks: list[object]) -> list[object]:
+        source_ids = {
+            str(chunk_id)
+            for chunk_id in (
+                ((getattr(point, "extra_meta", None) or {}).get("normalization") or {}).get(
+                    "source_chunk_ids", []
+                )
+            )
+        }
+        if source_ids:
+            return [chunk for chunk in chunks if str(getattr(chunk, "id", "")) in source_ids]
+        point_id = getattr(point, "id", None)
+        return [chunk for chunk in chunks if getattr(chunk, "knowledge_id", None) == point_id]
 
     async def _generate_batch(
         self,

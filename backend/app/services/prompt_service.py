@@ -12,6 +12,17 @@ from app.models.prompt import PromptVersion
 
 DEFAULT_PROMPTS: dict[tuple[str, str], str] = {
     (
+        "KnowledgeAgent",
+        "knowledge.normalize",
+    ): (
+        "你是课程知识结构编辑。请把候选整理为细粒度、规范、可生成 Wiki 的知识点。\n"
+        "目标保留 {min_items}-{max_items} 个；不足时不得虚构。\n"
+        "可以合并同义项、规范名称、划分章节和父知识点。"
+        "每个保留项只能引用输入中的 source_chunk_ids，禁止无来源新增概念。"
+        "拒绝 Markdown 标记、半句话、操作说明和模板措辞。\n\n"
+        "候选：{candidates}"
+    ),
+    (
         "WikiAgent",
         "wiki.generate",
     ): (

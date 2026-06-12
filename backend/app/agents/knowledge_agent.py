@@ -20,7 +20,7 @@ class KnowledgeAgent(BaseAgent):
 
         service = KnowledgeService(self.db)
         try:
-            points, relations_created = await service.extract_from_material(UUID(str(material_id)))
+            result = await service.extract_from_material(UUID(str(material_id)))
         except Exception as exc:
             return self.error_result(message=f"知识点提取失败: {exc}")
 
@@ -28,11 +28,17 @@ class KnowledgeAgent(BaseAgent):
             data={
                 "knowledge_points": [
                     {"id": str(p.id), "name": p.name, "description": p.description}
-                    for p in points
+                    for p in result.points
                 ],
-                "count": len(points),
-                "relations_created": relations_created,
+                "count": len(result.points),
+                "relations_created": result.relations_created,
+                "normalization": result.normalization.model_dump(exclude={"items", "rejected"}),
             },
-            message=f"提取了 {len(points)} 个知识点，关联 {relations_created} 条关系",
-            evidence=[f"从资料 {material_id} 的 {len(points)} 个切片中提取"],
+            message=(
+                f"粗抽取 {result.normalization.candidate_count} 个候选，"
+                f"合并 {result.normalization.merged_count} 个，"
+                f"拒绝 {result.normalization.rejected_count} 个，"
+                f"保留 {len(result.points)} 个知识点"
+            ),
+            evidence=[f"从资料 {material_id} 整理出 {len(result.points)} 个有来源知识点"],
         )
