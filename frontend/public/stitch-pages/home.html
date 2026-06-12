@@ -86,7 +86,7 @@
 </header>
 <!-- Welcome Section -->
 <section class="mb-12 relative z-10">
-<h2 class="font-display-lg text-display-lg text-on-background mb-2">早上好，李华学员！</h2>
+<h2 class="font-display-lg text-display-lg text-on-background mb-2" id="home-welcome-title">你好，学员！</h2>
 <p class="font-body-lg text-body-lg text-on-surface-variant">欢迎回到智学工坊。今天是你连续学习的第 <span class="text-primary font-bold">14</span> 天，继续加油！</p>
 </section>
 <!-- Bento Grid Overview -->
@@ -267,6 +267,7 @@
         });
 
         const api = window.ZhixueStatic;
+        const welcomeTitle = document.getElementById("home-welcome-title");
         const latestWikiTitle = document.getElementById("home-latest-wiki-title");
         const latestMaterialTitle = document.getElementById("home-latest-material-title");
         const latestWikiCard = document.getElementById("home-latest-wiki-card");
@@ -296,6 +297,40 @@
         function setText(node, value) {
             if (node) {
                 node.textContent = value;
+            }
+        }
+
+        function welcomeGreeting() {
+            const hour = new Date().getHours();
+            if (hour < 6) return "夜深了";
+            if (hour < 12) return "早上好";
+            if (hour < 18) return "下午好";
+            return "晚上好";
+        }
+
+        function cachedAuthUser() {
+            try {
+                return JSON.parse(window.localStorage.getItem("auth_user") || "null");
+            } catch {
+                return null;
+            }
+        }
+
+        function renderWelcome(user) {
+            const username = String(user?.username || "").trim();
+            setText(welcomeTitle, username ? `${welcomeGreeting()}，${username}学员！` : `${welcomeGreeting()}，学员！`);
+        }
+
+        async function loadWelcomeProfile() {
+            renderWelcome(cachedAuthUser());
+            if (!api || !api.getToken()) {
+                return;
+            }
+            try {
+                const user = await api.getMe();
+                renderWelcome(user);
+            } catch (error) {
+                console.warn("[home] 用户欢迎语同步失败", error);
             }
         }
 
@@ -502,6 +537,7 @@
             }
         }
 
+        loadWelcomeProfile();
         loadKnowledgeUpdates();
 
         const homeQuestionInput = document.getElementById("home-assistant-question");
