@@ -75,6 +75,8 @@ python scripts/export_implementation_docs.py
 
 推荐使用本机 PostgreSQL / Redis，不要在日常开发中依赖 Docker 内的数据库。
 
+**队友首次上手**请直接阅读：[队友本地开发 README](docs/20_部署方案/05_队友本地开发README.md)（含从演示服务器同步数据库的一键步骤）。
+
 `.env` 关键配置：
 
 ```env
