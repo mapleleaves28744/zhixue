@@ -153,7 +153,7 @@ flowchart LR
 
 | 验收项 | 结果 |
 |---|---|
-| 后端全量测试 | 323 passed |
+| 后端全量测试 | 361 passed（2026-06-14） |
 | Agent 场景 | 20/20，完成率 95% |
 | 真实 LLM | 23 步，mimo-v2.5 |
 | 前端 audit | 0 vulnerabilities |

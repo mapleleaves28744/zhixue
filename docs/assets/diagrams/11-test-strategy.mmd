@@ -1,0 +1,18 @@
+flowchart TB
+  A[代码变更或验收目标] --> B[识别影响面]
+  B --> C{改 Router/Model?}
+  C -- 是 --> D[export_docs + alembic]
+  C -- 否 --> E[跳过 DB 导出]
+  D --> F{后端变更?}
+  E --> F
+  F -- 是 --> G[pytest]
+  F -- 否 --> H[前端/文档检查]
+  G --> I{前端页面?}
+  H --> I
+  I -- 是 --> J[typecheck + build]
+  I -- 否 --> K{真实 LLM?}
+  J --> K
+  K -- 是 --> L[专项验收]
+  K -- 否 --> M[整理证据]
+  L --> M
+  M --> N[回归准入]

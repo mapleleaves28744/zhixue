@@ -1,0 +1,11 @@
+flowchart LR
+  Tutor[Tutor / Resource] --> PCtx[personalization_context]
+  PCtx --> Mem[student_memories]
+  PCtx --> Prof[student_course_profiles]
+  Quiz[答题 / 诊断] --> EB[EventBus]
+  EB --> Prof
+  EB --> Evo[evolution_strategies]
+  Evo --> Mat[strategy_materialization]
+  Mat --> Pref[learning_preferences]
+  Page[页面心跳] --> LS[learning_sessions]
+  LS --> Home[/home 学习分析]

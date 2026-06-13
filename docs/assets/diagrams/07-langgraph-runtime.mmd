@@ -1,0 +1,10 @@
+flowchart LR
+  LC[load_context] --> SUP[supervisor]
+  SUP -->|选工具| ET[execute_tool]
+  SUP -->|高风险| AP[approval interrupt]
+  ET --> OB[observe]
+  OB -->|继续| SUP
+  OB -->|审查| RV[review]
+  RV --> MR[memory_reflect]
+  MR --> FN[finalize]
+  AP --> ET

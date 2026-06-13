@@ -1,0 +1,8 @@
+flowchart LR
+  Human[人工] --> Req[需求与验收标准]
+  Req --> AI[AI Coding 工具]
+  AI --> Code[代码 / 测试 / 文档]
+  Code --> Gate[质量门禁]
+  Gate -->|通过| Accept[合并 / 验收]
+  Gate -->|失败| AI
+  Human --> Gate

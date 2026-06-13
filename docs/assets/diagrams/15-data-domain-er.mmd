@@ -1,0 +1,10 @@
+erDiagram
+  USERS ||--o{ COURSES : owns
+  COURSES ||--o{ COURSE_MATERIALS : contains
+  COURSE_MATERIALS ||--o{ DOCUMENT_CHUNKS : splits
+  COURSES ||--o{ WKI_PAGES : wiki
+  USERS ||--o{ STUDENT_PROFILES : profile
+  USERS ||--o{ AGENT_TASKS : runs
+  USERS ||--o{ QUIZZES : attempts
+  QUIZZES ||--o{ DIAGNOSIS_REPORTS : triggers
+  USERS ||--o{ EVOLUTION_STRATEGIES : evolves

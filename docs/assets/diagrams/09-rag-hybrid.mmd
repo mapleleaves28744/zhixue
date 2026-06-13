@@ -1,0 +1,9 @@
+flowchart TB
+  Q[用户查询] --> V[向量检索 pgvector]
+  Q --> K[关键词检索]
+  Q --> M[metadata GIN 过滤]
+  V --> MERGE[候选合并]
+  K --> MERGE
+  M --> MERGE
+  MERGE --> RR[轻量 rerank + diversity]
+  RR --> OUT[Top-K 可引用片段]

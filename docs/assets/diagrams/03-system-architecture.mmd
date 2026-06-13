@@ -1,0 +1,29 @@
+flowchart LR
+  Browser[学生浏览器]
+  Next[Next.js App Router]
+  Stitch[StitchFrame 静态页]
+  Assistant[React /assistant]
+  API[FastAPI /api/v1]
+  SVC[Service 层]
+  AGT[Agents / LangGraph]
+  LLM[LLM Provider]
+  DB[(PostgreSQL + pgvector)]
+  Redis[(Redis)]
+  Storage[(本地 storage)]
+  Worker[arq Worker]
+
+  Browser --> Next
+  Next --> Stitch
+  Next --> Assistant
+  Stitch --> API
+  Assistant --> API
+  API --> SVC
+  SVC --> AGT
+  SVC --> LLM
+  SVC --> DB
+  SVC --> Storage
+  AGT --> DB
+  AGT --> Redis
+  Redis --> Worker
+  Worker --> DB
+  Worker --> LLM

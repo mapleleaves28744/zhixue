@@ -1,0 +1,17 @@
+flowchart TB
+  IR[IntentRouterAgent] --> OR[OrchestratorAgent]
+  OR --> SUP[MiMo Supervisor]
+  SUP --> KA[KnowledgeAgent]
+  SUP --> TA[TutorAgent]
+  SUP --> RA[ResourceAgent]
+  SUP --> QA[QuizAgent]
+  SUP --> DA[DiagnosisAgent]
+  SUP --> PA[ProfileAgent]
+  SUP --> MA[MemoryAgent]
+  SUP --> WA[WikiAgent]
+  SUP --> PL[PlannerAgent]
+  SUP --> RC[RecommendAgent]
+  SUP --> EV[EvolutionAgent]
+  SUP --> RV[ReviewAgent]
+  SUP --> KG[KnowledgeGraphAgent]
+  RV --> SUP

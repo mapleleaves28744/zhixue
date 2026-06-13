@@ -1,0 +1,18 @@
+sequenceDiagram
+  participant U as 学生
+  participant UI as /assistant
+  participant API as FastAPI
+  participant O as Supervisor
+  participant T as Tool Registry
+  participant LLM as Provider
+  participant DB as PostgreSQL
+
+  U->>UI: 输入学习目标或问题
+  UI->>API: POST /api/v1/agent/tasks
+  API->>O: 创建 LangGraph 任务
+  O->>LLM: 规划与选工具
+  O->>T: 调用检索/资源/练习等
+  T->>DB: 读写 Wiki/画像/日志
+  O->>API: 步骤事件 SSE
+  API->>UI: 流式展示
+  O->>UI: 最终回答与产物

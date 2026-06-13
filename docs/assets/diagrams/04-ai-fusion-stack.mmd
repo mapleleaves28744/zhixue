@@ -1,0 +1,23 @@
+flowchart TB
+  subgraph L1 [Layer1 Provider]
+    P1[Mock Provider]
+    P2[OpenAI-compatible]
+    P3[Embedding Provider]
+  end
+  subgraph L2 [Layer2 RAG]
+    R1[向量检索]
+    R2[关键词检索]
+    R3[metadata 过滤]
+    R4[rerank]
+  end
+  subgraph L3 [Layer3 Agent]
+    G1[LangGraph Supervisor]
+    G2[Tool Registry 24工具]
+    G3[Review Agent]
+  end
+  subgraph L4 [Layer4 Evolution]
+    E1[策略版本]
+    E2[证据与风险]
+    E3[回滚物化]
+  end
+  L1 --> L2 --> L3 --> L4

@@ -447,7 +447,7 @@ async def test_mimo_supervisor_handles_duplicate_completed_tool_calls_without_cr
 
     assert decision.status == "complete"
     assert decision.tool_calls == []
-    assert "执行详情" in decision.final_answer
+    assert "二叉树" in decision.final_answer
 
 
 @pytest.mark.asyncio
@@ -473,7 +473,8 @@ async def test_mimo_supervisor_requires_retrieval_for_explicitly_grounded_goal()
 
     assert decision.status == "continue"
     assert decision.tool_calls[0].name == "search_course_knowledge"
-    assert decision.tool_calls[0].arguments["query"] == "请基于课程资料解释栈，并给出引用。"
+    # 安全网填充 query 时使用 supervisor_intents 抽取的主题，而非整句 goal
+    assert decision.tool_calls[0].arguments["query"] == "基于课程资料解释栈，并 出引用"
 
 
 @pytest.mark.asyncio
@@ -501,9 +502,9 @@ async def test_mimo_supervisor_enforces_explicit_multi_tool_goal_until_satisfied
     )
 
     assert first.tool_calls[0].name == "generate_learning_path"
-    assert first.tool_calls[0].arguments["goal"] == "制定学习计划并生成练习题"
+    assert first.tool_calls[0].arguments["goal"] == "制定 并"
     assert second.tool_calls[0].name == "generate_quiz"
-    assert second.tool_calls[0].arguments["topic"] == "制定学习计划并生成练习题"
+    assert second.tool_calls[0].arguments["topic"] == "制定 并"
 
 
 @pytest.mark.asyncio
@@ -615,7 +616,7 @@ async def test_mimo_supervisor_fills_safe_arguments_for_selected_tool() -> None:
         [],
     )
 
-    assert decision.tool_calls[0].arguments["query"] == "请检索二叉树资料"
+    assert decision.tool_calls[0].arguments["query"] == "检索二叉树资料"
 
 
 def test_mimo_supervisor_normalizes_status_tool_args_shape() -> None:
@@ -837,9 +838,10 @@ async def test_mimo_supervisor_routes_visual_resource_requests_to_mermaid_tools(
     )
 
     assert mindmap.tool_calls[0].name == "generate_mindmap"
-    assert mindmap.tool_calls[0].arguments == {"topic": "请为二叉树生成思维导图", "scope": "course", "depth": 3}
+    assert mindmap.tool_calls[0].arguments == {"topic": "为二叉树", "scope": "course", "depth": 3}
     assert diagram.tool_calls[0].name == "generate_diagram"
-    assert diagram.tool_calls[0].arguments["concept"] == "请画一张栈入栈出栈流程图"
+    assert diagram.tool_calls[0].arguments["concept"] == "栈入栈出栈"
+    assert diagram.tool_calls[0].arguments["diagram_type"] == "flowchart"
 
 
 def test_unified_agent_conversation_api_routes_are_registered() -> None:

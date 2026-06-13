@@ -1,0 +1,32 @@
+flowchart TB
+  subgraph needs [学生需求]
+    N1[碎片化学习]
+    N2[个性化解释]
+    N3[练习反馈闭环]
+    N4[来源可信]
+    N5[多模态理解]
+    N6[学习路径规划]
+    N7[长期积累]
+    N8[过程可见]
+    N9[进度可视化]
+  end
+  subgraph ai [AI 结合点]
+    A1[RAG + Wiki 生成]
+    A2[Tutor + 画像 + Prompt]
+    A3[Quiz + Diagnosis + 推荐]
+    A4[Review + 版本 + 引用]
+    A5[资源 + 课堂 + 语音]
+    A6[Planner + Evolution]
+    A7[Memory + LLM Wiki]
+    A8[Agent 日志 + SSE]
+    A9[learning_sessions 分析]
+  end
+  N1 --> A1
+  N2 --> A2
+  N3 --> A3
+  N4 --> A4
+  N5 --> A5
+  N6 --> A6
+  N7 --> A7
+  N8 --> A8
+  N9 --> A9

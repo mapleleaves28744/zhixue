@@ -1,0 +1,8 @@
+stateDiagram-v2
+  [*] --> draft: 分析生成策略
+  draft --> pending: 写入 evidence
+  pending --> active: 低风险自动 / 用户确认
+  pending --> rejected: 用户拒绝
+  active --> rollbacked: 回滚操作
+  rollbacked --> active: 恢复上一版
+  active --> [*]

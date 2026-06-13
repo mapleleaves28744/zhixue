@@ -1,0 +1,7 @@
+flowchart LR
+  Dev[本地开发] --> UT[单元/API pytest]
+  UT --> FE[前端 typecheck/build]
+  FE --> BR[浏览器烟测]
+  BR --> LLM[真实 LLM 专项]
+  LLM --> DOC[文档 export + validate]
+  DOC --> Docker[Docker 部署目标]

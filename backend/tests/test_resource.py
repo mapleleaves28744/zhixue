@@ -112,13 +112,14 @@ class TestResourceTypeValidation:
         assert RESOURCE_TYPE_ALIASES["例题"] == "example"
         assert RESOURCE_TYPE_ALIASES["复习卡"] == "flashcard"
         assert RESOURCE_TYPE_ALIASES["错题解析"] == "review"
-        assert RESOURCE_TYPE_ALIASES["思维导图"] == "mindmap"
-        assert RESOURCE_TYPE_ALIASES["图解"] == "diagram"
+        # 可视化别名统一归并到 image（Agent 侧仍用 generate_mindmap / generate_diagram 工具）
+        assert RESOURCE_TYPE_ALIASES["思维导图"] == "image"
+        assert RESOURCE_TYPE_ALIASES["图解"] == "image"
 
     def test_english_aliases_map_correctly(self) -> None:
         assert RESOURCE_TYPE_ALIASES["explain"] == "explanation"
         assert RESOURCE_TYPE_ALIASES["note"] == "summary"
-        assert RESOURCE_TYPE_ALIASES["mind_map"] == "mindmap"
+        assert RESOURCE_TYPE_ALIASES["mind_map"] == "image"
 
     def test_valid_resource_types_complete(self) -> None:
         expected = {
@@ -133,8 +134,8 @@ class TestResourceTypeValidation:
 
         svc = ResourceService.__new__(ResourceService)
         assert svc._normalize_resource_type("讲解") == "explanation"
-        assert svc._normalize_resource_type("思维导图") == "mindmap"
-        assert svc._normalize_resource_type("图解") == "diagram"
+        assert svc._normalize_resource_type("思维导图") == "image"
+        assert svc._normalize_resource_type("图解") == "image"
         assert svc._normalize_resource_type("explanation") == "explanation"
         assert svc._normalize_resource_type("EXPLANATION") == "explanation"
         assert svc._normalize_resource_type("  summary  ") == "summary"
@@ -396,8 +397,9 @@ class TestResourceServiceHelpers:
         svc = ResourceService.__new__(ResourceService)
         knowledge = SimpleNamespace(name="二叉树")
 
-        assert svc._default_title("mindmap", knowledge, None) == "二叉树思维导图"
-        assert svc._default_title("diagram", knowledge, None) == "二叉树图解"
+        assert svc._default_title("mindmap", knowledge, None) == "二叉树图片"
+        assert svc._default_title("diagram", knowledge, None) == "二叉树图片"
+        assert svc._default_title("image", knowledge, None) == "二叉树图片"
 
     def test_ensure_list_with_list(self) -> None:
         from app.services.resource_service import ResourceService
