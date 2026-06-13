@@ -69,265 +69,38 @@
 </div>
 </header>
 <!-- Grid Layout -->
-<div class="grid grid-cols-12 gap-card-gap">
-<!-- 1. Recommended Learning Path (Bento Large) -->
-<section class="col-span-12 lg:col-span-8 glass-card rounded-xl p-8 overflow-hidden relative">
-<div class="flex justify-between items-center mb-10">
-<h3 class="font-headline-md text-headline-md flex items-center">
-<span class="material-symbols-outlined mr-2 text-primary">route</span>
-                        推荐学习路径
-                    </h3>
-<span class="bg-primary/10 text-primary px-4 py-1 rounded-full text-label-sm uppercase tracking-wider">AI 定制计划</span>
-</div>
-<!-- Horizontal Timeline -->
-<div class="relative flex items-center justify-between pb-6 overflow-x-auto custom-scrollbar">
-<div class="absolute top-5 left-0 w-full h-[2px] bg-outline-variant/40"></div>
-<!-- Node 1 (Completed) -->
-<div class="relative z-10 flex flex-col items-center min-w-[200px]">
-<div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center mb-4 shadow-lg shadow-primary/20">
-<span class="material-symbols-outlined">check</span>
-</div>
-<div class="text-center px-4">
-<p class="font-bold text-body-md">高等数学基础</p>
-<p class="text-label-sm text-on-surface-variant mb-2">已完成 24/24 课时</p>
-<span class="text-[10px] bg-surface-container-high px-2 py-0.5 rounded-full text-on-surface-variant font-bold">前置必备</span>
-</div>
-</div>
-<!-- Node 2 (In Progress) -->
-<div class="relative z-10 flex flex-col items-center min-w-[200px]">
-<div class="w-12 h-12 rounded-full bg-white border-2 border-primary text-primary flex items-center justify-center mb-4 relative overflow-hidden">
-<div class="absolute bottom-0 left-0 w-full h-1/2 bg-primary/10"></div>
-<span class="material-symbols-outlined animate-pulse" style="font-variation-settings: 'FILL' 1;">pending</span>
-</div>
-<div class="text-center px-4">
-<p class="font-bold text-body-md text-primary">导数应用详解</p>
-<p class="text-label-sm text-on-surface-variant mb-2">进度 45% (当前核心)</p>
-<span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">推荐关注: 物理建模</span>
-</div>
-</div>
-<!-- Node 3 (Locked/Upcoming) -->
-<div class="relative z-10 flex flex-col items-center min-w-[200px] opacity-60">
-<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant text-outline flex items-center justify-center mb-4">
-<span class="material-symbols-outlined">lock</span>
-</div>
-<div class="text-center px-4">
-<p class="font-bold text-body-md">多元积分进阶</p>
-<p class="text-label-sm text-on-surface-variant mb-2">预计解锁: 下周二</p>
-<span class="text-[10px] bg-secondary-fixed text-on-secondary-fixed-variant px-2 py-0.5 rounded-full font-bold">个性化扩充</span>
-</div>
-</div>
-<!-- Node 4 (Upcoming) -->
-<div class="relative z-10 flex flex-col items-center min-w-[200px] opacity-60">
-<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant text-outline flex items-center justify-center mb-4">
-<span class="material-symbols-outlined">flag</span>
-</div>
-<div class="text-center px-4">
-<p class="font-bold text-body-md">工程应用实战</p>
-<p class="text-label-sm text-on-surface-variant mb-2">目标课时: 12</p>
-</div>
-</div>
-</div>
-<div class="mt-10 p-5 rounded-xl bg-primary-fixed/30 border border-primary-container/20">
-<div class="flex items-start space-x-3">
-<span class="material-symbols-outlined text-primary mt-1">lightbulb</span>
-<div>
-<p class="font-bold text-on-primary-container mb-1">推荐理由</p>
-<p class="text-label-md text-on-surface-variant leading-relaxed">基于你近期在“物理力学”练习中的表现，系统识别出你对“曲率计算”掌握薄弱。建议优先完成“导数应用详解”中的第3-5章，这将有效提升你的物理建模效率。</p>
-</div>
-</div>
-</div>
+<div class="grid grid-cols-12 gap-card-gap items-start">
+<div class="col-span-12 lg:col-span-8 flex flex-col gap-card-gap self-start w-full" id="path-profile-left-column">
+<!-- 1. Recommended Learning Path -->
+<section class="glass-card rounded-xl p-6 overflow-hidden relative self-start w-full">
+<h3 class="font-headline-md text-headline-md flex items-center mb-4">
+<span class="material-symbols-outlined mr-2 text-primary">route</span>推荐学习路径
+</h3>
+<p class="text-label-sm text-on-surface-variant">加载中…</p>
 </section>
-<!-- 2. Student Portrait Summary (Bento Small) -->
-<section class="col-span-12 lg:col-span-4 glass-card rounded-xl p-8 flex flex-col">
-<h3 class="font-headline-md text-headline-md mb-8 flex items-center">
-<span class="material-symbols-outlined mr-2 text-secondary">face_6</span>
-                    学生画像摘要
-                </h3>
-<div class="flex-1 flex flex-col justify-between">
-<!-- Mastery Visualization -->
-<div class="relative aspect-square w-full max-w-[240px] mx-auto flex items-center justify-center">
-<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
-<!-- Background track -->
-<circle class="text-surface-container-high" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-width="8"></circle>
-<!-- Progress track -->
-<circle class="text-primary" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="31.6" stroke-linecap="round" stroke-width="8"></circle>
-</svg>
-<div class="absolute text-center">
-<p class="text-4xl font-extrabold text-on-surface">88%</p>
-<p class="text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">知识掌控度</p>
-</div>
-<!-- Concentric decoration rings -->
-<div class="absolute inset-2 border border-outline-variant/10 rounded-full"></div>
-<div class="absolute inset-6 border border-outline-variant/20 rounded-full"></div>
-</div>
-<div class="mt-8 space-y-4">
-<p class="text-label-md font-bold flex items-center text-on-surface">
-<span class="material-symbols-outlined text-lg mr-2 text-outline">psychology_alt</span>
-                            学习偏好
-                        </p>
-<div class="flex flex-wrap gap-2">
-<span class="text-label-sm px-3 py-1.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant">视觉型学习者</span>
-<span class="text-label-sm px-3 py-1.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant">清晨活跃期</span>
-<span class="text-label-sm px-3 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant">偏向公式推演</span>
-</div>
-</div>
-<div class="pt-6 mt-6 border-t border-outline-variant/30 flex justify-between items-end">
-<div>
-<p class="text-label-sm text-on-surface-variant">最近一周进步</p>
-<p class="text-headline-sm font-bold text-primary">+4.2%</p>
-</div>
-<button class="text-label-md font-bold text-primary flex items-center hover:translate-x-1 transition-transform">
-                            查看完整报告 <span class="material-symbols-outlined text-base ml-1">arrow_forward</span>
-</button>
-</div>
-</div>
+<div style="display:flex;flex-direction:column;gap:16px;" class="w-full md:flex-row md:gap-card-gap">
+<!-- 3. Long-term Memory -->
+<section class="glass-card rounded-xl p-5 overflow-hidden path-profile-compact flex-1 min-w-0 self-start w-full">
+<h3 class="font-headline-sm text-headline-sm flex items-center mb-3">
+<span class="material-symbols-outlined mr-2 text-tertiary text-lg">memory</span>长期记忆
+</h3>
+<p class="text-label-sm text-on-surface-variant">加载中…</p>
 </section>
-<!-- 3. Long-term Memory (Horizontal List) -->
-<section class="col-span-12 lg:col-span-5 glass-card rounded-xl p-8">
-<div class="flex justify-between items-center mb-6">
-<h3 class="font-headline-md text-headline-md flex items-center">
-<span class="material-symbols-outlined mr-2 text-tertiary">memory</span>
-                        长期记忆
-                    </h3>
-<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors">history</span>
-</div>
-<div class="space-y-3 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
-<!-- Memory Item -->
-<div class="group p-4 bg-surface-container-low rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/30">
-<div class="flex items-center space-x-4">
-<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center">
-<span class="material-symbols-outlined">menu_book</span>
-</div>
-<div>
-<p class="font-bold text-body-md">拉格朗日中值定理</p>
-<p class="text-label-sm text-on-surface-variant">巩固于 2023.10.15</p>
-</div>
-</div>
-<div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-<button class="p-2 text-primary hover:bg-primary-fixed rounded-lg" title="查看证据">
-<span class="material-symbols-outlined text-sm">link</span>
-</button>
-<button class="p-2 text-error hover:bg-error-container rounded-lg" title="归档">
-<span class="material-symbols-outlined text-sm">archive</span>
-</button>
-</div>
-</div>
-<!-- Memory Item -->
-<div class="group p-4 bg-surface-container-low rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/30">
-<div class="flex items-center space-x-4">
-<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center">
-<span class="material-symbols-outlined">functions</span>
-</div>
-<div>
-<p class="font-bold text-body-md">傅里叶级数收敛性</p>
-<p class="text-label-sm text-on-surface-variant">巩固于 2023.09.28</p>
-</div>
-</div>
-<div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-<button class="p-2 text-primary hover:bg-primary-fixed rounded-lg" title="查看证据">
-<span class="material-symbols-outlined text-sm">link</span>
-</button>
-<button class="p-2 text-error hover:bg-error-container rounded-lg" title="归档">
-<span class="material-symbols-outlined text-sm">archive</span>
-</button>
-</div>
-</div>
-<!-- Memory Item -->
-<div class="group p-4 bg-surface-container-low rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/30">
-<div class="flex items-center space-x-4">
-<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center">
-<span class="material-symbols-outlined">biotech</span>
-</div>
-<div>
-<p class="font-bold text-body-md">纳维-斯托克斯方程</p>
-<p class="text-label-sm text-on-surface-variant">巩固于 2023.08.12</p>
-</div>
-</div>
-<div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-<button class="p-2 text-primary hover:bg-primary-fixed rounded-lg" title="查看证据">
-<span class="material-symbols-outlined text-sm">link</span>
-</button>
-<button class="p-2 text-error hover:bg-error-container rounded-lg" title="归档">
-<span class="material-symbols-outlined text-sm">archive</span>
-</button>
-</div>
-</div>
-</div>
-<button class="w-full mt-6 py-3 rounded-xl border-2 border-dashed border-outline-variant/50 text-on-surface-variant text-label-md hover:border-primary hover:text-primary hover:bg-primary/5 transition-all">
-                    + 添加自定义记忆节点
-                </button>
+<!-- 4. Self-Evolving Strategy -->
+<section class="glass-card rounded-xl p-5 overflow-hidden path-profile-compact flex-1 min-w-0 self-start w-full">
+<h3 class="font-headline-sm text-headline-sm flex items-center mb-3">
+<span class="material-symbols-outlined mr-2 text-primary text-lg" style="font-variation-settings: 'FILL' 1;">bolt</span>自进化策略
+</h3>
+<p class="text-label-sm text-on-surface-variant">加载中…</p>
 </section>
-<!-- 4. Self-Evolving Strategy (Comparison Table) -->
-<section class="col-span-12 lg:col-span-7 glass-card rounded-xl p-8 overflow-hidden">
-<div class="flex justify-between items-center mb-6">
-<h3 class="font-headline-md text-headline-md flex items-center">
-<span class="material-symbols-outlined mr-2 text-primary" style="font-variation-settings: 'FILL' 1;">bolt</span>
-                        自进化策略
-                    </h3>
-<div class="flex space-x-2">
-<button class="px-4 py-1.5 text-label-sm font-bold glass-card rounded-lg hover:bg-white transition-colors border border-outline-variant/30">版本记录</button>
-<button class="px-4 py-1.5 text-label-sm font-bold bg-primary text-white rounded-lg hover:shadow-lg shadow-primary/20 transition-all">应用全部</button>
 </div>
 </div>
-<div class="overflow-x-auto">
-<table class="w-full text-left border-separate border-spacing-y-2">
-<thead>
-<tr class="text-label-sm text-on-surface-variant uppercase tracking-wider">
-<th class="px-4 pb-2">策略维度</th>
-<th class="px-4 pb-2">当前方案 (V2.4)</th>
-<th class="px-4 pb-2">进化预测 (V2.5)</th>
-<th class="px-4 pb-2">风险等级</th>
-<th class="px-4 pb-2 text-right">操作</th>
-</tr>
-</thead>
-<tbody class="text-body-md">
-<!-- Row 1 -->
-<tr class="bg-surface-container-low/50 hover:bg-white transition-colors rounded-xl overflow-hidden group">
-<td class="p-4 rounded-l-xl font-bold">难度调节</td>
-<td class="p-4 text-on-surface-variant">线性递增 (+10%)</td>
-<td class="p-4 font-bold text-primary">动态反馈 (+5%~15%)</td>
-<td class="p-4">
-<span class="px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-label-sm font-bold">低风险</span>
-</td>
-<td class="p-4 rounded-r-xl text-right">
-<button class="text-primary font-bold hover:underline">确认</button>
-</td>
-</tr>
-<!-- Row 2 - High Risk -->
-<tr class="bg-error-container/20 hover:bg-error-container/30 transition-colors rounded-xl group border-l-4 border-error">
-<td class="p-4 rounded-l-xl font-bold">知识跳跃</td>
-<td class="p-4 text-on-surface-variant">严格遵循大纲</td>
-<td class="p-4 font-bold text-error">基于语义关联跨级</td>
-<td class="p-4">
-<span class="px-2.5 py-0.5 rounded-full bg-error text-white text-label-sm font-bold">高风险</span>
-</td>
-<td class="p-4 rounded-r-xl text-right space-x-3">
-<button class="text-on-surface-variant font-bold hover:underline">驳回</button>
-<button class="bg-error text-white px-3 py-1 rounded-lg text-label-sm hover:shadow-md transition-all">强制更新</button>
-</td>
-</tr>
-<!-- Row 3 -->
-<tr class="bg-surface-container-low/50 hover:bg-white transition-colors rounded-xl overflow-hidden group">
-<td class="p-4 rounded-l-xl font-bold">交互偏好</td>
-<td class="p-4 text-on-surface-variant">文本+图形</td>
-<td class="p-4 font-bold text-primary">沉浸式 3D 模拟</td>
-<td class="p-4">
-<span class="px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant text-label-sm font-bold">中风险</span>
-</td>
-<td class="p-4 rounded-r-xl text-right">
-<button class="text-primary font-bold hover:underline">确认</button>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="mt-6 flex items-center justify-between text-label-sm text-on-surface-variant">
-<div class="flex items-center">
-<span class="material-symbols-outlined text-base mr-1">info</span>
-                        高风险策略可能显著改变学习节奏，建议查看 <a class="text-primary hover:underline ml-1 font-bold" href="#">证据链路</a> 后操作。
-                    </div>
-<p>上次自进化时间: 10分钟前</p>
-</div>
+<!-- 2. Student Portrait Summary -->
+<section class="col-span-12 lg:col-span-4 glass-card rounded-xl p-6 flex flex-col self-start">
+<h3 class="font-headline-md text-headline-md mb-6 flex items-center">
+<span class="material-symbols-outlined mr-2 text-secondary">face_6</span>学生画像摘要
+</h3>
+<p class="text-label-sm text-on-surface-variant">加载中…</p>
 </section>
 </div>
 <!-- Footer Floating Action Button -->
@@ -385,24 +158,90 @@
     return [...document.querySelectorAll("section")].find((section) => section.innerText.includes(title));
   }
 
-  function normalizeList(value) {
-    if (Array.isArray(value)) {
-      return value;
-    }
-    if (value && typeof value === "object") {
-      return Object.entries(value).map(([name, score]) => ({ name, score }));
-    }
-    return [];
+  function extractNamedItems(list, nameKeys = ["knowledge_name", "name", "pattern"]) {
+    if (!Array.isArray(list)) return [];
+    return list.map((item) => {
+      if (typeof item === "string") return item.trim();
+      if (item && typeof item === "object") {
+        for (const key of nameKeys) {
+          const value = String(item[key] || "").trim();
+          if (value) return value;
+        }
+      }
+      return "";
+    }).filter(Boolean);
   }
 
-  function renderProfile(profile, preferences, courseProfile) {
+  function resolveMasteryPercent(courseProfile, analyticsMastery) {
+    const snap = courseProfile?.mastery_snapshot;
+    if (snap && typeof snap === "object") {
+      const overallPercent = Number(snap._overall_percent);
+      if (Number.isFinite(overallPercent) && overallPercent > 0) {
+        return Math.round(overallPercent);
+      }
+      const overall = Number(snap._overall);
+      if (Number.isFinite(overall) && overall > 0) {
+        return Math.round(overall <= 1 ? overall * 100 : overall);
+      }
+      const items = Array.isArray(snap._items) ? snap._items : [];
+      if (items.length) {
+        const avg = items.reduce((sum, item) => sum + Number(item.mastery_score || 0), 0) / items.length;
+        if (avg > 0) return Math.round(avg * 100);
+      }
+      const scores = Object.entries(snap)
+        .filter(([key]) => !key.startsWith("_"))
+        .map(([, value]) => Number(value))
+        .filter((value) => Number.isFinite(value) && value >= 0 && value <= 1);
+      if (scores.length) {
+        return Math.round((scores.reduce((sum, value) => sum + value, 0) / scores.length) * 100);
+      }
+    }
+    if (analyticsMastery != null && Number.isFinite(Number(analyticsMastery))) {
+      return Math.round(Number(analyticsMastery));
+    }
+    return null;
+  }
+
+  function renderCoursePortraitBlock(courseProfile) {
+    if (!courseProfile) {
+      return `<p class="text-label-sm text-on-surface-variant mt-2">暂无课程画像证据，完成一次有效问答或练习后自动生成。</p>`;
+    }
+    const weakPoints = extractNamedItems(courseProfile.weak_points);
+    const errorPatterns = extractNamedItems(courseProfile.error_patterns, ["pattern", "name", "knowledge_name"]);
+    const goal = String(courseProfile.learning_goal || "").trim();
+    const summary = String(courseProfile.profile_summary || "").trim();
+    const parts = [];
+    if (goal) {
+      parts.push(`<p class="text-label-sm text-on-surface-variant mt-2"><span class="font-bold text-on-surface">课程目标：</span>${escapeHtml(goal)}</p>`);
+    }
+    if (weakPoints.length) {
+      parts.push(`
+        <div class="mt-3">
+          <p class="text-[11px] font-bold text-tertiary mb-1.5">薄弱点</p>
+          <div class="flex flex-wrap gap-1.5">${weakPoints.slice(0, 6).map((name) => `<span class="text-[11px] px-2 py-0.5 rounded-full bg-tertiary/10 text-tertiary border border-tertiary/15">${escapeHtml(name)}</span>`).join("")}</div>
+        </div>`);
+    }
+    if (errorPatterns.length) {
+      parts.push(`
+        <div class="mt-3">
+          <p class="text-[11px] font-bold text-secondary mb-1.5">常见错误</p>
+          <div class="flex flex-wrap gap-1.5">${errorPatterns.slice(0, 4).map((name) => `<span class="text-[11px] px-2 py-0.5 rounded-full bg-secondary-fixed/60 text-on-secondary-fixed-variant">${escapeHtml(name)}</span>`).join("")}</div>
+        </div>`);
+    }
+    if (!parts.length && summary && !summary.includes("knowledge_name")) {
+      parts.push(`<p class="text-label-sm text-on-surface-variant mt-2">${escapeHtml(summary)}</p>`);
+    }
+    if (!parts.length) {
+      parts.push(`<p class="text-label-sm text-on-surface-variant mt-2">当前课程画像正在积累真实学习证据。</p>`);
+    }
+    return parts.join("");
+  }
+
+  function renderProfile(profile, preferences, courseProfile, analyticsMastery) {
     const section = findSectionByTitle("学生画像摘要");
     if (!section) return;
-    const masteryItems = normalizeList(courseProfile?.mastery_snapshot || {});
-    const weakPoints = normalizeList(courseProfile?.weak_points || []);
-    const scoreValues = masteryItems.map((item) => Number(item.score || item.mastery || item.value || 0)).filter(Number.isFinite);
-    const score = scoreValues.length ? Math.round(scoreValues.reduce((sum, item) => sum + item, 0) / scoreValues.length) : null;
-    const offset = Math.max(0, 264 - (264 * score) / 100).toFixed(1);
+    const score = resolveMasteryPercent(courseProfile, analyticsMastery);
+    const offset = score == null ? 264 : Math.max(0, 264 - (264 * score) / 100).toFixed(1);
     const prefTags = [
       ...(preferences || []).map((item) => item.explanation_style || item.answer_length).filter(Boolean),
       profile.learning_goal,
@@ -436,8 +275,8 @@
       <h3 class="font-headline-md text-headline-md mb-8 flex items-center">
         <span class="material-symbols-outlined mr-2 text-secondary">face_6</span>学生画像摘要
       </h3>
-      <div class="flex-1 flex flex-col justify-between">
-        <div class="relative aspect-square w-full max-w-[240px] mx-auto flex items-center justify-center">
+      <div class="space-y-4">
+        <div class="relative aspect-square w-full max-w-[220px] mx-auto flex items-center justify-center">
           <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
             <circle class="text-surface-container-high" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-width="8"></circle>
             <circle class="text-primary" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="${offset}" stroke-linecap="round" stroke-width="8"></circle>
@@ -461,7 +300,7 @@
           <p class="text-label-md text-on-surface-variant leading-relaxed">${escapeHtml(profile.profile_summary || "画像已由后端创建，后续会根据答疑、资料、练习和记忆持续更新。")}</p>
           <div class="rounded-2xl bg-tertiary/5 border border-tertiary/15 p-4">
             <p class="text-label-sm font-bold text-tertiary">当前课程画像</p>
-            <p class="text-label-sm text-on-surface-variant mt-2">${escapeHtml(courseProfile?.profile_summary || "暂无课程画像证据，完成一次有效问答或练习后自动生成。")}</p>
+            ${renderCoursePortraitBlock(courseProfile)}
           </div>
           ${evidenceItems.length ? `
             <div class="rounded-2xl bg-primary/5 border border-primary/15 p-4 space-y-3">
@@ -499,41 +338,42 @@
   function renderMemories(memories, memoryHealth, memoryStatus = "active") {
     const section = findSectionByTitle("长期记忆");
     if (!section) return;
+    section.classList.add("path-profile-compact");
     section.innerHTML = `
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="font-headline-md text-headline-md flex items-center">
-          <span class="material-symbols-outlined mr-2 text-tertiary">memory</span>长期记忆
+      <div class="flex justify-between items-center mb-3 gap-2">
+        <h3 class="font-headline-sm text-headline-sm flex items-center min-w-0">
+          <span class="material-symbols-outlined mr-2 text-tertiary text-lg">memory</span>长期记忆
         </h3>
-        <div class="flex items-center gap-2">
-          <select id="memory-status" class="text-label-sm px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant border-none">
+        <div class="flex items-center gap-1.5 shrink-0">
+          <select id="memory-status" class="text-[11px] px-2 py-1 rounded-full bg-surface-container-high text-on-surface-variant border-none">
             <option value="active" ${memoryStatus === "active" ? "selected" : ""}>活跃</option>
             <option value="archived" ${memoryStatus === "archived" ? "selected" : ""}>归档</option>
             <option value="all" ${memoryStatus === "all" ? "selected" : ""}>全部</option>
           </select>
-          <span class="text-label-sm px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant">${memoryHealth?.active_count || 0}/${memoryHealth?.capacity || 0} 活跃</span>
+          <span class="text-[11px] px-2 py-1 rounded-full bg-surface-container-high text-on-surface-variant">${memoryHealth?.active_count || 0}/${memoryHealth?.capacity || 0} · ${memories.length} 条</span>
         </div>
       </div>
-      <div class="space-y-3 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
-        ${memories.length ? memories.slice(0, 8).map((memory) => `
-          <div class="group p-4 bg-surface-container-low rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/30" data-memory-id="${memory.id}">
-            <div class="flex items-center space-x-4 min-w-0">
-              <div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined">menu_book</span>
+      <div class="space-y-2 pr-1 custom-scrollbar" style="max-height:220px;overflow-y:auto;overscroll-behavior:contain;">
+        ${memories.length ? memories.map((memory) => `
+          <div class="group p-3 bg-surface-container-low rounded-xl hover:bg-white hover:shadow-sm transition-all flex items-center justify-between border border-transparent hover:border-outline-variant/30" data-memory-id="${memory.id}">
+            <div class="flex items-center space-x-3 min-w-0">
+              <div class="w-8 h-8 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-base">menu_book</span>
               </div>
               <div class="min-w-0">
-                <p class="font-bold text-body-md truncate">${escapeHtml(memory.content)}</p>
-                <p class="text-label-sm text-on-surface-variant">${escapeHtml(memory.memory_type)} · 强化 ${memory.reinforcement_count || 1} 次 · 置信度 ${Math.round(Number(memory.confidence || 0.8) * 100)}% · ${api.formatDate(memory.updated_at)}</p>
+                <p class="font-bold text-sm truncate">${escapeHtml(memory.content)}</p>
+                <p class="text-[11px] text-on-surface-variant truncate">${escapeHtml(memory.memory_type)} · ${Math.round(Number(memory.confidence || 0.8) * 100)}% · ${api.formatDate(memory.updated_at)}</p>
               </div>
             </div>
-            <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button class="p-2 text-primary hover:bg-primary-fixed rounded-lg" data-action="evidence" title="查看证据"><span class="material-symbols-outlined text-sm">link</span></button>
-              ${memory.status === "archived" ? `<button class="p-2 text-primary hover:bg-primary-fixed rounded-lg" data-action="restore" title="恢复"><span class="material-symbols-outlined text-sm">restore</span></button>` : `<button class="p-2 text-error hover:bg-error-container rounded-lg" data-action="delete" title="归档"><span class="material-symbols-outlined text-sm">archive</span></button>`}
+            <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+              <button class="p-1.5 text-primary hover:bg-primary-fixed rounded-lg" data-action="evidence" title="查看证据"><span class="material-symbols-outlined text-sm">link</span></button>
+              ${memory.status === "archived" ? `<button class="p-1.5 text-primary hover:bg-primary-fixed rounded-lg" data-action="restore" title="恢复"><span class="material-symbols-outlined text-sm">restore</span></button>` : `<button class="p-1.5 text-error hover:bg-error-container rounded-lg" data-action="delete" title="归档"><span class="material-symbols-outlined text-sm">archive</span></button>`}
             </div>
           </div>
         `).join("") : `
           ${profileEmptyStateHtml("暂无长期记忆", "点击下方按钮，让 Memory Agent 基于学习行为生成第一批记忆。", "reminder", true)}`}
       </div>
-      <button id="memory-reflect-button" class="w-full mt-6 py-3 rounded-xl border-2 border-dashed border-outline-variant/50 text-on-surface-variant text-label-md hover:border-primary hover:text-primary hover:bg-primary/5 transition-all">
+      <button id="memory-reflect-button" class="w-full mt-3 py-2 rounded-xl border border-dashed border-outline-variant/50 text-on-surface-variant text-[11px] font-bold hover:border-primary hover:text-primary hover:bg-primary/5 transition-all">
         触发 Memory Agent 反思
       </button>`;
 
@@ -568,7 +408,7 @@
 
   const RISK_STYLES = { low: "bg-green-100 text-green-700", medium: "bg-primary-fixed text-on-primary-fixed-variant", high: "bg-error text-white" };
   const RISK_LABELS = { low: "低风险", medium: "中风险", high: "高风险" };
-  const STATUS_LABELS = { draft: "待确认", active: "已生效", superseded: "已替代", rolled_back: "已回滚" };
+  const STATUS_LABELS = { draft: "待确认", active: "已生效", superseded: "已替代", rolled_back: "已回滚", rejected: "已拒绝" };
   const TYPE_LABELS = { difficulty: "难度调节", knowledge_skip: "知识跳跃", interaction: "交互偏好", recommendation: "推荐策略", prompt_style: "提示词风格", resource_type: "资源类型" };
 
   function formatStrategyValue(value) {
@@ -581,64 +421,49 @@
   function renderStrategies(data) {
     const section = findSectionByTitle("自进化策略");
     if (!section) return;
+    section.classList.add("path-profile-compact");
     const strategies = data.items || [];
     const draftStrategies = strategies.filter((s) => s.status === "draft");
     const displayStrategies = draftStrategies.length > 0 ? draftStrategies : strategies.filter((s) => s.status === "active");
 
     section.innerHTML = `
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="font-headline-md text-headline-md flex items-center">
-          <span class="material-symbols-outlined mr-2 text-primary" style="font-variation-settings: 'FILL' 1;">bolt</span>自进化策略
-        </h3>
-        <div class="flex space-x-2">
-          <a href="/evolution" target="_parent" class="px-4 py-1.5 text-label-sm font-bold glass-card rounded-lg hover:bg-white transition-colors border border-primary/20 text-primary">策略仪表盘</a>
-          <button id="evolution-analyze-button" class="px-4 py-1.5 text-label-sm font-bold bg-primary text-white rounded-lg hover:shadow-lg shadow-primary/20 transition-all">触发分析</button>
-          <button id="evolution-refresh-button" class="px-4 py-1.5 text-label-sm font-bold glass-card rounded-lg hover:bg-white transition-colors border border-outline-variant/30">刷新</button>
+      <div class="flex flex-col gap-2 mb-3">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="font-headline-sm text-headline-sm flex items-center min-w-0">
+            <span class="material-symbols-outlined mr-2 text-primary text-lg" style="font-variation-settings: 'FILL' 1;">bolt</span>自进化策略
+          </h3>
+          <div class="flex flex-wrap justify-end gap-1.5 shrink-0">
+            <a href="/evolution" target="_parent" class="px-2.5 py-1 text-[11px] font-bold glass-card rounded-lg border border-primary/20 text-primary">仪表盘</a>
+            <button id="evolution-analyze-button" class="px-2.5 py-1 text-[11px] font-bold bg-primary text-white rounded-lg">触发分析</button>
+            <button id="evolution-refresh-button" class="px-2.5 py-1 text-[11px] font-bold glass-card rounded-lg border border-outline-variant/30">刷新</button>
+          </div>
         </div>
       </div>
       ${displayStrategies.length === 0 ? `
-        ${profileEmptyStateHtml("暂无策略建议", "点击“触发分析”，让 Evolution Agent 基于学习数据生成策略建议。", "thinking")}
+        ${profileEmptyStateHtml("暂无策略建议", "点击「触发分析」，Evolution Agent 会基于学习数据生成策略。中/高风险需确认后生效。", "thinking", true)}
       ` : `
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-separate border-spacing-y-2">
-            <thead>
-              <tr class="text-label-sm text-on-surface-variant uppercase tracking-wider">
-                <th class="px-4 pb-2">策略维度</th>
-                <th class="px-4 pb-2">当前方案</th>
-                <th class="px-4 pb-2">进化预测</th>
-                <th class="px-4 pb-2">风险等级</th>
-                <th class="px-4 pb-2">状态</th>
-                <th class="px-4 pb-2 text-right">操作</th>
-              </tr>
-            </thead>
-            <tbody class="text-body-md">
-              ${displayStrategies.map((s) => `
-                <tr class="${s.risk_level === "high" ? "bg-error-container/20 border-l-4 border-error" : "bg-surface-container-low/50"} hover:bg-white transition-colors rounded-xl overflow-hidden group">
-                  <td class="p-4 rounded-l-xl font-bold">${escapeHtml(TYPE_LABELS[s.strategy_type] || s.strategy_type)}</td>
-                  <td class="p-4 text-on-surface-variant">${escapeHtml(formatStrategyValue(s.before_value))}</td>
-                  <td class="p-4 font-bold text-primary">${escapeHtml(formatStrategyValue(s.materialized_changes?.values || s.after_value))}<div class="text-[11px] text-on-surface-variant mt-1">${escapeHtml(s.evaluation_status || "pending")}</div></td>
-                  <td class="p-4"><span class="px-2.5 py-0.5 rounded-full text-label-sm font-bold ${RISK_STYLES[s.risk_level] || RISK_STYLES.medium}">${escapeHtml(RISK_LABELS[s.risk_level] || s.risk_level)}</span></td>
-                  <td class="p-4"><span class="text-label-sm text-on-surface-variant">${escapeHtml(STATUS_LABELS[s.status] || s.status)}</span></td>
-                  <td class="p-4 rounded-r-xl text-right space-x-2">
-                    ${s.status === "draft" ? `<button class="text-primary font-bold hover:underline" data-action="apply" data-id="${s.id}">确认</button>` : ""}
-                    ${s.status === "active" && s.previous_strategy_id ? `<button class="text-on-surface-variant font-bold hover:underline" data-action="rollback" data-id="${s.id}">回滚</button>` : ""}
-                  </td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
+        <div class="space-y-2 pr-1 custom-scrollbar" style="max-height:220px;overflow-y:auto;overscroll-behavior:contain;">
+          ${displayStrategies.map((s) => `
+            <div class="rounded-xl border ${s.risk_level === "high" ? "border-error/30 bg-error-container/15" : "border-outline-variant/20 bg-surface-container-low/60"} p-3">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="text-sm font-bold truncate">${escapeHtml(TYPE_LABELS[s.strategy_type] || s.strategy_type)}</p>
+                  <p class="text-[11px] text-on-surface-variant mt-1 line-clamp-2">${escapeHtml(formatStrategyValue(s.materialized_changes?.values || s.after_value))}</p>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${RISK_STYLES[s.risk_level] || RISK_STYLES.medium}">${escapeHtml(RISK_LABELS[s.risk_level] || s.risk_level)}</span>
+              </div>
+              <div class="flex items-center justify-between mt-2 gap-2">
+                <span class="text-[10px] text-on-surface-variant">${escapeHtml(STATUS_LABELS[s.status] || s.status)}</span>
+                <div class="space-x-2 shrink-0">
+                  ${s.status === "draft" ? `<button class="text-primary text-[11px] font-bold hover:underline" data-action="apply" data-id="${s.id}">确认</button><button class="text-error text-[11px] font-bold hover:underline" data-action="reject" data-id="${s.id}">拒绝</button>` : ""}
+                  ${s.status === "active" && s.previous_strategy_id ? `<button class="text-on-surface-variant text-[11px] font-bold hover:underline" data-action="rollback" data-id="${s.id}">回滚</button>` : ""}
+                </div>
+              </div>
+            </div>
+          `).join("")}
         </div>
-        ${draftStrategies.length > 0 ? `
-          <div class="mt-6 flex items-center justify-between text-label-sm text-on-surface-variant">
-            <div class="flex items-center"><span class="material-symbols-outlined text-base mr-1">info</span>高风险策略可能显著改变学习节奏，建议查看证据后操作。</div>
-            <p>${draftStrategies.length} 条待确认</p>
-          </div>
-        ` : ""}
-      `}
-      <div class="mt-6 flex items-center justify-between text-label-sm text-on-surface-variant">
-        <div class="flex items-center"><span class="material-symbols-outlined text-base mr-1">info</span>策略由 EvolutionAgent 基于学习数据生成，需人工确认后生效。</div>
-        <p>来自 /api/v1/evolution/strategies</p>
-      </div>`;
+        ${draftStrategies.length > 0 ? `<p class="text-[10px] text-on-surface-variant mt-2">${draftStrategies.length} 条待确认 · 低风险策略会自动生效</p>` : ""}
+      `}`;
 
     section.querySelector("#evolution-analyze-button")?.addEventListener("click", analyzeStrategies);
     section.querySelector("#evolution-refresh-button")?.addEventListener("click", loadProfileSpace);
@@ -676,11 +501,30 @@
         }
       });
     });
+    section.querySelectorAll("[data-action='reject']").forEach((btn) => {
+      btn.addEventListener("click", async (event) => {
+        event.stopPropagation();
+        const id = btn.dataset.id;
+        if (!id || !confirm("确认拒绝这条策略草案？")) return;
+        btn.textContent = "处理中...";
+        btn.disabled = true;
+        try {
+          await api.request(`/evolution/strategies/${id}/reject`, { method: "POST" });
+          api.toast("策略草案已拒绝", "success");
+          await loadProfileSpace();
+        } catch (error) {
+          api.toast(error.message || "拒绝失败", "error");
+          btn.textContent = "拒绝";
+          btn.disabled = false;
+        }
+      });
+    });
   }
 
   function renderLearningPaths(data) {
     const section = findSectionByTitle("推荐学习路径");
     if (!section) return;
+    section.classList.add("self-start", "w-full");
     const paths = data.items || [];
     const path = paths.find((item) => item.status === "active") || paths[0];
     const items = path && path.items ? [...path.items].sort((a, b) => a.order_index - b.order_index) : [];
@@ -688,7 +532,7 @@
     const progress = path ? Math.round(Number(path.progress || 0)) : 0;
 
     section.innerHTML = `
-      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-10">
+      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
         <h3 class="font-headline-md text-headline-md flex items-center">
           <span class="material-symbols-outlined mr-2 text-primary">route</span>推荐学习路径
         </h3>
@@ -731,7 +575,7 @@
               </div>`;
           }).join("")}
         </div>
-        <div class="mt-10 p-5 rounded-xl bg-primary-fixed/30 border border-primary-container/20">
+        <div class="mt-6 p-4 rounded-xl bg-primary-fixed/30 border border-primary-container/20">
           <div class="flex items-start space-x-3">
             <span class="material-symbols-outlined text-primary mt-1">lightbulb</span>
             <div>
@@ -798,22 +642,36 @@
     const button = document.getElementById("evolution-analyze-button");
     try {
       if (button) {
-        button.textContent = "分析中...";
+        button.textContent = "分析中…";
         button.disabled = true;
       }
-      const courseId = await api.resolveCourseId();
-      await api.request("/evolution/analyze", {
+      api.toast("策略分析进行中，通常需要 30–60 秒，请稍候", "info");
+      const courseId = await api.resolveCourseId().catch(() => null);
+      if (!courseId) {
+        api.toast("请先创建或选择课程，再触发策略分析", "error");
+        return;
+      }
+      const result = await api.request("/evolution/analyze", {
         method: "POST",
         body: { course_id: courseId, focus: "学习策略优化" },
       });
-      api.toast("策略分析完成", "success");
+      const count = Number(result?.strategies_count || result?.strategies?.length || 0);
+      if (count <= 0) {
+        api.toast("未生成策略，请先做练习或答疑以积累学习证据", "info");
+      } else {
+        api.toast(`已生成 ${count} 条策略建议`, "success");
+        if (Array.isArray(result?.strategies) && result.strategies.length) {
+          renderStrategies({ items: result.strategies });
+        }
+      }
       await loadProfileSpace();
     } catch (error) {
       api.toast(error.message || "策略分析失败", "error");
-    }
-    if (button) {
-      button.textContent = "触发分析";
-      button.disabled = false;
+    } finally {
+      if (button) {
+        button.textContent = "触发分析";
+        button.disabled = false;
+      }
     }
   }
 
@@ -850,17 +708,23 @@
   async function loadProfileSpace(memoryStatus = "active") {
     try {
       const courseId = await api.resolveCourseId().catch(() => null);
-      const [profile, courseProfile, preferences, memories, memoryHealth, strategies, learningPaths] = await Promise.all([
+      const strategiesUrl = courseId
+        ? `/evolution/strategies?course_id=${courseId}&page=1&page_size=20`
+        : "/evolution/strategies?page=1&page_size=20";
+      const [profile, courseProfile, preferences, memories, memoryHealth, strategies, learningPaths, analytics] = await Promise.all([
         api.request("/student/profile"),
         courseId ? api.request(`/student/profile/course/${courseId}`).catch(() => null) : Promise.resolve(null),
         api.request("/student/profile/preferences").catch(() => []),
         api.request(`/student/memory?status=${memoryStatus}${courseId ? `&course_id=${courseId}` : ""}`).catch(() => []),
         api.memoryHealth(courseId).catch(() => ({ active_count: 0, archived_count: 0, capacity: courseId ? 20 : 10 })),
-        api.request("/evolution/strategies?page=1&page_size=20").catch(() => ({ items: [], total: 0 })),
+        api.request(strategiesUrl).catch(() => ({ items: [], total: 0 })),
         courseId ? api.request(`/learning-paths?course_id=${courseId}&page=1&page_size=5`).catch(() => ({ items: [], total: 0 })) : Promise.resolve({ items: [], total: 0 }),
+        courseId && api.learningAnalyticsSummary
+          ? api.learningAnalyticsSummary(courseId, "week").catch(() => null)
+          : Promise.resolve(null),
       ]);
       renderLearningPaths(learningPaths);
-      renderProfile(profile, preferences, courseProfile);
+      renderProfile(profile, preferences, courseProfile, analytics?.mastery);
       renderMemories(memories, memoryHealth, memoryStatus);
       renderStrategies(strategies);
     } catch (error) {

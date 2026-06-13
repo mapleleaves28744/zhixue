@@ -167,7 +167,7 @@
     }
     const variants = {
       error: "bg-[#ffdad6]/95 text-[#93000a] border-[#ffb4ab]",
-      success: "bg-[#ffddb5]/95 text-[#2a1800] border-[#f9a826]",
+      success: "bg-[#ffddb5]/95 text-[#674100] border-[#835400]/30",
       info: "bg-white/90 text-[#524434] border-white",
     };
     node.className = `fixed right-6 top-6 z-[999] max-w-sm rounded-2xl border px-5 py-4 text-sm font-bold shadow-2xl backdrop-blur-xl transition-all ${variants[type] || variants.info}`;
@@ -325,12 +325,21 @@
     const query = new URLSearchParams({
       page: String(params.page || 1),
       page_size: String(params.pageSize || 10),
-      status: params.status || "pending",
     });
+    if (params.status !== undefined && params.status !== null && params.status !== "") {
+      query.set("status", params.status);
+    } else if (params.status === undefined) {
+      query.set("status", "pending");
+    }
     if (courseId) {
       query.set("course_id", courseId);
     }
     return request(`/recommendations?${query}`);
+  }
+
+  async function updateRecommendationStatus(itemId, status = "completed") {
+    const query = new URLSearchParams({ status });
+    return request(`/recommendations/${itemId}?${query}`, { method: "PATCH" });
   }
 
   async function listLearningPaths(courseId, params = {}) {
@@ -356,6 +365,19 @@
       query.set("course_id", courseId);
     }
     return request(`/quizzes?${query}`);
+  }
+
+  async function getPracticeSuggestion(courseId) {
+    const query = new URLSearchParams({ course_id: courseId });
+    return request(`/quizzes/practice-suggestion?${query}`);
+  }
+
+  async function getExternalResourceFeed(courseId, params = {}) {
+    const query = new URLSearchParams({ course_id: courseId });
+    if (params.refresh) {
+      query.set("refresh", "true");
+    }
+    return request(`/resources/external-feed?${query}`);
   }
 
   async function listMistakes(courseId, params = {}) {
@@ -389,6 +411,11 @@
       query.set("course_id", courseId);
     }
     return request(`/diagnosis/mastery?${query}`);
+  }
+
+  async function getDiagnosisLiveSummary(courseId) {
+    const query = new URLSearchParams({ course_id: courseId });
+    return request(`/diagnosis/live-summary?${query}`);
   }
 
   async function listLearningRecords(courseId, params = {}) {
@@ -759,10 +786,10 @@
     const title = artifact.title || "学习产物";
     if (artifact.type === "media_job") {
       return `
-        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+        <div class="rounded-3xl border border-[#E5E7EB] bg-white/80 p-5 shadow-sm">
           <div class="text-sm text-[#8a5a00] font-bold">视频生成任务</div>
           <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
-          <div class="mt-3 h-2 rounded-full bg-[#f5e4c8] overflow-hidden">
+          <div class="mt-3 h-2 rounded-full bg-[#EEF2FF] overflow-hidden">
             <div class="h-full bg-[#8a5a00]" style="width:${Number(artifact.progress || 0)}%"></div>
           </div>
           <div class="mt-2 text-xs text-[#7c6b58]">${escapeHtml(artifact.stage || artifact.status || "queued")}</div>
@@ -771,7 +798,7 @@
     if (artifact.type === "media_review") {
       const passed = artifact.passed === true;
       const risk = artifact.risk_level || "unknown";
-      const tone = passed ? "border-green-200 bg-green-50/80" : risk === "high" ? "border-red-200 bg-red-50/80" : "border-amber-200 bg-amber-50/80";
+      const tone = passed ? "border-green-200 bg-green-50/80" : risk === "high" ? "border-red-200 bg-red-50/80" : "border-indigo-200 bg-indigo-50/80";
       return `
         <div class="rounded-3xl border ${tone} p-5 shadow-sm">
           <div class="text-sm font-bold text-[#8a5a00]">多模态安全审核</div>
@@ -782,25 +809,25 @@
     if (artifact.type === "media_asset" && type === "image") {
       const url = mediaAssetFileUrl(artifact.asset_id);
       return `
-        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+        <div class="rounded-3xl border border-[#E5E7EB] bg-white/80 p-5 shadow-sm">
           <div class="text-sm text-[#8a5a00] font-bold">教学插图</div>
           <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
-          <img class="mt-4 w-full rounded-2xl border border-[#f5e4c8]" src="${url}" alt="${escapeHtml(title)}" />
+          <img class="mt-4 w-full rounded-2xl border border-[#E0E7FF]" src="${url}" alt="${escapeHtml(title)}" />
         </div>`;
     }
     if (artifact.type === "media_asset" && (type === "courseware" || type === "storyboard" || artifact.mime_type === "text/html")) {
       const url = mediaAssetFileUrl(artifact.asset_id);
       return `
-        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+        <div class="rounded-3xl border border-[#E5E7EB] bg-white/80 p-5 shadow-sm">
           <div class="text-sm text-[#8a5a00] font-bold">${type === "storyboard" ? "讲解分镜" : "互动课件"}</div>
           <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
-          <iframe class="mt-4 w-full h-[520px] rounded-2xl border border-[#f5e4c8] bg-white" src="${url}" sandbox="allow-scripts"></iframe>
+          <iframe class="mt-4 w-full h-[520px] rounded-2xl border border-[#E0E7FF] bg-white" src="${url}" sandbox="allow-scripts"></iframe>
         </div>`;
     }
     if (artifact.type === "media_asset" && (type === "audio" || String(artifact.mime_type || "").startsWith("audio/"))) {
       const url = mediaAssetFileUrl(artifact.asset_id);
       return `
-        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+        <div class="rounded-3xl border border-[#E5E7EB] bg-white/80 p-5 shadow-sm">
           <div class="text-sm text-[#8a5a00] font-bold">语音讲解</div>
           <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
           <audio class="mt-4 w-full" src="${url}" controls preload="metadata"></audio>
@@ -809,10 +836,10 @@
     if (artifact.type === "media_asset" && (type === "video" || String(artifact.mime_type || "").startsWith("video/"))) {
       const url = mediaAssetFileUrl(artifact.asset_id);
       return `
-        <div class="rounded-3xl border border-[#f3d7ad] bg-white/80 p-5 shadow-sm">
+        <div class="rounded-3xl border border-[#E5E7EB] bg-white/80 p-5 shadow-sm">
           <div class="text-sm text-[#8a5a00] font-bold">讲解视频</div>
           <div class="mt-1 text-lg font-black text-[#2b2118]">${escapeHtml(title)}</div>
-          <video class="mt-4 w-full rounded-2xl border border-[#f5e4c8] bg-black" src="${url}" controls preload="metadata"></video>
+          <video class="mt-4 w-full rounded-2xl border border-[#E0E7FF] bg-black" src="${url}" controls preload="metadata"></video>
         </div>`;
     }
     return `<pre class="rounded-2xl bg-white/80 p-4 text-xs overflow-auto">${escapeHtml(JSON.stringify(artifact, null, 2))}</pre>`;
@@ -895,6 +922,7 @@
     getMe,
     ingestProfileDialogue,
     getMastery,
+    getDiagnosisLiveSummary,
     getCourseIdFromUrl,
     getParentSearchParams,
     getToken,
@@ -912,7 +940,10 @@
     materialDownloadUrl,
     listMistakes,
     listQuizzes,
+    getPracticeSuggestion,
+    getExternalResourceFeed,
     listRecommendations,
+    updateRecommendationStatus,
     listResources,
     listWikiVersions,
     listWikiPages,

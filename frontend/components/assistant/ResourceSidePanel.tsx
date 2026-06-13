@@ -35,6 +35,7 @@ export function ResourceSidePanel({
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [showingAllCourses, setShowingAllCourses] = useState(false)
+  const [activeMediaJobId, setActiveMediaJobId] = useState<string | null>(null)
 
   const fetchPage = useCallback(
     async (targetPage: number, restoreLast = false, targetType: ResourceType = resourceType) => {
@@ -154,8 +155,13 @@ export function ResourceSidePanel({
       setResourceType(nextType)
       setPage(1)
       setSelected(resource)
+      setActiveMediaJobId(result.media_job_id ?? null)
       setDrawerOpen(true)
-      toast.success(`资源生成成功，已放入「${getResourceTypeLabel(nextType)}」分类`)
+      if (result.media_job_id) {
+        toast.success(`已创建${getResourceTypeLabel(nextType)}任务，后台生成中…`)
+      } else {
+        toast.success(`资源生成成功，已放入「${getResourceTypeLabel(nextType)}」分类`)
+      }
       await fetchPage(1, false, nextType)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "生成失败")
@@ -168,6 +174,7 @@ export function ResourceSidePanel({
     try {
       const detail = await getResource(resource.id)
       setSelected(detail)
+      setActiveMediaJobId(detail.media_job_id && !detail.media_asset_id ? detail.media_job_id : null)
       setDrawerOpen(true)
       localStorage.setItem(`${LAST_RESOURCE_KEY}_${courseId}`, resource.id)
     } catch (err) {
@@ -232,9 +239,9 @@ export function ResourceSidePanel({
                     ? "volume_up"
                     : item.preview_mode === "video"
                       ? "movie"
-                      : item.preview_mode === "image" || item.resource_type === "image"
+                      : item.preview_mode === "image" || ["image", "mindmap", "diagram"].includes(String(item.resource_type))
                         ? "image"
-                        : item.preview_mode === "mermaid" || item.resource_type === "mindmap" || item.resource_type === "diagram"
+                        : item.preview_mode === "mermaid" || ["mindmap", "diagram"].includes(String(item.resource_type))
                           ? "account_tree"
                           : item.resource_type === "interactive_courseware" || item.resource_type === "immersive_classroom"
                             ? "view_in_ar"
@@ -264,7 +271,16 @@ export function ResourceSidePanel({
         </div>
       </div>
 
-      <ResourceDetailDrawer resource={selected} open={drawerOpen} onOpenChange={setDrawerOpen} />
+      <ResourceDetailDrawer
+        resource={selected}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        mediaJobId={activeMediaJobId}
+        onResourceUpdated={(resource) => {
+          setSelected(resource)
+          setActiveMediaJobId(null)
+        }}
+      />
     </aside>
   )
 }

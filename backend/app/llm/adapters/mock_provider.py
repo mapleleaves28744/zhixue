@@ -169,6 +169,13 @@ class MockLLMProvider(BaseLLMProvider):
                 "若 failed_provider 是 xiaomi_mimo，说明小米 MiMo 已经被请求过，但失败后回退到了 Mock。"
             )
 
+        if (
+            '"slides"' in user_input
+            and "module_label" in user_input
+            and ("course-module" in user_input or "objectives" in user_input)
+        ):
+            return self._generate_html_ppt_outline(user_input, topic)
+
         if "Quiz Agent" in user_input or "结构化练习题" in user_input or "error_tags" in user_input:
             return self._generate_quiz_response(user_input, topic)
 
@@ -250,6 +257,86 @@ class MockLLMProvider(BaseLLMProvider):
             f"这个问题可以从「定义 → 操作 → 复杂度 → 应用场景」四个层次理解。"
             f"建议先定位对应 Wiki 页面或资料片段，再做一两道小题验证是否真正掌握。\n\n"
             f"来源说明：这是 Mock Provider 生成的本地演示回答，若没有引用资料，应标记为 AI 推断内容。"
+        )
+
+    def _generate_html_ppt_outline(self, user_input: str, topic: str) -> str:
+        return json.dumps(
+            {
+                "title": f"{topic} 互动课件",
+                "module_label": f"智学工坊 · {topic}",
+                "duration_hint": "~15 min",
+                "prereq": "课程前置章节",
+                "objectives": [
+                    f"理解 {topic} 的定义",
+                    f"掌握 {topic} 的核心性质",
+                    f"能举例说明 {topic} 的应用",
+                    "完成自测并核对理解",
+                ],
+                "slides": [
+                    {
+                        "type": "cover",
+                        "kicker": "智学工坊 · 互动课件",
+                        "title": topic,
+                        "subtitle": f"围绕「{topic}」的分步互动学习模块。",
+                        "pills": ["~15 min", "html-ppt-skill", "course-module"],
+                    },
+                    {
+                        "type": "objectives",
+                        "title": "本模块结束后，你将能够…",
+                        "boxes": [
+                            {"title": f"① 解释 {topic}", "body": "用自己的话说明定义与术语。"},
+                            {"title": f"② 分析 {topic} 性质", "body": "联系课程资料中的关键结论。"},
+                            {"title": "③ 完成自测", "body": "通过选择题检验理解。"},
+                        ],
+                    },
+                    {
+                        "type": "concept",
+                        "title": "核心概念",
+                        "lede": f"{topic} 是本章的基础结构，先建立直观理解再记公式。",
+                        "boxes": [
+                            {"title": "定义", "body": f"{topic} 的基本定义与术语。"},
+                            {"title": "性质", "body": "与遍历、存储或复杂度相关的关键性质。"},
+                        ],
+                        "callout": "结合课程资料理解，不要只背名词列表。",
+                    },
+                    {
+                        "type": "example",
+                        "title": "例题讲解",
+                        "lede": "用一个小例子把概念和操作对应起来。",
+                        "callout": f"尝试用一句话解释 {topic} 在算法中的作用。",
+                    },
+                    {
+                        "type": "exercise",
+                        "title": "动手练习",
+                        "lede": "按步骤完成以下任务：",
+                        "tasks": [
+                            f"用一句话解释 {topic}",
+                            "举一个课程中的具体例子",
+                            "指出一个常见易错点",
+                        ],
+                    },
+                    {
+                        "type": "quiz",
+                        "title": "哪一项描述最准确？",
+                        "options": [
+                            {"label": "A", "text": f"{topic} 需要结合定义与例子理解", "correct": True, "explain": "与课程资料一致。"},
+                            {"label": "B", "text": "可以忽略定义直接做题", "correct": False, "explain": "定义是后续推导的基础。"},
+                            {"label": "C", "text": f"{topic} 与课程无关", "correct": False, "explain": "本题围绕当前章节。"},
+                        ],
+                    },
+                    {
+                        "type": "summary",
+                        "title": "你已经掌握…",
+                        "takeaways": [
+                            {"title": f"✓ 理解 {topic}", "body": "能用自己的话解释定义。"},
+                            {"title": "✓ 联系例题", "body": "能把概念映射到具体操作。"},
+                            {"title": "✓ 完成自测", "body": "通过 quiz 检验理解。"},
+                        ],
+                        "next_hint": "建议回到 Wiki 或练习页继续巩固。",
+                    },
+                ],
+            },
+            ensure_ascii=False,
         )
 
     def _detect_topic(self, user_input: str) -> str:

@@ -48,6 +48,21 @@ def build_learning_tool_registry(
             citations=citations,
         )
 
+    async def search_web(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.services.web_search_service import WebSearchService
+
+        payload = await WebSearchService().search(
+            query=str(arguments["query"]),
+            max_results=int(arguments.get("max_results") or 5),
+            domain=str(arguments.get("domain") or "") or None,
+        )
+        citations = payload.get("citations") or []
+        return ToolExecutionResult(
+            output=payload,
+            evidence=citations,
+            citations=citations,
+        )
+
     async def answer_question(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
         from app.schemas.tutor import TutorChatRequest
         from app.services.tutor_service import TutorService
@@ -575,6 +590,23 @@ def build_learning_tool_registry(
     )
     _register(
         registry,
+        name="search_web",
+        description="通过 AnySearch 联网搜索互联网实时信息，返回可引用的网页标题、URL 与摘要。适用于最新资讯、公开资料、技术文档等课程库未覆盖的问题。",
+        agent_name="KnowledgeAgent",
+        properties={
+            "query": {"type": "string", "description": "搜索关键词或完整问题"},
+            "max_results": {"type": "integer", "minimum": 1, "maximum": 10},
+            "domain": {
+                "type": "string",
+                "description": "可选垂直领域，如 general/academic/code/finance",
+            },
+        },
+        required=["query"],
+        handler=search_web,
+        timeout_seconds=45,
+    )
+    _register(
+        registry,
         name="answer_course_question",
         description="基于课程知识库、Wiki 和学生画像回答学习问题。",
         agent_name="TutorAgent",
@@ -774,7 +806,7 @@ def build_learning_tool_registry(
     _register(
         registry,
         name="generate_lesson_video",
-        description="创建短讲解视频生成任务，返回 job_id，并通过 Agent 事件持续展示脚本、分镜、渲染进度。",
+        description="创建短讲解视频（MP4）生成任务。仅当用户明确要「视频/短视频/动画讲解」时使用；PPT/幻灯片/课件应使用 generate_interactive_courseware。",
         agent_name="VideoResourceAgent",
         properties={
             "topic": {"type": "string", "minLength": 1},
@@ -806,7 +838,7 @@ def build_learning_tool_registry(
     _register(
         registry,
         name="generate_interactive_courseware",
-        description="基于课程资料生成安全模板化互动课件，不直接信任模型生成裸 HTML/JS。",
+        description="基于 html-ppt-skill 生成多页 HTML 互动课件（PPT/幻灯片/slides/deck）。用户要 ppt、课件、幻灯片、翻页演示时用此工具，不是讲解视频。",
         agent_name="CoursewareAgent",
         properties={
             "topic": {"type": "string", "minLength": 1},

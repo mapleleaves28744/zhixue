@@ -157,6 +157,17 @@ class OpenMAICClient:
         token = f"{classroom_id}.{expiry}.{signature}"
         return f"{self.public_base_url}/classroom/{quote(classroom_id, safe='')}?zhixue_token={token}"
 
+    def _public_forward_headers(self) -> dict[str, str]:
+        headers: dict[str, str] = {}
+        parsed = urlparse(self.public_base_url)
+        if parsed.hostname:
+            host = parsed.hostname
+            if parsed.port:
+                host = f"{host}:{parsed.port}"
+            headers["x-forwarded-host"] = host
+            headers["x-forwarded-proto"] = parsed.scheme or "http"
+        return headers
+
     async def _request(
         self,
         method: str,
@@ -165,7 +176,7 @@ class OpenMAICClient:
         json: dict[str, Any] | None = None,
         include_internal_token: bool = True,
     ) -> dict[str, Any]:
-        headers: dict[str, str] = {}
+        headers: dict[str, str] = self._public_forward_headers()
         if include_internal_token:
             if not self.internal_token:
                 raise OpenMAICError("OPENMAIC_INTERNAL_TOKEN 未配置")

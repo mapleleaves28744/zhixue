@@ -1,6 +1,8 @@
 # ---- Stage 1: Base ----
 FROM node:22-alpine AS base
 
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+
 RUN apk add --no-cache libc6-compat
 RUN corepack enable && corepack prepare pnpm@10.28.0 --activate
 
@@ -14,8 +16,9 @@ RUN apk add --no-cache python3 build-base g++ cairo-dev pango-dev jpeg-dev gifli
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/ ./packages/
-COPY scripts/sync-maic-importer.mjs ./scripts/sync-maic-importer.mjs
+COPY scripts/ ./scripts/
 
+RUN pnpm config set registry https://registry.npmmirror.com
 RUN pnpm install --frozen-lockfile
 
 # ---- Stage 3: Builder ----
@@ -26,10 +29,13 @@ COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/public/vendor ./public/vendor
 COPY . .
 
+ENV NODE_OPTIONS=--max-old-space-size=2048
 RUN pnpm build
 
 # ---- Stage 4: Runner ----
 FROM node:22-alpine AS runner
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
 WORKDIR /app
 

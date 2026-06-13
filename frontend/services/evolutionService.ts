@@ -7,7 +7,7 @@ export interface EvolutionStrategy {
   before_value: Record<string, unknown>
   after_value: Record<string, unknown>
   risk_level: "low" | "medium" | "high"
-  status: "draft" | "active" | "superseded" | "rolled_back"
+  status: "draft" | "active" | "superseded" | "rolled_back" | "rejected"
   version_no: number
   previous_strategy_id: string | null
   created_at: string
@@ -60,6 +60,12 @@ export function applyStrategy(id: string): Promise<EvolutionStrategy> {
 
 export function rollbackStrategy(id: string): Promise<EvolutionStrategy> {
   return request(`/api/v1/evolution/strategies/${id}/rollback`, {
+    method: "POST",
+  })
+}
+
+export function rejectStrategy(id: string): Promise<EvolutionStrategy> {
+  return request(`/api/v1/evolution/strategies/${id}/reject`, {
     method: "POST",
   })
 }

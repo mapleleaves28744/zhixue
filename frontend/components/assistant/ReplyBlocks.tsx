@@ -32,18 +32,27 @@ export function TutorReplyBlock({
   if (streaming) {
     return (
       <div className="flex w-full max-w-[88%] flex-col gap-2">
-        <StreamActivityLine
-          icon="psychology"
-          label={progress || "AI 正在回答…"}
-          preview={content ? truncateText(content, 96) : "内容流式生成中…"}
-          streaming
-          error={error}
-          onClick={onOpenDetail}
-        />
         {content ? (
-          <div className="glass-card rounded-3xl rounded-tl-md p-4">
+          <div className="glass-card rounded-3xl rounded-tl-md p-4 shadow-sm">
             <MarkdownRenderer content={content} />
+            <p className="mt-2 text-[11px] text-primary/80">{progress || "AI 正在继续输出…"}</p>
           </div>
+        ) : (
+          <div className="glass-card rounded-3xl rounded-tl-md p-4 shadow-sm">
+            <p className="text-sm font-medium text-on-background">{progress || "AI 正在回答…"}</p>
+            <p className="mt-2 text-xs text-on-surface-variant">首段内容到达后会立即显示在这里，无需盯着执行轨迹等待。</p>
+            <div className="mt-3 h-2 w-full animate-pulse rounded-full bg-primary/10" />
+          </div>
+        )}
+        {onOpenDetail ? (
+          <StreamActivityLine
+            icon="psychology"
+            label="查看详细过程"
+            preview={content ? truncateText(content, 96) : "流式生成中"}
+            streaming
+            error={error}
+            onClick={onOpenDetail}
+          />
         ) : null}
       </div>
     )
@@ -118,6 +127,11 @@ export function AgentReplyBlock({
   if (streaming || paused) {
     return (
       <div className="flex w-full max-w-[88%] flex-col gap-2">
+        {answer ? (
+          <div className="glass-card rounded-3xl rounded-tl-md p-4 shadow-sm">
+            <MarkdownRenderer content={answer} />
+          </div>
+        ) : null}
         <StreamActivityLine
           icon="smart_toy"
           label={paused ? "已暂停接收，可恢复查看" : statusLabel}
@@ -154,7 +168,9 @@ export function AgentReplyBlock({
             </button>
           ) : null}
         </div>
-        <AgentStepTimeline events={events} streaming={streaming && !paused} onOpenDetail={onOpenDetail} />
+        {!answer && !paused ? null : events.length ? (
+          <AgentStepTimeline events={events} streaming={streaming && !paused} onOpenDetail={onOpenDetail} />
+        ) : null}
         {pendingMediaJobs.map((job) => (
           <MediaJobProgressCard key={job.jobId} job={job} />
         ))}
@@ -163,11 +179,6 @@ export function AgentReplyBlock({
         {showStandaloneSpeech && speechAudio ? (
           <div className="glass-card rounded-3xl rounded-tl-md p-4">
             <InlineAudioPlayer audio={speechAudio} />
-          </div>
-        ) : null}
-        {answer ? (
-          <div className="glass-card rounded-3xl rounded-tl-md p-4">
-            <MarkdownRenderer content={answer} />
           </div>
         ) : null}
       </div>

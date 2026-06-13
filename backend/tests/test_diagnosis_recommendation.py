@@ -12,6 +12,21 @@ from app.services.diagnosis_service import DiagnosisService
 from app.services.recommendation_service import RecommendationService
 
 
+def test_answer_stats_counts_recent_attempts() -> None:
+    service = DiagnosisService.__new__(DiagnosisService)
+    answers = [
+        SimpleNamespace(is_correct=True),
+        SimpleNamespace(is_correct=False),
+        SimpleNamespace(is_correct=True),
+        SimpleNamespace(is_correct=True),
+        SimpleNamespace(is_correct=False),
+    ]
+    stats = service._answer_stats(answers)
+    assert stats["total_questions"] == 5
+    assert stats["correct_answers"] == 3
+    assert stats["accuracy"] == 0.6
+
+
 def test_diagnosis_rules_build_weak_points_and_actions() -> None:
     service = DiagnosisService.__new__(DiagnosisService)
     weak_points = service._build_weak_points(

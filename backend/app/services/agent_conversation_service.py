@@ -12,6 +12,7 @@ from app.models.agent_task import AgentTask
 from app.models.user import User
 from app.repositories.agent_conversation_repository import AgentConversationRepository
 from app.repositories.agent_task_repository import AgentTaskRepository
+from app.agent_runtime import supervisor_intents
 from app.schemas.agent_conversation import (
     AgentConversationCreateRequest,
     AgentConversationRead,
@@ -97,15 +98,34 @@ class AgentConversationService:
             thread_id=conversation.thread_id,
             goal=payload.content,
         )
-        if payload.tool_hints or payload.skip_tools:
-            await self.tasks.update_task(
-                task,
-                input_payload={
-                    "user_input": payload.content,
-                    "tool_hints": payload.tool_hints,
-                    "skip_tools": payload.skip_tools,
-                },
-            )
+        planned_tools = supervisor_intents.plan_required_tools(
+            payload.content,
+            is_profile_update_only=False,
+        )
+        tool_topics = supervisor_intents.parse_tool_topics(payload.content)
+        parsed_intents = [
+            {
+                "segment": item.segment,
+                "topic": item.topic,
+                "tools": list(item.tools),
+            }
+            for item in supervisor_intents.parse_goal_intents(payload.content)
+        ]
+        tool_hints = list(payload.tool_hints or [])
+        for name in planned_tools:
+            if name not in tool_hints:
+                tool_hints.append(name)
+        await self.tasks.update_task(
+            task,
+            input_payload={
+                "user_input": payload.content,
+                "tool_hints": tool_hints,
+                "skip_tools": list(payload.skip_tools or []),
+                "planned_tools": planned_tools,
+                "tool_topics": tool_topics,
+                "parsed_intents": parsed_intents,
+            },
+        )
         message.task_id = task.id
         if conversation.title == "新对话":
             conversation.title = payload.content[:40]

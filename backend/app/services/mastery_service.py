@@ -171,6 +171,7 @@ class MasteryService:
         flat["_overall"] = (
             round(sum(item["mastery_score"] for item in items) / len(items), 2) if items else 0.0
         )
+        flat["_overall_percent"] = round(float(flat["_overall"]) * 100, 1) if items else None
         flat["_items"] = items
 
         result = await self.db.execute(select(StudentCourseProfile).where(

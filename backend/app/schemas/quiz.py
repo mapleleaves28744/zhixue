@@ -139,6 +139,16 @@ class QuizGenerateResponse(BaseModel):
     agent_run_id: UUID | None = None
 
 
+class QuizPracticeSuggestionRead(BaseModel):
+    primary_topic: str
+    topics: list[str] = Field(default_factory=list)
+    recent_questions: list[str] = Field(default_factory=list)
+    reason: str = ""
+    should_suggest: bool = False
+    existing_quiz_id: UUID | None = None
+    prepush_status: str = "none"
+
+
 class QuizSubmitResponse(BaseModel):
     quiz_id: UUID
     total_questions: int

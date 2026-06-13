@@ -116,6 +116,8 @@ class AgentRuntimeService:
                         max_replans=settings.agent_max_replans,
                         tool_hints=list(input_payload.get("tool_hints") or []),
                         skip_tools=list(input_payload.get("skip_tools") or []),
+                        tool_topics=dict(input_payload.get("tool_topics") or {}),
+                        parsed_intents=list(input_payload.get("parsed_intents") or []),
                     )
                 else:
                     result = await graph.resume(thread_id=task.thread_id or str(task.id), approved=approved)
@@ -352,6 +354,23 @@ class AgentRuntimeService:
             from app.services.pet_service import PetService
 
             await PetService(self.db).safely_create_agent_completion(current)
+            artifacts = result.get("artifacts") or []
+            if not any(str(item.get("type") or "") == "quiz" for item in artifacts if isinstance(item, dict)):
+                try:
+                    from app.services.practice_prepush_service import PracticePrepushService
+
+                    await PracticePrepushService(self.db).schedule_from_recent_chat(
+                        user_id=current.user_id,
+                        course_id=current.course_id,
+                    )
+                    from app.services.external_resource_prepush_service import ExternalResourcePrepushService
+
+                    await ExternalResourcePrepushService(self.db).schedule_from_recent_chat(
+                        user_id=current.user_id,
+                        course_id=current.course_id,
+                    )
+                except Exception:
+                    pass
 
     async def _get_task(self, task_id: UUID) -> AgentTask:
         task = await self._get_task_optional(task_id)

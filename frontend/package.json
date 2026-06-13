@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "npm run typecheck && next build",
     "start": "next start",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "build:stitch-tailwind": "tailwindcss -c tailwind.stitch.config.ts -i ./public/stitch-pages/stitch-input.css -o ./public/stitch-pages/stitch-tailwind.css --minify"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

@@ -88,6 +88,18 @@ class MediaRepository:
         )
         return result.scalar_one_or_none()
 
+    async def list_assets_for_resource(self, resource_id: UUID, user_id: UUID) -> list[MediaAsset]:
+        result = await self.db.execute(
+            select(MediaAsset)
+            .where(
+                MediaAsset.resource_id == resource_id,
+                MediaAsset.user_id == user_id,
+                MediaAsset.status == "active",
+            )
+            .order_by(MediaAsset.created_at.asc())
+        )
+        return list(result.scalars().all())
+
     async def update_asset(self, asset: MediaAsset, **values: Any) -> MediaAsset:
         for key, value in values.items():
             setattr(asset, key, value)
@@ -146,6 +158,22 @@ class MediaRepository:
     async def get_job_for_user(self, job_id: UUID, user_id: UUID) -> MediaJob | None:
         result = await self.db.execute(
             select(MediaJob).where(MediaJob.id == job_id, MediaJob.user_id == user_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_latest_job_for_resource(
+        self,
+        resource_id: UUID,
+        user_id: UUID,
+    ) -> MediaJob | None:
+        result = await self.db.execute(
+            select(MediaJob)
+            .where(
+                MediaJob.resource_id == resource_id,
+                MediaJob.user_id == user_id,
+            )
+            .order_by(MediaJob.created_at.desc())
+            .limit(1)
         )
         return result.scalar_one_or_none()
 

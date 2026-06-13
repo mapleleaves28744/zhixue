@@ -7,7 +7,8 @@ from app.core.deps import require_student
 from app.core.response import page_response, success_response
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.quiz import QuizGenerateRequest, QuizSubmitRequest
+from app.schemas.quiz import QuizGenerateRequest, QuizPracticeSuggestionRead, QuizSubmitRequest
+from app.services.practice_suggestion_service import PracticeSuggestionService
 from app.services.quiz_service import QuizService
 
 router = APIRouter()
@@ -25,6 +26,20 @@ async def generate_quiz(
         current_user=current_user,
     )
     return success_response(data.model_dump(mode="json"), request=request)
+
+
+@router.get("/practice-suggestion")
+async def get_practice_suggestion(
+    request: Request,
+    course_id: UUID = Query(...),
+    current_user: User = Depends(require_student),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    data = await PracticeSuggestionService(db).suggest(
+        current_user=current_user,
+        course_id=course_id,
+    )
+    return success_response(QuizPracticeSuggestionRead.model_validate(data).model_dump(mode="json"), request=request)
 
 
 @router.get("")

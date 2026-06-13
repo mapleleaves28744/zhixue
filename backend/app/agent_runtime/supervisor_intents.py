@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import re
+from dataclasses import dataclass
+
 
 def transcribe_intent(goal: str) -> bool:
     if any(k in goal for k in ("语音识别", "识别语音", "音频转文字", "语音转文字")):
@@ -31,6 +34,8 @@ def speech_intent(goal: str) -> bool:
 
 
 def video_intent(goal: str) -> bool:
+    if presentation_intent(goal):
+        return False
     video_keys = (
         "讲解视频",
         "短视频",
@@ -64,7 +69,33 @@ def storyboard_intent(goal: str) -> bool:
 
 
 def courseware_intent(goal: str) -> bool:
-    return any(k in goal for k in ("互动课件", "交互课件", "可交互", "拖拽", "仿真", "演示页面"))
+    lowered = goal.lower()
+    explicit_keys = (
+        "互动课件",
+        "交互课件",
+        "可交互",
+        "拖拽",
+        "仿真",
+        "演示页面",
+        "幻灯片",
+        "网页ppt",
+        "网页幻灯片",
+        "html ppt",
+        "html-ppt",
+        "翻页课件",
+        "html课件",
+        "演示文稿",
+        "课件",
+    )
+    if any(k in goal for k in explicit_keys):
+        return True
+    latin_keys = ("ppt", "slides", "slide", "deck", "keynote")
+    return any(k in lowered for k in latin_keys)
+
+
+def presentation_intent(goal: str) -> bool:
+    """PPT/幻灯片/课件类演示（非视频、非纯 Markdown 讲解）。"""
+    return courseware_intent(goal)
 
 
 def knowledge_card_intent(goal: str) -> bool:
@@ -107,7 +138,7 @@ def learning_path_intent(goal: str) -> bool:
 
 
 def explanation_resource_intent(goal: str) -> bool:
-    if speech_intent(goal) or video_intent(goal):
+    if speech_intent(goal) or video_intent(goal) or presentation_intent(goal):
         return False
     if knowledge_card_intent(goal) or image_intent(goal) or mindmap_intent(goal) or diagram_intent(goal):
         return False
@@ -117,7 +148,12 @@ def explanation_resource_intent(goal: str) -> bool:
 
 
 def qa_intent(goal: str) -> bool:
-    if any(k in goal for k in ("生成", "制作", "出一张", "画一", "资源", "语音", "视频", "练习", "计划")):
+    if presentation_intent(goal):
+        return False
+    if any(
+        k in goal
+        for k in ("生成", "制作", "出一张", "画一", "资源", "语音", "视频", "练习", "计划", "课件", "幻灯片")
+    ):
         return False
     return any(
         k in goal
@@ -129,12 +165,290 @@ def search_explicit_intent(goal: str) -> bool:
     return any(k in goal for k in ("检索", "课程资料", "课程知识库", "基于资料", "基于课程", "引用", "来源"))
 
 
+def web_search_intent(goal: str) -> bool:
+    if search_explicit_intent(goal):
+        return False
+    if any(k in goal for k in ("课程资料", "课程知识库", "wiki", "Wiki", "基于资料")):
+        return False
+    markers = (
+        "联网搜索",
+        "网上搜索",
+        "互联网搜索",
+        "实时搜索",
+        "搜索引擎",
+        "查一下网上",
+        "联网查",
+        "网上查",
+        "在线搜索",
+        "搜索网络",
+        "web search",
+        "最新新闻",
+        "最新消息",
+        "最新动态",
+        "帮我搜",
+        "帮我查一下",
+        "百度",
+        "谷歌",
+        "google",
+        "bing",
+    )
+    if any(k in goal for k in markers):
+        return True
+    if "搜索" in goal and any(k in goal for k in ("网上", "互联网", "联网", "在线", "实时")):
+        return True
+    if any(k in goal for k in ("有哪些新特性", "有什么新功能", "新特性", "最新版本", "更新了什么")):
+        return True
+    return False
+
+
 def should_prepare_speech_script(goal: str) -> bool:
     return any(k in goal for k in ("讲解", "解释", "说明", "队列", "栈", "树", "图", "算法", "结构"))
 
 
+def is_profile_update_only_goal(goal: str) -> bool:
+    profile_requests = (
+        "请记住",
+        "记住我的学习偏好",
+        "更新我的画像",
+        "记录我的学习偏好",
+        "保存我的学习偏好",
+    )
+    explicit_other_tasks = (
+        "学习计划",
+        "学习路径",
+        "复习计划",
+        "安排三天",
+        "安排一周",
+        "生成练习",
+        "练习题",
+        "生成讲解",
+        "讲解一下",
+        "解释一下",
+        "检索资料",
+        "课程资料",
+        "给出引用",
+        "推荐下一步",
+        "学习诊断",
+        "ppt",
+        "幻灯片",
+        "课件",
+        "视频",
+    )
+    return any(item in goal for item in profile_requests) and not any(
+        item in goal for item in explicit_other_tasks
+    )
+
+
+def should_intent_first_route(goal: str) -> bool:
+    """意图足够明确时，首轮规划不交给 LLM 自由发挥。"""
+    if is_profile_update_only_goal(goal):
+        return False
+    if len(required_deliverables(goal)) >= 2:
+        return True
+    return any(
+        (
+            presentation_intent(goal),
+            immersive_classroom_intent(goal),
+            video_intent(goal),
+            speech_intent(goal),
+            transcribe_intent(goal),
+            quiz_intent(goal),
+            learning_path_intent(goal),
+            knowledge_card_intent(goal),
+            mindmap_intent(goal),
+            diagram_intent(goal) and not image_intent(goal),
+            image_intent(goal) and not diagram_intent(goal),
+            explanation_resource_intent(goal),
+            web_search_intent(goal),
+        )
+    )
+
+
+_GOAL_CONNECTORS = (
+    "以及",
+    "还有",
+    "同时",
+    "并且",
+    "然后再",
+    "再帮",
+    "再给我",
+    "接着",
+    "然后",
+)
+_GOAL_SEPARATORS = ("，", ",", "、", ";", "；")
+_MULTI_INTENT_AND = re.compile(
+    r"和(?=[^和]*(?:ppt|slides|slide|deck|思维导图|流程图|图解|视频|课件|幻灯片|插图|练习|导图|图谱|沉浸|分镜|语音|讲解资料|学习路径|学习计划))",
+    re.IGNORECASE,
+)
+_TOPIC_NOISE_TERMS = (
+    "生成",
+    "制作",
+    "创建",
+    "帮我",
+    "请",
+    "给",
+    "做",
+    "画",
+    "再画",
+    "再生成",
+    "再做",
+    "一份",
+    "一个",
+    "一张",
+    "一幅",
+    "一套",
+    "关于",
+    "的",
+    "讲解",
+    "互动课件",
+    "交互课件",
+    "网页幻灯片",
+    "网页ppt",
+    "html ppt",
+    "html-ppt",
+    "幻灯片",
+    "演示文稿",
+    "翻页课件",
+    "思维导图",
+    "知识图谱",
+    "知识结构",
+    "流程图",
+    "架构图",
+    "示意图",
+    "图解",
+    "插图",
+    "配图",
+    "概念图",
+    "教学图片",
+    "教学插图",
+    "知识卡片",
+    "讲解视频",
+    "短视频",
+    "动画讲解",
+    "视频讲解",
+    "沉浸课堂",
+    "互动课堂",
+    "练习题",
+    "配套练习",
+    "学习计划",
+    "学习路径",
+    "个性化讲解",
+    "讲解资料",
+    "ppt",
+    "slides",
+    "slide",
+    "deck",
+    "keynote",
+    "storyboard",
+    "分镜",
+)
+
+
+@dataclass(frozen=True)
+class GoalIntent:
+    segment: str
+    topic: str
+    tools: tuple[str, ...]
+
+
+def split_goal_segments(goal: str) -> list[str]:
+    text = str(goal or "").strip()
+    if not text:
+        return []
+    for connector in _GOAL_CONNECTORS:
+        text = text.replace(connector, "|")
+    text = _MULTI_INTENT_AND.sub("|", text)
+    for separator in _GOAL_SEPARATORS:
+        text = text.replace(separator, "|")
+    parts = [part.strip() for part in text.split("|") if part.strip()]
+    return parts if len(parts) > 1 else [text]
+
+
+def extract_topic_from_segment(segment: str) -> str:
+    cleaned = str(segment or "").strip()
+    lowered = cleaned.lower()
+    for _ in range(3):
+        for term in _TOPIC_NOISE_TERMS:
+            cleaned = cleaned.replace(term, " ")
+            if term.isascii():
+                lowered = lowered.replace(term.lower(), " ")
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        lowered = re.sub(r"\s+", " ", lowered).strip()
+    cleaned = cleaned.strip("，。、；： ")
+    # 去掉残留前缀助词
+    cleaned = re.sub(r"^(再|又|还|先|帮|给|做|画|来)\s*", "", cleaned).strip()
+    if cleaned:
+        return cleaned
+    fallback = re.sub(r"(生成|制作|创建|帮我|请|给|一份|一个|一张|关于|的)", " ", segment)
+    fallback = re.sub(r"\s+", " ", fallback).strip("，。、；： ")
+    return fallback or str(segment).strip()
+
+
+def parse_goal_intents(goal: str, *, is_profile_update_only: bool = False) -> list[GoalIntent]:
+    if is_profile_update_only or is_profile_update_only_goal(goal):
+        return []
+    segments = split_goal_segments(goal)
+    intents: list[GoalIntent] = []
+    for segment in segments:
+        tools = tuple(
+            name
+            for name in required_deliverables(segment)
+            if name in _DELIVERABLE_TOOL_NAMES
+        )
+        if not tools:
+            planned = plan_required_tools(segment, is_profile_update_only=False)
+            tools = tuple(name for name in planned if name in _DELIVERABLE_TOOL_NAMES)
+        if not tools:
+            continue
+        intents.append(
+            GoalIntent(
+                segment=segment,
+                topic=extract_topic_from_segment(segment),
+                tools=tools,
+            )
+        )
+    if intents:
+        return intents
+    deliverables = required_deliverables(goal)
+    if not deliverables:
+        return []
+    topic = extract_topic_from_segment(goal)
+    return [GoalIntent(segment=goal, topic=topic, tools=tuple(deliverables))]
+
+
+def parse_tool_topics(goal: str, *, is_profile_update_only: bool = False) -> dict[str, str]:
+    """多意图场景下，为每个交付物工具提取独立子主题。"""
+    intents = parse_goal_intents(goal, is_profile_update_only=is_profile_update_only)
+    mapping: dict[str, str] = {}
+    for intent in intents:
+        for tool in intent.tools:
+            if tool not in mapping:
+                mapping[tool] = intent.topic
+    for tool in required_deliverables(goal):
+        mapping.setdefault(tool, extract_topic_from_segment(goal))
+    return mapping
+
+
+_DELIVERABLE_TOOL_NAMES = frozenset(
+    {
+        "transcribe_audio",
+        "synthesize_speech",
+        "generate_immersive_classroom",
+        "generate_lesson_video",
+        "generate_interactive_courseware",
+        "generate_educational_image",
+        "generate_diagram",
+        "generate_mindmap",
+        "generate_quiz",
+        "generate_learning_path",
+        "generate_explanation",
+        "apply_evolution_strategy",
+    }
+)
+
+
 def plan_required_tools(goal: str, *, is_profile_update_only: bool) -> list[str]:
-    if is_profile_update_only:
+    if is_profile_update_only or is_profile_update_only_goal(goal):
         return ["update_profile_from_dialogue"]
 
     tools: list[str] = []
@@ -153,6 +467,18 @@ def plan_required_tools(goal: str, *, is_profile_update_only: bool) -> list[str]
         tools.append("generate_storyboard_html")
     if courseware_intent(goal):
         tools.append("generate_interactive_courseware")
+        # PPT/课件与视频/分镜互斥，避免「讲解 ppt」误走视频链路
+        tools = [
+            name
+            for name in tools
+            if name
+            not in (
+                "generate_lesson_video",
+                "generate_immersive_classroom",
+                "generate_storyboard_html",
+                "generate_explanation",
+            )
+        ]
     if diagram_intent(goal) and not image_intent(goal):
         tools.append("generate_diagram")
     elif image_intent(goal):
@@ -213,6 +539,10 @@ def plan_required_tools(goal: str, *, is_profile_update_only: bool) -> list[str]
         tools.append("update_profile_from_dialogue")
     if search_explicit_intent(goal) and "search_course_knowledge" not in tools:
         tools.insert(0, "search_course_knowledge")
+    if web_search_intent(goal) and "search_web" not in tools:
+        tools.insert(0, "search_web")
+        if qa_intent(goal) and "answer_course_question" not in tools:
+            tools.append("answer_course_question")
     if not tools and qa_intent(goal):
         tools.append("answer_course_question")
 

@@ -80,10 +80,14 @@ export async function middleware(request: NextRequest) {
   if (signedPlaybackAllowed) {
     const response = NextResponse.next();
     if (request.nextUrl.searchParams.has('zhixue_token')) {
+      const cookieSecure =
+        process.env.OPENMAIC_COOKIE_SECURE === 'true' ||
+        (process.env.OPENMAIC_COOKIE_SECURE !== 'false' &&
+          request.nextUrl.protocol === 'https:');
       response.cookies.set('openmaic_zhixue_access', zhixueToken, {
         httpOnly: true,
         sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
+        secure: cookieSecure,
         path: '/',
       });
     }

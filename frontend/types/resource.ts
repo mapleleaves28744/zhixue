@@ -45,7 +45,11 @@ export interface GeneratedResource {
   media_asset_type?: string | null
   media_file_url?: string | null
   content_format?: string | null
-  preview_mode?: "image" | "audio" | "video" | "mermaid" | "text" | null
+  preview_mode?: "image" | "audio" | "video" | "mermaid" | "html" | "immersive_classroom" | "text" | null
+  media_job_id?: string | null
+  job_status?: string | null
+  preview_video_asset_id?: string | null
+  preview_video_mime_type?: string | null
 }
 
 export interface ResourceGeneratePayload {
@@ -76,5 +80,8 @@ export interface ResourceGenerateResult {
   media_asset_type?: string | null
   media_file_url?: string | null
   content_format?: string | null
-  preview_mode?: "image" | "audio" | "video" | "mermaid" | "text" | null
+  preview_mode?: "image" | "audio" | "video" | "mermaid" | "html" | "immersive_classroom" | "text" | null
+  media_job_id?: string | null
+  job_status?: string | null
+  job_message?: string | null
 }

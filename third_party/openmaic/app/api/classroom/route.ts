@@ -6,6 +6,7 @@ import {
   isValidClassroomId,
   persistClassroom,
   readClassroom,
+  rewriteClassroomForPublicAccess,
 } from '@/lib/server/classroom-storage';
 import { createLogger } from '@/lib/logger';
 
@@ -69,7 +70,7 @@ export async function GET(request: NextRequest) {
       return apiError(API_ERROR_CODES.INVALID_REQUEST, 404, 'Classroom not found');
     }
 
-    return apiSuccess({ classroom });
+    return apiSuccess({ classroom: rewriteClassroomForPublicAccess(classroom) });
   } catch (error) {
     log.error(
       `Classroom retrieval failed [id=${request.nextUrl.searchParams.get('id') ?? 'unknown'}]:`,

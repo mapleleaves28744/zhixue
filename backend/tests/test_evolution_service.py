@@ -108,3 +108,35 @@ def test_evolution_strategy_detail_route_registered() -> None:
     routes = {getattr(route, "path", "") for route in evolution_api.router.routes}
 
     assert "/strategies/{strategy_id}" in routes
+    assert "/strategies/{strategy_id}/reject" in routes
+
+
+@pytest.mark.asyncio
+async def test_reject_strategy_only_allows_draft() -> None:
+    user_id = uuid4()
+    draft = _build_strategy(user_id=user_id)
+    draft.status = "draft"
+    active = _build_strategy(user_id=user_id)
+    active.status = "active"
+
+    class FakeSession:
+        def __init__(self, strategy: EvolutionStrategy) -> None:
+            self.strategy = strategy
+
+        async def execute(self, statement):
+            return _FakeExecuteResult(self.strategy)
+
+        async def commit(self) -> None:
+            return None
+
+        async def refresh(self, obj) -> None:
+            return None
+
+    service = EvolutionService(FakeSession(draft))
+    result = await service.reject_strategy(draft.id, user_id)
+    assert result.status == "rejected"
+
+    service_active = EvolutionService(FakeSession(active))
+    with pytest.raises(BusinessException) as exc_info:
+        await service_active.reject_strategy(active.id, user_id)
+    assert exc_info.value.status_code == 422

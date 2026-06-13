@@ -34,7 +34,9 @@ class RecommendationService:
         if course_id is not None:
             await CourseService(self.db).get_readable_course(course_id, current_user)
             stmt = stmt.where(Recommendation.course_id == course_id)
-        if status is not None:
+        if status == "all":
+            stmt = stmt.where(Recommendation.status.in_(["pending", "completed"]))
+        elif status is not None:
             stmt = stmt.where(Recommendation.status == status)
 
         total_stmt = select(func.count()).select_from(stmt.subquery())
@@ -112,6 +114,34 @@ class RecommendationService:
 
     async def _build_payloads(self, user_id: UUID, course_id: UUID) -> list[dict[str, Any]]:
         payloads: list[dict[str, Any]] = []
+
+        from app.models.user import User
+
+        user = await self.db.get(User, user_id)
+        if user is not None:
+            try:
+                from app.services.practice_suggestion_service import PracticeSuggestionService
+
+                suggestion = await PracticeSuggestionService(self.db).suggest(
+                    current_user=user,
+                    course_id=course_id,
+                )
+                if suggestion.get("should_suggest"):
+                    payloads.append(
+                        {
+                            "user_id": user_id,
+                            "course_id": course_id,
+                            "recommendation_type": "practice_from_chat",
+                            "target_id": self._optional_uuid(suggestion.get("existing_quiz_id")),
+                            "title": f"巩固「{suggestion['primary_topic']}」练习",
+                            "reason": str(suggestion.get("reason") or "基于最近在 AI 助手的提问推荐。"),
+                            "priority": 0,
+                            "status": "pending",
+                        }
+                    )
+            except Exception:
+                pass
+
         latest_report = await self._latest_report(user_id, course_id)
         if latest_report is not None:
             for action in (latest_report.recommended_actions or [])[:5]:

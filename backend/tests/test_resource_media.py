@@ -45,7 +45,13 @@ def test_speech_text_from_markdown_strips_headings() -> None:
     assert "##" not in text
 
 
-def test_resource_preview_mode_recognizes_video_asset() -> None:
+def test_content_disposition_type_for_previewable_mime() -> None:
+    from app.api.v1.media_assets import _content_disposition_type
+
+    assert _content_disposition_type("text/html") == "inline"
+    assert _content_disposition_type("image/png") == "inline"
+    assert _content_disposition_type("video/mp4") == "inline"
+    assert _content_disposition_type("application/octet-stream") == "attachment"
     asset = type("Asset", (), {"asset_type": "video", "mime_type": "video/mp4"})()
 
     assert ResourceService._preview_mode("video", asset) == "video"

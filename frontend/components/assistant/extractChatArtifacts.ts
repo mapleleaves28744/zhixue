@@ -7,6 +7,32 @@ export interface ChatArtifactRef {
   title?: string
 }
 
+const INLINE_CHAT_ARTIFACT_TYPES = new Set(["resource", "quiz", "learning_path"])
+
+function pushChatArtifact(raw: unknown, seen: Set<string>, refs: ChatArtifactRef[]): void {
+  if (!raw || typeof raw !== "object") return
+  const item = raw as Record<string, unknown>
+  const type = String(item.type || item.artifact_type || "")
+  if (!INLINE_CHAT_ARTIFACT_TYPES.has(type)) return
+  const id = String(item.id || item.resource_id || item.quiz_id || "")
+  if (!id || seen.has(`${type}:${id}`)) return
+  seen.add(`${type}:${id}`)
+  refs.push({
+    type,
+    subtype: item.subtype ? String(item.subtype) : undefined,
+    id,
+    title: item.title ? String(item.title) : undefined,
+  })
+}
+
+function collectChatArtifactsFromRefs(
+  rawRefs: unknown[],
+  seen: Set<string>,
+  refs: ChatArtifactRef[],
+): void {
+  rawRefs.forEach((ref) => pushChatArtifact(ref, seen, refs))
+}
+
 export interface ChatMediaArtifactRef {
   type: "audio" | "media_asset"
   id: string
@@ -153,24 +179,25 @@ export function extractChatArtifacts(
 
   for (const evt of events) {
     if (evt.type === "tool_completed" && evt.data.success !== false) {
-      const artifactRefs = evt.data.artifact_refs
-      if (Array.isArray(artifactRefs)) {
-        artifactRefs.forEach((ref) => pushResourceRef(ref, seen, refs))
-      }
+      collectChatArtifactsFromRefs(artifactRefsFromEvent(evt), seen, refs)
     }
     if (evt.type === "completed") {
-      const artifacts = evt.data.artifacts
-      if (Array.isArray(artifacts)) {
-        artifacts.forEach((ref) => pushResourceRef(ref, seen, refs))
-      }
+      collectChatArtifactsFromRefs(artifactRefsFromEvent(evt), seen, refs)
+    }
+    if (evt.type === "observation" && evt.data.success !== false) {
+      collectChatArtifactsFromRefs(
+        Array.isArray(evt.data.artifact_refs) ? evt.data.artifact_refs : [],
+        seen,
+        refs,
+      )
     }
   }
 
   const planRefs = (task?.plan_json?.artifact_refs as unknown[]) || []
-  planRefs.forEach((ref) => pushResourceRef(ref, seen, refs))
+  collectChatArtifactsFromRefs(planRefs, seen, refs)
 
   if (payloadArtifacts?.length) {
-    payloadArtifacts.forEach((ref) => pushResourceRef(ref, seen, refs))
+    collectChatArtifactsFromRefs(payloadArtifacts, seen, refs)
   }
 
   return refs

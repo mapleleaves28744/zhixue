@@ -750,6 +750,7 @@ def test_default_learning_tool_registry_exposes_specialized_agents_and_risk_boun
 
     assert {
         "search_course_knowledge",
+        "search_web",
         "answer_course_question",
         "generate_learning_path",
         "generate_explanation",

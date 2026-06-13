@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import uuid
 from typing import Any
 from uuid import UUID
 
@@ -14,7 +15,6 @@ from app.models.user import User
 from app.repositories.media_repository import MediaRepository
 from app.repositories.resource_repository import ResourceRepository
 from app.services.course_service import CourseService
-from app.services.courseware_service import CoursewareService
 from app.services.diagram_service import CONCISE_IMAGE_CARD_RULES, DiagramService
 from app.services.media_storage_service import MediaStorageService
 from app.services.mindmap_service import MindmapService
@@ -175,6 +175,7 @@ class MultimodalResourceService:
         visual_mode: str = "storyboard",
         voice: str | None = None,
         target_level: str | None = None,
+        resource_type: str = "video",
         tool_context: ToolContext | None = None,
     ) -> dict[str, Any]:
         await CourseService(self.db).get_readable_course(course_id, current_user)
@@ -185,19 +186,8 @@ class MultimodalResourceService:
             modality="video",
             requirement=target_level,
         )
-        resource = await self.resources.create(
-            user_id=current_user.id,
-            course_id=course_id,
-            knowledge_id=None,
-            wiki_page_id=None,
-            resource_type="video",
-            title=f"{topic} 个性化讲解视频",
-            content="视频任务已创建，正在生成脚本、分镜和视频文件。",
-            citations=brief["citations"],
-            personalized_reason=brief.get("style_hint"),
-            model_name=self.provider.provider_name,
-            prompt_version_id=None,
-        )
+        stored_type = resource_type if resource_type in {"video", "animation"} else "video"
+        type_label = "动画演示" if stored_type == "animation" else "讲解视频"
         payload = {
             "topic": topic,
             "duration_seconds": duration_seconds,
@@ -209,7 +199,32 @@ class MultimodalResourceService:
         idem = (
             tool_context.idempotency_key
             if tool_context
-            else f"video:{current_user.id}:{course_id}:{hash(json.dumps(payload, ensure_ascii=False, sort_keys=True))}"
+            else f"video:{current_user.id}:{course_id}:{hash(json.dumps(payload, ensure_ascii=False, sort_keys=True))}:{uuid.uuid4().hex[:12]}"
+        )
+        existing_job = await self.media.get_job_by_idempotency_key(idem)
+        if existing_job is not None and existing_job.resource_id is not None:
+            existing_resource = await self.resources.get_by_id(existing_job.resource_id)
+            if existing_resource is not None:
+                return {
+                    "job_id": str(existing_job.id),
+                    "resource_id": str(existing_resource.id),
+                    "status": existing_job.status,
+                    "stage": existing_job.stage,
+                    "progress": existing_job.progress,
+                    "message": "视频任务已进入后台队列，可在 Agent 时间线查看进度。",
+                }
+        resource = await self.resources.create(
+            user_id=current_user.id,
+            course_id=course_id,
+            knowledge_id=None,
+            wiki_page_id=None,
+            resource_type=stored_type,
+            title=f"{topic} 个性化{type_label}",
+            content="视频任务已创建，正在生成脚本、分镜和视频文件。",
+            citations=brief["citations"],
+            personalized_reason=brief.get("style_hint"),
+            model_name=self.provider.provider_name,
+            prompt_version_id=None,
         )
         job = await self.media.create_job(
             user_id=current_user.id,
@@ -253,8 +268,22 @@ class MultimodalResourceService:
             modality="interactive_courseware",
             requirement=requirement or target_level,
         )
-        renderer = CoursewareService()
-        spec = renderer.build_spec(topic=topic, interaction_type=interaction_type, brief=brief)
+        from app.llm.provider import get_llm_provider
+        from app.services.html_ppt_courseware_service import HtmlPptCoursewareService
+
+        renderer = HtmlPptCoursewareService()
+        llm = get_llm_provider(
+            db=self.db,
+            user_id=current_user.id,
+            course_id=course_id,
+        )
+        spec = await renderer.build_spec_with_llm(
+            topic=topic,
+            brief=brief,
+            requirement=requirement or target_level,
+            llm=llm,
+        )
+        spec["interaction_type"] = interaction_type
         rendered = renderer.render(spec)
         path, file_size, mime = self.storage.save_text(text=rendered.html, asset_type="courseware", suffix=".html")
         resource = await self.resources.create(
@@ -264,10 +293,10 @@ class MultimodalResourceService:
             wiki_page_id=None,
             resource_type="interactive_courseware",
             title=rendered.title,
-            content="已生成安全模板化互动课件，可在 sandbox iframe 中打开。",
+            content="已生成 HTML PPT 风格互动课件，可在下方 iframe 中翻页体验。",
             citations=brief["citations"],
             personalized_reason=brief.get("style_hint"),
-            model_name="template-courseware-v1",
+            model_name="html-ppt-skill-v2",
             prompt_version_id=None,
         )
         asset = await self.media.create_asset(
@@ -283,11 +312,11 @@ class MultimodalResourceService:
             storage_path=path,
             mime_type=mime,
             file_size=file_size,
-            provider="courseware_template",
-            model_name="courseware-template-v1",
+            provider="html_ppt_skill",
+            model_name="html-ppt-skill-v2",
             citations=brief["citations"],
             safety_result=rendered.safety_result,
-            render_meta={"spec": rendered.spec, "interaction_type": interaction_type},
+            render_meta={"spec": rendered.spec, "interaction_type": interaction_type, "engine": "html_ppt_skill"},
         )
         await self.db.commit()
         return self._asset_response(asset, resource_id=resource.id, extra={"subtype": "courseware"})

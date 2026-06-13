@@ -79,8 +79,16 @@ export function getResourcePreviewMode(resource: {
   content: string
   media_asset_id?: string | null
   media_mime_type?: string | null
-}): "image" | "audio" | "video" | "mermaid" | "text" {
-  if (resource.preview_mode === "image" || resource.preview_mode === "audio" || resource.preview_mode === "video" || resource.preview_mode === "mermaid") {
+  media_asset_type?: string | null
+}): "image" | "audio" | "video" | "mermaid" | "html" | "immersive_classroom" | "text" {
+  if (
+    resource.preview_mode === "image" ||
+    resource.preview_mode === "audio" ||
+    resource.preview_mode === "video" ||
+    resource.preview_mode === "mermaid" ||
+    resource.preview_mode === "html" ||
+    resource.preview_mode === "immersive_classroom"
+  ) {
     return resource.preview_mode
   }
   const mime = resource.media_mime_type || ""
@@ -88,9 +96,18 @@ export function getResourcePreviewMode(resource: {
     if (mime.startsWith("video/")) return "video"
     if (mime.startsWith("audio/")) return "audio"
     if (mime.startsWith("image/")) return "image"
+    if (mime.startsWith("text/html") || resource.media_asset_type === "html") return "html"
+    if (mime.includes("openmaic-classroom")) return "immersive_classroom"
   }
-  if (resource.resource_type === "mindmap" || resource.resource_type === "diagram" || isMermaidContent(resource.content)) {
-    return "mermaid"
+  if (
+    resource.resource_type === "mindmap" ||
+    resource.resource_type === "diagram" ||
+    resource.resource_type === "image" ||
+    isMermaidContent(resource.content)
+  ) {
+    return resource.resource_type === "image" && resource.media_asset_id ? "image" : "mermaid"
   }
+  if (resource.resource_type === "interactive_courseware") return "html"
+  if (resource.resource_type === "immersive_classroom") return "immersive_classroom"
   return "text"
 }

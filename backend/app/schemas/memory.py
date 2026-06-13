@@ -4,7 +4,18 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
+
+
+def _normalize_evidence(value: Any) -> list[Any]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        return [text] if text else []
+    return [value]
 
 
 class MemoryRead(BaseModel):
@@ -25,6 +36,11 @@ class MemoryRead(BaseModel):
     archived_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
+
+    @field_validator("evidence", mode="before")
+    @classmethod
+    def coerce_evidence(cls, value: Any) -> list[Any]:
+        return _normalize_evidence(value)
 
 
 class MemoryUpdate(BaseModel):

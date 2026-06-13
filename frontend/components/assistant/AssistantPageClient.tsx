@@ -728,7 +728,7 @@ export function AssistantPageClient() {
             wiki_page_id: wikiPageId || null,
             use_rag: useRag,
             use_wiki: useWiki,
-            use_profile: true,
+            use_profile: false,
             stream: true,
           },
           {

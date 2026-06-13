@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from collections.abc import AsyncIterator
 from time import perf_counter
 from typing import Any
@@ -28,6 +29,8 @@ from app.schemas.tutor import (
 from app.services.agent_service import AgentService
 from app.services.agent_log_service import AgentLogService
 from app.services.course_service import CourseService
+
+logger = logging.getLogger(__name__)
 from app.services.conversation_intent import is_simple_greeting, simple_greeting_answer
 from app.services.learning_record_service import LearningRecordService
 
@@ -172,6 +175,17 @@ class TutorService:
                 yield item
             return
 
+        from app.agent_runtime import supervisor_intents
+
+        if supervisor_intents.web_search_intent(payload.question):
+            async for item in self._stream_web_search_answer(
+                payload=payload,
+                current_user=current_user,
+                course=course,
+            ):
+                yield item
+            return
+
         log_service = AgentLogService(self.db)
         context = AgentContext(
             user_id=current_user.id,
@@ -190,7 +204,11 @@ class TutorService:
         started = perf_counter()
 
         try:
-            yield {"event": "progress", "data": {"stage": "build_profile_context", "message": "整理学生画像上下文"}}
+            use_profile = bool(payload.use_profile)
+            if use_profile:
+                yield {"event": "progress", "data": {"stage": "build_profile_context", "message": "整理学生画像上下文"}}
+            else:
+                yield {"event": "progress", "data": {"stage": "prepare_context", "message": "准备回答上下文"}}
             agent = TutorAgent(self.db)
             prepared = await agent.prepare_chat_context(context)
 
@@ -279,6 +297,14 @@ class TutorService:
             )
             await self.db.commit()
             await self.db.refresh(record)
+            await self._maybe_schedule_practice_prepush(
+                user_id=current_user.id,
+                course_id=course.id,
+            )
+            await self._maybe_schedule_external_resource_prepush(
+                user_id=current_user.id,
+                course_id=course.id,
+            )
             yield {
                 "event": "done",
                 "data": TutorChatResponse.model_validate(response_payload).model_dump(mode="json"),
@@ -332,6 +358,70 @@ class TutorService:
             "provider": "local_intent_router",
             "fallback_used": False,
         }
+        yield {
+            "event": "done",
+            "data": TutorChatResponse.model_validate(response_payload).model_dump(mode="json"),
+        }
+
+    async def _stream_web_search_answer(
+        self,
+        *,
+        payload: TutorChatRequest,
+        current_user: User,
+        course: Course,
+    ) -> AsyncIterator[dict[str, Any]]:
+        from app.agent_runtime.supervisor import MiMoSupervisor
+        from app.services.web_search_service import WebSearchService
+
+        yield {"event": "progress", "data": {"stage": "web_search", "message": "联网搜索中…"}}
+        result = await WebSearchService().search(query=payload.question, max_results=5)
+        answer = MiMoSupervisor(provider=object())._format_search_output_answer(  # type: ignore[arg-type]
+            "search_web",
+            result,
+            payload.question,
+        )
+        citations = list(result.get("citations") or [])
+        chunk_size = 120
+        for index in range(0, len(answer), chunk_size):
+            yield {"event": "delta", "data": {"content": answer[index : index + chunk_size]}}
+
+        review_result = self._rule_review_answer(answer=answer, citations=citations)
+        record = await self.records.record_event(
+            user_id=current_user.id,
+            course_id=course.id,
+            knowledge_id=payload.knowledge_id,
+            event_type="chat",
+            event_source="tutor",
+            event_payload={
+                "question": payload.question,
+                "answer": answer,
+                "citations": citations,
+                "related_knowledge_points": [],
+                "follow_up_questions": [],
+                "review_result": review_result,
+                "provider": result.get("provider") or "anysearch",
+                "fallback_used": result.get("provider") == "mock",
+            },
+        )
+        response_payload = {
+            "answer": answer,
+            "citations": citations,
+            "related_knowledge_points": [],
+            "follow_up_questions": [],
+            "review_result": review_result,
+            "memory_update_suggestion": {"should_reflect": False, "reason": "联网搜索问答不写入长期记忆。"},
+            "message_id": record.id,
+            "provider": result.get("provider") or "anysearch",
+            "fallback_used": result.get("provider") == "mock",
+        }
+        await self._maybe_schedule_practice_prepush(
+            user_id=current_user.id,
+            course_id=course.id,
+        )
+        await self._maybe_schedule_external_resource_prepush(
+            user_id=current_user.id,
+            course_id=course.id,
+        )
         yield {
             "event": "done",
             "data": TutorChatResponse.model_validate(response_payload).model_dump(mode="json"),
@@ -593,6 +683,28 @@ class TutorService:
                 status_code=404,
             )
         return record
+
+    async def _maybe_schedule_practice_prepush(self, *, user_id: UUID, course_id: UUID) -> None:
+        try:
+            from app.services.practice_prepush_service import PracticePrepushService
+
+            await PracticePrepushService(self.db).schedule_from_recent_chat(
+                user_id=user_id,
+                course_id=course_id,
+            )
+        except Exception:
+            logger.exception("schedule practice prepush failed")
+
+    async def _maybe_schedule_external_resource_prepush(self, *, user_id: UUID, course_id: UUID) -> None:
+        try:
+            from app.services.external_resource_prepush_service import ExternalResourcePrepushService
+
+            await ExternalResourcePrepushService(self.db).schedule_from_recent_chat(
+                user_id=user_id,
+                course_id=course_id,
+            )
+        except Exception:
+            logger.exception("schedule external resource prepush failed")
 
     def _format_citations(self, citations: list[Any]) -> str:
         lines = []

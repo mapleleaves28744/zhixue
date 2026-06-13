@@ -43,6 +43,9 @@ class MiMoSupervisor:
         early_complete = self._deliverables_complete_decision(state, tool_schemas)
         if early_complete is not None:
             return early_complete
+        intent_first = self._intent_first_decision(state, tool_schemas)
+        if intent_first is not None:
+            return self._apply_safety_net(state, tool_schemas, intent_first)
         messages = self._build_messages(state)
         chat_kwargs: dict[str, Any] = {
             "thinking": {"type": "disabled"},
@@ -143,6 +146,19 @@ class MiMoSupervisor:
         completed_tools = self._completed_tool_names(state)
         skip_tools = set(state.get("skip_tools") or [])
 
+        observations = list(state.get("observations") or [])
+        if observations and observations[-1].get("success") is False:
+            err = str(observations[-1].get("error_message") or "工具执行失败")
+            return AgentDecision(
+                status="failed",
+                summary="工具执行失败，已停止本轮任务。",
+                final_answer=(
+                    f"生成未成功：{err}\n\n"
+                    "请查看上方执行轨迹中的失败步骤；若是视频渲染报错，可改选「互动课件/PPT」或稍后重试。"
+                ),
+                reasoning_content=decision.reasoning_content,
+            )
+
         if decision.tool_calls:
             if decision.status == "complete":
                 decision.status = "continue"
@@ -216,6 +232,21 @@ class MiMoSupervisor:
                 reason="用户明确要求基于课程资料回答，必须先检索",
             )
 
+        if (
+            decision.status == "complete"
+            and supervisor_intents.web_search_intent(goal)
+            and "search_web" not in completed_tools
+            and "search_web" in available
+            and "search_web" not in skip_tools
+        ):
+            return self._force_tool(
+                "search_web",
+                goal,
+                state,
+                decision,
+                reason="用户要求联网搜索，必须先获取实时网页结果",
+            )
+
         if decision.status == "complete" and pending_deliverables:
             tool_name = pending_deliverables[0]
             label = supervisor_intents.deliverable_label(tool_name)
@@ -226,6 +257,22 @@ class MiMoSupervisor:
                 decision,
                 reason=f"用户要求的{label}尚未生成，禁止仅用文字/Markdown 代替",
             )
+
+        if decision.status == "complete" and self._has_wrong_deliverable_only(state, goal):
+            pending = self._pending_deliverables(goal, available, completed_tools, skip_tools)
+            if pending:
+                tool_name = pending[0]
+                label = supervisor_intents.deliverable_label(tool_name)
+                return self._force_tool(
+                    tool_name,
+                    goal,
+                    state,
+                    decision,
+                    reason=f"已调用错误工具，需补生成{label}",
+                )
+
+        if decision.status == "complete":
+            decision.final_answer = self._normalize_completion_answer(state, goal, decision.final_answer)
 
         if decision.status == "complete" and self._should_use_fallback_planner(
             goal,
@@ -444,6 +491,11 @@ class MiMoSupervisor:
         )
 
     def _build_completion_answer(self, state: dict[str, Any]) -> str:
+        goal = str(state.get("goal") or "")
+        search_answer = self._build_search_results_answer(state, goal)
+        if search_answer:
+            return search_answer
+
         artifacts = state.get("artifacts") or []
         lines = ["所需学习内容已生成，请查看下方产物卡片或资源侧栏。"]
         for artifact in artifacts:
@@ -455,11 +507,82 @@ class MiMoSupervisor:
                 lines.append(f"- 教学插图：{title}")
             elif subtype in {"mindmap", "diagram"} or artifact.get("type") == "resource":
                 lines.append(f"- 知识卡片/资源：{title}")
+            elif artifact.get("type") == "quiz":
+                lines.append(f"- 练习题：{title}")
+            elif artifact.get("type") == "learning_path":
+                lines.append(f"- 学习路径：{title}")
             elif artifact.get("type") == "media_asset":
                 lines.append(f"- 多模态产物：{title}")
         if len(lines) == 1 and state.get("observations"):
             lines.append("- 相关工具已执行完成，可在执行详情中查看输出。")
         return "\n".join(lines)
+
+    def _build_search_results_answer(self, state: dict[str, Any], goal: str) -> str | None:
+        observations = list(state.get("observations") or [])
+        for obs in reversed(observations):
+            if obs.get("success") is not True:
+                continue
+            tool_name = str(obs.get("tool_name") or "")
+            if tool_name != "answer_course_question":
+                continue
+            output = obs.get("output")
+            if not isinstance(output, dict):
+                continue
+            for key in ("answer", "content", "summary"):
+                value = output.get(key)
+                if isinstance(value, str) and value.strip():
+                    return value.strip()
+
+        for obs in reversed(observations):
+            if obs.get("success") is not True:
+                continue
+            tool_name = str(obs.get("tool_name") or "")
+            if tool_name not in {"search_web", "search_course_knowledge"}:
+                continue
+            output = obs.get("output")
+            if not isinstance(output, dict):
+                continue
+            return self._format_search_output_answer(tool_name, output, goal)
+        return None
+
+    @staticmethod
+    def _format_search_output_answer(tool_name: str, output: dict[str, Any], goal: str) -> str:
+        query = str(output.get("query") or goal).strip()
+        items = output.get("items") or []
+        lines: list[str] = []
+        if tool_name == "search_web":
+            lines.append(f"## 联网搜索：{query}\n")
+            message = str(output.get("message") or "").strip()
+            if message and output.get("provider") == "mock":
+                lines.append(f"_{message}_\n")
+        else:
+            lines.append(f"## 课程资料检索：{query}\n")
+
+        if not items:
+            lines.append("未找到相关结果，请尝试换关键词或补充更具体的描述。")
+            return "\n".join(lines).strip()
+
+        lines.append("为你找到以下参考来源：\n")
+        for index, item in enumerate(items[:5], start=1):
+            if not isinstance(item, dict):
+                continue
+            title = str(item.get("title") or f"结果 {index}")
+            url = str(item.get("url") or "").strip()
+            snippet = str(item.get("snippet") or item.get("content") or "").strip()
+            if len(snippet) > 400:
+                snippet = snippet[:400].rstrip() + "…"
+            lines.append(f"{index}. **{title}**")
+            if snippet:
+                lines.append(f"   {snippet}")
+            if url:
+                lines.append(f"   来源：{url}")
+            lines.append("")
+
+        if tool_name == "search_web":
+            lines.append("> 以上信息来自互联网公开资料，建议结合官方文档进一步核实。")
+        else:
+            lines.append("> 以上内容来自你的课程资料检索结果。")
+        return "\n".join(lines).strip()
 
     def _profile_update_only_decision(
         self,
@@ -499,34 +622,116 @@ class MiMoSupervisor:
             ],
         )
 
+    def _intent_first_decision(
+        self,
+        state: dict[str, Any],
+        tool_schemas: list[dict[str, Any]],
+    ) -> AgentDecision | None:
+        if int(state.get("tool_call_count") or 0) > 0:
+            return None
+        goal = str(state.get("goal") or "")
+        if not supervisor_intents.should_intent_first_route(goal):
+            return None
+        available = self._available_tool_names(tool_schemas)
+        skip_tools = set(state.get("skip_tools") or [])
+        planned = self._required_tools(goal)
+        if not planned:
+            return None
+        calls: list[PlannedToolCall] = []
+        for name in planned:
+            if name not in available or name in skip_tools:
+                continue
+            calls.append(
+                PlannedToolCall(
+                    id=f"call_{uuid4().hex}",
+                    name=name,
+                    arguments=self._safe_arguments(name, {}, goal, state),
+                )
+            )
+        if not calls:
+            return None
+        primary = calls[-1].name
+        return AgentDecision(
+            status="continue",
+            summary=f"意图识别：优先调用 {supervisor_intents.deliverable_label(primary)}",
+            plan=[f"调用 {item.name}" for item in calls],
+            tool_calls=calls,
+        )
+
+    @staticmethod
+    def _has_wrong_deliverable_only(state: dict[str, Any], goal: str) -> bool:
+        required = set(supervisor_intents.required_deliverables(goal))
+        if not required:
+            return False
+        completed = {
+            str(item.get("tool_name"))
+            for item in state.get("observations") or []
+            if item.get("success") is True and item.get("tool_name")
+        }
+        if required & completed:
+            return False
+        generation = {
+            "generate_lesson_video",
+            "generate_immersive_classroom",
+            "generate_interactive_courseware",
+            "generate_storyboard_html",
+            "generate_educational_image",
+            "generate_diagram",
+            "generate_mindmap",
+            "generate_explanation",
+            "synthesize_speech",
+        }
+        return bool(completed & generation)
+
+    def _normalize_completion_answer(
+        self,
+        state: dict[str, Any],
+        goal: str,
+        answer: str,
+    ) -> str:
+        observations = list(state.get("observations") or [])
+        for obs in reversed(observations):
+            if obs.get("success") is not True:
+                continue
+            tool_name = str(obs.get("tool_name") or "")
+            output = obs.get("output") if isinstance(obs.get("output"), dict) else {}
+            if tool_name == "generate_interactive_courseware":
+                title = str(output.get("title") or "互动课件")
+                asset_id = output.get("asset_id") or output.get("media_asset_id")
+                return (
+                    f"互动课件已生成：{title}\n"
+                    f"- 请在下方产物卡片或资源侧栏打开 HTML 课件预览"
+                    + (f"\n- asset_id={asset_id}" if asset_id else "")
+                )
+            if tool_name == "generate_lesson_video":
+                job_id = output.get("media_job_id") or output.get("job_id")
+                return (
+                    "讲解视频任务已提交后台队列，尚未完成渲染。\n"
+                    f"- job_id={job_id}\n"
+                    "- 请在执行轨迹查看进度；若出现 failed 步骤，说明后台渲染失败，需要重试或改选互动课件。"
+                )
+            if tool_name == "generate_immersive_classroom":
+                job_id = output.get("media_job_id") or output.get("job_id")
+                return (
+                    "沉浸课堂任务已提交后台队列。\n"
+                    f"- job_id={job_id}\n"
+                    "- 请在执行轨迹查看 OpenMAIC 生成进度。"
+                )
+            if tool_name in {"search_web", "search_course_knowledge"}:
+                formatted = self._format_search_output_answer(tool_name, output, goal)
+                if formatted:
+                    return formatted
+        search_answer = self._build_search_results_answer(state, goal)
+        if search_answer:
+            return search_answer
+        if supervisor_intents.presentation_intent(goal) and answer:
+            if "视频" in answer and "课件" not in answer:
+                return self._build_completion_answer(state)
+        cleaned = extract_final_answer_text(answer)
+        return cleaned or self._build_completion_answer(state)
+
     def _is_profile_update_only_goal(self, goal: str) -> bool:
-        profile_requests = (
-            "请记住",
-            "记住我的学习偏好",
-            "更新我的画像",
-            "记录我的学习偏好",
-            "保存我的学习偏好",
-        )
-        explicit_other_tasks = (
-            "学习计划",
-            "学习路径",
-            "复习计划",
-            "安排三天",
-            "安排一周",
-            "生成练习",
-            "练习题",
-            "生成讲解",
-            "讲解一下",
-            "解释一下",
-            "检索资料",
-            "课程资料",
-            "给出引用",
-            "推荐下一步",
-            "学习诊断",
-        )
-        return any(item in goal for item in profile_requests) and not any(
-            item in goal for item in explicit_other_tasks
-        )
+        return supervisor_intents.is_profile_update_only_goal(goal)
 
     def _required_tools(self, goal: str) -> list[str]:
         tools = supervisor_intents.plan_required_tools(
@@ -545,26 +750,14 @@ class MiMoSupervisor:
         return supervisor_intents.video_intent(goal)
 
     def _extract_topic_from_goal(self, goal: str) -> str:
-        cleaned = str(goal)
-        for token in (
-            "生成",
-            "请",
-            "帮我",
-            "给",
-            "一段",
-            "一个",
-            "关于",
-            "的",
-            "语音",
-            "朗读",
-            "讲解",
-            "合成",
-            "TTS",
-            "播放",
-            "听",
-        ):
-            cleaned = cleaned.replace(token, "")
-        return cleaned.strip() or "该知识点"
+        return supervisor_intents.extract_topic_from_segment(goal)
+
+    def _topic_for_tool(self, tool_name: str, goal: str, state: dict[str, Any]) -> str:
+        tool_topics = state.get("tool_topics") or {}
+        topic = str(tool_topics.get(tool_name) or "").strip()
+        if topic:
+            return topic
+        return self._extract_topic_from_goal(goal)
 
     def _resolve_speech_text(self, state: dict[str, Any], goal: str, text: str | None = None) -> str:
         candidate = str(text or "").strip()
@@ -650,43 +843,45 @@ class MiMoSupervisor:
     ) -> dict[str, Any]:
         normalized = dict(arguments)
         state = state or {}
+        topic = self._topic_for_tool(tool_name, goal, state)
         defaults: dict[str, dict[str, Any]] = {
-            "search_course_knowledge": {"query": goal, "top_k": 10},
+            "search_course_knowledge": {"query": topic or goal, "top_k": 10},
+            "search_web": {"query": topic or goal, "max_results": 5},
             "answer_course_question": {"question": goal, "top_k": 5},
-            "generate_learning_path": {"goal": goal},
-            "generate_explanation": {"topic": goal, "requirement": goal},
-            "generate_quiz": {"topic": goal},
+            "generate_learning_path": {"goal": topic or goal},
+            "generate_explanation": {"topic": topic, "requirement": goal},
+            "generate_quiz": {"topic": topic},
             "parse_uploaded_document": {},
-            "generate_mindmap": {"topic": goal, "scope": "course", "depth": 3},
-            "generate_diagram": {"concept": goal, "diagram_type": "flowchart"},
+            "generate_mindmap": {"topic": topic, "scope": "course", "depth": 3},
+            "generate_diagram": {"concept": topic, "diagram_type": "flowchart"},
             "generate_educational_image": {
-                "topic": goal,
+                "topic": topic,
                 "image_type": "concept_illustration",
                 "style": "clean educational illustration",
                 "size": "1280x720",
                 "requirement": goal,
             },
             "generate_lesson_video": {
-                "topic": goal,
+                "topic": topic,
                 "duration_seconds": 90,
                 "visual_mode": "storyboard",
                 "target_level": "undergraduate",
             },
             "generate_immersive_classroom": {
-                "topic": goal,
-                "learning_goal": goal,
+                "topic": topic,
+                "learning_goal": topic or goal,
                 "generate_video_export": True,
                 "enable_images": True,
                 "enable_video_clips": False,
                 "enable_tts": True,
             },
             "generate_storyboard_html": {
-                "topic": goal,
+                "topic": topic,
                 "duration_seconds": 90,
                 "requirement": goal,
             },
             "generate_interactive_courseware": {
-                "topic": goal,
+                "topic": topic,
                 "interaction_type": "stepper",
                 "target_level": "undergraduate",
                 "requirement": goal,
@@ -770,8 +965,12 @@ class MiMoSupervisor:
             "优先调用有来源的知识检索工具；工具失败后调整方案，不要重复无效调用。"
             "交付物必须与用户意图一致：语音→synthesize_speech，普通短视频→generate_lesson_video，"
             "沉浸课堂/一键课程→generate_immersive_classroom，"
-            "插图→generate_educational_image，流程图→generate_diagram，练习→generate_quiz，"
+            "PPT/幻灯片/课件/slides/deck/keynote/网页ppt→generate_interactive_courseware（多页 HTML 互动课件，不是视频），"
+            "插图→generate_educational_image，流程图→generate_diagram，思维导图→generate_mindmap，练习→generate_quiz，"
             "纯答疑→answer_course_question，文字讲解资源→generate_explanation。"
+            "用户一句话包含多个交付物（如「二叉树 ppt 和队列思维导图」）时，必须分别调用对应工具，"
+            "每个工具的 topic/concept 只用该子任务的主题词，不要把整句当 topic。"
+            "用户说「讲解 ppt / 做一份幻灯片 / 课件」时，禁止调用 generate_lesson_video。"
             "禁止把文字资源、Markdown 或摘要冒充语音/视频/图片结果。"
             "当用户要求语音时，先准备讲解文本（检索/生成），再 synthesize_speech。"
             "当用户要求插图/知识卡片时：有文生图 API 则 generate_educational_image；"
@@ -781,8 +980,23 @@ class MiMoSupervisor:
             "若仍需工具，请直接发起 tool call，不要只返回 JSON 计划。"
             "不要输出隐式思维链，只输出简洁决策摘要。"
         )
+        goal = str(state.get("goal") or "")
+        recommended = supervisor_intents.plan_required_tools(
+            goal,
+            is_profile_update_only=self._is_profile_update_only_goal(goal),
+        )
         context = {
             "goal": state.get("goal"),
+            "recommended_tools": recommended,
+            "recommended_tool_labels": [
+                supervisor_intents.deliverable_label(name) for name in recommended
+            ],
+            "tool_topics": state.get("tool_topics") or supervisor_intents.parse_tool_topics(goal),
+            "parsed_intents": state.get("parsed_intents")
+            or [
+                {"segment": item.segment, "topic": item.topic, "tools": list(item.tools)}
+                for item in supervisor_intents.parse_goal_intents(goal)
+            ],
             "current_plan": state.get("current_plan") or [],
             "observations": (state.get("observations") or [])[-8:],
             "artifacts": state.get("artifacts") or [],

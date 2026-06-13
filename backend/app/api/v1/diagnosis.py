@@ -68,6 +68,20 @@ async def get_report(
     return success_response(report, request=request)
 
 
+@router.get("/live-summary")
+async def get_live_summary(
+    request: Request,
+    course_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    summary = await DiagnosisService(db).get_live_summary(
+        current_user=current_user,
+        course_id=course_id,
+    )
+    return success_response(summary, request=request)
+
+
 @router.get("/mastery")
 async def get_mastery(
     request: Request,

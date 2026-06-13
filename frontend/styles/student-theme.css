@@ -1,0 +1,22 @@
+/* Luminous Warmth — student workspace (Stitch + logged-in shell) */
+
+:root {
+  --zhixue-surface: #fcf9f8;
+  --zhixue-primary: #835400;
+  --zhixue-primary-container: #f9a826;
+  --zhixue-on-surface: #1c1b1b;
+  --zhixue-on-surface-variant: #524434;
+  --zhixue-error-container: #ffdad6;
+  --zhixue-on-error-container: #93000a;
+  --zhixue-tertiary-fixed: #dce3eb;
+  --motion-fast: 160ms;
+  --motion-normal: 280ms;
+  --motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --glass-blur: 30px;
+  --glass-fill: rgba(255, 255, 255, 0.52);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-shadow: 0 24px 70px rgba(131, 84, 0, 0.08);
+  --spacing-gutter: 16px;
+  --spacing-card-gap: 24px;
+}

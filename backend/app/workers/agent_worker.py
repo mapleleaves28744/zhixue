@@ -14,6 +14,8 @@ from app.services.agent_runtime_service import AgentRuntimeService
 from app.workers.multimodal_worker import run_multimodal_video_job
 from app.workers.immersive_classroom_worker import run_immersive_classroom_job
 from app.workers.classroom_video_export_worker import run_classroom_video_export_job
+from app.services.practice_prepush_service import run_prepush_practice_quiz_job
+from app.services.external_resource_prepush_service import run_prepush_external_feed_job
 
 
 async def recover_orphaned_agent_tasks(ctx: dict) -> None:
@@ -65,6 +67,8 @@ class WorkerSettings:
         run_multimodal_video_job,
         run_immersive_classroom_job,
         run_classroom_video_export_job,
+        run_prepush_practice_quiz_job,
+        run_prepush_external_feed_job,
     ]
     on_startup = recover_orphaned_agent_tasks
     redis_settings = RedisSettings.from_dsn(settings.redis_url)

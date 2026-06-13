@@ -16,7 +16,7 @@ router = APIRouter()
 async def list_recommendations(
     request: Request,
     course_id: UUID | None = Query(default=None),
-    status: str | None = Query(default="pending"),
+    status: str | None = Query(default="pending", description="pending/completed/ignored/stale；传 all 返回 pending 与 completed"),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
     current_user: User = Depends(get_current_user),

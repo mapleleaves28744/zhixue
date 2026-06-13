@@ -161,7 +161,46 @@ async def run_multimodal_video_job(ctx: dict, job_id: str) -> dict:
             await repo.mark_job_failed(job, str(exc))
             await db.commit()
             await _publish_progress(db, job, "failed", job.progress or 0, str(exc))
+            await _notify_agent_media_job_failed(db, job, str(exc))
             raise
+
+
+async def _notify_agent_media_job_failed(db, job, message: str) -> None:
+    if not job.agent_task_id:
+        return
+    try:
+        from app.repositories.agent_conversation_repository import AgentConversationRepository
+        from app.repositories.agent_task_repository import AgentTaskRepository
+        from app.services.agent_queue_service import AgentEventBroker
+
+        task_repo = AgentTaskRepository(db)
+        task = await task_repo.get_by_id(job.agent_task_id)
+        if task is None:
+            return
+        err = str(message)[:2000]
+        await task_repo.update_task(
+            task,
+            error_message=err,
+        )
+        event = await AgentConversationRepository(db).add_event(
+            task_id=task.id,
+            conversation_id=job.conversation_id,
+            event_type="failed",
+            payload={
+                "status": "failed",
+                "error_message": err,
+                "job_id": str(job.id),
+                "stage": "multimodal_job_failed",
+            },
+        )
+        await db.commit()
+        await AgentEventBroker().publish(
+            task.id,
+            "failed",
+            {"error_message": err, "sequence_no": event.sequence_no, "job_id": str(job.id)},
+        )
+    except Exception:
+        await db.rollback()
 
 
 async def _publish_progress(db, job, stage: str, progress: int, message: str, **extra) -> None:

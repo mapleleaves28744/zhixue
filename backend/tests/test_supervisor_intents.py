@@ -32,6 +32,11 @@ class DirectCompleteProvider:
         ("生成讲解队列的知识卡片", ["generate_educational_image"], ["generate_explanation"]),
         ("识别这段语音并转成文字", ["transcribe_audio"], ["synthesize_speech"]),
         ("把这段文字朗读出来", ["synthesize_speech"], ["transcribe_audio", "generate_explanation"]),
+        ("生成图和二叉树的讲解ppt", ["generate_interactive_courseware"], ["generate_lesson_video"]),
+        ("做一份二叉树 slides", ["generate_interactive_courseware"], ["generate_lesson_video"]),
+        ("生成栈的网页幻灯片", ["generate_interactive_courseware"], ["generate_lesson_video"]),
+        ("生成二叉树ppt和队列思维导图", ["generate_interactive_courseware", "generate_mindmap"], ["generate_lesson_video"]),
+        ("帮我做二叉树幻灯片，再画一张队列的流程图", ["generate_interactive_courseware", "generate_diagram"], []),
     ],
 )
 def test_plan_required_tools_avoids_common_collisions(
@@ -60,6 +65,77 @@ def test_plan_required_tools_avoids_common_collisions(
 )
 def test_required_deliverables(goal: str, deliverable: str) -> None:
     assert deliverable in supervisor_intents.required_deliverables(goal)
+
+
+@pytest.mark.asyncio
+async def test_supervisor_intent_first_routes_ppt_without_llm() -> None:
+    class ShouldNotCallProvider:
+        async def chat(self, messages, **kwargs):
+            raise AssertionError("明确 PPT 意图时不应再让 LLM 自由选工具")
+
+    supervisor = MiMoSupervisor(provider=ShouldNotCallProvider())
+    tools = [
+        {
+            "type": "function",
+            "function": {"name": name, "description": name, "parameters": {"type": "object"}},
+        }
+        for name in ("search_course_knowledge", "generate_interactive_courseware", "generate_lesson_video")
+    ]
+    decision = await supervisor.decide(
+        {
+            "goal": "生成图和二叉树的讲解ppt",
+            "messages": [],
+            "observations": [],
+            "tool_calls": [],
+            "tool_call_count": 0,
+        },
+        tools,
+    )
+    assert decision.status == "continue"
+    assert any(call.name == "generate_interactive_courseware" for call in decision.tool_calls)
+    assert all(call.name != "generate_lesson_video" for call in decision.tool_calls)
+
+
+@pytest.mark.asyncio
+async def test_supervisor_corrects_wrong_video_tool_for_ppt_goal() -> None:
+    class WrongVideoProvider:
+        async def chat(self, messages, **kwargs):
+            return ChatResponse(
+                content="",
+                finish_reason="tool_calls",
+                tool_calls=[
+                    ToolCall(
+                        id="call_video",
+                        name="generate_lesson_video",
+                        arguments={"topic": "图和二叉树"},
+                    ),
+                ],
+            )
+
+    supervisor = MiMoSupervisor(provider=WrongVideoProvider())
+    tools = [
+        {
+            "type": "function",
+            "function": {"name": name, "description": name, "parameters": {"type": "object"}},
+        }
+        for name in (
+            "search_course_knowledge",
+            "generate_lesson_video",
+            "generate_interactive_courseware",
+        )
+    ]
+    decision = await supervisor.decide(
+        {
+            "goal": "生成图和二叉树的讲解ppt",
+            "messages": [],
+            "observations": [{"success": True, "tool_name": "search_course_knowledge", "output": {}}],
+            "tool_calls": [],
+            "tool_call_count": 1,
+        },
+        tools,
+    )
+    assert decision.status == "continue"
+    assert decision.tool_calls[0].name == "generate_interactive_courseware"
 
 
 @pytest.mark.asyncio
@@ -131,6 +207,7 @@ async def test_supervisor_native_tool_calls_not_overridden_by_keywords() -> None
             "messages": [],
             "observations": [],
             "tool_calls": [],
+            "tool_call_count": 1,
         },
         [
             {
@@ -212,3 +289,69 @@ async def test_supervisor_blocks_text_only_completion_for_quiz_goal() -> None:
     )
     assert decision.status == "continue"
     assert decision.tool_calls[0].name == "generate_quiz"
+
+
+@pytest.mark.parametrize(
+    ("goal", "expected"),
+    [
+        (
+            "生成二叉树ppt和队列思维导图",
+            {
+                "generate_interactive_courseware": "二叉树",
+                "generate_mindmap": "队列",
+            },
+        ),
+        (
+            "帮我做二叉树幻灯片，再画一张队列的流程图",
+            {
+                "generate_interactive_courseware": "二叉树",
+                "generate_diagram": "队列",
+            },
+        ),
+    ],
+)
+def test_parse_tool_topics_for_multi_intent(goal: str, expected: dict[str, str]) -> None:
+    topics = supervisor_intents.parse_tool_topics(goal)
+    for tool, topic in expected.items():
+        assert topics.get(tool) == topic, f"{goal!r} -> {topics}"
+
+
+@pytest.mark.asyncio
+async def test_supervisor_intent_first_routes_multi_intent_with_topics() -> None:
+    class ShouldNotCallProvider:
+        async def chat(self, messages, **kwargs):
+            raise AssertionError("多意图明确时不应交给 LLM 自由选工具")
+
+    supervisor = MiMoSupervisor(provider=ShouldNotCallProvider())
+    tools = [
+        {
+            "type": "function",
+            "function": {"name": name, "description": name, "parameters": {"type": "object"}},
+        }
+        for name in (
+            "search_course_knowledge",
+            "generate_interactive_courseware",
+            "generate_mindmap",
+            "generate_lesson_video",
+        )
+    ]
+    tool_topics = supervisor_intents.parse_tool_topics("生成二叉树ppt和队列思维导图")
+    decision = await supervisor.decide(
+        {
+            "goal": "生成二叉树ppt和队列思维导图",
+            "messages": [],
+            "observations": [],
+            "tool_calls": [],
+            "tool_call_count": 0,
+            "tool_topics": tool_topics,
+        },
+        tools,
+    )
+    assert decision.status == "continue"
+    names = [call.name for call in decision.tool_calls]
+    assert "generate_interactive_courseware" in names
+    assert "generate_mindmap" in names
+    courseware = next(call for call in decision.tool_calls if call.name == "generate_interactive_courseware")
+    mindmap = next(call for call in decision.tool_calls if call.name == "generate_mindmap")
+    assert courseware.arguments.get("topic") == "二叉树"
+    assert mindmap.arguments.get("topic") == "队列"

@@ -197,6 +197,41 @@ class DiagnosisService:
 
         return {"items": items, "course_id": str(course_id) if course_id else None}
 
+    async def get_live_summary(
+        self,
+        *,
+        current_user: User,
+        course_id: UUID,
+    ) -> dict[str, Any]:
+        await CourseService(self.db).get_readable_course(course_id, current_user)
+        answer_records = await self._list_recent_answers(current_user.id, course_id)
+        mistake_records = await self._list_mistakes(current_user.id, course_id)
+        mastery = await self.get_mastery(user_id=current_user.id, course_id=course_id)
+        stats = self._answer_stats(answer_records)
+        weak_points = self._build_weak_points(mastery["items"], mistake_records)
+        error_patterns = self._build_error_patterns(answer_records, mistake_records)
+        recommended_actions = self._build_recommended_actions(
+            weak_points,
+            error_patterns,
+        )
+        summary = self._default_summary(answer_records, weak_points)
+        weaknesses = [
+            f"{item.get('knowledge_name')}（掌握度 {float(item.get('mastery_level') or 0):.0%}）"
+            for item in weak_points
+        ]
+        return {
+            "live": True,
+            "summary": summary,
+            "accuracy": stats["accuracy"],
+            "total_questions": stats["total_questions"],
+            "correct_answers": stats["correct_answers"],
+            "weak_points": weak_points,
+            "weaknesses": weaknesses,
+            "error_patterns": error_patterns,
+            "recommended_actions": recommended_actions,
+            "recommendations": [item.get("title") for item in recommended_actions if item.get("title")],
+        }
+
     async def _list_recent_answers(self, user_id: UUID, course_id: UUID) -> list[AnswerRecord]:
         stmt = (
             select(AnswerRecord)

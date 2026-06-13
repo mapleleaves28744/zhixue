@@ -7,7 +7,12 @@ from app.core.deps import require_student
 from app.core.response import page_response, success_response
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.resource import ResourceGenerateRequest, ResourceSaveToWikiRequest
+from app.schemas.resource import (
+    ExternalResourceFeedRead,
+    ResourceGenerateRequest,
+    ResourceSaveToWikiRequest,
+)
+from app.services.external_resource_feed_service import ExternalResourceFeedService
 from app.services.resource_service import ResourceService
 
 
@@ -31,6 +36,22 @@ async def generate_resource(
         current_user=current_user,
     )
     return success_response(data.model_dump(mode="json"), request=request)
+
+
+@router.get("/external-feed")
+async def get_external_resource_feed(
+    request: Request,
+    course_id: UUID = Query(...),
+    refresh: bool = Query(default=False),
+    current_user: User = Depends(require_student),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    data = await ExternalResourceFeedService(db).build_feed(
+        current_user=current_user,
+        course_id=course_id,
+        refresh=refresh,
+    )
+    return success_response(ExternalResourceFeedRead.model_validate(data).model_dump(mode="json"), request=request)
 
 
 @router.get("")

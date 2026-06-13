@@ -114,6 +114,12 @@ class Settings(BaseSettings):
     agnes_video_url_json_path: str = Field(default="video_url", alias="AGNES_VIDEO_URL_JSON_PATH")
     agnes_video_status_json_path: str = Field(default="status", alias="AGNES_VIDEO_STATUS_JSON_PATH")
 
+    # ── AnySearch 联网搜索 ──
+    anysearch_enabled: bool = Field(default=True, alias="ANYSEARCH_ENABLED")
+    anysearch_api_key: str = Field(default="", alias="ANYSEARCH_API_KEY")
+    anysearch_base_url: str = Field(default="https://api.anysearch.com/mcp", alias="ANYSEARCH_BASE_URL")
+    anysearch_timeout_seconds: int = Field(default=30, alias="ANYSEARCH_TIMEOUT_SECONDS")
+
     agent_max_iterations: int = Field(default=15, alias="AGENT_MAX_ITERATIONS")
     agent_max_tool_calls: int = Field(default=30, alias="AGENT_MAX_TOOL_CALLS")
     agent_max_replans: int = Field(default=5, alias="AGENT_MAX_REPLANS")

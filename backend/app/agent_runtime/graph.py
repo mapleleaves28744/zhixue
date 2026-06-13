@@ -88,6 +88,8 @@ class LearningAgentGraph:
         max_replans: int = 5,
         tool_hints: list[str] | None = None,
         skip_tools: list[str] | None = None,
+        tool_topics: dict[str, str] | None = None,
+        parsed_intents: list[dict[str, Any]] | None = None,
     ) -> AgentState:
         initial: AgentState = {
             "task_id": str(task_id),
@@ -118,6 +120,8 @@ class LearningAgentGraph:
             "approved_tool_call_ids": [],
             "tool_hints": tool_hints or [],
             "skip_tools": skip_tools or [],
+            "tool_topics": tool_topics or {},
+            "parsed_intents": parsed_intents or [],
         }
         result = await self.graph.ainvoke(
             initial,
@@ -201,7 +205,7 @@ class LearningAgentGraph:
         if state.get("status") in {"failed", "waiting_confirmation"}:
             return "finalize"
         if state.get("status") == "complete":
-            if is_simple_greeting(str(state.get("goal") or "")):
+            if is_simple_greeting(str(state.get("goal") or "")) or self._is_fast_lookup_task(state):
                 return "finalize"
             return "review"
         if state.get("pending_tool_calls"):
@@ -394,3 +398,16 @@ class LearningAgentGraph:
     def _budget_message(self, state: AgentState) -> str:
         completed = len(state.get("artifacts") or [])
         return f"智能体已停止继续执行，当前已生成 {completed} 个产物。请查看执行记录后继续。"
+
+    @staticmethod
+    def _is_fast_lookup_task(state: AgentState) -> bool:
+        """纯检索/联网搜索任务跳过 Review 与长期记忆，加快返回最终回答。"""
+        completed = {
+            str(item.get("tool_name"))
+            for item in state.get("observations") or []
+            if item.get("success") is True and item.get("tool_name")
+        }
+        if not completed:
+            return False
+        lookup_tools = {"search_web", "search_course_knowledge", "answer_course_question"}
+        return completed.issubset(lookup_tools)

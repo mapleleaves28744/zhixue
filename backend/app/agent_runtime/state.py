@@ -53,3 +53,5 @@ class AgentState(TypedDict, total=False):
     approved_tool_call_ids: list[str]
     tool_hints: list[str]
     skip_tools: list[str]
+    tool_topics: dict[str, str]
+    parsed_intents: list[dict[str, Any]]

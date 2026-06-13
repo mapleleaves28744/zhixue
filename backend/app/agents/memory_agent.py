@@ -73,7 +73,7 @@ class MemoryAgent(BaseAgent):
                 course_id=scoped_course_id,
                 memory_type=m.get("memory_type", "insight"),
                 content=m.get("content", ""),
-                evidence=m.get("evidence", []),
+                evidence=MemoryService.normalize_evidence(m.get("evidence", [])),
                 confidence=m.get("confidence", 0.8),
             )
             actions.append(action)

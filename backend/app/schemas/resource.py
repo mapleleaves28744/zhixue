@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -13,15 +13,16 @@ RESOURCE_TYPE_ALIASES: dict[str, str] = {
     "例题": "example",
     "复习卡": "flashcard",
     "错题解析": "review",
-    "思维导图": "mindmap",
-    "脑图": "mindmap",
-    "图解": "diagram",
-    "流程图": "diagram",
-    "架构图": "diagram",
-    "示意图": "diagram",
+    "思维导图": "image",
+    "脑图": "image",
+    "图解": "image",
+    "流程图": "image",
+    "架构图": "image",
     "explain": "explanation",
     "note": "summary",
-    "mind_map": "mindmap",
+    "mind_map": "image",
+    "mindmap": "image",
+    "diagram": "image",
     "图片": "image",
     "教学插图": "image",
     "视频": "video",
@@ -92,6 +93,31 @@ class GeneratedResourceRead(BaseModel):
     media_file_url: str | None = None
     content_format: str | None = None
     preview_mode: str | None = None
+    media_job_id: UUID | None = None
+    job_status: str | None = None
+    preview_video_asset_id: UUID | None = None
+    preview_video_mime_type: str | None = None
+
+
+class ExternalResourceItemRead(BaseModel):
+    kind: Literal["video", "blog", "repo"]
+    topic: str = ""
+    title: str
+    url: str
+    snippet: str = ""
+    source_domain: str = ""
+    reason: str = ""
+
+
+class ExternalResourceFeedRead(BaseModel):
+    primary_topic: str
+    topics: list[str] = Field(default_factory=list)
+    reason: str
+    items: list[ExternalResourceItemRead] = Field(default_factory=list)
+    cached: bool = False
+    prepush_status: str = "none"
+    provider: str = "anysearch"
+    message: str = ""
 
 
 class ResourceGenerateResponse(BaseModel):
@@ -113,3 +139,6 @@ class ResourceGenerateResponse(BaseModel):
     media_file_url: str | None = None
     content_format: str | None = None
     preview_mode: str | None = None
+    media_job_id: UUID | None = None
+    job_status: str | None = None
+    job_message: str | None = None

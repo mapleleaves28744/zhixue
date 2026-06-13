@@ -217,25 +217,27 @@
 </div>
 </div>
 </div>
-<!-- Recent Activity Feed -->
+<!-- External Learning Resources -->
 <section class="mt-12 mb-10 relative z-10">
 <div class="flex justify-between items-end mb-6">
 <div>
-<h3 class="font-headline-sm text-headline-sm">最近活动</h3>
-<p class="text-on-surface-variant text-body-md">记录你在智学工坊的点滴成长</p>
+<h3 class="font-headline-sm text-headline-sm">为你推荐的学习资源</h3>
+<p class="text-on-surface-variant text-body-md" id="home-external-resource-subtitle">基于你的最近提问与薄弱点，推送 B 站视频、技术博客与 GitHub 项目</p>
 </div>
-<button class="text-primary font-label-md text-label-md hover:underline" id="home-view-all-logs">查看全部日志</button>
+<button class="text-primary font-label-md text-label-md hover:underline" id="home-refresh-external-feed" type="button">换一批</button>
 </div>
-<div class="space-y-4" id="home-activity-feed">
-<div class="glass-card rounded-2xl p-6 flex items-center gap-6">
-<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-container">
-<span class="material-symbols-outlined">sync</span>
+<div id="home-external-resource-topics" class="mb-4 flex flex-wrap gap-2"></div>
+<div class="glass-card rounded-2xl p-3" style="max-height:400px;overflow:hidden;">
+<div class="space-y-3 pr-1 custom-scrollbar" id="home-external-resource-feed" aria-label="推荐资源列表" style="max-height:380px;min-height:220px;overflow-y:auto;overscroll-behavior:contain;">
+<div class="glass-card rounded-2xl p-5 flex items-center gap-5">
+<div class="w-11 h-11 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined animate-pulse">travel_explore</span>
 </div>
 <div class="flex-1">
-<p class="font-label-md text-label-md">正在同步最近学习活动...</p>
-<p class="text-xs text-on-surface-variant/60">登录后展示真实 Tutor、练习、诊断与 Agent 日志</p>
+<p class="font-label-md text-label-md">正在加载推荐资源…</p>
+<p class="text-xs text-on-surface-variant/60">仅在此列表内滚动浏览，不影响页面其它区域</p>
 </div>
-<div class="text-primary font-bold">--</div>
+</div>
 </div>
 </div>
 </section>
@@ -272,8 +274,11 @@
         const practiceGoalPercent = document.getElementById("home-practice-goal-percent");
         const practiceGoalBar = document.getElementById("home-practice-goal-bar");
         const weakPointTitle = document.getElementById("home-weak-point-title");
-        const activityFeed = document.getElementById("home-activity-feed");
-        const viewAllLogsButton = document.getElementById("home-view-all-logs");
+        const externalResourceFeed = document.getElementById("home-external-resource-feed");
+        const externalResourceTopics = document.getElementById("home-external-resource-topics");
+        const externalResourceSubtitle = document.getElementById("home-external-resource-subtitle");
+        const refreshExternalFeedButton = document.getElementById("home-refresh-external-feed");
+        let currentHomeCourseId = null;
         const analyticsPeriod = document.getElementById("analytics-period");
         const analyticsActiveHours = document.getElementById("analytics-active-hours");
         const analyticsMastery = document.getElementById("analytics-mastery");
@@ -402,86 +407,144 @@
             });
         }
 
-        function relativeTime(value) {
-            if (!value) return "刚刚";
-            const date = new Date(value);
-            const diff = Date.now() - date.getTime();
-            if (!Number.isFinite(diff)) return api?.formatDate ? api.formatDate(value) : "刚刚";
-            const minutes = Math.max(0, Math.floor(diff / 60000));
-            if (minutes < 1) return "刚刚";
-            if (minutes < 60) return `${minutes} 分钟前`;
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `${hours} 小时前`;
-            const days = Math.floor(hours / 24);
-            if (days < 7) return `${days} 天前`;
-            return api?.formatDate ? api.formatDate(value) : "较早";
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
         }
 
-        function activityIcon(type, source) {
-            if (type === "quiz_submit") return "history_edu";
-            if (type === "chat") return "smart_toy";
-            if (type === "save_tutor_answer") return "auto_stories";
-            if (type === "feedback") return "thumb_up";
-            if (source === "agent") return "account_tree";
-            return "school";
+        function externalResourceMeta(kind) {
+            if (kind === "video") return { icon: "play_circle", label: "B 站视频" };
+            if (kind === "repo") return { icon: "code", label: "GitHub" };
+            return { icon: "article", label: "技术博客" };
         }
 
-        function activityTitle(record) {
-            const payload = record.event_payload || {};
-            if (record.event_type === "quiz_submit") {
-                const correct = Number(payload.correct_count || 0);
-                const total = Number(payload.submitted_count || payload.total_questions || 0);
-                return `完成了一次练习提交${total ? `，正确 ${correct}/${total}` : ""}`;
+        function renderExternalResourceTopics(topics) {
+            if (!externalResourceTopics) return;
+            const list = (topics || []).filter(Boolean).slice(0, 5);
+            if (!list.length) {
+                externalResourceTopics.innerHTML = "";
+                return;
             }
-            if (record.event_type === "chat") {
-                return `向 AI Tutor 提问：${String(payload.question || "课程问题").slice(0, 32)}`;
-            }
-            if (record.event_type === "save_tutor_answer") {
-                return `沉淀到个人 Wiki：${payload.wiki_page_title || "AI Tutor 问答"}`;
-            }
-            if (record.agent_name) {
-                return `${record.agent_name} 完成 ${record.task_type || "学习任务"}`;
-            }
-            return record.event_type || "学习活动";
+            externalResourceTopics.innerHTML = list.map((topic) => `
+                <span class="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">${escapeHtml(topic)}</span>
+            `).join("");
         }
 
-        function renderActivityFeed(records, agentRuns) {
-            if (!activityFeed) return;
-            const activityItems = (records || []).map((record) => ({
-                title: activityTitle(record),
-                subtitle: `${relativeTime(record.created_at)} • ${record.event_source || "learning"}`,
-                icon: activityIcon(record.event_type, record.event_source),
-                score: record.event_type === "quiz_submit" ? "+250 XP" : "+80 XP",
-                created_at: record.created_at,
-            }));
-            const runItems = (agentRuns || []).map((run) => ({
-                title: activityTitle(run),
-                subtitle: `${relativeTime(run.created_at)} • ${run.status || "unknown"}${run.duration_ms ? ` • ${run.duration_ms}ms` : ""}`,
-                icon: "account_tree",
-                score: run.status === "success" ? "已完成" : run.status || "--",
-                created_at: run.created_at,
-            }));
-            const items = [...activityItems, ...runItems]
-                .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
-                .slice(0, 3);
+        function renderExternalResourceLoading(message) {
+            if (!externalResourceFeed) return;
+            externalResourceFeed.innerHTML = `
+                <div class="glass-card rounded-2xl p-5 flex items-center gap-5">
+                    <div class="w-11 h-11 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-container">
+                        <span class="material-symbols-outlined animate-pulse">travel_explore</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-label-md text-label-md">${escapeHtml(message || "正在加载推荐资源…")}</p>
+                        <p class="text-xs text-on-surface-variant/60">仅在此列表内滚动浏览，不影响页面其它区域</p>
+                    </div>
+                </div>`;
+        }
+
+        function renderExternalResourceFeed(feed) {
+            if (!externalResourceFeed) return;
+            const items = feed?.items || [];
+            renderExternalResourceTopics(feed?.topics || []);
+            if (externalResourceSubtitle) {
+                externalResourceSubtitle.textContent = feed?.reason || "基于你的最近提问与薄弱点，推送 B 站视频、技术博客与 GitHub 项目";
+            }
             if (!items.length) {
-                activityFeed.innerHTML = homeEmptyStateHtml(
-                    "暂无真实活动记录",
-                    "完成一次问答、练习或诊断后，这里会自动更新。"
+                externalResourceFeed.innerHTML = homeEmptyStateHtml(
+                    feed?.prepush_status === "generating" ? "资源准备中" : "暂无外部资源推荐",
+                    feed?.message || "先去助手问一个问题，我们会为你推送相关博客、视频与 GitHub 项目。"
                 );
                 return;
             }
-            activityFeed.innerHTML = items.map((item) => `
-                <div class="glass-card rounded-2xl p-6 flex items-center gap-6">
-                    <div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-container">
-                        <span class="material-symbols-outlined">${item.icon}</span>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-label-md text-label-md">${item.title}</p>
-                        <p class="text-xs text-on-surface-variant/60">${item.subtitle}</p>
-                    </div>
-                    <div class="text-primary font-bold">${item.score}</div>
-                </div>`).join("");
+            externalResourceFeed.innerHTML = items.map((item, index) => {
+                const meta = externalResourceMeta(item.kind);
+                return `
+                    <button type="button" class="glass-card rounded-2xl p-5 flex items-start gap-5 w-full text-left hover:shadow-lg transition-shadow" data-external-resource-index="${index}">
+                        <div class="w-11 h-11 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-container shrink-0">
+                            <span class="material-symbols-outlined">${meta.icon}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <span class="text-[11px] font-bold uppercase tracking-wide text-primary">${escapeHtml(meta.label)}</span>
+                                ${item.topic ? `<span class="text-[11px] px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">${escapeHtml(item.topic)}</span>` : ""}
+                                ${item.source_domain ? `<span class="text-[11px] text-on-surface-variant/60">${escapeHtml(item.source_domain)}</span>` : ""}
+                            </div>
+                            <p class="font-label-md text-label-md line-clamp-2">${escapeHtml(item.title || "外部资源")}</p>
+                            ${item.snippet ? `<p class="text-xs text-on-surface-variant/70 mt-1 line-clamp-2">${escapeHtml(item.snippet)}</p>` : ""}
+                        </div>
+                        <span class="material-symbols-outlined text-primary shrink-0">open_in_new</span>
+                    </button>`;
+            }).join("");
+            externalResourceFeed.querySelectorAll("[data-external-resource-index]").forEach((node) => {
+                node.addEventListener("click", () => {
+                    const item = items[Number(node.dataset.externalResourceIndex)];
+                    if (!item?.url) return;
+                    window.open(item.url, "_blank", "noopener,noreferrer");
+                    void api.trackLearningEvent?.({
+                        course_id: currentHomeCourseId,
+                        event_type: "external_resource_click",
+                        event_payload: {
+                            kind: item.kind,
+                            title: item.title,
+                            url: item.url,
+                            surface: "home_external_feed",
+                        },
+                    });
+                });
+            });
+        }
+
+        async function pollExternalResourceFeed(courseId, { refresh = false, maxAttempts = 25 } = {}) {
+            for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+                const feed = await api.getExternalResourceFeed(courseId, { refresh: refresh && attempt === 0 });
+                if ((feed.items || []).length > 0 || feed.prepush_status !== "generating") {
+                    renderExternalResourceFeed(feed);
+                    return feed;
+                }
+                renderExternalResourceFeed(feed);
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+            }
+            renderExternalResourceFeed({
+                items: [],
+                message: "资源仍在准备，请稍后再试或点击换一批。",
+            });
+            return null;
+        }
+
+        async function loadExternalResourceFeed(courseId, { refresh = false } = {}) {
+            if (!externalResourceFeed || !courseId || !api.getExternalResourceFeed) {
+                return;
+            }
+            currentHomeCourseId = courseId;
+            if (refresh) {
+                renderExternalResourceLoading("正在换一批资源…");
+            } else {
+                renderExternalResourceLoading();
+            }
+            try {
+                const feed = await api.getExternalResourceFeed(courseId, { refresh });
+                if ((feed.items || []).length > 0) {
+                    renderExternalResourceFeed(feed);
+                    return;
+                }
+                if (feed.prepush_status === "generating") {
+                    await pollExternalResourceFeed(courseId, { refresh: false });
+                    return;
+                }
+                renderExternalResourceFeed(feed);
+            } catch (error) {
+                console.warn("[home] external resource feed failed", error);
+                renderExternalResourceFeed({
+                    items: [],
+                    message: "外部资源加载失败，请稍后点击换一批重试。",
+                });
+            }
         }
 
         function renderPracticeSummary({ quizzes = [], reports = [], mastery = {}, mistakes = [] }) {
@@ -519,6 +582,7 @@
             if (!api || !api.getToken()) {
                 setText(latestWikiTitle, "登录后同步你的 Wiki");
                 setText(latestMaterialTitle, "登录后同步你的资料");
+                renderExternalResourceFeed({ items: [], message: "登录后为你推送个性化外部学习资源。" });
                 return;
             }
 
@@ -542,19 +606,17 @@
                 bindCardNavigation(latestWikiCard, knowledgePath);
                 bindCardNavigation(latestMaterialCard, knowledgePath);
                 bindCardNavigation(practiceDiagnosisCard, practicePath);
-                if (viewAllLogsButton) {
-                    viewAllLogsButton.addEventListener("click", () => api.navigate(pathProfilePath));
+                if (refreshExternalFeedButton) {
+                    refreshExternalFeedButton.onclick = () => loadExternalResourceFeed(course.id, { refresh: true });
                 }
 
-                const [wikiPage, materialPage, quizzes, reports, mastery, mistakes, records, agentRuns, analytics, learningPaths] = await Promise.all([
+                const [wikiPage, materialPage, quizzes, reports, mastery, mistakes, analytics, learningPaths] = await Promise.all([
                     api.listWikiPages(course.id, { pageSize: 1 }).catch(() => ({ items: [] })),
                     api.listMaterials(course.id, { pageSize: 1 }).catch(() => ({ items: [] })),
                     safeApiCall(() => api.listQuizzes(course.id, { pageSize: 20 }), { items: [] }),
                     safeApiCall(() => api.listDiagnosisReports(course.id, { pageSize: 3 }), { items: [] }),
                     safeApiCall(() => api.getMastery(course.id), { items: [] }),
                     safeApiCall(() => api.listMistakes(course.id, { pageSize: 3 }), { items: [] }),
-                    safeApiCall(() => api.listLearningRecords(course.id, { limit: 8 }), { items: [] }),
-                    safeApiCall(() => api.listAgentRuns({ pageSize: 5 }), { items: [] }),
                     safeApiCall(() => api.learningAnalyticsSummary(course.id, analyticsPeriod?.value || "week"), { active_hours: 0, mastery: null, daily: [] }),
                     safeApiCall(() => api.listLearningPaths(course.id, { pageSize: 5 }), { items: [] }),
                 ]);
@@ -569,7 +631,7 @@
                     mastery,
                     mistakes: mistakes.items || [],
                 });
-                renderActivityFeed(records.items || [], agentRuns.items || []);
+                void loadExternalResourceFeed(course.id);
                 renderLearningAnalyticsSummary(analytics);
                 renderLearningPathSummary(learningPaths, course);
             } catch (error) {
@@ -587,7 +649,7 @@
                 bindCardNavigation(latestWikiCard, "/knowledge");
                 bindCardNavigation(latestMaterialCard, "/knowledge");
                 bindCardNavigation(practiceDiagnosisCard, "/practice");
-                renderActivityFeed([], []);
+                renderExternalResourceFeed({ items: [], message: "外部资源加载失败，请稍后重试。" });
                 console.warn("[home] 知识库更新同步失败", error);
             }
         }

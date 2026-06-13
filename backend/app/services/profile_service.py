@@ -603,12 +603,31 @@ class ProfileService:
             await self.db.refresh(profile)
         return profile
 
+    def _format_point_names(self, items: list, *, limit: int = 4) -> str:
+        names: list[str] = []
+        for item in items[:limit]:
+            if isinstance(item, str):
+                cleaned = item.strip()
+                if cleaned:
+                    names.append(cleaned)
+            elif isinstance(item, dict):
+                name = str(
+                    item.get("knowledge_name") or item.get("name") or item.get("pattern") or ""
+                ).strip()
+                if name:
+                    names.append(name)
+        return "、".join(names)
+
     def _course_summary(self, profile: StudentCourseProfile) -> str:
         parts = []
         if profile.learning_goal:
             parts.append(f"课程目标：{profile.learning_goal}")
         if profile.weak_points:
-            parts.append(f"薄弱点：{profile.weak_points[:4]}")
+            weak = self._format_point_names(profile.weak_points)
+            if weak:
+                parts.append(f"薄弱点：{weak}")
         if profile.error_patterns:
-            parts.append(f"错误模式：{profile.error_patterns[:4]}")
+            errors = self._format_point_names(profile.error_patterns)
+            if errors:
+                parts.append(f"常见错误：{errors}")
         return "；".join(parts) or "当前课程画像正在积累真实学习证据。"

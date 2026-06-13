@@ -76,22 +76,65 @@ class LearningAnalyticsService:
 
         total = int((await self.db.execute(select(func.coalesce(func.sum(LearningSession.active_seconds), 0)).where(*session_filter))).scalar() or 0)
         rows = (await self.db.execute(select(LearningSession).where(*session_filter))).scalars().all()
-        daily_map: dict[str, int] = {}
+        active_map: dict[str, int] = {}
         for row in rows:
-            key = row.started_at.date().isoformat()
-            daily_map[key] = daily_map.get(key, 0) + row.active_seconds
+            started_at = row.started_at
+            if started_at.tzinfo is None:
+                started_at = started_at.replace(tzinfo=UTC)
+            key = started_at.date().isoformat()
+            active_map[key] = active_map.get(key, 0) + int(row.active_seconds or 0)
+
+        record_rows = (
+            await self.db.execute(select(LearningRecord.created_at).where(*record_filter))
+        ).scalars().all()
+        activity_map: dict[str, int] = {}
+        for created_at in record_rows:
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=UTC)
+            key = created_at.date().isoformat()
+            activity_map[key] = activity_map.get(key, 0) + 1
+
         mastery = (await self.db.execute(select(func.avg(StudentKnowledgeMastery.mastery_score)).where(*mastery_filter))).scalar()
-        record_rows = (await self.db.execute(select(LearningRecord.event_type, func.count()).where(*record_filter).group_by(LearningRecord.event_type))).all()
-        raw_counts = {str(key): int(count) for key, count in record_rows}
+        event_rows = (await self.db.execute(select(LearningRecord.event_type, func.count()).where(*record_filter).group_by(LearningRecord.event_type))).all()
+        raw_counts = {str(key): int(count) for key, count in event_rows}
+        daily = self._build_daily_series(
+            now=now,
+            period=normalized_period,
+            active_map=active_map,
+            activity_map=activity_map,
+        )
         return LearningAnalyticsSummary(
             period=normalized_period,
             active_seconds=total,
             active_hours=round(total / 3600, 1),
             mastery=round(float(mastery) * 100, 1) if mastery is not None else None,
-            daily=[{"date": key, "active_seconds": value} for key, value in sorted(daily_map.items())],
+            daily=daily,
             counts={
                 "qa": sum(v for k, v in raw_counts.items() if "ask" in k or "chat" in k),
                 "practice": sum(v for k, v in raw_counts.items() if "practice" in k or "quiz" in k),
                 "knowledge": sum(v for k, v in raw_counts.items() if "wiki" in k or "knowledge" in k),
             },
         )
+
+    @staticmethod
+    def _build_daily_series(
+        *,
+        now: datetime,
+        period: str,
+        active_map: dict[str, int],
+        activity_map: dict[str, int],
+    ) -> list[dict[str, object]]:
+        day_count = 7 if period == "week" else 30
+        today = now.astimezone(UTC).date()
+        series: list[dict[str, object]] = []
+        for offset in range(day_count - 1, -1, -1):
+            day = today - timedelta(days=offset)
+            key = day.isoformat()
+            series.append(
+                {
+                    "date": key,
+                    "active_seconds": active_map.get(key, 0),
+                    "activity_count": activity_map.get(key, 0),
+                }
+            )
+        return series

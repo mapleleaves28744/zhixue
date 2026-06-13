@@ -113,6 +113,18 @@
 </select>
 </div>
 </div>
+<div id="practice-push-banner" class="hidden mt-5 rounded-xl border border-primary/20 bg-primary/5 p-4">
+<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+<div>
+<p class="text-xs font-bold uppercase tracking-wide text-primary">根据最近提问推荐</p>
+<p id="practice-push-title" class="mt-1 text-sm font-bold text-on-background"></p>
+<p id="practice-push-reason" class="mt-1 text-xs leading-6 text-on-surface-variant"></p>
+</div>
+<button id="practice-push-generate-button" type="button" class="px-5 py-2.5 bg-primary text-white rounded-lg font-bold text-sm shadow-md shadow-primary/20 hover:shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2" onclick="generateRecommendedQuiz()">
+<span class="material-symbols-outlined text-lg">bolt</span> 重新生成
+</button>
+</div>
+</div>
 <div class="mt-6 flex justify-end">
 <button id="generate-quiz-button" class="px-8 py-2.5 bg-primary text-white rounded-lg font-bold text-sm shadow-md shadow-primary/20 hover:shadow-lg active:scale-95 transition-all flex items-center gap-2" onclick="generateQuizzes()">
 <span class="material-symbols-outlined text-lg">auto_awesome</span> AI 生成练习题
@@ -190,6 +202,7 @@
         let isGenerating = false;
         let isSubmitting = false;
         let quizRenderMode = 'inline';
+        let practiceSuggestion = null;
         const sideDiagnosisSection = document.getElementById('practice-diagnosis-section');
         const sideRecommendationSection = document.getElementById('practice-recommendation-section');
         const sideProgressCard = document.getElementById('practice-progress-card');
@@ -214,6 +227,7 @@
             if (!container) return;
             if (activeLabel === '练习生成') {
                 if (originalPracticeHTML) container.innerHTML = originalPracticeHTML;
+                void refreshSideMasteryPanel();
             } else if (activeLabel === '错题本') {
                 loadWrongQuestions();
             } else if (activeLabel === '诊断报告') {
@@ -246,33 +260,141 @@
             btn.className = 'px-3 py-2 bg-secondary-container text-on-secondary-container border border-secondary/20 rounded-lg text-sm font-bold shadow-sm';
         }
 
-        function renderQuizPlaceholder() {
+        function renderQuizPlaceholder(message) {
             const resultSection = document.getElementById('quiz-result-section');
             if (!resultSection) return;
             resultSection.innerHTML = emptyState(
                 '还没有练习题',
-                '选择题型、难度和知识点后，点击「AI 生成练习题」，题目会出现在这里。',
+                message || '选择题型、难度和知识点后，点击「AI 生成练习题」，题目会出现在这里。',
                 'empty',
             );
             resultSection.classList.add('practice-quiz-enter');
         }
 
-        async function loadTopicOptions() {
+        function renderPrepushWaiting(suggestion) {
+            const resultSection = document.getElementById('quiz-result-section');
+            if (!resultSection) return;
+            const topic = suggestion?.primary_topic || '当前主题';
+            resultSection.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-16 text-center practice-quiz-enter">
+                    <div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                        <span class="material-symbols-outlined text-primary text-3xl animate-pulse">hourglass_top</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-on-background">题目已备好，正在加载</h3>
+                    <p class="mt-2 text-sm text-on-surface-variant max-w-md leading-6">
+                        系统已在后台为你预生成「${escapeHtml(topic)}」练习，通常几秒内即可开刷。
+                    </p>
+                </div>
+            `;
+        }
+
+        async function loadExistingQuiz(quizId, topic) {
+            const quiz = await api.request(`/quizzes/${quizId}`);
+            currentQuizId = quiz.id;
+            currentQuestions = quiz.questions || [];
+            currentQuestionIndex = 0;
+            quizRenderMode = 'inline';
+            if (currentQuestions[0]) {
+                renderQuiz(currentQuestions[0]);
+                api.toast(`已为你加载「${quiz.title || topic}」练习`, 'success');
+            }
+        }
+
+        async function pollUntilPracticeReady(suggestion) {
+            renderPrepushWaiting(suggestion);
+            for (let attempt = 0; attempt < 25; attempt += 1) {
+                if (suggestion.existing_quiz_id) {
+                    await loadExistingQuiz(suggestion.existing_quiz_id, suggestion.primary_topic);
+                    return;
+                }
+                if (suggestion.prepush_status !== 'generating') {
+                    break;
+                }
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                suggestion = await api.getPracticeSuggestion(currentCourseId);
+                practiceSuggestion = suggestion;
+                renderPracticePushBanner(suggestion);
+            }
+            if (suggestion.existing_quiz_id) {
+                await loadExistingQuiz(suggestion.existing_quiz_id, suggestion.primary_topic);
+                return;
+            }
+            renderQuizPlaceholder('后台仍在准备题目，可稍等片刻或点击「重新生成」。');
+        }
+
+        async function loadTopicOptions(preferredTopic) {
             const select = document.getElementById('topic-select');
             if (!select) return;
             const fallback = ['数据结构', '栈与队列', '二叉树', '图与遍历', '排序算法'];
             if (!currentCourseId) {
                 select.innerHTML = fallback.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+                if (preferredTopic) select.value = preferredTopic;
                 return;
             }
             try {
                 const wiki = await api.listWikiPages(currentCourseId, { pageSize: 40 });
                 const pages = (wiki.items || []).map((item) => String(item.title || '').trim()).filter(Boolean);
                 const topics = pages.length ? [...new Set(pages)] : fallback;
+                if (preferredTopic && !topics.includes(preferredTopic)) {
+                    topics.unshift(preferredTopic);
+                }
                 select.innerHTML = topics.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+                if (preferredTopic) select.value = preferredTopic;
             } catch {
                 select.innerHTML = fallback.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+                if (preferredTopic) select.value = preferredTopic;
             }
+        }
+
+        function renderPracticePushBanner(suggestion) {
+            const banner = document.getElementById('practice-push-banner');
+            const titleEl = document.getElementById('practice-push-title');
+            const reasonEl = document.getElementById('practice-push-reason');
+            if (!banner || !reasonEl || !suggestion?.should_suggest) {
+                banner?.classList.add('hidden');
+                return;
+            }
+            practiceSuggestion = suggestion;
+            if (titleEl) {
+                titleEl.textContent = `推荐练习：${suggestion.primary_topic || '当前关注主题'}`;
+            }
+            reasonEl.textContent = suggestion.reason || `将围绕「${suggestion.primary_topic}」生成练习题。`;
+            banner.classList.remove('hidden');
+        }
+
+        async function loadPracticeSuggestion() {
+            if (!currentCourseId || !api.getPracticeSuggestion) return;
+            try {
+                const suggestion = await api.getPracticeSuggestion(currentCourseId);
+                practiceSuggestion = suggestion;
+                renderPracticePushBanner(suggestion);
+                await loadTopicOptions(suggestion.primary_topic || '');
+                if (suggestion.existing_quiz_id) {
+                    await loadExistingQuiz(suggestion.existing_quiz_id, suggestion.primary_topic);
+                    return;
+                }
+                if (suggestion.should_suggest && suggestion.primary_topic) {
+                    if (suggestion.prepush_status === 'generating') {
+                        await pollUntilPracticeReady(suggestion);
+                        return;
+                    }
+                    if (suggestion.prepush_status === 'none') {
+                        renderQuizPlaceholder('题目正在后台准备，请稍候刷新；也可点击「重新生成」立即出题。');
+                    }
+                }
+            } catch (error) {
+                renderPracticePushBanner(null);
+                console.warn('practice suggestion failed', error);
+            }
+        }
+
+        async function generateRecommendedQuiz() {
+            const topic = practiceSuggestion?.primary_topic || document.getElementById('topic-select')?.value;
+            if (topic) {
+                const select = document.getElementById('topic-select');
+                if (select) select.value = topic;
+            }
+            await generateQuizzes();
         }
 
         function renderSideDiagnosisEmpty() {
@@ -313,9 +435,7 @@
             }
         }
 
-        async function loadSidePanelData() {
-            renderSideDiagnosisEmpty();
-            await loadSideRecommendations();
+        async function loadSidePanelDataFromReport() {
             if (!currentCourseId || !api.listDiagnosisReports) return;
             try {
                 const result = await api.listDiagnosisReports(currentCourseId, { pageSize: 1 });
@@ -327,6 +447,26 @@
             }
         }
 
+        async function refreshSideMasteryPanel() {
+            if (!currentCourseId || !api.getDiagnosisLiveSummary) return;
+            try {
+                const summary = await api.getDiagnosisLiveSummary(currentCourseId);
+                if (Number(summary.total_questions || 0) > 0) {
+                    renderSideDiagnosis(summary);
+                    return;
+                }
+            } catch (error) {
+                console.warn('live mastery summary failed', error);
+            }
+            await loadSidePanelDataFromReport();
+        }
+
+        async function loadSidePanelData() {
+            renderSideDiagnosisEmpty();
+            await loadSideRecommendations();
+            await refreshSideMasteryPanel();
+        }
+
         async function init() {
             try {
                 currentCourseId = await api.resolveCourseId();
@@ -336,7 +476,8 @@
             const container = document.querySelector('.col-span-12.lg\\:col-span-8');
             if (container) originalPracticeHTML = container.innerHTML;
             renderQuizPlaceholder();
-            await Promise.all([loadTopicOptions(), loadSidePanelData()]);
+            await loadPracticeSuggestion();
+            await loadSidePanelData();
         }
         init();
 
@@ -531,6 +672,7 @@
                     },
                 });
                 selectedAnswer = null;
+                void refreshSideMasteryPanel();
             } catch (e) {
                 api.toast(e.message || '提交失败', 'error');
             } finally {
@@ -654,14 +796,27 @@
 
         function renderSideDiagnosis(report) {
             if (!sideDiagnosisSection) return;
-            const weakText = (report.weaknesses || [])[0] || (report.weak_points || [])[0]?.knowledge_name || '暂无明显薄弱点';
+            const weakPoint = (report.weak_points || [])[0];
+            const errorPattern = (report.error_patterns || [])[0]?.pattern;
+            let weakText = weakPoint?.knowledge_name
+                || (report.weaknesses || [])[0]
+                || errorPattern
+                || '';
+            if (!weakText && Number(report.total_questions || 0) > 0 && Number(report.accuracy || 0) < 0.6) {
+                weakText = '综合掌握不足，建议优先复习错题与本节 Wiki';
+            }
+            if (!weakText) {
+                weakText = '暂无明显薄弱点';
+            }
+            const isLive = Boolean(report.live);
             const evidence = report.total_questions
-                ? `基于 ${report.total_questions} 道真实练习，正确率 ${Math.round((report.accuracy || 0) * 100)}%。`
+                ? `基于 ${report.total_questions} 道真实练习，正确率 ${Math.round((report.accuracy || 0) * 100)}%。${isLive ? '（实时更新）' : ''}`
                 : '等待更多答题记录形成稳定诊断。';
             sideDiagnosisSection.innerHTML = `
                 <h3 class="font-bold mb-6 flex items-center gap-2 text-headline-sm">
                     <span class="material-symbols-outlined text-primary">analytics</span>
                     掌握度矩阵
+                    ${isLive ? '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary">实时</span>' : ''}
                 </h3>
                 <div class="grid grid-cols-3 gap-3 mb-5">
                     <div class="rounded-xl bg-white/50 p-3 text-center border border-white/60">
@@ -681,7 +836,7 @@
                     <div class="p-3 bg-error-container/20 border border-error/10 rounded-lg">
                         <div class="flex justify-between items-center mb-1">
                             <span class="text-label-sm font-bold text-error">薄弱知识点</span>
-                            <span class="text-[10px] text-error font-bold px-1.5 py-0.5 bg-white/50 rounded">真实诊断</span>
+                            <span class="text-[10px] text-error font-bold px-1.5 py-0.5 bg-white/50 rounded">${isLive ? '实时诊断' : '真实诊断'}</span>
                         </div>
                         <p class="text-sm font-semibold text-on-surface">${escapeHtml(weakText)}</p>
                     </div>
@@ -716,17 +871,17 @@
                 </h3>
                 <div class="space-y-4">
                     ${recommendations.length ? recommendations.map((item) => `
-                        <div class="bg-white/60 rounded-xl p-4 border border-outline-variant/30 hover:shadow-md transition-shadow group">
-                            <div class="flex items-start gap-3 mb-3">
+                        <button type="button" class="w-full text-left bg-white/60 rounded-xl p-4 border border-outline-variant/30 hover:shadow-md transition-shadow group ${item.recommendation_type === 'practice_from_chat' ? 'ring-2 ring-primary/10' : ''}" data-recommendation-type="${escapeHtml(item.recommendation_type || '')}" onclick="handleRecommendationClick(this)">
+                            <div class="flex items-start gap-3">
                                 <div class="w-9 h-9 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary">
-                                    <span class="material-symbols-outlined text-xl">task_alt</span>
+                                    <span class="material-symbols-outlined text-xl">${item.recommendation_type === 'practice_from_chat' ? 'quiz' : 'task_alt'}</span>
                                 </div>
                                 <div class="flex-1">
                                     <h5 class="text-sm font-bold group-hover:text-primary transition-colors">${escapeHtml(item.title)}</h5>
                                     <p class="text-[11px] text-outline">${escapeHtml(item.reason || '基于诊断、路径和练习记录生成')}</p>
                                 </div>
                             </div>
-                        </div>
+                        </button>
                     `).join('') : `
                         <div class="bg-white/60 rounded-xl p-4 border border-outline-variant/30">
                             <h5 class="text-sm font-bold text-on-surface">继续完成一组当前课程练习</h5>
@@ -737,9 +892,31 @@
             `;
         }
 
+        async function handleRecommendationClick(button) {
+            const type = button?.dataset?.recommendationType || '';
+            if (type === 'practice_from_chat') {
+                await generateRecommendedQuiz();
+                return;
+            }
+            api.toast('请先在上方选择知识点并生成练习', 'info');
+        }
+
         async function loadSideRecommendations() {
             if (!currentCourseId || !api.listRecommendations) return;
             try {
+                if (practiceSuggestion?.should_suggest) {
+                    renderSideRecommendations([
+                        {
+                            recommendation_type: 'practice_from_chat',
+                            title: `巩固「${practiceSuggestion.primary_topic}」相关练习`,
+                            reason: practiceSuggestion.reason,
+                        },
+                    ]);
+                    return;
+                }
+                if (api.refreshRecommendations) {
+                    await api.refreshRecommendations(currentCourseId).catch(() => null);
+                }
                 const result = await api.listRecommendations(currentCourseId, { pageSize: 3 });
                 renderSideRecommendations(result.items || []);
             } catch (_) {

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import uuid
 from typing import Any
 from uuid import UUID
 
@@ -62,19 +63,6 @@ class ImmersiveClassroomService:
             learning_goal=learning_goal,
             brief=brief,
         )
-        resource = await self.resources.create(
-            user_id=current_user.id,
-            course_id=course_id,
-            knowledge_id=None,
-            wiki_page_id=None,
-            resource_type="immersive_classroom",
-            title=f"{topic} 个性化沉浸课堂",
-            content="沉浸课堂任务已创建，正在生成场景、媒体与配音。",
-            citations=brief.get("citations") or [],
-            personalized_reason=brief.get("style_hint"),
-            model_name="openmaic",
-            prompt_version_id=None,
-        )
         payload = {
             "topic": topic,
             "learning_goal": learning_goal or "",
@@ -93,7 +81,32 @@ class ImmersiveClassroomService:
         idempotency_key = (
             tool_context.idempotency_key
             if tool_context
-            else f"immersive-classroom:{current_user.id}:{course_id}:{digest}"
+            else f"immersive-classroom:{current_user.id}:{course_id}:{digest}:{uuid.uuid4().hex[:12]}"
+        )
+        existing_job = await self.media.get_job_by_idempotency_key(idempotency_key)
+        if existing_job is not None and existing_job.resource_id is not None:
+            existing_resource = await self.resources.get_by_id(existing_job.resource_id)
+            if existing_resource is not None:
+                return {
+                    "job_id": str(existing_job.id),
+                    "resource_id": str(existing_resource.id),
+                    "status": existing_job.status,
+                    "stage": existing_job.stage,
+                    "progress": existing_job.progress,
+                    "message": "沉浸课堂任务已进入后台队列，可在 Agent 时间线查看进度。",
+                }
+        resource = await self.resources.create(
+            user_id=current_user.id,
+            course_id=course_id,
+            knowledge_id=None,
+            wiki_page_id=None,
+            resource_type="immersive_classroom",
+            title=f"{topic} 个性化沉浸课堂",
+            content="沉浸课堂任务已创建，正在生成场景、媒体与配音。",
+            citations=brief.get("citations") or [],
+            personalized_reason=brief.get("style_hint"),
+            model_name="openmaic",
+            prompt_version_id=None,
         )
         job = await self.media.create_job(
             user_id=current_user.id,

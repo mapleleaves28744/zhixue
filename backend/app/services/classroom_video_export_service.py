@@ -275,9 +275,10 @@ class ClassroomVideoExportService:
             draw.text((88, y), line, fill=(51, 65, 85), font=body_font)
             y += 48
         draw.rounded_rectangle((80, height - 108, width - 80, height - 66), radius=20, fill=(238, 242, 255))
+        subtitle = (_wrap_text(segment.text, 28) or [""])[0][:36]
         draw.text(
             (104, height - 100),
-            f"智学工坊 · OpenMAIC 沉浸课堂 · {index}/{total}",
+            subtitle,
             fill=(67, 56, 202),
             font=small_font,
         )
@@ -288,6 +289,8 @@ class ClassroomVideoExportService:
             Path("C:/Windows/Fonts/msyh.ttc"),
             Path("C:/Windows/Fonts/simhei.ttf"),
             Path("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
+            Path("/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc"),
+            Path("/usr/share/fonts/truetype/noto/NotoSansSC-Regular.otf"),
             Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
         )
         for candidate in candidates:

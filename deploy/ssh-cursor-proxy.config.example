@@ -1,7 +1,18 @@
-# 复制为 ssh-cursor-proxy.config 并按本机 Cursor/代理端口修改 ProxyCommand
+# 复制为 ssh-cursor-proxy.config，合并到 Windows 本机 ~/.ssh/config（或 Include 此文件）
+#
+# 作用：
+# 1. ProxyCommand  — 本机经 Clash 连服务器（Cursor Remote SSH）
+# 2. RemoteForward — 把本机 Clash SOCKS 转发到服务器，让服务器 git pull 也能走代理
+#
+# 修改项：
+# - YOUR_SERVER_IP     服务器公网 IP
+# - YOUR_PROXY_PORT    本机 Clash SOCKS 端口（Clash 设置里查看，常见 7891）
+# - 10800              服务器侧转发端口，需与服务器 ~/.ssh/config 中 ProxyCommand 一致
+
 Host zhixue-deploy
     HostName YOUR_SERVER_IP
     User ubuntu
     Port 22
     ProxyCommand "C:/Program Files/Git/mingw64/bin/connect.exe" -S 127.0.0.1:YOUR_PROXY_PORT %h %p
+    RemoteForward 10800 127.0.0.1:YOUR_PROXY_PORT
     StrictHostKeyChecking accept-new

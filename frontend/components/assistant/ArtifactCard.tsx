@@ -8,8 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { buildApiUrl } from "@/lib/api"
-import { getToken } from "@/lib/auth"
+import { MediaAssetPreview } from "@/components/assistant/MediaAssetPreview"
 
 interface ArtifactCardProps {
   artifact: Record<string, unknown>
@@ -47,7 +46,11 @@ export function ArtifactCard({ artifact }: ArtifactCardProps) {
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
           {assetId ? (
-            <MediaPreview assetId={assetId} mimeType={String(artifact.mime_type || "")} />
+            <MediaPreview
+              assetId={assetId}
+              mimeType={String(artifact.mime_type || "")}
+              subtype={artifact.subtype ? String(artifact.subtype) : undefined}
+            />
           ) : artifact.content ? (
             <MarkdownRenderer content={String(artifact.content)} />
           ) : (
@@ -61,25 +64,12 @@ export function ArtifactCard({ artifact }: ArtifactCardProps) {
   )
 }
 
-function MediaPreview({ assetId, mimeType }: { assetId: string; mimeType: string }) {
-  const url = buildApiUrl(`/api/v1/media-assets/${assetId}/file`)
-  const token = getToken()
-  const src = token ? `${url}?access_token=${encodeURIComponent(token)}` : url
-
-  if (mimeType.startsWith("video/")) {
-    return <video controls className="max-h-[60vh] w-full rounded-xl" src={src} />
-  }
-  if (mimeType.startsWith("audio/")) {
-    return <audio controls className="w-full max-w-lg" src={src} />
-  }
-  if (mimeType.startsWith("image/")) {
-    return <img alt="" className="max-h-[60vh] w-full rounded-xl object-contain" src={src} />
-  }
+function MediaPreview({ assetId, mimeType, subtype }: { assetId: string; mimeType: string; subtype?: string }) {
   return (
-    <iframe
-      title="artifact"
-      src={src}
-      className="h-[480px] w-full rounded-xl border border-border"
+    <MediaAssetPreview
+      assetId={assetId}
+      mimeType={mimeType}
+      subtype={subtype}
     />
   )
 }

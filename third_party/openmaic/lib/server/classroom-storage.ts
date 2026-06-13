@@ -29,9 +29,55 @@ export async function writeJsonFileAtomic(filePath: string, data: unknown) {
 }
 
 export function buildRequestOrigin(req: NextRequest): string {
+  const configured = process.env.OPENMAIC_PUBLIC_BASE_URL?.trim();
+  if (configured) {
+    return configured.replace(/\/$/, '');
+  }
   return req.headers.get('x-forwarded-host')
     ? `${req.headers.get('x-forwarded-proto') || 'http'}://${req.headers.get('x-forwarded-host')}`
     : req.nextUrl.origin;
+}
+
+function rewriteMediaUrl(url: string, publicBase: string): string {
+  if (!url || !publicBase) return url;
+  return url
+    .replace(/^https?:\/\/openmaic(?::\d+)?/i, publicBase)
+    .replace(/^https?:\/\/127\.0\.0\.1(?::\d+)?/i, publicBase)
+    .replace(/^https?:\/\/localhost(?::\d+)?/i, publicBase);
+}
+
+export function rewriteClassroomForPublicAccess(
+  classroom: PersistedClassroomData,
+): PersistedClassroomData {
+  const publicBase = process.env.OPENMAIC_PUBLIC_BASE_URL?.trim().replace(/\/$/, '') || '';
+  if (!publicBase) return classroom;
+
+  const scenes = classroom.scenes.map((scene) => ({
+    ...scene,
+    actions: Array.isArray(scene.actions)
+      ? scene.actions.map((action) => {
+          if (!action || typeof action !== 'object') return action;
+          const audioUrl = (action as { audioUrl?: string }).audioUrl;
+          if (!audioUrl) return action;
+          return { ...action, audioUrl: rewriteMediaUrl(audioUrl, publicBase) };
+        })
+      : scene.actions,
+  }));
+
+  const stage = {
+    ...classroom.stage,
+    generatedAgentConfigs: Array.isArray(classroom.stage.generatedAgentConfigs)
+      ? classroom.stage.generatedAgentConfigs.map((agent) => ({
+          ...agent,
+          avatar:
+            typeof agent.avatar === 'string' && agent.avatar.startsWith('/')
+              ? agent.avatar
+              : agent.avatar,
+        }))
+      : classroom.stage.generatedAgentConfigs,
+  };
+
+  return { ...classroom, stage, scenes };
 }
 
 export interface PersistedClassroomData {

@@ -341,6 +341,33 @@ class EvolutionService:
         await self.db.refresh(prev_strategy)
         return StrategyRead.model_validate(prev_strategy)
 
+    async def reject_strategy(
+        self, strategy_id: UUID, user_id: UUID,
+    ) -> StrategyRead:
+        stmt = select(EvolutionStrategy).where(
+            EvolutionStrategy.id == strategy_id,
+            EvolutionStrategy.user_id == user_id,
+        )
+        result = await self.db.execute(stmt)
+        strategy = result.scalar_one_or_none()
+        if strategy is None:
+            raise BusinessException(
+                code=ErrorCode.NOT_FOUND,
+                detail="策略不存在",
+                status_code=404,
+            )
+        if strategy.status != "draft":
+            raise BusinessException(
+                code=ErrorCode.BUSINESS_VALIDATION_ERROR,
+                detail=f"策略状态为 {strategy.status}，无法拒绝",
+                status_code=422,
+            )
+
+        strategy.status = "rejected"
+        await self.db.commit()
+        await self.db.refresh(strategy)
+        return StrategyRead.model_validate(strategy)
+
     async def list_events(
         self,
         *,

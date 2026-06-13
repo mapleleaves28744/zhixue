@@ -28,7 +28,13 @@ export function InlineMediaArtifacts({ refs }: InlineMediaArtifactsProps) {
               </span>
               {ref.title || (ref.type === "audio" ? "语音讲解" : "媒体产物")}
             </p>
-            <MediaAssetPreview assetId={ref.id} mimeType={ref.mimeType} title={ref.title} />
+            <MediaAssetPreview
+              assetId={ref.id}
+              mimeType={ref.mimeType}
+              title={ref.title}
+              subtype={ref.subtype}
+              lazyHtmlPreview
+            />
           </div>
         ),
       )}

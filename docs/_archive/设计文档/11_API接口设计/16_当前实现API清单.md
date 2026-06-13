@@ -2,7 +2,7 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
-> HTTP 操作数：**143**
+> HTTP 操作数：**147**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
@@ -52,6 +52,7 @@
 | `POST` | `/api/v1/diagnosis/analyze` | JWT | course_id*, trigger_evolution | - |
 | `GET` | `/api/v1/diagnosis/difficulty` | JWT | course_id* | - |
 | `POST` | `/api/v1/diagnosis/generate` | JWT | course_id*, trigger_evolution | - |
+| `GET` | `/api/v1/diagnosis/live-summary` | JWT | course_id* | - |
 | `GET` | `/api/v1/diagnosis/mastery` | JWT | course_id | - |
 | `GET` | `/api/v1/diagnosis/reports` | JWT | course_id, page, page_size | - |
 | `GET` | `/api/v1/diagnosis/reports/{report_id}` | JWT | report_id* | - |
@@ -60,6 +61,7 @@
 | `GET` | `/api/v1/evolution/strategies` | JWT | course_id, strategy_type, status, page, page_size | - |
 | `POST` | `/api/v1/evolution/strategies/apply` | JWT | - | application/json: `StrategyApplyRequest` |
 | `GET` | `/api/v1/evolution/strategies/{strategy_id}` | JWT | strategy_id* | - |
+| `POST` | `/api/v1/evolution/strategies/{strategy_id}/reject` | JWT | strategy_id* | - |
 | `POST` | `/api/v1/evolution/strategies/{strategy_id}/rollback` | JWT | strategy_id* | - |
 | `POST` | `/api/v1/knowledge/extract-from-material` | JWT | - | application/json: `ExtractKnowledgeRequest` |
 | `GET` | `/api/v1/knowledge/graph/subgraph` | JWT | course_id*, center_id*, depth | - |
@@ -99,6 +101,7 @@
 | `GET` | `/api/v1/quizzes` | JWT | course_id, page, page_size | - |
 | `POST` | `/api/v1/quizzes/generate` | JWT | - | application/json: `QuizGenerateRequest` |
 | `GET` | `/api/v1/quizzes/mistakes` | JWT | course_id, knowledge_id, status, page, page_size | - |
+| `GET` | `/api/v1/quizzes/practice-suggestion` | JWT | course_id* | - |
 | `GET` | `/api/v1/quizzes/{quiz_id}` | JWT | quiz_id* | - |
 | `POST` | `/api/v1/quizzes/{quiz_id}/submit` | JWT | quiz_id* | application/json: `QuizSubmitRequest` |
 | `GET` | `/api/v1/recommendations` | JWT | course_id, status, page, page_size | - |
@@ -106,6 +109,7 @@
 | `PATCH` | `/api/v1/recommendations/{item_id}` | JWT | item_id*, status | - |
 | `POST` | `/api/v1/recommendations/{item_id}/feedback` | JWT | item_id*, helpful | - |
 | `GET` | `/api/v1/resources` | JWT | course_id, resource_type, status, page, page_size | - |
+| `GET` | `/api/v1/resources/external-feed` | JWT | course_id*, refresh | - |
 | `POST` | `/api/v1/resources/generate` | JWT | - | application/json: `ResourceGenerateRequest` |
 | `GET` | `/api/v1/resources/ping` | JWT | - | - |
 | `GET` | `/api/v1/resources/{resource_id}` | JWT | resource_id* | - |

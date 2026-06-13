@@ -19,6 +19,12 @@ class MemoryService:
     COURSE_CAPACITY = 20
     GLOBAL_CAPACITY = 10
 
+    @staticmethod
+    def normalize_evidence(value: Any) -> list[Any]:
+        from app.schemas.memory import _normalize_evidence
+
+        return _normalize_evidence(value)
+
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
@@ -69,6 +75,7 @@ class MemoryService:
         confidence: float,
         salience: float | None = None,
     ) -> tuple[StudentMemory, str]:
+        evidence = self.normalize_evidence(evidence)
         key = self.build_memory_key(memory_type, content)
         condition = [
             StudentMemory.user_id == user_id,

@@ -121,68 +121,18 @@
 </div>
 </div>
 <!-- Learning Trend Chart Area -->
-<div class="glass-card p-6 flex-1 flex flex-col min-h-[300px] animate-fade-up stagger-3">
-<div class="flex items-center justify-between mb-6">
+<div class="glass-card p-6 flex flex-col animate-fade-up stagger-3">
+<div class="flex items-center justify-between mb-4">
+<div>
 <h3 class="font-headline-md text-headline-md text-on-background">近7日学习趋势</h3>
-<div class="flex gap-2 bg-surface-container-low/50 p-1 rounded-full border border-white/60">
-<span class="font-body-sm text-body-sm text-primary bg-white shadow-sm px-4 py-1.5 rounded-full font-medium">掌握度</span>
-<span class="font-body-sm text-body-sm text-outline px-4 py-1.5 rounded-full cursor-pointer hover:bg-white/60 transition-colors">时长</span>
+<p class="text-xs text-on-surface-variant mt-1" id="dashboard-trend-summary">加载中…</p>
+</div>
+<div class="flex gap-2 bg-surface-container-low/50 p-1 rounded-full border border-white/60" id="dashboard-trend-toggle">
+<button type="button" class="dashboard-trend-mode font-body-sm text-body-sm text-primary bg-white shadow-sm px-4 py-1.5 rounded-full font-medium" data-mode="duration">时长</button>
+<button type="button" class="dashboard-trend-mode font-body-sm text-body-sm text-outline px-4 py-1.5 rounded-full cursor-pointer hover:bg-white/60 transition-colors" data-mode="activity">活跃度</button>
 </div>
 </div>
-<!-- Mock Chart -->
-<div class="flex-1 relative w-full flex items-end justify-between px-4 pb-8 pt-10">
-<div class="absolute inset-0 flex flex-col justify-between pb-8 pointer-events-none">
-<div class="border-b border-dashed border-outline-variant/40 w-full h-0"></div>
-<div class="border-b border-dashed border-outline-variant/40 w-full h-0"></div>
-<div class="border-b border-dashed border-outline-variant/40 w-full h-0"></div>
-<div class="border-b border-dashed border-outline-variant/40 w-full h-0"></div>
-</div>
-<svg class="absolute inset-0 w-full h-[calc(100%-2rem)]" preserveaspectratio="none" viewbox="0 0 100 100">
-<defs>
-<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
-<stop offset="0%" stop-color="#835400" stop-opacity="0.25"></stop>
-<stop offset="50%" stop-color="#ffddb5" stop-opacity="0.1"></stop>
-<stop offset="100%" stop-color="#ffffff" stop-opacity="0"></stop>
-</lineargradient>
-</defs>
-<path d="M0,100 L0,70 Q15,65 30,50 T50,20 T75,40 T90,15 T100,5 L100,100 Z" fill="url(#chartGradient)"></path>
-<path d="M0,70 Q15,65 30,50 T50,20 T75,40 T90,15 T100,5" fill="none" stroke="#835400" stroke-linecap="round" stroke-width="3" vector-effect="non-scaling-stroke"></path>
-</svg>
-<!-- Labels -->
-<div class="relative z-10 flex flex-col items-center gap-2 group">
-<div class="w-3 h-3 bg-white border-2 border-primary rounded-full group-hover:scale-150 transition-transform cursor-pointer shadow-sm"></div>
-<span class="font-label-caps text-label-caps text-outline absolute -bottom-6">MAY 12</span>
-</div>
-<div class="relative z-10 flex flex-col items-center gap-2 group" style="transform: translateY(-20px);">
-<div class="w-3 h-3 bg-white border-2 border-primary rounded-full group-hover:scale-150 transition-transform cursor-pointer shadow-sm"></div>
-<span class="font-label-caps text-label-caps text-outline absolute -bottom-6">MAY 13</span>
-</div>
-<div class="relative z-10 flex flex-col items-center gap-2 group" style="transform: translateY(-50px);">
-<div class="w-3 h-3 bg-white border-2 border-primary rounded-full group-hover:scale-150 transition-transform cursor-pointer shadow-sm"></div>
-<span class="font-label-caps text-label-caps text-outline absolute -bottom-6">MAY 14</span>
-</div>
-<!-- Active Point -->
-<div class="relative z-10 flex flex-col items-center gap-2 group" style="transform: translateY(-80px);">
-<div class="absolute -top-10 bg-primary text-white font-body-sm px-3 py-1.5 rounded-xl shadow-lg whitespace-nowrap before:content-[''] before:absolute before:top-full before:left-1/2 before:-translate-x-1/2 before:border-6 before:border-transparent before:border-t-primary">
-    85%
-</div>
-<div class="absolute top-2 w-0.5 h-16 bg-primary/40 -z-10"></div>
-<div class="w-4 h-4 bg-primary border-[3px] border-white rounded-full scale-125 group-hover:scale-150 transition-transform cursor-pointer shadow-md ring-4 ring-primary/20"></div>
-<span class="font-label-caps text-label-caps text-on-background font-bold absolute -bottom-6 whitespace-nowrap">MAY 15</span>
-</div>
-<div class="relative z-10 flex flex-col items-center gap-2 group" style="transform: translateY(-60px);">
-<div class="w-3 h-3 bg-white border-2 border-primary rounded-full group-hover:scale-150 transition-transform cursor-pointer shadow-sm"></div>
-<span class="font-label-caps text-label-caps text-outline absolute -bottom-6">MAY 16</span>
-</div>
-<div class="relative z-10 flex flex-col items-center gap-2 group" style="transform: translateY(-85px);">
-<div class="w-3 h-3 bg-white border-2 border-primary rounded-full group-hover:scale-150 transition-transform cursor-pointer shadow-sm"></div>
-<span class="font-label-caps text-label-caps text-outline absolute -bottom-6">MAY 17</span>
-</div>
-<div class="relative z-10 flex flex-col items-center gap-2 group" style="transform: translateY(-95px);">
-<div class="w-3 h-3 bg-white border-2 border-primary rounded-full group-hover:scale-150 transition-transform cursor-pointer shadow-sm"></div>
-<span class="font-label-caps text-label-caps text-outline absolute -bottom-6">MAY 18</span>
-</div>
-</div>
+<div id="dashboard-trend-chart" class="relative w-full rounded-xl bg-white/40 border border-white/60" style="height:280px"></div>
 </div>
 </div>
 <!-- Right Column (30%) -->
@@ -333,6 +283,118 @@
   }
 
   let dashboardGraphInstance = null;
+  let dashboardTrendSummary = null;
+  let dashboardTrendMode = "duration";
+
+  function formatTrendDayLabel(dateStr) {
+    const date = new Date(`${dateStr}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return dateStr;
+    return `${date.getMonth() + 1}/${date.getDate()}`;
+  }
+
+  function trendValueForDay(day, mode) {
+    if (mode === "activity") return Number(day.activity_count || 0);
+    return Math.round(Number(day.active_seconds || 0) / 60);
+  }
+
+  function trendValueLabel(value, mode) {
+    if (mode === "activity") return `${value} 次`;
+    if (value >= 60) return `${(value / 60).toFixed(1)} 小时`;
+    return `${value} 分钟`;
+  }
+
+  function renderDashboardTrendChart(summary) {
+    dashboardTrendSummary = summary || dashboardTrendSummary;
+    const host = document.getElementById("dashboard-trend-chart");
+    const summaryEl = document.getElementById("dashboard-trend-summary");
+    if (!host) return;
+
+    const daily = (dashboardTrendSummary?.daily || []).slice(-7);
+    const mode = dashboardTrendMode;
+    const values = daily.map((day) => trendValueForDay(day, mode));
+    const maxValue = Math.max(...values, 1);
+    const peakIndex = values.reduce((best, value, index) => (value > values[best] ? index : best), 0);
+    const hasData = values.some((value) => value > 0);
+
+    if (summaryEl) {
+      const totalMinutes = daily.reduce((sum, day) => sum + Math.round(Number(day.active_seconds || 0) / 60), 0);
+      const totalActivity = daily.reduce((sum, day) => sum + Number(day.activity_count || 0), 0);
+      const masteryText = dashboardTrendSummary?.mastery == null
+        ? "整体掌握度暂无"
+        : `整体掌握度 ${Math.round(Number(dashboardTrendSummary.mastery))}%`;
+      if (mode === "activity") {
+        summaryEl.textContent = `${masteryText} · 近7日共 ${totalActivity} 次学习行为（答疑/练习/Wiki 等）`;
+      } else {
+        summaryEl.textContent = `${masteryText} · 近7日有效学习 ${totalMinutes} 分钟`;
+      }
+    }
+
+    if (!daily.length) {
+      host.innerHTML = `<p class="text-sm text-on-surface-variant text-center py-16 px-4">暂无趋势数据，进入助手、知识库或练习页开始学习后会自动记录。</p>`;
+      return;
+    }
+
+    if (!hasData) {
+      host.innerHTML = `
+        <div class="h-full flex flex-col items-center justify-center gap-3 px-4 py-6">
+          <span class="material-symbols-outlined text-primary/60 text-3xl">monitoring</span>
+          <p class="text-sm text-on-surface-variant text-center max-w-sm">近7日还没有可统计的学习记录。去提问、刷题或浏览 Wiki，趋势会在这里实时更新。</p>
+          <div class="flex items-end gap-2 h-20 w-full max-w-lg px-2 mt-2">
+            ${daily.map(() => `<div class="flex-1 bg-primary/15 rounded-t-md" style="height:18%"></div>`).join("")}
+          </div>
+          <div class="flex w-full max-w-lg px-2 justify-between text-[10px] text-outline">
+            ${daily.map((day) => `<span>${escapeHtml(formatTrendDayLabel(day.date))}</span>`).join("")}
+          </div>
+        </div>`;
+      return;
+    }
+
+    host.innerHTML = `
+      <div class="absolute inset-0 flex flex-col justify-between px-4 py-3 pointer-events-none">
+        ${[0, 1, 2, 3].map(() => '<div class="border-b border-dashed border-outline-variant/30 w-full"></div>').join("")}
+      </div>
+      <div class="relative z-10 h-full flex flex-col px-4 pb-3 pt-2">
+        <div class="flex items-end gap-2 flex-1 min-h-0">
+          ${daily.map((day, index) => {
+            const value = values[index];
+            const heightPct = Math.max(10, Math.round((value / maxValue) * 100));
+            const isPeak = index === peakIndex && value > 0;
+            const label = trendValueLabel(value, mode);
+            return `
+              <div class="flex-1 h-full flex flex-col items-center justify-end min-w-0 group">
+                ${isPeak ? `<span class="text-[10px] font-bold text-primary mb-1 whitespace-nowrap">${escapeHtml(label)}</span>` : `<span class="text-[10px] text-on-surface-variant mb-1 opacity-0 group-hover:opacity-100 whitespace-nowrap">${escapeHtml(label)}</span>`}
+                <div
+                  class="w-full max-w-[36px] rounded-t-lg transition-colors ${isPeak ? "bg-primary shadow-sm" : "bg-primary/35 group-hover:bg-primary/50"}"
+                  style="height:${heightPct}%"
+                  title="${escapeHtml(formatTrendDayLabel(day.date))}: ${escapeHtml(label)}"
+                ></div>
+              </div>`;
+          }).join("")}
+        </div>
+        <div class="flex gap-1 mt-2 shrink-0">
+          ${daily.map((day, index) => `
+            <span class="flex-1 text-center text-[10px] truncate ${index === peakIndex ? "text-on-background font-bold" : "text-outline"}">${escapeHtml(formatTrendDayLabel(day.date))}</span>
+          `).join("")}
+        </div>
+      </div>`;
+  }
+
+  function bindDashboardTrendToggle() {
+    document.querySelectorAll(".dashboard-trend-mode").forEach((button) => {
+      button.addEventListener("click", () => {
+        dashboardTrendMode = button.dataset.mode || "duration";
+        document.querySelectorAll(".dashboard-trend-mode").forEach((node) => {
+          const active = node.dataset.mode === dashboardTrendMode;
+          node.classList.toggle("text-primary", active);
+          node.classList.toggle("bg-white", active);
+          node.classList.toggle("shadow-sm", active);
+          node.classList.toggle("font-medium", active);
+          node.classList.toggle("text-outline", !active);
+        });
+        renderDashboardTrendChart(dashboardTrendSummary);
+      });
+    });
+  }
 
   function setKnowledgeCards(profile, wikiPages) {
     /* 已由迷你力导向图替代三卡片占位 */
@@ -395,39 +457,183 @@
     });
   }
 
-  function setTasksAndReminders(courses, wikiPages, runs, recommendations) {
-    const taskCard = [...document.querySelectorAll(".glass-card")].find((card) => card.innerText.includes("今日任务"));
-    if (taskCard) {
-      const labels = taskCard.querySelectorAll("label p.font-body-sm");
-      if (labels[0]) labels[0].textContent = recommendations[0]?.title || (courses.length ? `进入《${courses[0].title}》课程空间` : "创建第一门课程");
-      if (labels[1]) labels[1].textContent = recommendations[1]?.title || (wikiPages.length ? `复习 Wiki：${wikiPages[0].title}` : "上传资料并生成 Wiki");
-      if (labels[2]) labels[2].textContent = recommendations[2]?.title || (runs.length ? `查看 ${runs[0].agent_name || "Agent"} 最近运行` : "向 AI 助手提一个问题");
-      const subtitles = taskCard.querySelectorAll("label p.font-label-caps");
-      if (subtitles[0]) subtitles[0].textContent = courses[0]?.title || "课程空间";
-      if (subtitles[1]) subtitles[1].textContent = wikiPages[0]?.title || "课程 Wiki";
-      if (subtitles[2]) subtitles[2].textContent = runs[0]?.task_type || "Agent 日志";
-      const count = taskCard.querySelector("span.font-label-sm");
-      if (count) count.textContent = `${courses.length ? 1 : 0}/3 已完成`;
-      taskCard.querySelector("#active-recommendation-hint")?.remove();
-      if (recommendations.length) {
-        const hint = document.createElement("div");
-        hint.id = "active-recommendation-hint";
-        hint.className = "mb-4 rounded-xl bg-primary/5 border border-primary/15 px-4 py-3 text-xs font-bold text-primary";
-        hint.textContent = `基于你的最新画像/诊断，系统已刷新 ${recommendations.length} 条推荐`;
-        taskCard.insertBefore(hint, taskCard.children[1] || null);
-      }
-      taskCard.querySelectorAll("label").forEach((label, index) => {
-        label.addEventListener("click", () => {
-          const item = recommendations[index];
-          if (!item) return;
-          void api.trackLearningEvent?.({
-            course_id: item.course_id || courses[0]?.id,
-            event_type: "recommendation_click",
-            event_payload: { recommendation_id: item.id, title: item.title, surface: "dashboard_tasks" },
-          });
-        });
+  function fallbackTaskKey(courseId, index) {
+    return `zhixue-dashboard-fallback-task:${courseId || "none"}:${index}`;
+  }
+
+  function readFallbackTaskDone(key) {
+    try {
+      return localStorage.getItem(key) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  function writeFallbackTaskDone(key, done) {
+    try {
+      if (done) localStorage.setItem(key, "1");
+      else localStorage.removeItem(key);
+    } catch (_) {
+      /* ignore */
+    }
+  }
+
+  function buildTodayTasks(recommendations, courses, wikiPages, runs) {
+    const tasks = recommendations.slice(0, 3).map((item) => ({
+      id: item.id,
+      title: item.title,
+      subtitle: item.reason || item.recommendation_type || "系统推荐",
+      completed: item.status === "completed",
+      courseId: item.course_id,
+      recommendation: item,
+    }));
+    const fallbacks = [
+      {
+        title: courses.length ? `进入《${courses[0].title}》课程空间` : "创建第一门课程",
+        subtitle: courses[0]?.title || "课程空间",
+      },
+      {
+        title: wikiPages.length ? `复习 Wiki：${wikiPages[0].title}` : "上传资料并生成 Wiki",
+        subtitle: wikiPages[0]?.title || "课程 Wiki",
+      },
+      {
+        title: runs.length ? `查看 ${runs[0].agent_name || "Agent"} 最近运行` : "向 AI 助手提一个问题",
+        subtitle: runs[0]?.task_type || "Agent 日志",
+      },
+    ];
+    while (tasks.length < 3) {
+      const index = tasks.length;
+      const fallback = fallbacks[index];
+      tasks.push({
+        id: null,
+        title: fallback.title,
+        subtitle: fallback.subtitle,
+        completed: false,
+        fallbackIndex: index,
       });
     }
+    return tasks;
+  }
+
+  function renderTodayTasks(tasks, courseId, recommendations) {
+    const taskCard = [...document.querySelectorAll(".glass-card")].find((card) => card.innerText.includes("今日任务"));
+    if (!taskCard) return;
+
+    const completedCount = tasks.filter((task) => {
+      if (task.id) return task.completed;
+      if (task.fallbackIndex !== undefined) {
+        return readFallbackTaskDone(fallbackTaskKey(courseId, task.fallbackIndex));
+      }
+      return false;
+    }).length;
+    const count = taskCard.querySelector("span.font-label-sm");
+    if (count) count.textContent = `${completedCount}/${tasks.length} 已完成`;
+
+    taskCard.querySelector("#active-recommendation-hint")?.remove();
+    if (recommendations.length) {
+      const hint = document.createElement("div");
+      hint.id = "active-recommendation-hint";
+      hint.className = "mb-4 rounded-xl bg-primary/5 border border-primary/15 px-4 py-3 text-xs font-bold text-primary";
+      hint.textContent = `基于你的最新画像/诊断，系统已刷新 ${recommendations.length} 条推荐`;
+      const header = taskCard.querySelector(".flex.items-center.justify-between");
+      const listHost = taskCard.querySelector("#today-task-list");
+      taskCard.insertBefore(hint, listHost || header?.nextElementSibling || null);
+    }
+
+    let listHost = taskCard.querySelector("#today-task-list");
+    if (!listHost) {
+      listHost = document.createElement("div");
+      listHost.id = "today-task-list";
+      listHost.className = "space-y-3";
+      const oldList = taskCard.querySelector(".space-y-3");
+      if (oldList) oldList.replaceWith(listHost);
+      else taskCard.appendChild(listHost);
+    }
+
+    listHost.innerHTML = tasks.map((task, index) => {
+      const fallbackKey = task.fallbackIndex !== undefined ? fallbackTaskKey(courseId, task.fallbackIndex) : "";
+      const done = task.id ? task.completed : readFallbackTaskDone(fallbackKey);
+      const titleClass = done
+        ? "font-body-sm text-body-sm text-outline line-through group-hover:text-on-surface-variant transition-colors"
+        : index === 0 && !done
+          ? "font-body-sm text-body-sm text-on-background font-bold"
+          : "font-body-sm text-body-sm text-on-background";
+      const labelClass = done
+        ? "flex items-start gap-3 p-3 rounded-2xl hover:bg-white/40 transition-colors cursor-pointer group"
+        : index === 0 && !done
+          ? "flex items-start gap-3 p-4 rounded-2xl bg-white/80 border border-white shadow-sm group"
+          : "flex items-start gap-3 p-3 rounded-2xl hover:bg-white/40 transition-colors cursor-pointer group";
+      return `
+        <label class="${labelClass}" data-task-index="${index}">
+          <input
+            type="checkbox"
+            class="mt-0.5 w-4 h-4 rounded text-primary focus:ring-primary/30 border-outline-variant"
+            data-task-id="${escapeHtml(task.id || "")}"
+            data-fallback-key="${escapeHtml(fallbackKey)}"
+            ${done ? "checked" : ""}
+          />
+          <div class="flex-1">
+            <p class="${titleClass}">${escapeHtml(task.title)}</p>
+            ${task.subtitle ? `<p class="font-label-caps text-label-caps text-outline mt-1.5 tracking-wide">${escapeHtml(task.subtitle)}</p>` : ""}
+          </div>
+        </label>`;
+    }).join("");
+
+    listHost.querySelectorAll("input[type=checkbox]").forEach((checkbox) => {
+      checkbox.addEventListener("change", async (event) => {
+        event.stopPropagation();
+        const taskId = checkbox.dataset.taskId;
+        const fallbackKey = checkbox.dataset.fallbackKey;
+        const checked = checkbox.checked;
+        const label = checkbox.closest("label");
+        const title = label?.querySelector("p.font-body-sm");
+        try {
+          if (taskId) {
+            await api.updateRecommendationStatus(taskId, checked ? "completed" : "pending");
+            void api.trackLearningEvent?.({
+              course_id: courseId,
+              event_type: checked ? "recommendation_complete" : "recommendation_reopen",
+              event_payload: { recommendation_id: taskId, surface: "dashboard_tasks" },
+            });
+          } else if (fallbackKey) {
+            writeFallbackTaskDone(fallbackKey, checked);
+          }
+          if (title) {
+            title.className = checked
+              ? "font-body-sm text-body-sm text-outline line-through group-hover:text-on-surface-variant transition-colors"
+              : "font-body-sm text-body-sm text-on-background font-bold";
+          }
+          const refreshed = tasks.map((task, idx) => {
+            if (idx !== Number(label?.dataset.taskIndex)) return task;
+            return { ...task, completed: checked };
+          });
+          const completed = refreshed.filter((task) => {
+            if (task.id) return task.completed;
+            if (task.fallbackIndex !== undefined) {
+              return readFallbackTaskDone(fallbackTaskKey(courseId, task.fallbackIndex));
+            }
+            return false;
+          }).length;
+          if (count) count.textContent = `${completed}/${tasks.length} 已完成`;
+          api.toast(checked ? "任务已标记完成" : "任务已恢复为待完成", "success");
+        } catch (error) {
+          checkbox.checked = !checked;
+          api.toast(error.message || "任务状态保存失败", "error");
+        }
+      });
+    });
+  }
+
+  function setTasksAndReminders(courses, wikiPages, runs, recommendations, courseId) {
+    const pendingOrDone = recommendations.filter((item) => item.status === "pending" || item.status === "completed");
+    const tasks = buildTodayTasks(pendingOrDone, courses, wikiPages, runs);
+    tasks.forEach((task) => {
+      if (task.id) return;
+      if (task.fallbackIndex !== undefined) {
+        task.completed = readFallbackTaskDone(fallbackTaskKey(courseId, task.fallbackIndex));
+      }
+    });
+    renderTodayTasks(tasks, courseId, pendingOrDone);
     const reminderCard = [...document.querySelectorAll(".glass-card")].find((card) => card.innerText.includes("复习提醒"));
     if (reminderCard) {
       const list = reminderCard.querySelector("ul");
@@ -479,6 +685,9 @@
       const courses = coursePage.items || [];
       const courseId = courses[0]?.id || await api.resolveCourseId().catch(() => null);
       const wikiPage = courseId ? await api.listWikiPages(courseId, { pageSize: 20 }).catch(() => ({ items: [] })) : { items: [] };
+      const analytics = courseId && api.learningAnalyticsSummary
+        ? await api.learningAnalyticsSummary(courseId, "week").catch(() => null)
+        : null;
       const recommendationPage = courseId && api.listRecommendations ? await api.listRecommendations(courseId, { pageSize: 5 }).catch(() => ({ items: [] })) : { items: [] };
       const wikiPages = wikiPage.items || [];
       const recommendations = recommendationPage.items || [];
@@ -495,14 +704,16 @@
       setStatCards({ courses: courses.length, mastery, wiki: wikiPages.length, agents: runs.length });
       setKnowledgeCards(profile, wikiPages);
       await renderDashboardKnowledgeGraph(courseId);
+      renderDashboardTrendChart(analytics);
       setProfileCard(profile, preferences);
-      setTasksAndReminders(courses, wikiPages, runs, recommendations);
+      setTasksAndReminders(courses, wikiPages, runs, recommendations, courseId);
       bindQuickActions(courseId);
     } catch (error) {
       api.toast(error.message || "仪表盘数据加载失败", "error");
     }
   }
 
+  bindDashboardTrendToggle();
   void loadDashboard();
 })();
 </script>

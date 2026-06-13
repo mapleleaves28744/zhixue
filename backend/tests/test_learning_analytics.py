@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from types import SimpleNamespace
 from uuid import UUID, uuid4
 
@@ -10,6 +11,7 @@ from app.api.v1.learning_analytics import router as learning_analytics_router
 from app.core.deps import get_current_user
 from app.core.exceptions import register_exception_handlers
 from app.db.session import get_db
+from app.services.learning_analytics_service import LearningAnalyticsService
 
 
 class FakeLearningSession:
@@ -85,3 +87,19 @@ def test_summary_rejects_invalid_period() -> None:
     body = response.json()
     assert body["code"] == 40002
     assert body["detail"]
+
+
+def test_build_daily_series_fills_missing_days() -> None:
+    now = datetime(2026, 6, 13, 12, 0, tzinfo=UTC)
+    series = LearningAnalyticsService._build_daily_series(
+        now=now,
+        period="week",
+        active_map={"2026-06-12": 1200, "2026-06-13": 600},
+        activity_map={"2026-06-13": 3},
+    )
+    assert len(series) == 7
+    assert series[0]["date"] == "2026-06-07"
+    assert series[-1]["date"] == "2026-06-13"
+    assert series[-1]["active_seconds"] == 600
+    assert series[-1]["activity_count"] == 3
+    assert series[0]["active_seconds"] == 0

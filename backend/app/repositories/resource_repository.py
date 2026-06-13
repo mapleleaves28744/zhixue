@@ -67,7 +67,12 @@ class ResourceRepository:
         if course_id is not None:
             stmt = stmt.where(GeneratedResource.course_id == course_id)
         if resource_type is not None:
-            stmt = stmt.where(GeneratedResource.resource_type == resource_type)
+            if resource_type == "image":
+                stmt = stmt.where(
+                    GeneratedResource.resource_type.in_(("image", "mindmap", "diagram"))
+                )
+            else:
+                stmt = stmt.where(GeneratedResource.resource_type == resource_type)
         if status is not None:
             stmt = stmt.where(GeneratedResource.status == status)
 

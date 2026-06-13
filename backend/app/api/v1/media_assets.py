@@ -20,6 +20,13 @@ import time
 router = APIRouter()
 
 
+def _content_disposition_type(mime_type: str | None) -> str:
+    mime = (mime_type or "").lower()
+    if mime.startswith(("text/html", "image/", "video/", "audio/")):
+        return "inline"
+    return "attachment"
+
+
 @router.get("/{asset_id}/launch")
 async def launch_asset(
     asset_id: UUID,
@@ -66,4 +73,9 @@ async def get_asset_file(
     path = MediaStorageService().resolve_owned_path(asset.storage_path)
     if not path.exists():
         raise BusinessException(code=ErrorCode.NOT_FOUND, detail="媒体文件不存在", status_code=404)
-    return FileResponse(path, media_type=asset.mime_type, filename=path.name)
+    return FileResponse(
+        path,
+        media_type=asset.mime_type,
+        filename=path.name,
+        content_disposition_type=_content_disposition_type(asset.mime_type),
+    )

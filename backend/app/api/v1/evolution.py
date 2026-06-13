@@ -122,6 +122,18 @@ async def rollback_strategy(
     return success_response(strategy.model_dump(mode="json"), request=request)
 
 
+@router.post("/strategies/{strategy_id}/reject")
+async def reject_strategy(
+    strategy_id: UUID,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    svc = EvolutionService(db)
+    strategy = await svc.reject_strategy(strategy_id, current_user.id)
+    return success_response(strategy.model_dump(mode="json"), request=request)
+
+
 @router.get("/events")
 async def list_events(
     request: Request,

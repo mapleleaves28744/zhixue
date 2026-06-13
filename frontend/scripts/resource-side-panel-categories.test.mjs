@@ -12,8 +12,6 @@ for (const type of [
   "example",
   "flashcard",
   "review",
-  "mindmap",
-  "diagram",
   "image",
   "video",
   "animation",
@@ -22,13 +20,20 @@ for (const type of [
   "code_project",
   "reading_pack",
 ]) {
-  assert.match(resourceTypes, new RegExp(`\\|\\s*"${type}"`))
   assert.match(resourceTypeHelpers, new RegExp(`value:\\s*"${type}"`))
 }
 
+for (const type of ["mindmap", "diagram", "image"]) {
+  assert.match(resourceTypes, new RegExp(`\\|\\s*"${type}"`))
+}
+
+assert.doesNotMatch(resourceTypeHelpers, /value:\s*"mindmap"/)
+assert.doesNotMatch(resourceTypeHelpers, /value:\s*"diagram"/)
+assert.match(resourceTypeHelpers, /label:\s*"图片"/)
+
 assert.match(sidePanel, /resourceType:\s*targetType/)
 assert.match(sidePanel, /highlightResourceType/)
-assert.match(sidePanel, /已放入「\$\{getResourceTypeLabel\(nextType\)\}」分类/)
+assert.match(sidePanel, /已放入「\$\{getResourceTypeLabel\(nextType\)\}」分类|后台生成中/)
 assert.match(assistant, /resourceTypeFromEvent/)
 assert.match(assistant, /highlightResourceType=\{resourceRevealType\}/)
 

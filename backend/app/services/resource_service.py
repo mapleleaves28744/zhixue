@@ -27,8 +27,22 @@ from app.schemas.resource import (
 )
 from app.services.agent_service import AgentService
 from app.services.course_service import CourseService
+from app.services.immersive_classroom_service import CLASSROOM_MIME_TYPE
 from app.services.resource_media_service import ResourceMediaService
 from app.utils.mermaid_util import is_mermaid_code
+
+
+MEDIA_PIPELINE_TYPES = frozenset(
+    {
+        "video",
+        "animation",
+        "interactive_courseware",
+        "immersive_classroom",
+        "mindmap",
+        "diagram",
+        "image",
+    }
+)
 
 
 class ResourceService:
@@ -56,6 +70,16 @@ class ResourceService:
 
         knowledge = await self._get_knowledge(payload.knowledge_id, course, current_user)
         wiki_page = await self._get_readable_wiki_page(payload.wiki_page_id, course, current_user)
+
+        if resource_type in MEDIA_PIPELINE_TYPES:
+            return await self._generate_media_resource(
+                payload=payload,
+                current_user=current_user,
+                course=course,
+                resource_type=resource_type,
+                knowledge=knowledge,
+                wiki_page=wiki_page,
+            )
 
         result = await AgentService(self.db).run_task(
             task_type="generate_resource",
@@ -382,29 +406,218 @@ class ResourceService:
         )
         return copied
 
+    async def _generate_media_resource(
+        self,
+        *,
+        payload: ResourceGenerateRequest,
+        current_user: User,
+        course: Course,
+        resource_type: str,
+        knowledge: KnowledgePoint | None,
+        wiki_page: WikiPage | None,
+    ) -> ResourceGenerateResponse:
+        from app.services.immersive_classroom_service import ImmersiveClassroomService
+        from app.services.multimodal_resource_service import MultimodalResourceService
+
+        topic = self._resolve_generation_topic(knowledge, wiki_page, payload.requirement)
+        requirement = payload.requirement
+        multimodal = MultimodalResourceService(self.db)
+
+        media_job_id: UUID | None = None
+        job_status: str | None = None
+        job_message: str | None = None
+
+        if resource_type in {"video", "animation"}:
+            result = await multimodal.create_video_job(
+                current_user=current_user,
+                course_id=course.id,
+                topic=topic,
+                target_level=requirement,
+                resource_type=resource_type,
+            )
+            media_job_id = self._uuid(result.get("job_id"))
+            job_status = str(result.get("status") or "queued")
+            job_message = str(result.get("message") or "")
+            resource = await self._get_owned_resource(UUID(str(result["resource_id"])), current_user.id)
+        elif resource_type == "immersive_classroom":
+            result = await ImmersiveClassroomService(self.db).create_job(
+                current_user=current_user,
+                course_id=course.id,
+                topic=topic,
+                learning_goal=requirement,
+            )
+            media_job_id = self._uuid(result.get("job_id"))
+            job_status = str(result.get("status") or "queued")
+            job_message = str(result.get("message") or "")
+            resource = await self._get_owned_resource(UUID(str(result["resource_id"])), current_user.id)
+        elif resource_type == "interactive_courseware":
+            result = await multimodal.generate_courseware(
+                current_user=current_user,
+                course_id=course.id,
+                topic=topic,
+                requirement=requirement,
+                target_level=requirement,
+            )
+            resource = await self._get_owned_resource(UUID(str(result["resource_id"])), current_user.id)
+        elif resource_type in {"mindmap", "diagram", "image"}:
+            image_type_map = {
+                "mindmap": "mindmap",
+                "diagram": "process_visual",
+                "image": "concept_illustration",
+            }
+            result = await multimodal.generate_image(
+                current_user=current_user,
+                course_id=course.id,
+                topic=topic,
+                image_type=image_type_map.get(resource_type, "concept_illustration"),
+                requirement=requirement,
+            )
+            resource = await self._get_owned_resource(UUID(str(result["resource_id"])), current_user.id)
+            if resource.resource_type != "image":
+                resource.resource_type = "image"
+                await self.db.flush()
+                await self.db.commit()
+                await self.db.refresh(resource)
+        else:
+            raise BusinessException(
+                code=ErrorCode.PARAM_ERROR,
+                detail=f"不支持的媒体资源类型: {resource_type}",
+                status_code=400,
+            )
+
+        if payload.save_to_wiki and wiki_page is not None:
+            await self.save_to_wiki(
+                resource_id=resource.id,
+                current_user=current_user,
+                payload=ResourceSaveToWikiRequest(wiki_page_id=wiki_page.id),
+            )
+            refreshed = await self.resources.get_by_id(resource.id)
+            if refreshed is not None:
+                resource = refreshed
+
+        return await self._build_generate_response(
+            resource=resource,
+            user_id=current_user.id,
+            media_job_id=media_job_id,
+            job_status=job_status,
+            job_message=job_message,
+        )
+
+    async def _build_generate_response(
+        self,
+        *,
+        resource: GeneratedResource,
+        user_id: UUID,
+        media_job_id: UUID | None = None,
+        job_status: str | None = None,
+        job_message: str | None = None,
+        agent_run_id: UUID | None = None,
+        review_result: dict[str, Any] | None = None,
+    ) -> ResourceGenerateResponse:
+        response_data = await self._with_media_fields(resource, user_id)
+        response_data.update(
+            {
+                "resource_id": resource.id,
+                "id": resource.id,
+                "agent_run_id": agent_run_id,
+                "review_result": review_result
+                or {"passed": True, "risk_level": "low", "mode": "media_pipeline"},
+                "media_job_id": media_job_id,
+                "job_status": job_status,
+                "job_message": job_message,
+            }
+        )
+        return ResourceGenerateResponse.model_validate(response_data)
+
+    @staticmethod
+    def _resolve_generation_topic(
+        knowledge: KnowledgePoint | None,
+        wiki_page: WikiPage | None,
+        requirement: str | None,
+    ) -> str:
+        if knowledge is not None and knowledge.name.strip():
+            return knowledge.name.strip()
+        if wiki_page is not None and wiki_page.title.strip():
+            return wiki_page.title.strip()
+        if requirement and requirement.strip():
+            return requirement.strip()[:80]
+        return "数据结构"
+
     async def _with_media_fields(self, resource: GeneratedResource, user_id: UUID) -> dict[str, Any]:
+        media_repo = MediaRepository(self.db)
         data = GeneratedResourceRead.model_validate(resource).model_dump(mode="json")
-        asset = await MediaRepository(self.db).get_asset_for_resource(resource.id, user_id)
-        if asset is not None:
-            data["media_asset_id"] = str(asset.id)
-            data["media_mime_type"] = asset.mime_type
-            data["media_asset_type"] = asset.asset_type
-            data["media_file_url"] = f"/api/v1/media-assets/{asset.id}/file"
+        if resource.resource_type == "immersive_classroom":
+            assets = await media_repo.list_assets_for_resource(resource.id, user_id)
+            classroom_asset = next(
+                (
+                    item
+                    for item in assets
+                    if item.asset_type == "interactive_classroom"
+                    or str(item.mime_type or "") == CLASSROOM_MIME_TYPE
+                ),
+                None,
+            )
+            video_asset = next(
+                (
+                    item
+                    for item in reversed(assets)
+                    if item.asset_type == "video" or str(item.mime_type or "").startswith("video/")
+                ),
+                None,
+            )
+            primary = classroom_asset or video_asset
+            if classroom_asset is not None:
+                data["media_asset_id"] = str(classroom_asset.id)
+                data["media_mime_type"] = classroom_asset.mime_type
+                data["media_asset_type"] = classroom_asset.asset_type
+                data["media_file_url"] = f"/api/v1/media-assets/{classroom_asset.id}/file"
+            elif primary is not None:
+                data["media_asset_id"] = str(primary.id)
+                data["media_mime_type"] = primary.mime_type
+                data["media_asset_type"] = primary.asset_type
+                data["media_file_url"] = f"/api/v1/media-assets/{primary.id}/file"
+            if video_asset is not None:
+                data["preview_video_asset_id"] = str(video_asset.id)
+                data["preview_video_mime_type"] = video_asset.mime_type
+            data["preview_mode"] = "immersive_classroom" if classroom_asset is not None else self._preview_mode(
+                resource.resource_type, primary
+            )
+        else:
+            asset = await media_repo.get_asset_for_resource(resource.id, user_id)
+            if asset is not None:
+                data["media_asset_id"] = str(asset.id)
+                data["media_mime_type"] = asset.mime_type
+                data["media_asset_type"] = asset.asset_type
+                data["media_file_url"] = f"/api/v1/media-assets/{asset.id}/file"
+            data["preview_mode"] = self._preview_mode(resource.resource_type, asset)
+        if not data.get("media_asset_id"):
+            job = await media_repo.get_latest_job_for_resource(resource.id, user_id)
+            if job is not None and job.status in {"queued", "running"}:
+                data["media_job_id"] = str(job.id)
+                data["job_status"] = job.status
         data["content_format"] = "mermaid" if is_mermaid_code(resource.content) else "markdown"
-        data["preview_mode"] = self._preview_mode(resource.resource_type, asset)
         return data
 
     @staticmethod
     def _preview_mode(resource_type: str, asset: Any) -> str:
         if asset is not None:
-            if asset.asset_type == "video" or str(asset.mime_type or "").startswith("video/"):
+            mime = str(asset.mime_type or "")
+            if asset.asset_type == "video" or mime.startswith("video/"):
                 return "video"
-            if asset.asset_type == "audio" or str(asset.mime_type or "").startswith("audio/"):
+            if asset.asset_type == "audio" or mime.startswith("audio/"):
                 return "audio"
-            if asset.asset_type == "image" or str(asset.mime_type or "").startswith("image/"):
+            if asset.asset_type == "image" or mime.startswith("image/"):
                 return "image"
+            if asset.asset_type == "html" or mime.startswith("text/html"):
+                return "html"
+            if mime == CLASSROOM_MIME_TYPE:
+                return "immersive_classroom"
         if resource_type in {"mindmap", "diagram"}:
             return "mermaid"
+        if resource_type == "interactive_courseware":
+            return "html"
+        if resource_type == "immersive_classroom":
+            return "immersive_classroom"
         return "text"
 
     async def _get_owned_resource(
@@ -445,9 +658,9 @@ class ResourceService:
             "example": "例题",
             "flashcard": "复习卡",
             "review": "错题解析",
-            "mindmap": "思维导图",
-            "diagram": "图解",
-            "image": "教学插图",
+            "mindmap": "图片",
+            "diagram": "图片",
+            "image": "图片",
             "video": "讲解视频",
             "animation": "动画",
             "interactive_courseware": "互动课件",
