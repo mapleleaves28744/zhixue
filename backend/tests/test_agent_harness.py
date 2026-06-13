@@ -96,7 +96,11 @@ class _FakeQueue:
 
 
 class _FakeBroker:
+    def __init__(self) -> None:
+        self.published: list[tuple[object, str, dict[str, object]]] = []
+
     async def publish(self, task_id, event_type, payload):
+        self.published.append((task_id, event_type, payload))
         return None
 
 
@@ -119,10 +123,21 @@ class _FakeTasks:
             return self.task
         return None
 
+    async def update_task(self, task, **values):
+        for key, value in values.items():
+            setattr(task, key, value)
+        return task
+
 
 class _FakeDb:
+    def __init__(self) -> None:
+        self.refreshed: list[object] = []
+
     async def commit(self) -> None:
         return None
+
+    async def refresh(self, item) -> None:
+        self.refreshed.append(item)
 
 
 @pytest.mark.asyncio
@@ -156,6 +171,58 @@ async def test_requeue_task_re_enqueues_orphaned_queued_task() -> None:
     assert result.id == task_id
     assert queue.calls == [(task_id, None, True)]
     assert conversations.events[-1]["event_type"] == "queued"
+
+
+@pytest.mark.asyncio
+async def test_cancel_conversation_task_refreshes_before_returning_read_model() -> None:
+    task_id = uuid4()
+    user_id = uuid4()
+    now = datetime.now(UTC)
+    task = SimpleNamespace(
+        id=task_id,
+        user_id=user_id,
+        conversation_id=uuid4(),
+        course_id=uuid4(),
+        thread_id="thread-demo",
+        task_goal="demo",
+        task_type="dynamic_agent",
+        plan_schema_version="1.0",
+        graph_version="langgraph-1.0",
+        runtime_mode="langgraph",
+        plan_json={},
+        input_payload={"user_input": "demo"},
+        intent_payload={},
+        risk_level="low",
+        requires_confirmation=False,
+        confirmed_at=None,
+        status="running",
+        started_at=now,
+        finished_at=None,
+        cancelled_at=None,
+        error_message=None,
+        iteration_count=0,
+        tool_call_count=0,
+        replan_count=0,
+        checkpoint_id=None,
+        last_event_at=now,
+        created_at=now,
+        updated_at=now,
+    )
+    db = _FakeDb()
+    broker = _FakeBroker()
+    conversations = _FakeConversations()
+    service = AgentConversationService(db, queue=_FakeQueue(), broker=broker)  # type: ignore[arg-type]
+    service.tasks = _FakeTasks(task)  # type: ignore[assignment]
+    service.conversations = conversations  # type: ignore[assignment]
+
+    result = await service.cancel_task(task_id, SimpleNamespace(id=user_id))
+
+    assert result.id == task_id
+    assert result.status == "cancelled"
+    assert result.cancelled_at is not None
+    assert db.refreshed == [task]
+    assert conversations.events[-1]["event_type"] == "cancelled"
+    assert broker.published == [(task_id, "cancelled", {"sequence_no": 1})]
 
 
 @pytest.mark.asyncio

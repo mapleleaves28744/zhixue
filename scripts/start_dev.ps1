@@ -1,10 +1,12 @@
 param(
     [int]$BackendPort = 8000,
     [int]$FrontendPort = 3000,
+    [int]$OpenMAICPort = 3001,
     [string]$HostAddress = "127.0.0.1",
     [switch]$SkipMigration,
     [switch]$SkipWorker,
     [switch]$SkipFrontend,
+    [switch]$SkipOpenMAIC,
     [switch]$AllowExistingWorker
 )
 
@@ -20,10 +22,12 @@ Write-Host "Logs: runtime-logs/" -ForegroundColor DarkGray
 & $DemoScript `
     -BackendPort $BackendPort `
     -FrontendPort $FrontendPort `
+    -OpenMAICPort $OpenMAICPort `
     -HostAddress $HostAddress `
     -SkipMigration:$SkipMigration `
     -SkipWorker:$SkipWorker `
     -SkipFrontend:$SkipFrontend `
+    -SkipOpenMAIC:$SkipOpenMAIC `
     -AllowExistingWorker:$AllowExistingWorker
 
 Write-Host ""

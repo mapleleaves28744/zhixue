@@ -5941,6 +5941,166 @@
         }
       }
     },
+    "/api/v1/student/pet/feed": {
+      "get": {
+        "tags": [
+          "student-pet"
+        ],
+        "summary": "Get Feed",
+        "operationId": "get_feed_api_v1_student_pet_feed_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/student/pet/notifications/{notification_id}/read": {
+      "patch": {
+        "tags": [
+          "student-pet"
+        ],
+        "summary": "Mark Read",
+        "operationId": "mark_read_api_v1_student_pet_notifications__notification_id__read_patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "notification_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Notification Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/student/pet/notifications/read-all": {
+      "post": {
+        "tags": [
+          "student-pet"
+        ],
+        "summary": "Mark All Read",
+        "operationId": "mark_all_read_api_v1_student_pet_notifications_read_all_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/student/pet/preferences": {
+      "get": {
+        "tags": [
+          "student-pet"
+        ],
+        "summary": "Get Preferences",
+        "operationId": "get_preferences_api_v1_student_pet_preferences_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "student-pet"
+        ],
+        "summary": "Update Preferences",
+        "operationId": "update_preferences_api_v1_student_pet_preferences_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PetPreferenceUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/ab-tests/": {
       "post": {
         "tags": [
@@ -6340,6 +6500,54 @@
         }
       }
     },
+    "/api/v1/multimodal/classrooms/generate": {
+      "post": {
+        "tags": [
+          "multimodal"
+        ],
+        "summary": "Generate Immersive Classroom",
+        "operationId": "generate_immersive_classroom_api_v1_multimodal_classrooms_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImmersiveClassroomGenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Generate Immersive Classroom Api V1 Multimodal Classrooms Generate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/multimodal/images/generate": {
       "post": {
         "tags": [
@@ -6566,6 +6774,68 @@
                   "additionalProperties": true,
                   "title": "Response Get Job Api V1 Multimodal Jobs  Job Id  Get"
                 }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media-assets/{asset_id}/launch": {
+      "get": {
+        "tags": [
+          "media-assets"
+        ],
+        "summary": "Launch Asset",
+        "operationId": "launch_asset_api_v1_media_assets__asset_id__launch_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Asset Id"
+            }
+          },
+          {
+            "name": "access_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Access Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
@@ -7301,6 +7571,64 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "ImmersiveClassroomGenerateRequest": {
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Course Id"
+          },
+          "topic": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Topic"
+          },
+          "learning_goal": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Goal"
+          },
+          "generate_video_export": {
+            "type": "boolean",
+            "title": "Generate Video Export",
+            "default": true
+          },
+          "enable_images": {
+            "type": "boolean",
+            "title": "Enable Images",
+            "default": true
+          },
+          "enable_video_clips": {
+            "type": "boolean",
+            "title": "Enable Video Clips",
+            "default": false
+          },
+          "enable_tts": {
+            "type": "boolean",
+            "title": "Enable Tts",
+            "default": true
+          },
+          "use_profile": {
+            "type": "boolean",
+            "title": "Use Profile",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "course_id",
+          "topic"
+        ],
+        "title": "ImmersiveClassroomGenerateRequest"
+      },
       "InteractiveCoursewareGenerateRequest": {
         "properties": {
           "course_id": {
@@ -7662,6 +7990,63 @@
           "metric_value"
         ],
         "title": "MetricRecordRequest"
+      },
+      "PetPreferenceUpdate": {
+        "properties": {
+          "study_reminders_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Study Reminders Enabled"
+          },
+          "interval_hours": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interval Hours"
+          },
+          "quiet_start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quiet Start"
+          },
+          "quiet_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quiet End"
+          }
+        },
+        "type": "object",
+        "title": "PetPreferenceUpdate"
       },
       "ProfileDialogueIngestRequest": {
         "properties": {

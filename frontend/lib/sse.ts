@@ -5,6 +5,7 @@ export type SseHandlers = {
   onOpen?: () => void
   onClose?: () => void
   onEvent?: (eventName: string, data: Record<string, unknown>) => void
+  signal?: AbortSignal
 }
 
 export async function consumeSseStream(
@@ -15,6 +16,7 @@ export async function consumeSseStream(
   const token = getToken()
   const response = await fetch(buildApiUrl(url), {
     ...init,
+    signal: handlers.signal ?? init?.signal,
     headers: {
       Accept: "text/event-stream",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

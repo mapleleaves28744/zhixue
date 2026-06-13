@@ -50,10 +50,7 @@ class MindmapService:
             temperature=0.5,
             max_tokens=4096,
         )
-        mermaid_code = repair_mermaid_content(
-            extract_mermaid_code(response.content, fallback_root=topic),
-            root_label=topic[:40],
-        )
+        mermaid_code = self._extract_mermaid(response.content, topic=topic)
         citations = self._build_citations(knowledge_items, topic=topic, scope=scope, depth=depth)
         resource = await ResourceRepository(self.db).create(
             user_id=current_user.id,
@@ -106,6 +103,12 @@ class MindmapService:
             f"3. 中心节点为「{topic}」\n"
             f"4. {CONCISE_MERMAID_RULES}\n"
             f"5. 只输出 Mermaid 代码，不要其他解释\n"
+        )
+
+    def _extract_mermaid(self, content: str, *, topic: str) -> str:
+        return repair_mermaid_content(
+            extract_mermaid_code(content, fallback_root=topic),
+            root_label=topic[:40],
         )
 
     def _build_citations(

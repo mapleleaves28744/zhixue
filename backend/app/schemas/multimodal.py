@@ -45,6 +45,17 @@ class InteractiveCoursewareGenerateRequest(BaseModel):
     use_profile: bool = True
 
 
+class ImmersiveClassroomGenerateRequest(BaseModel):
+    course_id: UUID
+    topic: str = Field(min_length=1, max_length=200)
+    learning_goal: str | None = Field(default=None, max_length=1000)
+    generate_video_export: bool = True
+    enable_images: bool = True
+    enable_video_clips: bool = False
+    enable_tts: bool = True
+    use_profile: bool = True
+
+
 class MediaAssetRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

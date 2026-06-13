@@ -2,7 +2,7 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
-> HTTP 操作数：**130**
+> HTTP 操作数：**137**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
@@ -85,6 +85,8 @@
 | `GET` | `/api/v1/materials/{material_id}/parsed-text` | JWT | material_id* | - |
 | `GET` | `/api/v1/media-assets/{asset_id}` | JWT | asset_id* | - |
 | `GET` | `/api/v1/media-assets/{asset_id}/file` | JWT | asset_id*, access_token | - |
+| `GET` | `/api/v1/media-assets/{asset_id}/launch` | JWT | asset_id*, access_token | - |
+| `POST` | `/api/v1/multimodal/classrooms/generate` | JWT | - | application/json: `ImmersiveClassroomGenerateRequest` |
 | `POST` | `/api/v1/multimodal/courseware/generate` | JWT | - | application/json: `InteractiveCoursewareGenerateRequest` |
 | `POST` | `/api/v1/multimodal/images/generate` | JWT | - | application/json: `EducationalImageGenerateRequest` |
 | `GET` | `/api/v1/multimodal/jobs/{job_id}` | JWT | job_id* | - |
@@ -110,6 +112,11 @@
 | `POST` | `/api/v1/student/memory/reflect` | JWT | - | - |
 | `DELETE` | `/api/v1/student/memory/{memory_id}` | JWT | memory_id* | - |
 | `PATCH` | `/api/v1/student/memory/{memory_id}` | JWT | memory_id* | application/json: `MemoryUpdate` |
+| `GET` | `/api/v1/student/pet/feed` | JWT | - | - |
+| `POST` | `/api/v1/student/pet/notifications/read-all` | JWT | - | - |
+| `PATCH` | `/api/v1/student/pet/notifications/{notification_id}/read` | JWT | notification_id* | - |
+| `GET` | `/api/v1/student/pet/preferences` | JWT | - | - |
+| `PUT` | `/api/v1/student/pet/preferences` | JWT | - | application/json: `PetPreferenceUpdate` |
 | `GET` | `/api/v1/student/profile` | JWT | - | - |
 | `PUT` | `/api/v1/student/profile` | JWT | - | application/json: `ProfileUpdate` |
 | `POST` | `/api/v1/student/profile/dialogue-ingest` | JWT | - | application/json: `ProfileDialogueIngestRequest` |

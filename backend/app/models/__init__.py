@@ -22,6 +22,7 @@ from app.models.material import CourseMaterial
 from app.models.llm_log import LLMCallLog
 from app.models.media import MediaAsset, MediaJob
 from app.models.memory import StudentMemory
+from app.models.pet import PetNotification, PetPreference
 from app.models.profile import LearningPreference, StudentProfile
 from app.models.prompt import PromptVersion
 from app.models.quiz import AnswerRecord, MistakeBook, Question, Quiz
@@ -56,6 +57,8 @@ __all__ = [
     "LLMCallLog",
     "MediaAsset",
     "MediaJob",
+    "PetNotification",
+    "PetPreference",
     "PromptVersion",
     "AnswerRecord",
     "MistakeBook",

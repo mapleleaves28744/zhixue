@@ -579,6 +579,7 @@ class MiMoSupervisor:
         "generate_diagram",
         "generate_educational_image",
         "generate_lesson_video",
+        "generate_immersive_classroom",
         "generate_storyboard_html",
         "generate_interactive_courseware",
         "answer_course_question",
@@ -647,6 +648,14 @@ class MiMoSupervisor:
                 "duration_seconds": 90,
                 "visual_mode": "storyboard",
                 "target_level": "undergraduate",
+            },
+            "generate_immersive_classroom": {
+                "topic": goal,
+                "learning_goal": goal,
+                "generate_video_export": True,
+                "enable_images": True,
+                "enable_video_clips": False,
+                "enable_tts": True,
             },
             "generate_storyboard_html": {
                 "topic": goal,
@@ -736,7 +745,8 @@ class MiMoSupervisor:
             "你是智学工坊 Supervisor Agent。你的职责是根据用户目标、历史消息和工具观察，"
             "**直接通过原生 function calling 选择下一步工具**。"
             "优先调用有来源的知识检索工具；工具失败后调整方案，不要重复无效调用。"
-            "交付物必须与用户意图一致：语音→synthesize_speech，视频→generate_lesson_video，"
+            "交付物必须与用户意图一致：语音→synthesize_speech，普通短视频→generate_lesson_video，"
+            "沉浸课堂/一键课程→generate_immersive_classroom，"
             "插图→generate_educational_image，流程图→generate_diagram，练习→generate_quiz，"
             "纯答疑→answer_course_question，文字讲解资源→generate_explanation。"
             "禁止把文字资源、Markdown 或摘要冒充语音/视频/图片结果。"

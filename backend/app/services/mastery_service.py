@@ -178,6 +178,9 @@ class MasteryService:
         if profile:
             profile.mastery_snapshot = flat
             await self.db.flush()
+            from app.services.profile_context_cache import ProfileContextCache
+
+            await ProfileContextCache().invalidate(user_id)
         return flat
 
     def _apply_decay(self, row: Any, now: datetime) -> Any:

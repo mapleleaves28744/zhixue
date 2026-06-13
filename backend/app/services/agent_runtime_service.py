@@ -129,9 +129,13 @@ class AgentRuntimeService:
 
     async def _load_context(self, task: AgentTask, user: User) -> dict[str, Any]:
         from app.services.memory_service import MemoryService
+        from app.services.profile_context_cache import ProfileContextCache
         from app.services.profile_service import ProfileService
 
-        profile = await ProfileService(self.db).get_summary(user.id)
+        profile = await ProfileContextCache().get_or_load(
+            user.id,
+            lambda: ProfileService(self.db).get_summary(user.id),
+        )
         memories = await MemoryService(self.db).list_memories(user.id, task.course_id)
         return {
             "profile": profile.model_dump(mode="json"),
@@ -339,6 +343,10 @@ class AgentRuntimeService:
             )
         await self.tasks.update_task(current, **values)
         await self.db.commit()
+        if status == "completed":
+            from app.services.pet_service import PetService
+
+            await PetService(self.db).safely_create_agent_completion(current)
 
     async def _get_task(self, task_id: UUID) -> AgentTask:
         task = await self.tasks.get_by_id(task_id)

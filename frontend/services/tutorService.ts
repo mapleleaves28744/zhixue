@@ -22,6 +22,7 @@ export type TutorStreamHandlers = {
   onProgress?: (data: { stage?: string; message?: string }) => void
   onDelta?: (content: string) => void
   onDone?: (data: TutorChatResponse) => void
+  signal?: AbortSignal
 }
 
 export async function streamTutorChat(
@@ -41,6 +42,7 @@ export async function streamTutorChat(
       {
         onOpen: handlers.onOpen,
         onClose: handlers.onClose,
+        signal: handlers.signal,
         onEvent: (eventName, data) => {
           if (eventName === "delta") {
             handlers.onDelta?.(String(data.content || ""))
@@ -64,6 +66,9 @@ export async function streamTutorChat(
       },
     )
   } catch (error) {
+    if (handlers.signal?.aborted) {
+      return finalPayload
+    }
     const fallback = await chatWithTutor(payload)
     if (fallback.answer) handlers.onDelta?.(fallback.answer)
     handlers.onDone?.(fallback)

@@ -336,8 +336,20 @@ class LearningAgentGraph:
         return {"review_result": result, "status": "reviewed"}
 
     async def _memory_reflect(self, state: AgentState) -> dict[str, Any]:
-        await self.memory_reflector(state)
-        await self.event_sink("memory_reflected", state, {"message": "长期学习记忆反思完成"})
+        try:
+            await self.memory_reflector(state)
+        except Exception as exc:
+            await self.event_sink(
+                "memory_reflected",
+                state,
+                {
+                    "message": "长期学习记忆反思未完成，已跳过并保留本次回答。",
+                    "status": "skipped",
+                    "error_message": str(exc)[:500],
+                },
+            )
+            return {"status": "memory_reflected"}
+        await self.event_sink("memory_reflected", state, {"message": "长期学习记忆反思完成", "status": "succeeded"})
         return {"status": "memory_reflected"}
 
     async def _finalize(self, state: AgentState) -> dict[str, Any]:

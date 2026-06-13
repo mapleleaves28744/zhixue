@@ -397,6 +397,8 @@ class ResourceService:
     @staticmethod
     def _preview_mode(resource_type: str, asset: Any) -> str:
         if asset is not None:
+            if asset.asset_type == "video" or str(asset.mime_type or "").startswith("video/"):
+                return "video"
             if asset.asset_type == "audio" or str(asset.mime_type or "").startswith("audio/"):
                 return "audio"
             if asset.asset_type == "image" or str(asset.mime_type or "").startswith("image/"):

@@ -7,6 +7,7 @@ export type ResourceType =
   | "mindmap"
   | "diagram"
   | "image"
+  | "video"
 
 export interface ResourceCitation {
   source_type: string
@@ -39,7 +40,7 @@ export interface GeneratedResource {
   media_asset_type?: string | null
   media_file_url?: string | null
   content_format?: string | null
-  preview_mode?: "image" | "audio" | "mermaid" | "text" | null
+  preview_mode?: "image" | "audio" | "video" | "mermaid" | "text" | null
 }
 
 export interface ResourceGeneratePayload {
@@ -70,5 +71,5 @@ export interface ResourceGenerateResult {
   media_asset_type?: string | null
   media_file_url?: string | null
   content_format?: string | null
-  preview_mode?: "image" | "audio" | "mermaid" | "text" | null
+  preview_mode?: "image" | "audio" | "video" | "mermaid" | "text" | null
 }

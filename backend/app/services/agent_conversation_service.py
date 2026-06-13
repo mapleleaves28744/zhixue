@@ -216,6 +216,7 @@ class AgentConversationService:
             payload={"message": "用户取消任务"},
         )
         await self.db.commit()
+        await self.db.refresh(task)
         await self.broker.publish(task.id, "cancelled", {"sequence_no": event.sequence_no})
         return AgentTaskRead.model_validate(task)
 

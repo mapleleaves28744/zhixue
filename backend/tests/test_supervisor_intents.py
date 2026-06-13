@@ -21,6 +21,9 @@ class DirectCompleteProvider:
     [
         ("生成讲解队列的语音", ["generate_explanation", "synthesize_speech"], []),
         ("生成队列讲解视频", ["generate_lesson_video"], ["synthesize_speech"]),
+        ("为 BFS 生成沉浸课堂", ["generate_immersive_classroom"], ["generate_lesson_video"]),
+        ("一键生成数据结构课程", ["generate_immersive_classroom"], ["generate_lesson_video"]),
+        ("生成知识点讲解视频和沉浸课堂", ["generate_immersive_classroom"], ["generate_lesson_video"]),
         ("生成一份练习题", ["generate_quiz"], ["generate_explanation"]),
         ("制定学习计划并生成练习题", ["generate_learning_path", "generate_quiz"], []),
         ("讲解一下队列是什么", ["answer_course_question"], ["generate_explanation"]),
@@ -48,6 +51,7 @@ def test_plan_required_tools_avoids_common_collisions(
     [
         ("生成讲解队列的语音", "synthesize_speech"),
         ("生成队列讲解视频", "generate_lesson_video"),
+        ("为 BFS 生成沉浸课堂", "generate_immersive_classroom"),
         ("生成一份练习题", "generate_quiz"),
         ("生成讲解资料", "generate_explanation"),
         ("应用最新的一条自进化策略", "apply_evolution_strategy"),

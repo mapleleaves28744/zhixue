@@ -143,6 +143,12 @@ class MediaRepository:
         result = await self.db.execute(select(MediaJob).where(MediaJob.id == job_id))
         return result.scalar_one_or_none()
 
+    async def get_job_for_user(self, job_id: UUID, user_id: UUID) -> MediaJob | None:
+        result = await self.db.execute(
+            select(MediaJob).where(MediaJob.id == job_id, MediaJob.user_id == user_id)
+        )
+        return result.scalar_one_or_none()
+
     async def update_job(self, job: MediaJob, **values: Any) -> MediaJob:
         for key, value in values.items():
             setattr(job, key, value)

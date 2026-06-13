@@ -59,6 +59,17 @@ export interface AgentTaskEvent {
 
 export type AssistantMode = "fast" | "agent"
 
+/** 只能走智能体模式的工具；在「快速回答」下选中也会强制走路由到 Agent。 */
+export const AGENT_ONLY_TOOLS = new Set<string>([
+  "search_course_knowledge",
+  "generate_quiz",
+  "generate_learning_resource",
+  "update_profile_from_dialogue",
+  "synthesize_speech",
+  "generate_lesson_video",
+  "generate_immersive_classroom",
+])
+
 export const TOOL_OPTIONS = [
   { id: "search_course_knowledge", label: "搜索知识库" },
   { id: "generate_quiz", label: "生成练习" },
@@ -66,4 +77,6 @@ export const TOOL_OPTIONS = [
   { id: "update_profile_from_dialogue", label: "更新画像" },
   { id: "answer_course_question", label: "课程答疑" },
   { id: "synthesize_speech", label: "语音讲解" },
+  { id: "generate_lesson_video", label: "快速讲解视频" },
+  { id: "generate_immersive_classroom", label: "沉浸课堂" },
 ] as const

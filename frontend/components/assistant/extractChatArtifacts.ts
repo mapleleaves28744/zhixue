@@ -13,13 +13,86 @@ export interface ChatMediaArtifactRef {
   title?: string
   mimeType?: string
   subtype?: string
+  scenesCount?: number
+  citationCount?: number
+  personalizedReason?: string
 }
 
-function pushResourceRef(
-  raw: unknown,
-  seen: Set<string>,
-  refs: ChatArtifactRef[],
-): void {
+const TERMINAL_MEDIA_STAGES = new Set([
+  "completed",
+  "failed",
+  "cancelled",
+  "video_export_failed",
+  "video_export_queue_failed",
+])
+
+function artifactRefsFromEvent(event: AgentTaskEvent): unknown[] {
+  if (event.type === "tool_completed" && Array.isArray(event.data.artifact_refs)) {
+    return event.data.artifact_refs
+  }
+  if (event.type === "completed" && Array.isArray(event.data.artifacts)) {
+    return event.data.artifacts
+  }
+  if (event.type === "multimodal_progress" && Array.isArray(event.data.artifact_refs)) {
+    return event.data.artifact_refs
+  }
+  return []
+}
+
+export function hasMediaJob(events: AgentTaskEvent[]): boolean {
+  return events.some((event) =>
+    artifactRefsFromEvent(event).some((raw) => {
+      if (!raw || typeof raw !== "object") return false
+      const item = raw as Record<string, unknown>
+      return String(item.type || item.artifact_type || "") === "media_job"
+    }),
+  )
+}
+
+export function hasPendingMediaJobs(events: AgentTaskEvent[]): boolean {
+  return extractMediaJobProgress(events).length > 0
+}
+
+export interface MediaJobProgressRef {
+  jobId: string
+  stage: string
+  progress: number
+  message: string
+  subtype?: string
+}
+
+export function extractMediaJobProgress(events: AgentTaskEvent[]): MediaJobProgressRef[] {
+  const subtypes = new Map<string, string>()
+  const latest = new Map<string, MediaJobProgressRef>()
+
+  for (const event of events) {
+    for (const raw of artifactRefsFromEvent(event)) {
+      if (!raw || typeof raw !== "object") continue
+      const item = raw as Record<string, unknown>
+      if (String(item.type || item.artifact_type || "") !== "media_job") continue
+      const jobId = String(item.job_id || item.id || "")
+      if (!jobId) continue
+      if (item.subtype) subtypes.set(jobId, String(item.subtype))
+    }
+
+    if (event.type === "multimodal_progress") {
+      const jobId = String(event.data.job_id || "")
+      if (!jobId) continue
+      const stage = String(event.data.stage || "")
+      latest.set(jobId, {
+        jobId,
+        stage,
+        progress: Number(event.data.progress ?? 0),
+        message: String(event.data.message || "后台生成中"),
+        subtype: subtypes.get(jobId),
+      })
+    }
+  }
+
+  return [...latest.values()].filter((job) => !TERMINAL_MEDIA_STAGES.has(job.stage))
+}
+
+function pushResourceRef(raw: unknown, seen: Set<string>, refs: ChatArtifactRef[]): void {
   if (!raw || typeof raw !== "object") return
   const item = raw as Record<string, unknown>
   const type = String(item.type || item.artifact_type || "")
@@ -35,11 +108,7 @@ function pushResourceRef(
   })
 }
 
-function pushMediaRef(
-  raw: unknown,
-  seen: Set<string>,
-  refs: ChatMediaArtifactRef[],
-): void {
+function pushMediaRef(raw: unknown, seen: Set<string>, refs: ChatMediaArtifactRef[]): void {
   if (!raw || typeof raw !== "object") return
   const item = raw as Record<string, unknown>
   const type = String(item.type || item.artifact_type || "")
@@ -55,6 +124,9 @@ function pushMediaRef(
     title: item.title ? String(item.title) : undefined,
     mimeType: item.mime_type ? String(item.mime_type) : undefined,
     subtype: item.subtype ? String(item.subtype) : undefined,
+    scenesCount: item.scenes_count != null ? Number(item.scenes_count) : undefined,
+    citationCount: item.citation_count != null ? Number(item.citation_count) : undefined,
+    personalizedReason: item.personalized_reason ? String(item.personalized_reason) : undefined,
   })
 }
 
@@ -125,6 +197,12 @@ export function extractChatMediaArtifacts(
       const artifacts = evt.data.artifacts
       if (Array.isArray(artifacts)) {
         collectFromRefs(artifacts, seenResource, seenMedia, resourceRefs, mediaRefs)
+      }
+    }
+    if (evt.type === "multimodal_progress") {
+      const artifactRefs = evt.data.artifact_refs
+      if (Array.isArray(artifactRefs)) {
+        collectFromRefs(artifactRefs, seenResource, seenMedia, resourceRefs, mediaRefs)
       }
     }
   }

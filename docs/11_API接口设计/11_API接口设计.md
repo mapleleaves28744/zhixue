@@ -13,7 +13,7 @@
 >
 > 生成方式：`python scripts/export_implementation_docs.py`
 >
-> 生成依据：FastAPI `app.openapi()`，共 **130** 个 HTTP 操作。
+> 生成依据：FastAPI `app.openapi()`，共 **137** 个 HTTP 操作。
 > 最后同步：2026-06-06
 
 ## 使用规则

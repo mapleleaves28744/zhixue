@@ -80,6 +80,16 @@ class Settings(BaseSettings):
     multimodal_job_poll_interval_seconds: int = Field(default=3, alias="MULTIMODAL_JOB_POLL_INTERVAL_SECONDS")
     multimodal_job_max_wait_seconds: int = Field(default=600, alias="MULTIMODAL_JOB_MAX_WAIT_SECONDS")
 
+    # ── OpenMAIC 沉浸课堂引擎 ──
+    openmaic_enabled: bool = Field(default=False, alias="OPENMAIC_ENABLED")
+    openmaic_base_url: str = Field(default="http://127.0.0.1:3001", alias="OPENMAIC_BASE_URL")
+    openmaic_public_base_url: str = Field(default="http://127.0.0.1:3001", alias="OPENMAIC_PUBLIC_BASE_URL")
+    openmaic_internal_token: str = Field(default="", alias="OPENMAIC_INTERNAL_TOKEN")
+    openmaic_signing_secret: str = Field(default="", alias="OPENMAIC_SIGNING_SECRET")
+    openmaic_request_timeout_seconds: int = Field(default=30, alias="OPENMAIC_REQUEST_TIMEOUT_SECONDS")
+    openmaic_job_max_wait_seconds: int = Field(default=1800, alias="OPENMAIC_JOB_MAX_WAIT_SECONDS")
+    openmaic_playback_token_ttl_seconds: int = Field(default=600, alias="OPENMAIC_PLAYBACK_TOKEN_TTL_SECONDS")
+
     agnes_api_key: str = Field(
         default="",
         validation_alias=AliasChoices("AGNES_API_KEY", "SAPIENS_API_KEY", "MULTIMODAL_API_KEY"),

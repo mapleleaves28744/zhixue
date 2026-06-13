@@ -45,6 +45,20 @@ def video_intent(goal: str) -> bool:
     return "视频" in goal and not speech_intent(goal)
 
 
+def immersive_classroom_intent(goal: str) -> bool:
+    return ("一键" in goal and "课程" in goal) or any(
+        key in goal
+        for key in (
+            "沉浸课堂",
+            "沉浸式课堂",
+            "一键课程",
+            "一键生成课程",
+            "互动课堂",
+            "交互式课堂",
+        )
+    )
+
+
 def storyboard_intent(goal: str) -> bool:
     return any(k in goal for k in ("分镜", "分镜页", "storyboard", "视频分镜"))
 
@@ -131,7 +145,9 @@ def plan_required_tools(goal: str, *, is_profile_update_only: bool) -> list[str]
         if should_prepare_speech_script(goal):
             tools.append("generate_explanation")
         tools.append("synthesize_speech")
-    if video_intent(goal):
+    if immersive_classroom_intent(goal):
+        tools.append("generate_immersive_classroom")
+    elif video_intent(goal):
         tools.append("generate_lesson_video")
     if storyboard_intent(goal):
         tools.append("generate_storyboard_html")
@@ -209,7 +225,9 @@ def required_deliverables(goal: str) -> list[str]:
         deliverables.append("transcribe_audio")
     if speech_intent(goal):
         deliverables.append("synthesize_speech")
-    if video_intent(goal):
+    if immersive_classroom_intent(goal):
+        deliverables.append("generate_immersive_classroom")
+    elif video_intent(goal):
         deliverables.append("generate_lesson_video")
     if courseware_intent(goal):
         deliverables.append("generate_interactive_courseware")
@@ -236,6 +254,7 @@ def deliverable_label(tool_name: str) -> str:
     labels = {
         "synthesize_speech": "语音合成",
         "generate_lesson_video": "讲解视频",
+        "generate_immersive_classroom": "沉浸课堂与配音字幕讲解视频",
         "generate_educational_image": "教学插图",
         "generate_diagram": "图解/流程图",
         "generate_interactive_courseware": "互动课件",

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import type { ReactNode } from "react"
 
 import { Toaster } from "@/components/ui/sonner"
+import { PetCompanion } from "@/components/pet/PetCompanion"
 
 import "../styles/globals.css"
 
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <PetCompanion />
         <Toaster />
       </body>
     </html>

@@ -1,4 +1,5 @@
 import type { AgentTaskEvent } from "@/types/agent"
+import { extractMediaJobProgress } from "@/components/assistant/extractChatArtifacts"
 
 const EVENT_LABELS: Record<string, string> = {
   queued: "任务排队",
@@ -18,6 +19,12 @@ const EVENT_LABELS: Record<string, string> = {
 }
 
 export function agentStatusLine(events: AgentTaskEvent[], streaming: boolean): string {
+  const pendingJobs = extractMediaJobProgress(events)
+  if (pendingJobs.length) {
+    const job = pendingJobs[pendingJobs.length - 1]
+    return `${job.message} · ${job.progress}%`
+  }
+
   if (!events.length) {
     return streaming ? "智能体启动中…" : "等待执行"
   }

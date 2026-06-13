@@ -495,6 +495,29 @@ def build_learning_tool_registry(
             artifact_refs=[{"type": "media_job", "subtype": "video", **result}],
         )
 
+    async def generate_immersive_classroom_handler(
+        context: ToolContext,
+        arguments: dict[str, Any],
+    ) -> ToolExecutionResult:
+        from app.services.immersive_classroom_service import ImmersiveClassroomService
+
+        result = await ImmersiveClassroomService(db).create_job(
+            current_user=current_user,
+            course_id=context.course_id,
+            topic=str(arguments["topic"]),
+            learning_goal=str(arguments.get("learning_goal") or "") or None,
+            generate_video_export=bool(arguments.get("generate_video_export", True)),
+            enable_images=bool(arguments.get("enable_images", True)),
+            enable_video_clips=bool(arguments.get("enable_video_clips", False)),
+            enable_tts=bool(arguments.get("enable_tts", True)),
+            tool_context=context,
+        )
+        return ToolExecutionResult(
+            output=result,
+            evidence=["已创建基于课程 RAG 与学生画像的沉浸课堂任务，后台将继续生成课堂和配音字幕 MP4。"],
+            artifact_refs=[{"type": "media_job", "subtype": "immersive_classroom", **result}],
+        )
+
     async def generate_storyboard_html_handler(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
         from app.services.multimodal_resource_service import MultimodalResourceService
 
@@ -720,6 +743,24 @@ def build_learning_tool_registry(
         handler=generate_educational_image_handler,
         writes_db=True,
         timeout_seconds=180,
+    )
+    _register(
+        registry,
+        name="generate_immersive_classroom",
+        description="基于课程资料、学生画像与薄弱点，一键生成 OpenMAIC 沉浸课堂，并可导出配音字幕知识点讲解 MP4。",
+        agent_name="ImmersiveClassroomAgent",
+        properties={
+            "topic": {"type": "string", "minLength": 1},
+            "learning_goal": {"type": "string"},
+            "generate_video_export": {"type": "boolean"},
+            "enable_images": {"type": "boolean"},
+            "enable_video_clips": {"type": "boolean"},
+            "enable_tts": {"type": "boolean"},
+        },
+        required=["topic"],
+        handler=generate_immersive_classroom_handler,
+        writes_db=True,
+        timeout_seconds=30,
     )
     _register(
         registry,

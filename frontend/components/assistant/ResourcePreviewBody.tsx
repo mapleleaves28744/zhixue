@@ -30,6 +30,22 @@ export function ResourcePreviewBody({
         />
       ) : null}
 
+      {previewMode === "video" && hasMedia ? (
+        <div className="space-y-3">
+          <MediaAssetPreview
+            assetId={resource.media_asset_id!}
+            mimeType={resource.media_mime_type || "video/mp4"}
+            title={resource.title}
+          />
+          <details className="rounded-2xl border border-white/80 bg-white/60 p-4">
+            <summary className="cursor-pointer text-sm font-bold text-primary">查看生成说明</summary>
+            <div className="mt-3">
+              <MarkdownRenderer content={resource.content} />
+            </div>
+          </details>
+        </div>
+      ) : null}
+
       {previewMode === "audio" && hasMedia ? (
         <div className="space-y-3">
           <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4">

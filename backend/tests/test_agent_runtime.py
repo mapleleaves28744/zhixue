@@ -230,6 +230,48 @@ async def test_langgraph_agent_observes_failure_and_replans_dynamically() -> Non
     assert result["artifacts"][0]["type"] == "resource"
 
 
+@pytest.mark.asyncio
+async def test_langgraph_agent_completes_when_memory_reflection_fails() -> None:
+    async def failing_memory_reflector(state):
+        raise RuntimeError("memory schema validation failed")
+
+    class CompleteSupervisor:
+        async def decide(self, state, tool_schemas):
+            return AgentDecision(
+                status="complete",
+                summary="直接完成",
+                final_answer="队列是先进先出的线性结构。",
+            )
+
+    events: list[tuple[str, dict[str, object]]] = []
+
+    async def event_sink(event_type, state, payload):
+        events.append((event_type, payload))
+
+    graph = LearningAgentGraph(
+        registry=ToolRegistry(),
+        supervisor=CompleteSupervisor(),
+        memory_reflector=failing_memory_reflector,
+        event_sink=event_sink,
+    )
+
+    result = await graph.run(
+        task_id=uuid4(),
+        conversation_id=uuid4(),
+        user_id=uuid4(),
+        course_id=uuid4(),
+        goal="解释队列",
+        thread_id="thread-memory-reflect-fallback",
+    )
+
+    assert result["status"] == "completed"
+    assert result["final_answer"] == "队列是先进先出的线性结构。"
+    reflected = [payload for event_type, payload in events if event_type == "memory_reflected"]
+    assert reflected
+    assert reflected[-1]["status"] == "skipped"
+    assert "memory schema validation failed" in str(reflected[-1]["error_message"])
+
+
 class FakeProvider:
     async def chat(self, messages, **kwargs):
         return ChatResponse(

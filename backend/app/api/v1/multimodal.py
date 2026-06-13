@@ -9,13 +9,35 @@ from app.db.session import get_db
 from app.models.user import User
 from app.schemas.multimodal import (
     EducationalImageGenerateRequest,
+    ImmersiveClassroomGenerateRequest,
     InteractiveCoursewareGenerateRequest,
     LessonVideoGenerateRequest,
     StoryboardHtmlGenerateRequest,
 )
 from app.services.multimodal_resource_service import MultimodalResourceService
+from app.services.immersive_classroom_service import ImmersiveClassroomService
 
 router = APIRouter()
+
+
+@router.post("/classrooms/generate")
+async def generate_immersive_classroom(
+    payload: ImmersiveClassroomGenerateRequest,
+    request: Request,
+    current_user: User = Depends(require_student),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    data = await ImmersiveClassroomService(db).create_job(
+        current_user=current_user,
+        course_id=payload.course_id,
+        topic=payload.topic,
+        learning_goal=payload.learning_goal,
+        generate_video_export=payload.generate_video_export,
+        enable_images=payload.enable_images,
+        enable_video_clips=payload.enable_video_clips,
+        enable_tts=payload.enable_tts,
+    )
+    return success_response(data, request=request)
 
 
 @router.post("/images/generate")
@@ -101,8 +123,8 @@ async def get_job(
     from app.repositories.media_repository import MediaRepository
     from app.schemas.multimodal import MediaJobRead
 
-    job = await MediaRepository(db).get_job(job_id)
-    if job is None or job.user_id != current_user.id:
+    job = await MediaRepository(db).get_job_for_user(job_id, current_user.id)
+    if job is None:
         from app.core.error_codes import ErrorCode
         from app.core.exceptions import BusinessException
 

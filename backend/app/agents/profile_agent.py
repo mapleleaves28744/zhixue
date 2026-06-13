@@ -102,6 +102,9 @@ class ProfileAgent(BaseAgent):
 
         await self.db.commit()
         await self.db.refresh(profile)
+        from app.services.profile_context_cache import ProfileContextCache
+
+        await ProfileContextCache().invalidate(context.user_id)
 
         return self.success_result(
             data={"profile_id": str(profile.id), "version_no": profile.version_no},

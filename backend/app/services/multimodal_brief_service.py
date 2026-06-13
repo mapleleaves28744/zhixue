@@ -25,12 +25,13 @@ class MultimodalBriefService:
         top_k: int = 6,
     ) -> dict[str, Any]:
         profile = await ProfileService(self.db).get_profile(current_user.id)
-        search_items = await KnowledgeSearchService(self.db).search(
+        search_payload = await KnowledgeSearchService(self.db).search(
             current_user=current_user,
             course_id=course_id,
             query=topic,
             top_k=top_k,
         )
+        search_items = list(search_payload.get("items") or [])
         citations = [
             {
                 "source_type": "document",

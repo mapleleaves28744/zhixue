@@ -33,6 +33,7 @@
 - 无真实 LLM Key 时可用 Mock Provider；配置 OpenAI-compatible Provider 后可调用真实模型。
 - 2026-06-06 已使用真实 `xiaomi_mimo / mimo-v2.5` 完成资料上传到 Agent 日志的 23 步主链路验收，未回退 Mock。
 - `/assistant` 已 React 化（快速 Tutor SSE + LangGraph 智能体）；Supervisor 采用 LLM 主导、规则安全网决策模型。
+- `/assistant` 支持一句话生成基于课程 RAG、画像和薄弱点的 OpenMAIC 个性化沉浸课堂，并异步导出带配音、烧录字幕的 MP4 知识点讲解视频。
 - 前端已从存在高危公告的 Next.js 14.2.35 升级至 Next.js 16.2.7，`npm audit` 为 0 vulnerabilities。
 
 最近一次本地验收：
@@ -120,13 +121,14 @@ scripts/start_phase31_demo.ps1
 ```text
 Backend:  http://127.0.0.1:8000
 Frontend: http://127.0.0.1:3000
+OpenMAIC: http://127.0.0.1:3001
 Agent:    arq Worker
 ```
 
 如果端口被占用，脚本会提示 PID，不会自动杀进程。可以改端口：
 
 ```powershell
-scripts/start_phase31_demo.ps1 -BackendPort 8002 -FrontendPort 3001
+scripts/start_phase31_demo.ps1 -BackendPort 8002 -FrontendPort 3002 -OpenMAICPort 3001
 ```
 
 如果检测到已有 `arq app.workers.agent_worker.WorkerSettings` 进程，脚本默认会拒绝继续启动。原因是新旧 Worker 会共享同一个 Redis 队列，旧代码 Worker 可能抢走新任务，导致 `/assistant` 页面或 `agent_demo_check.py` 长时间等待。确认已有 Worker 就是当前分支版本时，才使用：
@@ -140,6 +142,8 @@ scripts/start_phase31_demo.ps1 -AllowExistingWorker
 ```powershell
 python scripts/agent_demo_check.py --base-url http://127.0.0.1:8000/api/v1
 ```
+
+启动脚本会在本次进程内生成 OpenMAIC 内部令牌和播放签名密钥，并把根 `.env` 的 `LLM_API_KEY`、`LLM_BASE_URL`、`LLM_MODEL_NAME` 映射到 Xiaomi MiMo、TTS 和 ASR 配置；不会写回或打印密钥。服务器部署应显式配置稳定的 `OPENMAIC_INTERNAL_TOKEN` 与 `OPENMAIC_SIGNING_SECRET`。
 
 ### 1. 启动后端
 
@@ -213,10 +217,11 @@ http://127.0.0.1:3000/register?api_base=http%3A%2F%2F127.0.0.1%3A8010%2Fapi%2Fv1
 7. `/assistant`：用自然语言更新画像，例如“我是软件工程大二学生，递归薄弱，喜欢 Python 代码示例和分步骤讲解，请记住我的学习偏好。”
 8. `/path-profile`：查看对话式画像证据。
 9. `/assistant`：生成学习资源，例如例题、总结或复习卡。
-10. `/practice`：生成练习题，选择答案并提交，查看自动批改。
-11. `/practice`：打开诊断报告，生成学习诊断并刷新推荐。
-12. `/dashboard`：查看课程数、Wiki 数、Agent 运行数、今日任务和推荐。
-13. `/path-profile`：生成学习路径，触发长期记忆反思，触发自进化策略分析。
+10. `/assistant`：输入“为广度优先搜索一键生成个性化沉浸课堂和讲解视频”，观察 Agent 进度，进入 OpenMAIC 课堂并等待配音字幕 MP4 产物。
+11. `/practice`：生成练习题，选择答案并提交，查看自动批改。
+12. `/practice`：打开诊断报告，生成学习诊断并刷新推荐。
+13. `/dashboard`：查看课程数、Wiki 数、Agent 运行数、今日任务和推荐。
+14. `/path-profile`：生成学习路径，触发长期记忆反思，触发自进化策略分析。
 
 演示建议资料内容可用一份简单的《数据结构》文本，例如：
 
@@ -254,6 +259,7 @@ npm run build
 scripts/local_check.ps1 -Database
 scripts/local_check.ps1 -Backend
 scripts/local_check.ps1 -Frontend
+scripts/local_check.ps1 -OpenMAIC
 scripts/local_check.ps1 -MainChain
 scripts/local_check.ps1 -AgentDemo
 ```
@@ -263,6 +269,7 @@ scripts/local_check.ps1 -AgentDemo
 - `-Backend` 会运行后端 pytest 和 FastAPI import check。
 - `-Database` 会运行 Alembic migration。
 - `-Frontend` 会运行 TypeScript 检查和 Next.js build。
+- `-OpenMAIC` 会运行内部鉴权测试和 OpenMAIC 生产构建。
 - `-MainChain` 要求后端已启动且配置真实 LLM Provider；会创建隔离测试账号并执行完整真实生成链路，回退 Mock 时直接失败。
 - `-AgentDemo` 要求后端和 arq Worker 已启动；会验证 `/assistant` 统一 Agent 入口、工具事件、对话式画像和学习路径生成。
 - `-All` 不包含真实 LLM 主链路，避免日常检查意外消耗 API 配额。
@@ -371,3 +378,10 @@ zhixue/
 - 练习诊断：生成题目、提交答案、自动批改、形成诊断报告。
 - 推荐与学习路径：基于诊断、路径、Wiki 和行为日志生成下一步任务。
 - 长期记忆与自进化：Memory Agent 生成学习记忆，Evolution Agent 生成可确认、可追溯的策略建议。
+- 个性化沉浸课堂：智学工坊负责 RAG/画像/权限/任务编排，仓库内二次开发的 OpenMAIC 负责场景与播放，完成后继续生成带配音字幕的 MP4。
+
+## OpenMAIC 来源与比赛表述
+
+本项目没有把 OpenMAIC 描述为自研原始项目。仓库在 `third_party/openmaic` 保留其 AGPL-3.0 许可证、上游仓库、基线 commit 和本项目改动说明。推荐答辩表述：
+
+> 智学工坊参考并二次开发了开源 OpenMAIC 的沉浸课堂生成能力，将其封装为受控课堂引擎；我们的核心工作是把课程 RAG 引用、学生画像与薄弱点、多智能体任务编排、用户权限隔离、课堂产物管理，以及 MiMo 配音字幕 MP4 导出整合成可追溯的个性化学习闭环。

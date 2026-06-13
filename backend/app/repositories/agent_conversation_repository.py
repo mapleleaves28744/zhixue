@@ -5,6 +5,7 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.agent_conversation import AgentConversation, AgentMessage, AgentTaskEvent
@@ -93,21 +94,28 @@ class AgentConversationRepository:
         event_type: str,
         payload: dict[str, Any],
     ) -> AgentTaskEvent:
-        current = (
-            await self.db.execute(
-                select(func.max(AgentTaskEvent.sequence_no)).where(AgentTaskEvent.task_id == task_id)
+        for attempt in range(3):
+            current = (
+                await self.db.execute(
+                    select(func.max(AgentTaskEvent.sequence_no)).where(AgentTaskEvent.task_id == task_id)
+                )
+            ).scalar()
+            event = AgentTaskEvent(
+                task_id=task_id,
+                conversation_id=conversation_id,
+                sequence_no=int(current or 0) + 1,
+                event_type=event_type,
+                payload=payload,
             )
-        ).scalar()
-        event = AgentTaskEvent(
-            task_id=task_id,
-            conversation_id=conversation_id,
-            sequence_no=int(current or 0) + 1,
-            event_type=event_type,
-            payload=payload,
-        )
-        self.db.add(event)
-        await self.db.flush()
-        return event
+            self.db.add(event)
+            try:
+                await self.db.flush()
+                return event
+            except IntegrityError:
+                await self.db.rollback()
+                if attempt >= 2:
+                    raise
+        raise RuntimeError("failed to append agent task event")
 
     async def list_events(self, task_id: UUID, after_sequence: int = 0) -> list[AgentTaskEvent]:
         result = await self.db.execute(

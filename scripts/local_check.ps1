@@ -1,6 +1,7 @@
 param(
     [switch]$Backend,
     [switch]$Frontend,
+    [switch]$OpenMAIC,
     [switch]$Database,
     [switch]$MainChain,
     [string]$MainChainBaseUrl = "http://127.0.0.1:8000/api/v1",
@@ -12,7 +13,7 @@ param(
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 
-if (-not ($Backend -or $Frontend -or $Database -or $MainChain -or $AgentDemo -or $All)) {
+if (-not ($Backend -or $Frontend -or $OpenMAIC -or $Database -or $MainChain -or $AgentDemo -or $All)) {
     $All = $true
 }
 
@@ -58,6 +59,20 @@ if ($All -or $Frontend) {
     Run-Step "Frontend build" {
         Push-Location "$Root\frontend"
         npm run build
+        Pop-Location
+    }
+}
+
+if ($OpenMAIC) {
+    Run-Step "OpenMAIC internal auth test" {
+        Push-Location "$Root\third_party\openmaic"
+        pnpm vitest run tests/server/internal-auth.test.ts
+        Pop-Location
+    }
+
+    Run-Step "OpenMAIC production build" {
+        Push-Location "$Root\third_party\openmaic"
+        pnpm build
         Pop-Location
     }
 }

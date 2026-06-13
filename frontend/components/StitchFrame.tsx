@@ -1,7 +1,7 @@
 "use client"
 
 import type { CSSProperties } from "react"
-import { useMemo } from "react"
+import { useEffect, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 
 type StitchFrameProps = {
@@ -38,7 +38,11 @@ function buildFrameSrc(src: string): string {
 }
 
 export function StitchFrame({ title, src }: StitchFrameProps) {
-  const frameSrc = useMemo(() => buildFrameSrc(src), [src])
+  const [frameSrc, setFrameSrc] = useState(src)
+
+  useEffect(() => {
+    setFrameSrc(buildFrameSrc(src))
+  }, [src])
 
   return (
     <AnimatePresence mode="wait">

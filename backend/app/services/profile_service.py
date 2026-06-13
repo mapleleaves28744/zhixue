@@ -39,6 +39,7 @@ class ProfileService:
         profile.version_no += 1
         await self.db.commit()
         await self.db.refresh(profile)
+        await self._invalidate_context_cache(user_id)
         return ProfileRead.model_validate(profile)
 
     async def get_summary(self, user_id: UUID) -> ProfileSummary:
@@ -133,6 +134,7 @@ class ProfileService:
         await self.db.refresh(profile)
         if preference is not None:
             await self.db.refresh(preference)
+        await self._invalidate_context_cache(user_id)
 
         if course_id is not None:
             try:
@@ -177,7 +179,13 @@ class ProfileService:
                 status_code=500,
             )
         profile = await self._get_or_create(user_id)
+        await self._invalidate_context_cache(user_id)
         return ProfileRead.model_validate(profile)
+
+    async def _invalidate_context_cache(self, user_id: UUID) -> None:
+        from app.services.profile_context_cache import ProfileContextCache
+
+        await ProfileContextCache().invalidate(user_id)
 
     def _build_profile_updated_event_payload(
         self,

@@ -101,6 +101,10 @@ class AgentTaskService:
             current_user=current_user,
         )
         await self.db.refresh(task)
+        if task.status == "succeeded":
+            from app.services.pet_service import PetService
+
+            await PetService(self.db).safely_create_agent_completion(task)
         return AgentTaskRead.model_validate(task)
 
     def ensure_can_run(self, task: object) -> None:

@@ -84,3 +84,8 @@ select {
   padding: 0.1rem 0.35rem;
   font-size: 0.85em;
 }
+
+@keyframes pet-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}

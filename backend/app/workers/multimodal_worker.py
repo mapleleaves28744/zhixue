@@ -5,10 +5,13 @@ from uuid import UUID
 
 from app.core.config import settings
 from app.db.session import AsyncSessionLocal
+from app.integrations.openmaic.client import OpenMAICManifest
 from app.llm.multimodal_provider import build_multimodal_provider
 from app.repositories.media_repository import MediaRepository
+from app.repositories.resource_repository import ResourceRepository
+from app.services.classroom_video_export_service import ClassroomVideoExportService
 from app.services.media_storage_service import MediaStorageService
-from app.services.video_render_service import VideoRenderService, build_storyboard
+from app.services.video_render_service import build_storyboard
 
 
 async def run_multimodal_video_job(ctx: dict, job_id: str) -> dict:
@@ -58,12 +61,22 @@ async def run_multimodal_video_job(ctx: dict, job_id: str) -> dict:
                     render_meta = {"mode": "remote", "raw": remote.raw}
 
             if not asset_path:
-                video = VideoRenderService()
-                asset_path, size, mime, render_meta = await video.render_storyboard_video(
+                manifest = build_storyboard_manifest(topic, storyboard)
+                asset_path, size, mime, render_meta = await ClassroomVideoExportService().export(
+                    manifest=manifest,
                     topic=topic,
-                    storyboard=storyboard,
-                    duration_seconds=int(payload.get("duration_seconds") or 90),
                 )
+                audio_sources = list(render_meta.get("audio_sources") or [])
+                all_audio_fallback = bool(audio_sources) and all(
+                    bool(source.get("fallback")) for source in audio_sources
+                )
+                if settings.llm_api_key and settings.llm_base_url and all_audio_fallback:
+                    raise RuntimeError("MiMo 配音生成失败，已拒绝发布静音降级视频")
+                render_meta = {
+                    **render_meta,
+                    "mode": "narrated_storyboard",
+                    "audio_degraded": all_audio_fallback,
+                }
 
             await repo.update_job(job, stage="saving", progress=85)
             await db.commit()
@@ -78,21 +91,71 @@ async def run_multimodal_video_job(ctx: dict, job_id: str) -> dict:
                 tool_call_id=job.tool_call_id,
                 asset_type="video" if mime == "video/mp4" else "html",
                 title=f"{topic} 个性化讲解视频",
-                description="由智学工坊生成的多模态讲解视频/分镜。",
+                description="由课程依据、中文讲解画面、MiMo 配音和烧录字幕合成的讲解视频。",
                 storage_path=asset_path,
                 mime_type=mime,
                 file_size=size,
-                provider=job.provider,
-                model_name="local-storyboard-v1",
+                provider="mimo_narrated_storyboard" if render_meta.get("mode") == "narrated_storyboard" else job.provider,
+                model_name=(
+                    "storyboard-mimo-tts-moviepy"
+                    if render_meta.get("mode") == "narrated_storyboard"
+                    else "remote-video-provider"
+                ),
                 prompt=_video_prompt(topic, brief, storyboard),
                 citations=brief.get("citations") or [],
-                safety_result={"passed": True, "risk_level": "low", "review": "storyboard_based"},
+                safety_result={
+                    "passed": True,
+                    "risk_level": "low",
+                    "review": "grounded_narrated_storyboard",
+                    "audio_degraded": bool(render_meta.get("audio_degraded")),
+                },
                 render_meta={**render_meta, "storyboard": storyboard},
             )
-            await repo.mark_job_succeeded(job, asset_id=asset.id, output_payload={"asset_id": str(asset.id)})
+            if job.resource_id:
+                resource = await ResourceRepository(db).get_by_id(job.resource_id)
+                if resource is not None:
+                    resource.content = "讲解视频已生成，可在学习资源区直接播放。"
+                    resource.model_name = asset.model_name
+                    await db.flush()
+            artifact_refs = build_video_completion_refs(
+                resource_id=str(job.resource_id) if job.resource_id else None,
+                asset_id=str(asset.id),
+                title=asset.title,
+                mime_type=mime,
+            )
+            output_payload = {
+                "asset_id": str(asset.id),
+                "resource_id": str(job.resource_id) if job.resource_id else None,
+                "artifact_refs": artifact_refs,
+                "render_meta": render_meta,
+            }
+            await repo.mark_job_succeeded(job, asset_id=asset.id, output_payload=output_payload)
             await db.commit()
-            await _publish_progress(db, job, "completed", 100, "视频生成完成", asset_id=str(asset.id))
-            return {"status": "succeeded", "asset_id": str(asset.id)}
+            from app.services.pet_service import PetService
+
+            await PetService(db).safely_create_media_completion(
+                user_id=job.user_id,
+                course_id=job.course_id,
+                job_id=job.id,
+                title=asset.title,
+                conversation_id=job.conversation_id,
+                agent_task_id=job.agent_task_id,
+            )
+            await _publish_progress(
+                db,
+                job,
+                "completed",
+                100,
+                "视频生成完成，已放入学习资源区",
+                asset_id=str(asset.id),
+                resource_id=str(job.resource_id) if job.resource_id else None,
+                artifact_refs=artifact_refs,
+            )
+            return {
+                "status": "succeeded",
+                "asset_id": str(asset.id),
+                "resource_id": str(job.resource_id) if job.resource_id else None,
+            }
         except Exception as exc:
             await repo.mark_job_failed(job, str(exc))
             await db.commit()
@@ -127,8 +190,62 @@ async def _publish_progress(db, job, stage: str, progress: int, message: str, **
             {"sequence_no": event.sequence_no, "stage": stage, "progress": progress, "message": message, **extra},
         )
     except Exception:
+        await db.rollback()
         return
 
 
 def _video_prompt(topic: str, brief: dict, storyboard: list[dict]) -> str:
     return f"主题：{topic}\n课程依据：{brief.get('source_summary') or ''}\n分镜：{storyboard}"
+
+
+def build_storyboard_manifest(topic: str, storyboard: list[dict]) -> OpenMAICManifest:
+    scenes = []
+    for index, item in enumerate(storyboard, start=1):
+        title = str(item.get("title") or f"{topic} · 场景 {index}").strip()
+        narration = str(item.get("narration") or item.get("body") or "").strip()
+        if not narration:
+            narration = f"本节讲解 {title}，请结合课程资料理解这一知识点。"
+        scenes.append(
+            {
+                "id": f"storyboard_scene_{index}",
+                "title": title,
+                "actions": [{"type": "speech", "text": narration}],
+            }
+        )
+    return OpenMAICManifest(
+        classroom_id="fast_narrated_storyboard",
+        stage={"name": topic},
+        scenes=scenes,
+    )
+
+
+def build_video_completion_refs(
+    *,
+    resource_id: str | None,
+    asset_id: str,
+    title: str,
+    mime_type: str,
+) -> list[dict[str, str]]:
+    refs: list[dict[str, str]] = []
+    if resource_id:
+        refs.append(
+            {
+                "type": "resource",
+                "subtype": "video",
+                "id": resource_id,
+                "resource_id": resource_id,
+                "title": title,
+            }
+        )
+    media_ref = {
+        "type": "media_asset",
+        "subtype": "video",
+        "id": asset_id,
+        "asset_id": asset_id,
+        "title": title,
+        "mime_type": mime_type,
+    }
+    if resource_id:
+        media_ref["resource_id"] = resource_id
+    refs.append(media_ref)
+    return refs

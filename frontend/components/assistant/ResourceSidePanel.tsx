@@ -18,6 +18,11 @@ const RESOURCE_TYPES: { value: ResourceType; label: string }[] = [
   { value: "diagram", label: "图解" },
 ]
 
+const RESOURCE_DISPLAY_LABELS: Record<string, string> = {
+  video: "讲解视频",
+  image: "教学插图",
+}
+
 const LAST_RESOURCE_KEY = "zhixue_last_resource_id"
 
 interface ResourceSidePanelProps {
@@ -206,6 +211,8 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
                 <span className="material-symbols-outlined text-lg text-primary">
                   {item.preview_mode === "audio"
                     ? "volume_up"
+                    : item.preview_mode === "video"
+                      ? "movie"
                     : item.preview_mode === "image" || item.preview_mode === "mermaid" || item.resource_type === "mindmap" || item.resource_type === "diagram"
                       ? "account_tree"
                       : item.resource_type === "image"
@@ -214,9 +221,9 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
                 </span>
                 <span className="mt-1 line-clamp-2 text-xs font-semibold">{item.title}</span>
                 <span className="mt-auto text-[10px] text-outline">
-                  {item.resource_type === "image"
-                    ? "教学插图"
-                    : RESOURCE_TYPES.find((t) => t.value === item.resource_type)?.label || item.resource_type}
+                  {RESOURCE_DISPLAY_LABELS[item.resource_type] ||
+                    RESOURCE_TYPES.find((t) => t.value === item.resource_type)?.label ||
+                    item.resource_type}
                 </span>
               </button>
             ))}

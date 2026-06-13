@@ -298,6 +298,21 @@
   const courseSelect = document.querySelector(".p-5.border-b select");
   const chapterSelect = document.querySelectorAll(".p-5.border-b select")[1];
   const chatArea = document.querySelector(".flex-1.overflow-y-auto.p-8.space-y-8");
+  let chatStickToBottom = true;
+  if (chatArea) {
+    chatArea.addEventListener(
+      "scroll",
+      () => {
+        chatStickToBottom = chatArea.scrollHeight - chatArea.scrollTop - chatArea.clientHeight < 80;
+      },
+      { passive: true },
+    );
+  }
+  function scrollChatToBottom(force = false) {
+    if (!chatArea || (!force && !chatStickToBottom)) return;
+    chatArea.scrollTop = chatArea.scrollHeight;
+    chatStickToBottom = true;
+  }
   const textarea = document.querySelector("textarea[placeholder='输入问题，按 Enter 发送...']");
   const sendButton = textarea?.parentElement?.querySelector("button:last-child");
   const audioUploadInput = document.getElementById("audio-upload-input");
@@ -439,7 +454,7 @@
     }
   }
 
-  function appendUserMessage(question) {
+  function appendUserMessage(question, options = {}) {
     if (!chatArea) {
       return;
     }
@@ -453,7 +468,9 @@
         <p class="text-body-md text-on-surface leading-relaxed">${escapeHtml(question)}</p>
       </div>`;
     chatArea.appendChild(wrapper);
-    chatArea.scrollTop = chatArea.scrollHeight;
+    if (options.scroll !== false) {
+      scrollChatToBottom(true);
+    }
   }
 
   const taskStatusLabels = {
@@ -520,7 +537,7 @@
       }
       for (const message of messages) {
         if (message.role === "user") {
-          appendUserMessage(message.content);
+          appendUserMessage(message.content, { scroll: false });
           if (message.task_id) {
             const task = await api.getDynamicAgentTask(message.task_id);
             const wrapper = appendDynamicAgentTaskCard(task);
@@ -534,9 +551,10 @@
             provider: "xiaomi_mimo",
             model: "mimo-v2.5",
             agent_run_id: message.task_id,
-          });
+          }, undefined, undefined, { scroll: false });
         }
       }
+      scrollChatToBottom(true);
     } catch (error) {
       api.toast(error.message || "Agent 会话历史加载失败", "error");
     }
@@ -643,7 +661,6 @@
     wrapper.querySelectorAll("[data-task-action]").forEach((button) => {
       button.addEventListener("click", () => handleDynamicAgentTaskAction(wrapper, button.dataset.taskAction, button));
     });
-    chatArea.scrollTop = chatArea.scrollHeight;
   }
 
   function appendDynamicAgentTaskCard(task) {
@@ -711,7 +728,18 @@
       await api.streamDynamicAgentTaskEvents(taskId, {
         onEvent: async (eventType, data) => {
           if (eventType !== "heartbeat") {
-            wrapper.__agentEvents.push({ type: eventType, data });
+            if (eventType === "multimodal_progress" && data?.job_id) {
+              const existingIndex = wrapper.__agentEvents.findIndex(
+                (event) => event.type === "multimodal_progress" && event.data?.job_id === data.job_id,
+              );
+              if (existingIndex >= 0) {
+                wrapper.__agentEvents[existingIndex] = { type: eventType, data };
+              } else {
+                wrapper.__agentEvents.push({ type: eventType, data });
+              }
+            } else {
+              wrapper.__agentEvents.push({ type: eventType, data });
+            }
           }
           if (eventType === "multimodal_progress" && data?.job_id && wrapper.__agentTask?.plan_json) {
             const refs = wrapper.__agentTask.plan_json.artifact_refs || [];
@@ -819,7 +847,6 @@
             </div>`;
         }).join("");
       }
-      chatArea.scrollTop = chatArea.scrollHeight;
     }
 
     const timer = window.setInterval(() => {
@@ -901,7 +928,7 @@
     return parts.join(" · ");
   }
 
-  function appendAiMessage(payload, sources, model) {
+  function appendAiMessage(payload, sources, model, options = {}) {
     if (!chatArea) {
       return;
     }
@@ -1007,7 +1034,9 @@
       });
     });
     showKnowledgeExtractToast(data.knowledge_extract);
-    chatArea.scrollTop = chatArea.scrollHeight;
+    if (options.scroll !== false) {
+      scrollChatToBottom(true);
+    }
   }
 
   async function saveTutorAnswer(messageId) {

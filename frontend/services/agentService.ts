@@ -72,11 +72,13 @@ export function streamAgentTaskEvents(
     onEvent?: (eventType: string, data: Record<string, unknown>) => void
     onOpen?: () => void
     onClose?: () => void
+    signal?: AbortSignal
   },
 ): Promise<void> {
   return consumeSseStream(`/api/v1/agent/tasks/${taskId}/events`, {
     onOpen: handlers.onOpen,
     onClose: handlers.onClose,
     onEvent: handlers.onEvent,
+    signal: handlers.signal,
   })
 }

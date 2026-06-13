@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select
+from datetime import datetime
+
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.agent_task import AgentTask, AgentTaskStep
@@ -23,6 +25,23 @@ class AgentTaskRepository:
                 AgentTask.runtime_mode == "langgraph",
             )
             .order_by(AgentTask.created_at.asc())
+            .limit(limit)
+        )
+        return list(result.scalars().all())
+
+    async def list_stale_running_tasks(self, *, older_than: datetime, limit: int = 20) -> list[AgentTask]:
+        result = await self.db.execute(
+            select(AgentTask)
+            .where(
+                AgentTask.status == "running",
+                AgentTask.runtime_mode == "langgraph",
+                or_(
+                    AgentTask.last_event_at.is_(None),
+                    AgentTask.last_event_at < older_than,
+                ),
+                AgentTask.started_at < older_than,
+            )
+            .order_by(AgentTask.started_at.asc())
             .limit(limit)
         )
         return list(result.scalars().all())

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from app.services.resource_media_service import ResourceMediaService
+from app.services.resource_service import ResourceService
 from app.utils.mermaid_util import extract_mermaid_code, is_mermaid_code, repair_mermaid_content
 
 
@@ -42,3 +43,9 @@ def test_speech_text_from_markdown_strips_headings() -> None:
     text = ResourceMediaService._speech_text_from_markdown("## 栈\n\n- 后进先出\n\n用于函数调用。")
     assert "栈" in text
     assert "##" not in text
+
+
+def test_resource_preview_mode_recognizes_video_asset() -> None:
+    asset = type("Asset", (), {"asset_type": "video", "mime_type": "video/mp4"})()
+
+    assert ResourceService._preview_mode("video", asset) == "video"

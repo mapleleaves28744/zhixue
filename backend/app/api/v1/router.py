@@ -16,6 +16,7 @@ from app.api.v1 import (
     materials,
     media_assets,
     multimodal,
+    pet,
     quizzes,
     recommendations,
     resources,
@@ -56,6 +57,7 @@ router.include_router(agent.router, prefix="/agent", tags=["agent"])
 router.include_router(agent_tasks.router, prefix="/agent-tasks", tags=["agent-tasks"])
 router.include_router(student_profile.router, prefix="/student/profile", tags=["student-profile"])
 router.include_router(student_memory.router, prefix="/student/memory", tags=["student-memory"])
+router.include_router(pet.router, prefix="/student/pet", tags=["student-pet"])
 router.include_router(ab_tests.router, prefix="/ab-tests", tags=["ab-tests"])
 router.include_router(multimodal.router, prefix="/multimodal", tags=["multimodal"])
 router.include_router(media_assets.router, prefix="/media-assets", tags=["media-assets"])
