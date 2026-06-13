@@ -67,7 +67,7 @@ class ImmersiveClassroomService:
             course_id=course_id,
             knowledge_id=None,
             wiki_page_id=None,
-            resource_type="interactive_courseware",
+            resource_type="immersive_classroom",
             title=f"{topic} 个性化沉浸课堂",
             content="沉浸课堂任务已创建，正在生成场景、媒体与配音。",
             citations=brief.get("citations") or [],

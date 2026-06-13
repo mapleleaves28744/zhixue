@@ -111,11 +111,10 @@ class AgentConversationRepository:
             try:
                 await self.db.flush()
                 return event
-            except IntegrityError:
+            except IntegrityError as exc:
                 await self.db.rollback()
                 if attempt >= 2:
-                    raise
-        raise RuntimeError("failed to append agent task event")
+                    raise RuntimeError("failed to append agent task event") from exc
 
     async def list_events(self, task_id: UUID, after_sequence: int = 0) -> list[AgentTaskEvent]:
         result = await self.db.execute(

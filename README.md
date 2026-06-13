@@ -41,7 +41,7 @@
 ```powershell
 cd backend
 python -m pytest -q --maxfail=1
-# 304 passed；最新数字见全量验收报告
+# 323 passed；DEF-012～015 修复后全量回归
 
 python -m alembic upgrade head
 # OK

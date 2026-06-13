@@ -4,6 +4,8 @@ import json
 from collections import Counter
 from typing import Any
 
+from uuid import UUID
+
 from sqlalchemy import select
 
 from app.agents.base_agent import BaseAgent
@@ -34,8 +36,13 @@ class MemoryAgent(BaseAgent):
         from app.services.memory_service import MemoryService
 
         course_id_str = context.params.get("course_id")
+        scoped_course_id: UUID | None = UUID(str(course_id_str)) if course_id_str else None
         state_condition = [MemoryReflectionState.user_id == context.user_id]
-        state_condition.append(MemoryReflectionState.course_id == context.course_id if course_id_str else MemoryReflectionState.course_id.is_(None))
+        state_condition.append(
+            MemoryReflectionState.course_id == scoped_course_id
+            if scoped_course_id
+            else MemoryReflectionState.course_id.is_(None)
+        )
         state = (await self.db.execute(select(MemoryReflectionState).where(*state_condition))).scalar_one_or_none()
         stmt = (
             select(LearningRecord)
@@ -43,8 +50,8 @@ class MemoryAgent(BaseAgent):
             .order_by(LearningRecord.created_at.asc())
             .limit(100)
         )
-        if course_id_str:
-            stmt = stmt.where(LearningRecord.course_id == context.course_id)
+        if scoped_course_id:
+            stmt = stmt.where(LearningRecord.course_id == scoped_course_id)
         if state and state.last_record_created_at:
             stmt = stmt.where(LearningRecord.created_at > state.last_record_created_at)
         result = await self.db.execute(stmt)
@@ -63,7 +70,7 @@ class MemoryAgent(BaseAgent):
         for m in memories_data:
             _, action = await memory_service.upsert_memory(
                 user_id=context.user_id,
-                course_id=context.course_id if course_id_str else None,
+                course_id=scoped_course_id,
                 memory_type=m.get("memory_type", "insight"),
                 content=m.get("content", ""),
                 evidence=m.get("evidence", []),
@@ -73,7 +80,7 @@ class MemoryAgent(BaseAgent):
 
         if records:
             if state is None:
-                state = MemoryReflectionState(user_id=context.user_id, course_id=context.course_id if course_id_str else None)
+                state = MemoryReflectionState(user_id=context.user_id, course_id=scoped_course_id)
                 self.db.add(state)
             state.last_record_created_at = records[-1].created_at
             state.last_record_id = records[-1].id

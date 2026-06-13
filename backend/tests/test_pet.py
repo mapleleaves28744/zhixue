@@ -61,7 +61,7 @@ def test_agent_notification_action_can_target_resource_category() -> None:
         resource_type="immersive_classroom",
     ) == (
         f"/assistant?course_id={course_id}&conversation_id={conversation_id}&task_id={task_id}"
-        "&resource_type=interactive_courseware"
+        "&resource_type=immersive_classroom"
     )
 
 
@@ -79,7 +79,7 @@ def test_pet_resource_type_inference_supports_agent_artifact_aliases() -> None:
         ]
     }
 
-    assert PetService._resource_type_from_payload(payload) == "interactive_courseware"
+    assert PetService._resource_type_from_payload(payload) == "immersive_classroom"
 
 
 @pytest.mark.asyncio

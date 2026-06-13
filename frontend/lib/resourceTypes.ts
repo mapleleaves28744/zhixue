@@ -12,6 +12,7 @@ export const RESOURCE_CATEGORY_OPTIONS: { value: ResourceType; label: string }[]
   { value: "video", label: "讲解视频" },
   { value: "animation", label: "动画演示" },
   { value: "interactive_courseware", label: "互动课件" },
+  { value: "immersive_classroom", label: "沉浸课堂" },
   { value: "code_project", label: "代码实操" },
   { value: "reading_pack", label: "拓展阅读" },
 ]
@@ -25,7 +26,7 @@ const RESOURCE_TYPE_VALUES = new Set<ResourceType>(RESOURCE_CATEGORY_OPTIONS.map
 const RESOURCE_TYPE_ALIASES: Record<string, ResourceType> = {
   courseware: "interactive_courseware",
   interactive_classroom: "interactive_courseware",
-  immersive_classroom: "interactive_courseware",
+  immersive_classroom: "immersive_classroom",
   narrated_classroom_video: "video",
   storyboard: "video",
   media_video: "video",

@@ -18,6 +18,7 @@ for (const type of [
   "video",
   "animation",
   "interactive_courseware",
+  "immersive_classroom",
   "code_project",
   "reading_pack",
 ]) {

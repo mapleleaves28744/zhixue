@@ -32,6 +32,7 @@ RESOURCE_SECTION_LABELS = {
     "video": "讲解视频",
     "animation": "动画演示",
     "interactive_courseware": "互动课件",
+    "immersive_classroom": "沉浸课堂",
     "code_project": "代码实操",
     "reading_pack": "拓展阅读",
 }
@@ -39,7 +40,7 @@ RESOURCE_SECTION_LABELS = {
 RESOURCE_TYPE_ALIASES = {
     "courseware": "interactive_courseware",
     "interactive_classroom": "interactive_courseware",
-    "immersive_classroom": "interactive_courseware",
+    "immersive_classroom": "immersive_classroom",
     "narrated_classroom_video": "video",
     "storyboard": "video",
     "media_video": "video",

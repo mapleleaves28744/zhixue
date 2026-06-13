@@ -142,7 +142,6 @@ class MiMoSupervisor:
         available = self._available_tool_names(tool_schemas)
         completed_tools = self._completed_tool_names(state)
         skip_tools = set(state.get("skip_tools") or [])
-        pending_deliverables = self._pending_deliverables(goal, available, completed_tools, skip_tools)
 
         if decision.tool_calls:
             if decision.status == "complete":
@@ -151,6 +150,9 @@ class MiMoSupervisor:
                 call for call in decision.tool_calls if call.name not in completed_tools
             ]
             if not decision.tool_calls:
+                pending_deliverables = self._pending_deliverables(
+                    goal, available, completed_tools, skip_tools
+                )
                 if not pending_deliverables:
                     return AgentDecision(
                         status="complete",
@@ -180,6 +182,21 @@ class MiMoSupervisor:
                 call.arguments = self._safe_arguments(call.name, call.arguments, goal, state)
             if decision.tool_calls:
                 return decision
+            pending_deliverables = self._pending_deliverables(
+                goal, available, completed_tools, skip_tools
+            )
+            if pending_deliverables:
+                tool_name = pending_deliverables[0]
+                label = supervisor_intents.deliverable_label(tool_name)
+                return self._force_tool(
+                    tool_name,
+                    goal,
+                    state,
+                    decision,
+                    reason=f"用户要求的{label}尚未生成，安全约束后需补调",
+                )
+
+        pending_deliverables = self._pending_deliverables(goal, available, completed_tools, skip_tools)
 
         hint = self._next_tool_hint(state, available, completed_tools, skip_tools)
         if hint and decision.status == "complete":

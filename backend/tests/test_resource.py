@@ -123,7 +123,8 @@ class TestResourceTypeValidation:
     def test_valid_resource_types_complete(self) -> None:
         expected = {
             "explanation", "summary", "example", "flashcard", "review", "mindmap", "diagram",
-            "image", "video", "animation", "interactive_courseware", "code_project", "reading_pack",
+            "image", "video", "animation", "interactive_courseware", "immersive_classroom",
+            "code_project", "reading_pack",
         }
         assert VALID_RESOURCE_TYPES == expected
 

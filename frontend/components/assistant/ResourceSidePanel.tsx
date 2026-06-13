@@ -236,7 +236,7 @@ export function ResourceSidePanel({
                         ? "image"
                         : item.preview_mode === "mermaid" || item.resource_type === "mindmap" || item.resource_type === "diagram"
                           ? "account_tree"
-                          : item.resource_type === "interactive_courseware"
+                          : item.resource_type === "interactive_courseware" || item.resource_type === "immersive_classroom"
                             ? "view_in_ar"
                             : item.resource_type === "code_project"
                               ? "code_blocks"

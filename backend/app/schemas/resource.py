@@ -29,6 +29,8 @@ RESOURCE_TYPE_ALIASES: dict[str, str] = {
     "动画": "animation",
     "互动课件": "interactive_courseware",
     "交互课件": "interactive_courseware",
+    "沉浸课堂": "immersive_classroom",
+    "沉浸式课堂": "immersive_classroom",
     "代码实操": "code_project",
     "实践项目": "code_project",
     "拓展阅读": "reading_pack",
@@ -46,6 +48,7 @@ VALID_RESOURCE_TYPES = {
     "video",
     "animation",
     "interactive_courseware",
+    "immersive_classroom",
     "code_project",
     "reading_pack",
 }

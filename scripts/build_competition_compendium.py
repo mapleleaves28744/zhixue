@@ -59,7 +59,7 @@ def main() -> None:
     sections: list[str] = [
         """# 智学工坊比赛材料合集
 
-> **2026-06-13 代码对齐版** — 约 2150 行，与当前实现基线、143 API、44 表、322 pytest 一致。维护：改 `_archive/competition_sources/` 后运行 `python scripts/build_competition_compendium.py`。
+> **2026-06-13 代码对齐版** — 约 2150 行，与当前实现基线、143 API、44 表、323 pytest 一致。维护：改 `_archive/competition_sources/` 后运行 `python scripts/build_competition_compendium.py`。
 >
 > 本文档合并需求、功能、架构、设计、测试、部署、使用说明与 AI Coding 全部比赛口径。
 > 判断实现事实以本文 + 代码为准；精确 API/表字段见 `当前实现API清单.md`。
@@ -153,7 +153,7 @@ PPT：`演示PPT大纲.md` · 数字：`证据与截图索引.md`""",
 | API | 143 |
 | ORM 表 | 44 |
 | Agent | 14 |
-| pytest | 322 passed |
+| pytest | 323 passed |
 | 真实 LLM | 23 步 (mimo-v2.5) |
 | Agent 场景 | 20/20, 95% |
 | 知识库 | 32 资料 / 1608 chunks |""",

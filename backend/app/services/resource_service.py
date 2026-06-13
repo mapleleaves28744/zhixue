@@ -451,6 +451,7 @@ class ResourceService:
             "video": "讲解视频",
             "animation": "动画",
             "interactive_courseware": "互动课件",
+            "immersive_classroom": "沉浸课堂",
             "code_project": "代码实操项目",
             "reading_pack": "拓展阅读包",
         }
