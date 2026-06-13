@@ -1,7 +1,7 @@
 # maic-renderer 设计稿（v1：只读画布）
 
-> 配套计划：`docs/superpowers/plans/2026-05-28-maic-renderer-package.md`
-> 原始 spec：`docs/superpowers/specs/2026-05-28-maic-renderer-package-design.md`
+> 配套计划：`docs/_archive/superpowers/plans/2026-05-28-maic-renderer-package.md`
+> 原始 spec：`docs/_archive/superpowers/specs/2026-05-28-maic-renderer-package-design.md`
 
 ## 1. 目标
 

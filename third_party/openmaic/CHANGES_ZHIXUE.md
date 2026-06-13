@@ -20,5 +20,5 @@ competition project.
 - Zhixue remains the source of truth for users, courses, RAG citations, student
   profiles, media jobs, learning records, and permissions.
 
-See `docs/superpowers/specs/2026-06-13-openmaic-immersive-classroom-video-design.md`
+See `docs/_archive/superpowers/specs/2026-06-13-openmaic-immersive-classroom-video-design.md`
 in the parent repository for the integration design.

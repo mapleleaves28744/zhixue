@@ -1514,7 +1514,7 @@ async def auto_evolve_if_needed(self, user_id: UUID, course_id: UUID):
 | `frontend/public/stitch-pages/practice.html` | 多题型展示和提交 | T5 |
 | `frontend/public/stitch-pages/dashboard.html` | 推荐主动推送展示 | S2, S3 |
 | `frontend/public/stitch-pages/path-profile.html` | 策略草稿和风险展示 | S4 |
-| `docs/change_2-工具拓展与差距弥补推进方案.md` | **本文件** | 全部 |
+| `change_2-工具拓展与差距弥补推进方案.md` | **本文件** | 全部 |
 
 ---
 

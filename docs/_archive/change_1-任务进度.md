@@ -5,7 +5,7 @@
 | 分支 | `change_1` |
 | 基准 | `main` @ 文档提交后 |
 | 开始日期 | 2026-06-02 |
-| 参考文档 | [`前端高级化升级方案.md`](前端高级化升级方案.md)、[`功能完成度与待完善清单.md`](功能完成度与待完善清单.md) |
+| 参考文档 | [`前端高级化升级方案.md`](前端高级化升级方案.md)、[`功能完成度与待完善清单.md`](../功能完成度与待完善清单.md) |
 
 **核验约定**：每完成一项，在「核验记录」填写命令/结果，再将 `[ ]` 改为 `[x]`。
 
@@ -157,7 +157,7 @@
 |------|------|------|
 | 目录入口 | `python scripts/check_docs.py` | 通过；25 个编号目录、73 份 Markdown，无占位模板和本地断链 |
 | 当前事实 | FastAPI OpenAPI、SQLAlchemy metadata、前端路由、Agent、migration 清点 | 89 API、28 表、10 Next 页面、8 Stitch 页面、13 Agent、16 migration |
-| 逐目录事实核验 | `docs/文档整理核验报告.md` | 25 个编号目录均已记录核验结论 |
+| 逐目录事实核验 | [`文档整理核验报告.md`](文档整理核验报告.md) | 25 个编号目录均已记录核验结论 |
 | 项目回归 | `scripts/local_check.ps1 -All` | 通过；Alembic head、91 个后端测试、FastAPI import、前端 typecheck/build 均通过 |
 
 ---

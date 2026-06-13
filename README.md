@@ -64,6 +64,16 @@ python scripts/export_implementation_docs.py
 真实 LLM 主链路专项记录见 `docs/19_测试方案/13_真实LLM主链路与Next安全专项验收记录.md`。
 本轮全量扫描、浏览器验收和缺陷闭环见 `docs/19_测试方案/20_全量功能扫描与浏览器验收报告.md` 与 `21_缺陷清单与修复闭环记录.md`。
 
+## 比赛材料
+
+队友准备 PPT、视频、Word 文档请从以下入口开始：
+
+- [**智学工坊比赛材料合集**](docs/22_比赛材料规划/智学工坊比赛材料合集.md) — 需求/架构/功能/测试/用户/AI Coding 全文（**AI 一键阅读**）
+- [比赛提交总览](docs/22_比赛材料规划/00_比赛提交总览.md) — 赛题映射、分工、检查清单
+- [文档索引](docs/README.md) — 比赛 / 事实源 / 设计参考分区
+
+Markdown 为源文件，转 Word 时从合集按章复制；维护源材料见 `docs/_archive/competition_sources/`。
+
 ## 技术栈
 
 - Frontend：Next.js App Router、TypeScript、Tailwind CSS、Stitch 静态页面承载

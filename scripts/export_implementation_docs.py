@@ -11,6 +11,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 BACKEND = ROOT / "backend"
 DOCS = ROOT / "docs"
+ARCHIVE_DESIGN = DOCS / "_archive" / "设计文档"
+API_DIR = ARCHIVE_DESIGN / "11_API接口设计"
 sys.path.insert(0, str(BACKEND))
 
 from app.db.base import Base  # noqa: E402
@@ -123,7 +125,7 @@ def endpoint_table(rows: list[dict[str, Any]]) -> str:
 
 
 def write_api_docs(spec: dict[str, Any], rows: list[dict[str, Any]]) -> None:
-    api_dir = DOCS / "11_API接口设计"
+    api_dir = API_DIR
     assets_dir = DOCS / "assets" / "api"
     api_dir.mkdir(parents=True, exist_ok=True)
     assets_dir.mkdir(parents=True, exist_ok=True)
@@ -145,7 +147,7 @@ def write_api_docs(spec: dict[str, Any], rows: list[dict[str, Any]]) -> None:
 > 本文是当前 API 文档入口，由 FastAPI OpenAPI 自动生成。模块级接口摘要和完整清单保留为独立事实文档；未出现在 OpenAPI 中的旧设计接口均视为未实现。
 
 - 当前模块与接口数量：见“当前模块”。
-- 精确端点清单：`16_当前实现API清单.md`。
+- 精确端点清单：`docs/当前实现API清单.md`（本目录 `16_当前实现API清单.md` 同步副本）。
 - 请求和响应 Schema：`docs/assets/api/openapi-current.json` 或运行时 Swagger。
 - 文档重新生成：`python scripts/export_implementation_docs.py`。
 
@@ -158,7 +160,7 @@ def write_api_docs(spec: dict[str, Any], rows: list[dict[str, Any]]) -> None:
 
 ## 使用规则
 
-1. 判断接口是否存在、方法和路径是否正确时，以本文件、`16_当前实现API清单.md` 和 `docs/assets/api/openapi-current.json` 为准。
+1. 判断接口是否存在、方法和路径是否正确时，以 `docs/当前实现API清单.md`、`docs/assets/api/openapi-current.json` 和本目录模块文档为准。
 2. 早期 PRD、设计方案中的接口若未出现在当前清单中，均视为“规划中或未实现”，不得直接调用。
 3. 所有业务接口位于 `/api/v1`，成功响应统一包含 `code`、`message`、`data`、`request_id`。
 4. 除清单中标记为 Public 的接口外，均要求 JWT Bearer Token。
@@ -184,12 +186,12 @@ def write_api_docs(spec: dict[str, Any], rows: list[dict[str, Any]]) -> None:
 ## OpenAPI 快照
 
 - JSON：`docs/assets/api/openapi-current.json`
-- 完整端点表：`docs/11_API接口设计/16_当前实现API清单.md`
+- 完整端点表：`docs/当前实现API清单.md`
 - 重新生成：`python scripts/export_implementation_docs.py`
 """
     write_markdown(api_dir / "11_API接口设计.md", overview)
 
-    full = f"""# 16_当前实现 API 清单
+    full = f"""# 当前实现 API 清单
 
 > 文档状态：**自动生成的当前实现事实源**
 >
@@ -198,6 +200,7 @@ def write_api_docs(spec: dict[str, Any], rows: list[dict[str, Any]]) -> None:
 
 {endpoint_table(rows)}
 """
+    write_markdown(DOCS / "当前实现API清单.md", full)
     write_markdown(api_dir / "16_当前实现API清单.md", full)
 
     design_spec = """# 01_API设计规范
@@ -219,7 +222,7 @@ def write_api_docs(spec: dict[str, Any], rows: list[dict[str, Any]]) -> None:
 
 ## 接口事实源
 
-- 完整清单：`16_当前实现API清单.md`
+- 完整清单：`docs/当前实现API清单.md`
 - OpenAPI：`docs/assets/api/openapi-current.json`
 - 运行时 Swagger：`http://127.0.0.1:8000/docs`
 """
@@ -269,7 +272,7 @@ FastAPI 是 OpenAPI 的唯一生成源。不要手工维护另一份 YAML 接口
 ## 文件与入口
 
 - 版本化快照：`docs/assets/api/openapi-current.json`
-- 人工阅读清单：`docs/11_API接口设计/16_当前实现API清单.md`
+- 人工阅读清单：`docs/当前实现API清单.md`
 - 运行时 Swagger：`http://127.0.0.1:8000/docs`
 
 ## 更新命令
@@ -286,7 +289,7 @@ python scripts/export_implementation_docs.py
 def write_database_docs() -> None:
     tables = sorted(Base.metadata.tables.values(), key=lambda table: table.name)
     lines = [
-        "# 15_当前实现数据库清单",
+        "# 当前实现数据库清单",
         "",
         "> 文档状态：**自动生成的当前实现事实源**  ",
         "> 生成依据：SQLAlchemy `Base.metadata`  ",
@@ -311,8 +314,9 @@ def write_database_docs() -> None:
                 f"{'是' if column.primary_key else '否'} | `{foreign_keys}` |"
             )
         lines.append("")
-    target = DOCS / "10_数据库设计" / "15_当前实现数据库清单.md"
-    write_markdown(target, "\n".join(lines))
+    content = "\n".join(lines)
+    write_markdown(DOCS / "当前实现数据库清单.md", content)
+    write_markdown(ARCHIVE_DESIGN / "10_数据库设计" / "15_当前实现数据库清单.md", content)
 
 
 def main() -> None:

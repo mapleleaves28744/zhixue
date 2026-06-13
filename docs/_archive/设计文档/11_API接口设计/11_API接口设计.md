@@ -5,7 +5,7 @@
 > 本文是当前 API 文档入口，由 FastAPI OpenAPI 自动生成。模块级接口摘要和完整清单保留为独立事实文档；未出现在 OpenAPI 中的旧设计接口均视为未实现。
 
 - 当前模块与接口数量：见“当前模块”。
-- 精确端点清单：`16_当前实现API清单.md`。
+- 精确端点清单：`docs/当前实现API清单.md`（本目录 `16_当前实现API清单.md` 同步副本）。
 - 请求和响应 Schema：`docs/assets/api/openapi-current.json` 或运行时 Swagger。
 - 文档重新生成：`python scripts/export_implementation_docs.py`。
 
@@ -18,7 +18,7 @@
 
 ## 使用规则
 
-1. 判断接口是否存在、方法和路径是否正确时，以本文件、`16_当前实现API清单.md` 和 `docs/assets/api/openapi-current.json` 为准。
+1. 判断接口是否存在、方法和路径是否正确时，以 `docs/当前实现API清单.md`、`docs/assets/api/openapi-current.json` 和本目录模块文档为准。
 2. 早期 PRD、设计方案中的接口若未出现在当前清单中，均视为“规划中或未实现”，不得直接调用。
 3. 所有业务接口位于 `/api/v1`，成功响应统一包含 `code`、`message`、`data`、`request_id`。
 4. 除清单中标记为 Public 的接口外，均要求 JWT Bearer Token。
@@ -52,5 +52,5 @@
 ## OpenAPI 快照
 
 - JSON：`docs/assets/api/openapi-current.json`
-- 完整端点表：`docs/11_API接口设计/16_当前实现API清单.md`
+- 完整端点表：`docs/当前实现API清单.md`
 - 重新生成：`python scripts/export_implementation_docs.py`

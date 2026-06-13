@@ -17,6 +17,6 @@
 
 ## 接口事实源
 
-- 完整清单：`16_当前实现API清单.md`
+- 完整清单：`docs/当前实现API清单.md`
 - OpenAPI：`docs/assets/api/openapi-current.json`
 - 运行时 Swagger：`http://127.0.0.1:8000/docs`

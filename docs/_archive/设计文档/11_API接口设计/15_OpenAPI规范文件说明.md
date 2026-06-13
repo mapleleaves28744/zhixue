@@ -7,7 +7,7 @@ FastAPI 是 OpenAPI 的唯一生成源。不要手工维护另一份 YAML 接口
 ## 文件与入口
 
 - 版本化快照：`docs/assets/api/openapi-current.json`
-- 人工阅读清单：`docs/11_API接口设计/16_当前实现API清单.md`
+- 人工阅读清单：`docs/当前实现API清单.md`
 - 运行时 Swagger：`http://127.0.0.1:8000/docs`
 
 ## 更新命令
