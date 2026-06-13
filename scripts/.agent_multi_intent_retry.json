@@ -1,0 +1,2 @@
+[RUN] multi_intent_ppt_mindmap task_id=9f2c6bc7-07e9-4dfe-9956-1f04a1b1f97c goal='生成二叉树ppt和队列思维导图'
+[RUN] multi_intent_ppt_diagram task_id=8af8d4b0-f845-459b-ac13-0be3aa9d9838 goal='帮我做二叉树幻灯片，再画一张队列的流程图'

@@ -1,0 +1,178 @@
+[RUN] interactive_courseware task_id=97c12566-9451-4d44-b733-9e61da3c93bd goal='生成二叉树入门的互动课件ppt'
+[RUN] mindmap task_id=c13d90e0-0b27-4207-a8ac-02278d961a8d goal='帮我梳理队列的知识结构思维导图'
+[RUN] diagram task_id=b5dc3601-eb7b-410a-a2bd-493b0ef777d9 goal='画一张栈的入栈出栈流程图'
+[RUN] image task_id=36975bec-a2db-4e98-a22c-018ee6e7fd9e goal='给广度优先搜索配一张教学插图'
+[RUN] explanation task_id=4c98fe6e-bbc8-49bd-8779-1522e8d9fab7 goal='生成一份关于哈希表的个性化讲解资料'
+[RUN] quiz task_id=6b0a7257-b506-4b7c-b26b-7d71c4594fee goal='生成5道关于链表的练习题'
+[RUN] learning_path task_id=7d15ce8e-41f5-44b3-91d1-a704e61709e7 goal='帮我制定二叉树的学习路径'
+[RUN] multi_intent_ppt_mindmap task_id=41204d5e-fdfe-41fd-8c6a-1876a1718ae9 goal='生成二叉树ppt和队列思维导图'
+[RUN] multi_intent_ppt_diagram task_id=30f07626-e69c-4a5b-bbd3-1e686d779f50 goal='帮我做二叉树幻灯片，再画一张队列的流程图'
+{
+  "total": 9,
+  "passed": 5,
+  "failed": 4,
+  "results": [
+    {
+      "name": "interactive_courseware",
+      "goal": "生成二叉树入门的互动课件ppt",
+      "task_id": "97c12566-9451-4d44-b733-9e61da3c93bd",
+      "status": "succeeded",
+      "tool_names": [
+        "search_course_knowledge",
+        "generate_interactive_courseware"
+      ],
+      "error_message": "",
+      "checks": {
+        "terminal": true,
+        "not_failed": true,
+        "must_tools": true,
+        "must_not_tools": true,
+        "not_fake_video_success": true
+      },
+      "passed": true
+    },
+    {
+      "name": "mindmap",
+      "goal": "帮我梳理队列的知识结构思维导图",
+      "task_id": "c13d90e0-0b27-4207-a8ac-02278d961a8d",
+      "status": "succeeded",
+      "tool_names": [
+        "search_course_knowledge",
+        "generate_mindmap"
+      ],
+      "error_message": "",
+      "checks": {
+        "terminal": true,
+        "not_failed": true,
+        "must_tools": true,
+        "must_not_tools": true,
+        "not_fake_video_success": true
+      },
+      "passed": true
+    },
+    {
+      "name": "diagram",
+      "goal": "画一张栈的入栈出栈流程图",
+      "task_id": "b5dc3601-eb7b-410a-a2bd-493b0ef777d9",
+      "status": "succeeded",
+      "tool_names": [
+        "search_course_knowledge",
+        "generate_diagram"
+      ],
+      "error_message": "",
+      "checks": {
+        "terminal": true,
+        "not_failed": true,
+        "must_tools": true,
+        "must_not_tools": true,
+        "not_fake_video_success": true
+      },
+      "passed": true
+    },
+    {
+      "name": "image",
+      "goal": "给广度优先搜索配一张教学插图",
+      "task_id": "36975bec-a2db-4e98-a22c-018ee6e7fd9e",
+      "status": "succeeded",
+      "tool_names": [
+        "search_course_knowledge",
+        "generate_educational_image"
+      ],
+      "error_message": "",
+      "checks": {
+        "terminal": true,
+        "not_failed": true,
+        "must_tools": true,
+        "must_not_tools": true,
+        "not_fake_video_success": true
+      },
+      "passed": true
+    },
+    {
+      "name": "explanation",
+      "goal": "生成一份关于哈希表的个性化讲解资料",
+      "task_id": "4c98fe6e-bbc8-49bd-8779-1522e8d9fab7",
+      "status": "timeout",
+      "tool_names": [
+        "search_course_knowledge",
+        "generate_explanation"
+      ],
+      "error_message": "timeout",
+      "checks": {
+        "terminal": false,
+        "not_failed": true,
+        "must_tools": true,
+        "must_not_tools": true,
+        "not_fake_video_success": true
+      },
+      "passed": false
+    },
+    {
+      "name": "quiz",
+      "goal": "生成5道关于链表的练习题",
+      "task_id": "6b0a7257-b506-4b7c-b26b-7d71c4594fee",
+      "status": "succeeded",
+      "tool_names": [
+        "search_course_knowledge",
+        "generate_quiz"
+      ],
+      "error_message": "",
+      "checks": {
+        "terminal": true,
+        "not_failed": true,
+        "must_tools": true,
+        "must_not_tools": true,
+        "not_fake_video_success": true
+      },
+      "passed": true
+    },
+    {
+      "name": "learning_path",
+      "goal": "帮我制定二叉树的学习路径",
+      "task_id": "7d15ce8e-41f5-44b3-91d1-a704e61709e7",
+      "status": "failed",
+      "tool_names": [],
+      "error_message": "1 validation error for MemoryRead\nevidence\n  Input should be a valid list [type=list_type, input_value='输入的学习记录为空。', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/list_type",
+      "checks": {
+        "terminal": true,
+        "not_failed": false,
+        "must_tools": false,
+        "must_not_tools": true,
+        "not_fake_video_success": true
+      },
+      "passed": false
+    },
+    {
+      "name": "multi_intent_ppt_mindmap",
+      "goal": "生成二叉树ppt和队列思维导图",
+      "task_id": "41204d5e-fdfe-41fd-8c6a-1876a1718ae9",
+      "status": "failed",
+      "tool_names": [],
+      "error_message": "1 validation error for MemoryRead\nevidence\n  Input should be a valid list [type=list_type, input_value='输入的学习记录为空。', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/list_type",
+      "checks": {
+        "terminal": true,
+        "not_failed": false,
+        "must_tools": false,
+        "must_not_tools": true,
+        "not_fake_video_success": true
+      },
+      "passed": false
+    },
+    {
+      "name": "multi_intent_ppt_diagram",
+      "goal": "帮我做二叉树幻灯片，再画一张队列的流程图",
+      "task_id": "30f07626-e69c-4a5b-bbd3-1e686d779f50",
+      "status": "failed",
+      "tool_names": [],
+      "error_message": "1 validation error for MemoryRead\nevidence\n  Input should be a valid list [type=list_type, input_value='输入的学习记录为空。', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/list_type",
+      "checks": {
+        "terminal": true,
+        "not_failed": false,
+        "must_tools": false,
+        "must_not_tools": true,
+        "not_fake_video_success": true
+      },
+      "passed": false
+    }
+  ]
+}

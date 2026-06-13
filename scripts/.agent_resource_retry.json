@@ -1,0 +1,66 @@
+[RUN] explanation task_id=50c217a5-b893-42b0-acd8-4336639d7c82 goal='生成一份关于哈希表的个性化讲解资料'
+[RUN] learning_path task_id=0f774f87-2bd1-4cd9-8ac2-deaa6b93a350 goal='帮我制定二叉树的学习路径'
+[RUN] multi_intent_ppt_mindmap task_id=d6d1c61b-8e33-452d-86fd-3ecdd94f0c4d goal='生成二叉树ppt和队列思维导图'
+{
+  "total": 4,
+  "passed": 2,
+  "failed": 2,
+  "results": [
+    {
+      "name": "explanation",
+      "goal": "生成一份关于哈希表的个性化讲解资料",
+      "task_id": "50c217a5-b893-42b0-acd8-4336639d7c82",
+      "status": "succeeded",
+      "tool_names": [
+        "search_course_knowledge",
+        "generate_explanation"
+      ],
+      "error_message": "",
+      "checks": {
+        "terminal": true,
+        "not_failed": true,
+        "must_tools": true,
+        "must_not_tools": true,
+        "not_fake_video_success": true
+      },
+      "passed": true
+    },
+    {
+      "name": "learning_path",
+      "goal": "帮我制定二叉树的学习路径",
+      "task_id": "0f774f87-2bd1-4cd9-8ac2-deaa6b93a350",
+      "status": "succeeded",
+      "tool_names": [
+        "search_course_knowledge",
+        "generate_learning_path"
+      ],
+      "error_message": "",
+      "checks": {
+        "terminal": true,
+        "not_failed": true,
+        "must_tools": true,
+        "must_not_tools": true,
+        "not_fake_video_success": true
+      },
+      "passed": true
+    },
+    {
+      "name": "multi_intent_ppt_mindmap",
+      "goal": "生成二叉树ppt和队列思维导图",
+      "passed": false,
+      "error_message": "GET /agent/tasks/d6d1c61b-8e33-452d-86fd-3ecdd94f0c4d -> non-json (status=502): <html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.27.5</center>\r\n</body>\r\n</html>\r\n",
+      "checks": {
+        "exception": false
+      }
+    },
+    {
+      "name": "multi_intent_ppt_diagram",
+      "goal": "帮我做二叉树幻灯片，再画一张队列的流程图",
+      "passed": false,
+      "error_message": "POST /agent/conversations -> non-json (status=502): <html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.27.5</center>\r\n</body>\r\n</html>\r\n",
+      "checks": {
+        "exception": false
+      }
+    }
+  ]
+}
