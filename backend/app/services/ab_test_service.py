@@ -114,6 +114,15 @@ class ABTestService:
         metric_value: float,
     ) -> None:
         """记录用户的实验指标值。"""
+        await self._get_test(test_id)
+        existing_group = await self._get_assignment_group(test_id, user_id)
+        if existing_group is None:
+            raise BusinessException(
+                code=ErrorCode.NOT_FOUND,
+                detail="用户尚未分配到该实验，无法记录指标",
+                status_code=404,
+            )
+
         stmt = (
             update(ABTestAssignment)
             .where(
@@ -122,7 +131,13 @@ class ABTestService:
             )
             .values(metric_value=metric_value)
         )
-        await self.db.execute(stmt)
+        result = await self.db.execute(stmt)
+        if getattr(result, "rowcount", 0) == 0:
+            raise BusinessException(
+                code=ErrorCode.NOT_FOUND,
+                detail="用户尚未分配到该实验，无法记录指标",
+                status_code=404,
+            )
         await self.db.flush()
 
     async def complete_test(self, test_id: UUID) -> ABTest:

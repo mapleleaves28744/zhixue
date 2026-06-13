@@ -11,6 +11,7 @@ from app.agent_runtime.answer_text import extract_final_answer_text
 from app.agent_runtime.state import AgentState
 from app.agent_runtime.supervisor import Supervisor
 from app.agent_runtime.tools import ToolContext, ToolRegistry
+from app.services.conversation_intent import is_simple_greeting
 
 
 StateHook = Callable[[AgentState], Awaitable[dict[str, Any]]]
@@ -200,6 +201,8 @@ class LearningAgentGraph:
         if state.get("status") in {"failed", "waiting_confirmation"}:
             return "finalize"
         if state.get("status") == "complete":
+            if is_simple_greeting(str(state.get("goal") or "")):
+                return "finalize"
             return "review"
         if state.get("pending_tool_calls"):
             call = state["pending_tool_calls"][0]

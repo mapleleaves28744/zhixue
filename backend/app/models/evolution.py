@@ -62,6 +62,11 @@ class EvolutionStrategy(Base):
         nullable=False,
         server_default=text("'[]'::jsonb"),
     )
+    materialized_changes: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
+    applied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    evaluation_status: Mapped[str] = mapped_column(String(32), nullable=False, server_default=text("'pending'"))
+    effect_summary: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
+    evaluated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     previous_strategy_id: Mapped[UUID | None] = mapped_column(
         PgUUID(as_uuid=True),
         ForeignKey("evolution_strategies.id", ondelete="SET NULL"),

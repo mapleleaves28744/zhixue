@@ -151,6 +151,11 @@ class TestResourceTypeValidation:
 # ---------------------------------------------------------------------------
 
 class TestResourceAgentHelpers:
+    def test_resource_agent_labels_cover_all_valid_types(self) -> None:
+        from app.agents.resource_agent import RESOURCE_TYPE_LABELS
+
+        assert VALID_RESOURCE_TYPES <= set(RESOURCE_TYPE_LABELS)
+
     def test_extract_title_from_markdown_heading(self) -> None:
         from app.agents.resource_agent import ResourceAgent
 
@@ -230,6 +235,27 @@ class TestResourceAgentHelpers:
             requirement="",
         )
         assert "图" in reason
+
+    @pytest.mark.parametrize("resource_type", sorted(VALID_RESOURCE_TYPES))
+    def test_all_valid_types_build_safe_title_and_reason(self, resource_type: str) -> None:
+        from app.agents.resource_agent import ResourceAgent
+
+        agent = ResourceAgent.__new__(ResourceAgent)
+
+        title = agent._extract_title(
+            "没有 Markdown 标题的资源内容",
+            resource_type=resource_type,
+            knowledge_name="二叉树遍历",
+        )
+        reason = agent._build_personalized_reason(
+            resource_type=resource_type,
+            knowledge_name="二叉树遍历",
+            profile_text="一般状态",
+            requirement="",
+        )
+
+        assert "二叉树遍历" in title
+        assert "二叉树遍历" in reason
 
 
 # ---------------------------------------------------------------------------

@@ -188,6 +188,7 @@ async def run_immersive_classroom_job(ctx: dict, job_id: str) -> dict[str, Any]:
                 title=title,
                 conversation_id=job.conversation_id,
                 agent_task_id=job.agent_task_id,
+                resource_type="interactive_courseware",
             )
             await _publish_progress(
                 db,

@@ -21,9 +21,10 @@ from app.models.learning_record import LearningRecord
 from app.models.material import CourseMaterial
 from app.models.llm_log import LLMCallLog
 from app.models.media import MediaAsset, MediaJob
-from app.models.memory import StudentMemory
+from app.models.memory import MemoryReflectionState, StudentMemory
+from app.models.learning_session import LearningSession
 from app.models.pet import PetNotification, PetPreference
-from app.models.profile import LearningPreference, StudentProfile
+from app.models.profile import LearningPreference, StudentCourseProfile, StudentProfile
 from app.models.prompt import PromptVersion
 from app.models.quiz import AnswerRecord, MistakeBook, Question, Quiz
 from app.models.recommendation import Recommendation
@@ -53,6 +54,7 @@ __all__ = [
     "LearningPath",
     "LearningPathItem",
     "LearningRecord",
+    "LearningSession",
     "LearningPreference",
     "LLMCallLog",
     "MediaAsset",
@@ -66,6 +68,8 @@ __all__ = [
     "Quiz",
     "Recommendation",
     "StudentMemory",
+    "MemoryReflectionState",
+    "StudentCourseProfile",
     "StudentProfile",
     "UserFeedback",
     "User",

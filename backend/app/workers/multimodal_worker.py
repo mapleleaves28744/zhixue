@@ -140,6 +140,7 @@ async def run_multimodal_video_job(ctx: dict, job_id: str) -> dict:
                 title=asset.title,
                 conversation_id=job.conversation_id,
                 agent_task_id=job.agent_task_id,
+                resource_type="video",
             )
             await _publish_progress(
                 db,

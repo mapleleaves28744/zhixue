@@ -9,15 +9,12 @@ const previewSource = fs.readFileSync(
   "utf8",
 )
 const resourceTypesSource = fs.readFileSync(path.join(root, "types", "resource.ts"), "utf8")
-const sidePanelSource = fs.readFileSync(
-  path.join(root, "components", "assistant", "ResourceSidePanel.tsx"),
-  "utf8",
-)
+const resourceTypeHelpers = fs.readFileSync(path.join(root, "lib", "resourceTypes.ts"), "utf8")
 
 assert.match(mermaidSource, /preview_mode === "video"/)
 assert.match(mermaidSource, /mime\.startsWith\("video\/"\)/)
 assert.match(previewSource, /previewMode === "video"/)
 assert.match(resourceTypesSource, /\|\s*"video"/)
-assert.match(sidePanelSource, /video:\s*"讲解视频"/)
+assert.match(resourceTypeHelpers, /value:\s*"video", label:\s*"讲解视频"/)
 
 console.log("resource video preview assertions passed")

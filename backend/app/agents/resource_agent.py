@@ -14,7 +14,9 @@ from app.models.knowledge import KnowledgePoint
 from app.models.wiki import WikiPage
 from app.rag.hybrid_retriever import HybridRetriever as VectorRetriever
 from app.schemas.resource import RESOURCE_TYPE_ALIASES, VALID_RESOURCE_TYPES
-from app.services.memory_service import MemoryService
+from app.services.personalization_context_service import PersonalizationContextService
+# Kept as a module-level compatibility seam for existing tests/extensions.
+from app.services.memory_service import MemoryService  # noqa: F401
 from app.services.prompt_service import PromptService
 from app.services.profile_service import ProfileService
 from app.services.generator_registry import GeneratorRegistry
@@ -28,6 +30,12 @@ RESOURCE_TYPE_LABELS = {
     "review": "错题解析",
     "mindmap": "思维导图",
     "diagram": "图解",
+    "image": "教学插图",
+    "video": "讲解视频",
+    "animation": "动画演示",
+    "interactive_courseware": "互动课件",
+    "code_project": "代码实操项目",
+    "reading_pack": "拓展阅读包",
 }
 
 
@@ -76,12 +84,13 @@ class ResourceAgent(BaseAgent):
 
         profile_text = "未启用画像"
         if context.params.get("use_profile", True):
-            profile = await ProfileService(self.db).get_profile(context.user_id)
-            memories = await MemoryService(self.db).list_memories(
-                context.user_id,
-                context.course_id,
-            )
-            profile_text = self._format_profile(profile, memories)
+            try:
+                personalization = await PersonalizationContextService(self.db).get_context(context.user_id, context.course_id)
+                profile_text = PersonalizationContextService.format_for_prompt(personalization)
+            except Exception:
+                profile = await ProfileService(self.db).get_profile(context.user_id)
+                memories = await MemoryService(self.db).list_memories(context.user_id, context.course_id)
+                profile_text = self._format_profile(profile, memories)
 
         wiki_context = wiki_page.content[:2500] if wiki_page else "未指定 Wiki 页面"
 

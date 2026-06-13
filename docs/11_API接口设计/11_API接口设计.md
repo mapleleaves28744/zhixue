@@ -13,7 +13,7 @@
 >
 > 生成方式：`python scripts/export_implementation_docs.py`
 >
-> 生成依据：FastAPI `app.openapi()`，共 **137** 个 HTTP 操作。
+> 生成依据：FastAPI `app.openapi()`，共 **143** 个 HTTP 操作。
 > 最后同步：2026-06-06
 
 ## 使用规则
@@ -37,7 +37,7 @@
 | 练习与错题 | `quizzes` | 5 | `08_题库练习接口.md` |
 | 诊断与推荐 | `diagnosis`, `recommendations` | 10 | `09_学习诊断接口.md` |
 | 学习路径与学习记录 | `learning-paths`, `learning-records` | 7 | `10_学习路径推荐接口.md` |
-| 学生画像与长期记忆 | `student-profile`, `student-memory` | 10 | `11_学生画像接口.md` |
+| 学生画像与长期记忆 | `student-profile`, `student-memory` | 13 | `11_学生画像接口.md` |
 | Agent 调度与日志 | `agents` | 4 | `12_Agent调度接口.md` |
 | 自进化策略 | `evolution` | 6 | `13_自进化策略接口.md` |
 

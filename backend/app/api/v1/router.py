@@ -12,6 +12,7 @@ from app.api.v1 import (
     evolution,
     knowledge,
     learning_records,
+    learning_analytics,
     learning_paths,
     materials,
     media_assets,
@@ -43,6 +44,7 @@ router.include_router(courses.router, prefix="/courses", tags=["courses"])
 router.include_router(materials.router, prefix="/materials", tags=["materials"])
 router.include_router(knowledge.router, prefix="/knowledge", tags=["knowledge"])
 router.include_router(learning_records.router, prefix="/learning-records", tags=["learning-records"])
+router.include_router(learning_analytics.router, prefix="/learning-analytics", tags=["learning-analytics"])
 router.include_router(learning_paths.router, prefix="/learning-paths", tags=["learning-paths"])
 router.include_router(wiki.router, prefix="/wiki", tags=["wiki"])
 router.include_router(tutor.router, prefix="/tutor", tags=["tutor"])

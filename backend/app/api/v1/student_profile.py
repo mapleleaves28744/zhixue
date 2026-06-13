@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -46,10 +48,27 @@ async def get_summary(
 @router.post("/rebuild")
 async def rebuild_profile(
     request: Request,
+    course_id: UUID | None = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    profile = await ProfileService(db).rebuild(current_user.id)
+    if course_id is not None:
+        await CourseService(db).get_readable_course(course_id, current_user)
+        profile = await ProfileService(db).rebuild_course(current_user.id, course_id)
+    else:
+        profile = await ProfileService(db).rebuild(current_user.id)
+    return success_response(profile.model_dump(mode="json"), request=request)
+
+
+@router.get("/course/{course_id}")
+async def get_course_profile(
+    course_id: UUID,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    await CourseService(db).get_readable_course(course_id, current_user)
+    profile = await ProfileService(db).get_course_profile(current_user.id, course_id)
     return success_response(profile.model_dump(mode="json"), request=request)
 
 

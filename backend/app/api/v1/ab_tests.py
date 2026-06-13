@@ -108,7 +108,7 @@ async def complete_test(
 async def get_test_stats(
     test_id: UUID,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     stats = await ABTestService(db).get_test_stats(test_id)

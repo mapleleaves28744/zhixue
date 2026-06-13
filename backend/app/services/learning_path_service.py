@@ -26,6 +26,7 @@ from app.schemas.learning_path import (
     LearningPathRead,
 )
 from app.services.course_service import CourseService
+from app.services.personalization_context_service import PersonalizationContextService
 
 
 class LearningPathService:
@@ -75,6 +76,9 @@ class LearningPathService:
             knowledge_points = self._default_data_structure_points(payload.course_id)
 
         profile = await self._get_profile(current_user.id)
+        personalization = await PersonalizationContextService(self.db).get_context(current_user.id, payload.course_id)
+        course_profile = personalization.get("course_profile")
+        path_strategy = personalization["strategies"].get("learning_path")
         wiki_lookup = await self._build_wiki_lookup(payload.course_id, current_user.id)
 
         orchestrator = OrchestratorAgent(self.db)
@@ -88,8 +92,9 @@ class LearningPathService:
                     "path_type": payload.path_type,
                     "target_knowledge_ids": [str(item) for item in payload.target_knowledge_ids],
                     "student_profile": self._profile_summary(profile),
-                    "weak_points": profile.weak_points if profile else [],
-                    "mastery_snapshot": profile.mastery_snapshot if profile else {},
+                    "weak_points": course_profile.weak_points if course_profile else (profile.weak_points if profile else []),
+                    "mastery_snapshot": course_profile.mastery_snapshot if course_profile else {},
+                    "active_learning_path_strategy": path_strategy.after_value if path_strategy else {},
                     "knowledge_points": [self._knowledge_payload(point) for point in knowledge_points],
                 },
             )
@@ -118,6 +123,7 @@ class LearningPathService:
             reason=path_reason or self._default_reason(profile, payload.goal),
             status="active",
             progress=Decimal("0"),
+            strategy_version_id=path_strategy.id if path_strategy else None,
         )
         self.db.add(path)
         await self.db.flush()

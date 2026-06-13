@@ -395,13 +395,13 @@
     return [];
   }
 
-  function renderProfile(profile, preferences) {
+  function renderProfile(profile, preferences, courseProfile) {
     const section = findSectionByTitle("学生画像摘要");
     if (!section) return;
-    const masteryItems = normalizeList(profile.mastery_snapshot);
-    const weakPoints = normalizeList(profile.weak_points);
+    const masteryItems = normalizeList(courseProfile?.mastery_snapshot || {});
+    const weakPoints = normalizeList(courseProfile?.weak_points || []);
     const scoreValues = masteryItems.map((item) => Number(item.score || item.mastery || item.value || 0)).filter(Number.isFinite);
-    const score = Math.round(scoreValues.length ? scoreValues.reduce((sum, item) => sum + item, 0) / scoreValues.length : 68);
+    const score = scoreValues.length ? Math.round(scoreValues.reduce((sum, item) => sum + item, 0) / scoreValues.length) : null;
     const offset = Math.max(0, 264 - (264 * score) / 100).toFixed(1);
     const prefTags = [
       ...(preferences || []).map((item) => item.explanation_style || item.answer_length).filter(Boolean),
@@ -443,7 +443,7 @@
             <circle class="text-primary" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="${offset}" stroke-linecap="round" stroke-width="8"></circle>
           </svg>
           <div class="absolute text-center">
-            <p class="text-4xl font-extrabold text-on-surface">${score}%</p>
+            <p class="text-4xl font-extrabold text-on-surface">${score == null ? "--" : `${score}%`}</p>
             <p class="text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">知识掌控度</p>
           </div>
           <div class="absolute inset-2 border border-outline-variant/10 rounded-full"></div>
@@ -459,6 +459,10 @@
             `).join("")}
           </div>
           <p class="text-label-md text-on-surface-variant leading-relaxed">${escapeHtml(profile.profile_summary || "画像已由后端创建，后续会根据答疑、资料、练习和记忆持续更新。")}</p>
+          <div class="rounded-2xl bg-tertiary/5 border border-tertiary/15 p-4">
+            <p class="text-label-sm font-bold text-tertiary">当前课程画像</p>
+            <p class="text-label-sm text-on-surface-variant mt-2">${escapeHtml(courseProfile?.profile_summary || "暂无课程画像证据，完成一次有效问答或练习后自动生成。")}</p>
+          </div>
           ${evidenceItems.length ? `
             <div class="rounded-2xl bg-primary/5 border border-primary/15 p-4 space-y-3">
               <div class="flex items-center justify-between">
@@ -492,7 +496,7 @@
     section.querySelector("#profile-rebuild-button")?.addEventListener("click", rebuildProfile);
   }
 
-  function renderMemories(memories) {
+  function renderMemories(memories, memoryHealth, memoryStatus = "active") {
     const section = findSectionByTitle("长期记忆");
     if (!section) return;
     section.innerHTML = `
@@ -500,7 +504,14 @@
         <h3 class="font-headline-md text-headline-md flex items-center">
           <span class="material-symbols-outlined mr-2 text-tertiary">memory</span>长期记忆
         </h3>
-        <span class="text-label-sm px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant">${memories.length} 条</span>
+        <div class="flex items-center gap-2">
+          <select id="memory-status" class="text-label-sm px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant border-none">
+            <option value="active" ${memoryStatus === "active" ? "selected" : ""}>活跃</option>
+            <option value="archived" ${memoryStatus === "archived" ? "selected" : ""}>归档</option>
+            <option value="all" ${memoryStatus === "all" ? "selected" : ""}>全部</option>
+          </select>
+          <span class="text-label-sm px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant">${memoryHealth?.active_count || 0}/${memoryHealth?.capacity || 0} 活跃</span>
+        </div>
       </div>
       <div class="space-y-3 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
         ${memories.length ? memories.slice(0, 8).map((memory) => `
@@ -511,12 +522,12 @@
               </div>
               <div class="min-w-0">
                 <p class="font-bold text-body-md truncate">${escapeHtml(memory.content)}</p>
-                <p class="text-label-sm text-on-surface-variant">${escapeHtml(memory.memory_type)} · 置信度 ${Math.round(Number(memory.confidence || 0.8) * 100)}% · ${api.formatDate(memory.updated_at)}</p>
+                <p class="text-label-sm text-on-surface-variant">${escapeHtml(memory.memory_type)} · 强化 ${memory.reinforcement_count || 1} 次 · 置信度 ${Math.round(Number(memory.confidence || 0.8) * 100)}% · ${api.formatDate(memory.updated_at)}</p>
               </div>
             </div>
             <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <button class="p-2 text-primary hover:bg-primary-fixed rounded-lg" data-action="evidence" title="查看证据"><span class="material-symbols-outlined text-sm">link</span></button>
-              <button class="p-2 text-error hover:bg-error-container rounded-lg" data-action="delete" title="删除"><span class="material-symbols-outlined text-sm">delete</span></button>
+              ${memory.status === "archived" ? `<button class="p-2 text-primary hover:bg-primary-fixed rounded-lg" data-action="restore" title="恢复"><span class="material-symbols-outlined text-sm">restore</span></button>` : `<button class="p-2 text-error hover:bg-error-container rounded-lg" data-action="delete" title="归档"><span class="material-symbols-outlined text-sm">archive</span></button>`}
             </div>
           </div>
         `).join("") : `
@@ -527,6 +538,7 @@
       </button>`;
 
     section.querySelector("#memory-reflect-button")?.addEventListener("click", reflectMemory);
+    section.querySelector("#memory-status")?.addEventListener("change", (event) => loadProfileSpace(event.target.value));
     section.querySelectorAll("[data-action='evidence']").forEach((button) => {
       button.addEventListener("click", (event) => {
         const id = event.currentTarget.closest("[data-memory-id]")?.dataset.memoryId;
@@ -537,10 +549,19 @@
     section.querySelectorAll("[data-action='delete']").forEach((button) => {
       button.addEventListener("click", async (event) => {
         const id = event.currentTarget.closest("[data-memory-id]")?.dataset.memoryId;
-        if (!id || !confirm("确认删除这条长期记忆？")) return;
+        if (!id || !confirm("确认归档这条长期记忆？")) return;
         await api.request(`/student/memory/${id}`, { method: "DELETE" });
-        api.toast("记忆已删除", "success");
+        api.toast("记忆已归档", "success");
         await loadProfileSpace();
+      });
+    });
+    section.querySelectorAll("[data-action='restore']").forEach((button) => {
+      button.addEventListener("click", async (event) => {
+        const id = event.currentTarget.closest("[data-memory-id]")?.dataset.memoryId;
+        if (!id) return;
+        await api.restoreMemory(id);
+        api.toast("记忆已恢复，容量规则会自动整理活跃集合", "success");
+        await loadProfileSpace("archived");
       });
     });
   }
@@ -595,7 +616,7 @@
                 <tr class="${s.risk_level === "high" ? "bg-error-container/20 border-l-4 border-error" : "bg-surface-container-low/50"} hover:bg-white transition-colors rounded-xl overflow-hidden group">
                   <td class="p-4 rounded-l-xl font-bold">${escapeHtml(TYPE_LABELS[s.strategy_type] || s.strategy_type)}</td>
                   <td class="p-4 text-on-surface-variant">${escapeHtml(formatStrategyValue(s.before_value))}</td>
-                  <td class="p-4 font-bold text-primary">${escapeHtml(formatStrategyValue(s.after_value))}</td>
+                  <td class="p-4 font-bold text-primary">${escapeHtml(formatStrategyValue(s.materialized_changes?.values || s.after_value))}<div class="text-[11px] text-on-surface-variant mt-1">${escapeHtml(s.evaluation_status || "pending")}</div></td>
                   <td class="p-4"><span class="px-2.5 py-0.5 rounded-full text-label-sm font-bold ${RISK_STYLES[s.risk_level] || RISK_STYLES.medium}">${escapeHtml(RISK_LABELS[s.risk_level] || s.risk_level)}</span></td>
                   <td class="p-4"><span class="text-label-sm text-on-surface-variant">${escapeHtml(STATUS_LABELS[s.status] || s.status)}</span></td>
                   <td class="p-4 rounded-r-xl text-right space-x-2">
@@ -764,7 +785,8 @@
         button.textContent = "Memory Agent 反思中...";
         button.disabled = true;
       }
-      await api.request("/student/memory/reflect", { method: "POST" });
+      const courseId = await api.resolveCourseId().catch(() => null);
+      await api.request(`/student/memory/reflect${courseId ? `?course_id=${courseId}` : ""}`, { method: "POST" });
       api.toast("长期记忆已更新", "success");
       await loadProfileSpace();
     } catch (error) {
@@ -825,19 +847,21 @@
     }
   }
 
-  async function loadProfileSpace() {
+  async function loadProfileSpace(memoryStatus = "active") {
     try {
       const courseId = await api.resolveCourseId().catch(() => null);
-      const [profile, preferences, memories, strategies, learningPaths] = await Promise.all([
+      const [profile, courseProfile, preferences, memories, memoryHealth, strategies, learningPaths] = await Promise.all([
         api.request("/student/profile"),
+        courseId ? api.request(`/student/profile/course/${courseId}`).catch(() => null) : Promise.resolve(null),
         api.request("/student/profile/preferences").catch(() => []),
-        api.request("/student/memory").catch(() => []),
+        api.request(`/student/memory?status=${memoryStatus}${courseId ? `&course_id=${courseId}` : ""}`).catch(() => []),
+        api.memoryHealth(courseId).catch(() => ({ active_count: 0, archived_count: 0, capacity: courseId ? 20 : 10 })),
         api.request("/evolution/strategies?page=1&page_size=20").catch(() => ({ items: [], total: 0 })),
         courseId ? api.request(`/learning-paths?course_id=${courseId}&page=1&page_size=5`).catch(() => ({ items: [], total: 0 })) : Promise.resolve({ items: [], total: 0 }),
       ]);
       renderLearningPaths(learningPaths);
-      renderProfile(profile, preferences);
-      renderMemories(memories);
+      renderProfile(profile, preferences, courseProfile);
+      renderMemories(memories, memoryHealth, memoryStatus);
       renderStrategies(strategies);
     } catch (error) {
       api.toast(error.message || "个人模型加载失败", "error");

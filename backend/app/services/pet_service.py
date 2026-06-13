@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.error_codes import ErrorCode
 from app.core.exceptions import BusinessException
-from app.models.agent_task import AgentTask
+from app.models.agent_task import AgentTask, AgentTaskStep
 from app.models.learning_path import LearningPath, LearningPathItem
 from app.models.pet import PetNotification, PetPreference
 from app.models.recommendation import Recommendation
@@ -19,6 +19,33 @@ from app.models.user import User
 from app.schemas.pet import PetNotificationRead, PetPreferenceRead, PetPreferenceUpdate
 
 logger = logging.getLogger(__name__)
+
+RESOURCE_SECTION_LABELS = {
+    "explanation": "讲解",
+    "summary": "总结",
+    "example": "例题",
+    "flashcard": "复习卡",
+    "review": "错题解析",
+    "mindmap": "思维导图",
+    "diagram": "图解",
+    "image": "教学插图",
+    "video": "讲解视频",
+    "animation": "动画演示",
+    "interactive_courseware": "互动课件",
+    "code_project": "代码实操",
+    "reading_pack": "拓展阅读",
+}
+
+RESOURCE_TYPE_ALIASES = {
+    "courseware": "interactive_courseware",
+    "interactive_classroom": "interactive_courseware",
+    "immersive_classroom": "interactive_courseware",
+    "narrated_classroom_video": "video",
+    "storyboard": "video",
+    "media_video": "video",
+    "media_image": "image",
+    "mermaid": "diagram",
+}
 
 
 class PetService:
@@ -88,15 +115,16 @@ class PetService:
         return PetPreferenceRead.model_validate(preference)
 
     async def create_agent_completion(self, task: AgentTask) -> None:
+        resource_type = await self._infer_task_resource_type(task)
         await self.create_notification(
             user_id=task.user_id,
             course_id=task.course_id,
             notification_type="agent_completed",
             title="智能体任务已经完成",
-            reason=task.task_goal[:300],
+            reason=self._completion_reason(task.task_goal, resource_type),
             source_type="agent_task",
             source_id=task.id,
-            action_url=self.agent_action_url(task.course_id, task.conversation_id, task.id),
+            action_url=self.agent_action_url(task.course_id, task.conversation_id, task.id, resource_type=resource_type),
             dedupe_key=f"agent-task:{task.id}:completed",
         )
 
@@ -117,18 +145,25 @@ class PetService:
         title: str,
         conversation_id: UUID | None,
         agent_task_id: UUID | None,
+        resource_type: str | None = None,
     ) -> None:
+        normalized_type = self.normalize_resource_type(resource_type)
         action_url = (
-            self.agent_action_url(course_id, conversation_id, agent_task_id)
+            self.agent_action_url(course_id, conversation_id, agent_task_id, resource_type=normalized_type)
             if agent_task_id
-            else f"/assistant?course_id={course_id}"
+            else self.agent_action_url(course_id, None, None, resource_type=normalized_type)
         )
+        label = self.resource_section_label(normalized_type)
         await self.create_notification(
             user_id=user_id,
             course_id=course_id,
             notification_type="media_completed",
             title=title,
-            reason="个性化资源已生成完成，可以返回查看。",
+            reason=(
+                f"个性化资源已生成完成，已放入「{label}」分类，可以返回查看。"
+                if label
+                else "个性化资源已生成完成，可以返回查看。"
+            ),
             source_type="media_job",
             source_id=job_id,
             action_url=action_url,
@@ -153,9 +188,12 @@ class PetService:
             await self.db.execute(select(PetPreference).where(PetPreference.user_id == user_id))
         ).scalar_one_or_none()
         if item is None:
-            item = PetPreference(user_id=user_id)
-            self.db.add(item)
+            stmt = insert(PetPreference).values(user_id=user_id).on_conflict_do_nothing(index_elements=["user_id"])
+            await self.db.execute(stmt)
             await self.db.flush()
+            item = (
+                await self.db.execute(select(PetPreference).where(PetPreference.user_id == user_id))
+            ).scalar_one()
         return item
 
     async def _maybe_create_study_reminder(self, user_id: UUID, preference: PetPreference) -> None:
@@ -217,13 +255,91 @@ class PetService:
         return current >= quiet_start or current < quiet_end
 
     @staticmethod
-    def agent_action_url(course_id: UUID, conversation_id: UUID | None, task_id: UUID | None) -> str:
+    def agent_action_url(
+        course_id: UUID,
+        conversation_id: UUID | None,
+        task_id: UUID | None,
+        *,
+        resource_type: str | None = None,
+    ) -> str:
         parts = [f"course_id={course_id}"]
         if conversation_id:
             parts.append(f"conversation_id={conversation_id}")
         if task_id:
             parts.append(f"task_id={task_id}")
+        normalized_type = PetService.normalize_resource_type(resource_type)
+        if normalized_type:
+            parts.append(f"resource_type={normalized_type}")
         return f"/assistant?{'&'.join(parts)}"
+
+    @staticmethod
+    def normalize_resource_type(value: str | None) -> str | None:
+        if not value:
+            return None
+        raw = str(value).strip()
+        if raw in RESOURCE_SECTION_LABELS:
+            return raw
+        return RESOURCE_TYPE_ALIASES.get(raw)
+
+    @staticmethod
+    def resource_section_label(value: str | None) -> str | None:
+        normalized = PetService.normalize_resource_type(value)
+        return RESOURCE_SECTION_LABELS.get(normalized) if normalized else None
+
+    @classmethod
+    def _completion_reason(cls, task_goal: str, resource_type: str | None) -> str:
+        label = cls.resource_section_label(resource_type)
+        goal = task_goal[:240] if label else task_goal[:300]
+        if not label:
+            return goal
+        return f"{goal}；生成产物已放入「{label}」分类。"
+
+    async def _infer_task_resource_type(self, task: AgentTask) -> str | None:
+        payloads = [task.plan_json, task.input_payload, task.intent_payload]
+        for payload in payloads:
+            inferred = self._resource_type_from_payload(payload)
+            if inferred:
+                return inferred
+        steps = list(
+            (
+                await self.db.execute(
+                    select(AgentTaskStep)
+                    .where(AgentTaskStep.task_id == task.id)
+                    .order_by(AgentTaskStep.step_index.desc())
+                )
+            )
+            .scalars()
+            .all()
+        )
+        for step in steps:
+            inferred = self._resource_type_from_payload(step.artifact_refs) or self._resource_type_from_payload(
+                step.output_payload
+            )
+            if inferred:
+                return inferred
+        return None
+
+    @classmethod
+    def _resource_type_from_payload(cls, payload: object, depth: int = 0) -> str | None:
+        if depth > 4:
+            return None
+        if isinstance(payload, list):
+            for item in payload:
+                inferred = cls._resource_type_from_payload(item, depth + 1)
+                if inferred:
+                    return inferred
+            return None
+        if not isinstance(payload, dict):
+            return None
+        for key in ("resource_type", "subtype", "asset_type", "preview_mode"):
+            inferred = cls.normalize_resource_type(payload.get(key))
+            if inferred:
+                return inferred
+        for key in ("artifact_refs", "artifacts", "output", "result"):
+            inferred = cls._resource_type_from_payload(payload.get(key), depth + 1)
+            if inferred:
+                return inferred
+        return None
 
     @staticmethod
     def _recommendation_action(item: Recommendation) -> str:

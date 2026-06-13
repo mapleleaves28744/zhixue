@@ -28,7 +28,7 @@
 ## 当前状态
 
 - 学生端主链路已用真实本地数据库、后端、前端跑通过。
-- 前端构建路由只保留：`/`、`/home`、`/courses`、`/knowledge`、`/assistant`、`/practice`、`/dashboard`、`/path-profile`、`/login`、`/register`。
+- 前端构建路由只保留：`/`、`/home`、`/courses`、`/knowledge`、`/assistant`、`/practice`、`/dashboard`、`/path-profile`、`/evolution`、`/login`、`/register`。
 - 不再建设 `/teacher/*`、`/admin/*` 或旧 React `/student/*` 页面。
 - 无真实 LLM Key 时可用 Mock Provider；配置 OpenAI-compatible Provider 后可调用真实模型。
 - 2026-06-06 已使用真实 `xiaomi_mimo / mimo-v2.5` 完成资料上传到 Agent 日志的 23 步主链路验收，未回退 Mock。
@@ -41,7 +41,7 @@
 ```powershell
 cd backend
 python -m pytest -q --maxfail=1
-# 214 passed
+# 304 passed；最新数字见全量验收报告
 
 python -m alembic upgrade head
 # OK
@@ -62,6 +62,7 @@ python scripts/export_implementation_docs.py
 ```
 
 真实 LLM 主链路专项记录见 `docs/19_测试方案/13_真实LLM主链路与Next安全专项验收记录.md`。
+本轮全量扫描、浏览器验收和缺陷闭环见 `docs/19_测试方案/20_全量功能扫描与浏览器验收报告.md` 与 `21_缺陷清单与修复闭环记录.md`。
 
 ## 技术栈
 
@@ -327,15 +328,34 @@ Docker Compose 仍保留为后续部署目标。进入部署专项时，容器�
 ```env
 DATABASE_URL=postgresql+asyncpg://zhixue:zhixue_password@postgres:5432/zhixue
 REDIS_URL=redis://redis:6379/0
+OPENMAIC_ENABLED=true
+OPENMAIC_BASE_URL=http://openmaic:3000
+OPENMAIC_PUBLIC_BASE_URL=https://your-domain.example:3001
+OPENMAIC_INTERNAL_TOKEN=replace-with-a-long-random-service-token
+OPENMAIC_SIGNING_SECRET=replace-with-a-different-long-random-signing-secret
+XIAOMI_API_KEY=...
+XIAOMI_BASE_URL=...
+XIAOMI_MODELS=mimo-v2.5
+DEFAULT_MODEL=xiaomi:mimo-v2.5
+TTS_XIAOMI_MIMO_API_KEY=...
+TTS_XIAOMI_MIMO_BASE_URL=...
+ASR_XIAOMI_MIMO_API_KEY=...
+ASR_XIAOMI_MIMO_BASE_URL=...
 ```
 
 启动：
 
 ```powershell
-docker compose up --build
+docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-当前阶段若 Docker 与本地运行结果冲突，优先保证本地学生端主链路可用。
+当前 `docker-compose.prod.yml` 会同时启动 `postgres`、`redis`、`openmaic`、`backend`、`worker`、`frontend` 和 `nginx`。其中 OpenMAIC 默认映射宿主机 `3001`，便于像本地一样直接访问：
+
+```text
+http://server-ip:3001/api/health
+```
+
+当前阶段若 Docker 与本地运行结果冲突，优先保证本地学生端主链路可用。更完整的服务器变量与启动说明见 [20_部署方案.md](docs/20_部署方案/20_部署方案.md) 和 [06_OpenMAIC沉浸课堂本地运行指南.md](docs/20_部署方案/06_OpenMAIC沉浸课堂本地运行指南.md)。
 
 ## 目录结构
 

@@ -80,6 +80,7 @@ async def run_classroom_video_export_job(ctx: dict, job_id: str) -> dict[str, An
                 title=asset.title,
                 conversation_id=job.conversation_id,
                 agent_task_id=job.agent_task_id,
+                resource_type="video",
             )
             await _publish_progress(
                 db,

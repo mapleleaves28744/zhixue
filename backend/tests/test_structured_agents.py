@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 
 import pytest
+from pydantic import ValidationError
 
 from app.agents.structured_chat_utils import call_structured_chat
 from app.agents.structured_outputs import (
@@ -64,3 +65,8 @@ def test_review_output_to_dict_uses_pass_alias() -> None:
     assert data["pass"] is False
     assert data["risk_level"] == "high"
     assert "缺少引用" in data["issues"]
+
+
+def test_evolution_analysis_rejects_empty_strategy_list() -> None:
+    with pytest.raises(ValidationError):
+        EvolutionAnalysisOutput.model_validate({"strategies": []})

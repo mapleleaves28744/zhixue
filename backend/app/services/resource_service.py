@@ -425,9 +425,10 @@ class ResourceService:
         cleaned = value.strip()
         normalized = RESOURCE_TYPE_ALIASES.get(cleaned, cleaned.lower())
         if normalized not in VALID_RESOURCE_TYPES:
+            allowed = " / ".join(sorted(VALID_RESOURCE_TYPES))
             raise BusinessException(
                 code=ErrorCode.PARAM_ERROR,
-                detail="resource_type 只能是 explanation / summary / example / flashcard / review / mindmap / diagram",
+                detail=f"resource_type 只能是 {allowed}",
                 status_code=400,
             )
         return normalized

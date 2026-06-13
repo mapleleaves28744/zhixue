@@ -160,7 +160,7 @@ class MasteryService:
     ) -> dict[str, Any]:
         from sqlalchemy import select
 
-        from app.models.profile import StudentProfile
+        from app.models.profile import StudentCourseProfile
 
         items = await self.list_mastery_items(user_id=user_id, course_id=course_id)
         flat: dict[str, Any] = {}
@@ -173,14 +173,16 @@ class MasteryService:
         )
         flat["_items"] = items
 
-        result = await self.db.execute(select(StudentProfile).where(StudentProfile.user_id == user_id))
+        result = await self.db.execute(select(StudentCourseProfile).where(
+            StudentCourseProfile.user_id == user_id, StudentCourseProfile.course_id == course_id
+        ))
         profile = result.scalar_one_or_none()
-        if profile:
-            profile.mastery_snapshot = flat
-            await self.db.flush()
-            from app.services.profile_context_cache import ProfileContextCache
-
-            await ProfileContextCache().invalidate(user_id)
+        if profile is None:
+            profile = StudentCourseProfile(user_id=user_id, course_id=course_id)
+            self.db.add(profile)
+        profile.mastery_snapshot = flat
+        profile.version_no += 1
+        await self.db.flush()
         return flat
 
     def _apply_decay(self, row: Any, now: datetime) -> Any:

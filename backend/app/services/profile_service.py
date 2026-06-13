@@ -11,11 +11,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.error_codes import ErrorCode
 from app.core.exceptions import BusinessException
-from app.models.profile import LearningPreference, StudentProfile
+from app.models.profile import LearningPreference, StudentCourseProfile, StudentProfile
 from app.schemas.profile import (
     LearningPreferenceRead,
     ProfileDialogueIngestResult,
     ProfileRead,
+    CourseProfileRead,
     ProfileSummary,
     ProfileUpdate,
 )
@@ -41,6 +42,48 @@ class ProfileService:
         await self.db.refresh(profile)
         await self._invalidate_context_cache(user_id)
         return ProfileRead.model_validate(profile)
+
+    async def get_course_profile(self, user_id: UUID, course_id: UUID) -> CourseProfileRead:
+        profile = await self._get_or_create_course_profile(user_id, course_id)
+        return CourseProfileRead.model_validate(profile)
+
+    async def merge_course_signals(
+        self,
+        *,
+        user_id: UUID,
+        course_id: UUID,
+        signals: dict[str, Any],
+        source_message_id: str | None = None,
+    ) -> CourseProfileRead:
+        profile = await self._get_or_create_course_profile(user_id, course_id)
+        if source_message_id and source_message_id in list(profile.processed_message_ids or []):
+            return CourseProfileRead.model_validate(profile)
+        changed = False
+        if signals.get("weak_points"):
+            profile.weak_points = self._merge_profile_items(list(profile.weak_points or []), list(signals["weak_points"]), key="knowledge_name")
+            changed = True
+        if signals.get("error_patterns"):
+            profile.error_patterns = self._merge_profile_items(list(profile.error_patterns or []), list(signals["error_patterns"]), key="pattern")
+            changed = True
+        if signals.get("learning_goal"):
+            profile.learning_goal = str(signals["learning_goal"])
+            changed = True
+        if changed:
+            profile.profile_summary = self._course_summary(profile)
+            profile.evidence = [*(profile.evidence or []), {"source_message_id": source_message_id, "signals": signals, "observed_at": datetime.now(UTC).isoformat()}][-20:]
+            profile.version_no += 1
+        if source_message_id:
+            profile.processed_message_ids = [*(profile.processed_message_ids or []), source_message_id][-100:]
+        await self.db.commit()
+        await self.db.refresh(profile)
+        return CourseProfileRead.model_validate(profile)
+
+    async def rebuild_course(self, user_id: UUID, course_id: UUID) -> CourseProfileRead:
+        profile = await self._get_or_create_course_profile(user_id, course_id)
+        profile.profile_summary = self._course_summary(profile)
+        await self.db.commit()
+        await self.db.refresh(profile)
+        return CourseProfileRead.model_validate(profile)
 
     async def get_summary(self, user_id: UUID) -> ProfileSummary:
         profile = await self._get_or_create(user_id)
@@ -116,6 +159,12 @@ class ProfileService:
             preference.updated_at = datetime.now(UTC)
 
         if course_id is not None:
+            await self.merge_course_signals(
+                user_id=user_id,
+                course_id=course_id,
+                signals=signals,
+                source_message_id=source_message_id,
+            )
             from app.services.learning_record_service import LearningRecordService
 
             await LearningRecordService(self.db).record_event(
@@ -543,3 +592,23 @@ class ProfileService:
             self.db.add(preference)
             await self.db.flush()
         return preference
+
+    async def _get_or_create_course_profile(self, user_id: UUID, course_id: UUID) -> StudentCourseProfile:
+        result = await self.db.execute(select(StudentCourseProfile).where(StudentCourseProfile.user_id == user_id, StudentCourseProfile.course_id == course_id))
+        profile = result.scalar_one_or_none()
+        if profile is None:
+            profile = StudentCourseProfile(user_id=user_id, course_id=course_id)
+            self.db.add(profile)
+            await self.db.commit()
+            await self.db.refresh(profile)
+        return profile
+
+    def _course_summary(self, profile: StudentCourseProfile) -> str:
+        parts = []
+        if profile.learning_goal:
+            parts.append(f"课程目标：{profile.learning_goal}")
+        if profile.weak_points:
+            parts.append(f"薄弱点：{profile.weak_points[:4]}")
+        if profile.error_patterns:
+            parts.append(f"错误模式：{profile.error_patterns[:4]}")
+        return "；".join(parts) or "当前课程画像正在积累真实学习证据。"

@@ -2,7 +2,7 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
-> HTTP 操作数：**137**
+> HTTP 操作数：**143**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
@@ -65,6 +65,9 @@
 | `GET` | `/api/v1/knowledge/graph/subgraph` | JWT | course_id*, center_id*, depth | - |
 | `POST` | `/api/v1/knowledge/search` | JWT | - | application/json: `KnowledgeSearchRequest` |
 | `GET` | `/api/v1/knowledge/seed-quality-report` | JWT | - | - |
+| `POST` | `/api/v1/learning-analytics/sessions/heartbeat` | JWT | - | application/json: `SessionHeartbeatRequest` |
+| `POST` | `/api/v1/learning-analytics/sessions/{session_id}/end` | JWT | session_id* | - |
+| `GET` | `/api/v1/learning-analytics/summary` | JWT | course_id, period | - |
 | `GET` | `/api/v1/learning-paths` | JWT | course_id, status, page, page_size | - |
 | `POST` | `/api/v1/learning-paths/generate` | JWT | - | application/json: `LearningPathGenerateRequest` |
 | `PATCH` | `/api/v1/learning-paths/items/{item_id}` | JWT | item_id* | application/json: `LearningPathItemUpdate` |
@@ -108,10 +111,12 @@
 | `GET` | `/api/v1/resources/{resource_id}` | JWT | resource_id* | - |
 | `DELETE` | `/api/v1/resources/{resource_id}` | JWT | resource_id* | - |
 | `POST` | `/api/v1/resources/{resource_id}/save-to-wiki` | JWT | resource_id* | application/json: `ResourceSaveToWikiRequest` |
-| `GET` | `/api/v1/student/memory` | JWT | - | - |
-| `POST` | `/api/v1/student/memory/reflect` | JWT | - | - |
+| `GET` | `/api/v1/student/memory` | JWT | course_id, status | - |
+| `GET` | `/api/v1/student/memory/health` | JWT | course_id | - |
+| `POST` | `/api/v1/student/memory/reflect` | JWT | course_id | - |
 | `DELETE` | `/api/v1/student/memory/{memory_id}` | JWT | memory_id* | - |
 | `PATCH` | `/api/v1/student/memory/{memory_id}` | JWT | memory_id* | application/json: `MemoryUpdate` |
+| `POST` | `/api/v1/student/memory/{memory_id}/restore` | JWT | memory_id* | - |
 | `GET` | `/api/v1/student/pet/feed` | JWT | - | - |
 | `POST` | `/api/v1/student/pet/notifications/read-all` | JWT | - | - |
 | `PATCH` | `/api/v1/student/pet/notifications/{notification_id}/read` | JWT | notification_id* | - |
@@ -119,9 +124,10 @@
 | `PUT` | `/api/v1/student/pet/preferences` | JWT | - | application/json: `PetPreferenceUpdate` |
 | `GET` | `/api/v1/student/profile` | JWT | - | - |
 | `PUT` | `/api/v1/student/profile` | JWT | - | application/json: `ProfileUpdate` |
+| `GET` | `/api/v1/student/profile/course/{course_id}` | JWT | course_id* | - |
 | `POST` | `/api/v1/student/profile/dialogue-ingest` | JWT | - | application/json: `ProfileDialogueIngestRequest` |
 | `GET` | `/api/v1/student/profile/preferences` | JWT | - | - |
-| `POST` | `/api/v1/student/profile/rebuild` | JWT | - | - |
+| `POST` | `/api/v1/student/profile/rebuild` | JWT | course_id | - |
 | `GET` | `/api/v1/student/profile/summary` | JWT | - | - |
 | `POST` | `/api/v1/tutor/ask` | JWT | - | application/json: `TutorChatRequest` |
 | `POST` | `/api/v1/tutor/chat` | JWT | - | application/json: `TutorChatRequest` |

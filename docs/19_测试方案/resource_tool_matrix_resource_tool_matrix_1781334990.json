@@ -1,0 +1,704 @@
+{
+  "summary": {
+    "run_id": "resource_tool_matrix_1781334990",
+    "resource_type_total": 13,
+    "resource_type_passed": 13,
+    "agent_tool_total": 13,
+    "agent_tool_passed": 13,
+    "failed": []
+  },
+  "resource_results": [
+    {
+      "kind": "resource_type",
+      "case": "animation",
+      "success": true,
+      "duration_ms": 34470,
+      "resource_id": "699133f3-4ba5-4800-8483-b263478a8f92",
+      "title": "二叉树遍历 - 交互式动画演示学习资源",
+      "preview_mode": "text",
+      "media_asset_id": null,
+      "content_len": 1177,
+      "review_pass": true
+    },
+    {
+      "kind": "resource_type",
+      "case": "code_project",
+      "success": true,
+      "duration_ms": 32459,
+      "resource_id": "a7a33491-ec35-4814-8ec8-ae1abdffc566",
+      "title": "二叉树遍历 - 代码实操项目",
+      "preview_mode": "text",
+      "media_asset_id": null,
+      "content_len": 2140,
+      "review_pass": true
+    },
+    {
+      "kind": "resource_type",
+      "case": "diagram",
+      "success": true,
+      "duration_ms": 27254,
+      "resource_id": "7f5860a5-e88c-464d-b3db-696ba0997eb6",
+      "title": "二叉树遍历图解",
+      "preview_mode": "image",
+      "media_asset_id": "38745ed9-c8d2-4f66-a811-753dc58eb8e5",
+      "content_len": 204,
+      "review_pass": true
+    },
+    {
+      "kind": "resource_type",
+      "case": "example",
+      "success": true,
+      "duration_ms": 22714,
+      "resource_id": "d0c859d6-bcf9-4e03-a0d6-59114b55f762",
+      "title": "二叉树遍历：核心概念与验收样例",
+      "preview_mode": "text",
+      "media_asset_id": null,
+      "content_len": 1159,
+      "review_pass": true
+    },
+    {
+      "kind": "resource_type",
+      "case": "explanation",
+      "success": true,
+      "duration_ms": 87639,
+      "resource_id": "c142705d-9c6e-49f7-acf9-160c61cc5ddf",
+      "title": "二叉树遍历：一份基础学习资源",
+      "preview_mode": "audio",
+      "media_asset_id": "19fc1e22-3d7b-4df6-89fa-df3ef33133bd",
+      "content_len": 1512,
+      "review_pass": true
+    },
+    {
+      "kind": "resource_type",
+      "case": "flashcard",
+      "success": true,
+      "duration_ms": 24826,
+      "resource_id": "08ebaf39-01e1-44d8-8f8e-9a4ac06cac89",
+      "title": "二叉树遍历复习卡",
+      "preview_mode": "text",
+      "media_asset_id": null,
+      "content_len": 2486,
+      "review_pass": true
+    },
+    {
+      "kind": "resource_type",
+      "case": "image",
+      "success": true,
+      "duration_ms": 23431,
+      "resource_id": "9146d393-7dce-4197-a32b-3ea4d765b4d3",
+      "title": "二叉树遍历教学插图资源",
+      "preview_mode": "text",
+      "media_asset_id": null,
+      "content_len": 1038,
+      "review_pass": true
+    },
+    {
+      "kind": "resource_type",
+      "case": "interactive_courseware",
+      "success": true,
+      "duration_ms": 19648,
+      "resource_id": "9761307e-0142-4bdc-ad91-0fa7288ff37f",
+      "title": "互动课件：二叉树遍历",
+      "preview_mode": "text",
+      "media_asset_id": null,
+      "content_len": 1023,
+      "review_pass": true
+    },
+    {
+      "kind": "resource_type",
+      "case": "mindmap",
+      "success": true,
+      "duration_ms": 25044,
+      "resource_id": "6cbea1d0-a68b-4c1c-a2c1-5bd745f227ec",
+      "title": "二叉树遍历思维导图",
+      "preview_mode": "image",
+      "media_asset_id": "b4defee8-a718-4c77-946c-08cdbf6c661b",
+      "content_len": 162,
+      "review_pass": true
+    },
+    {
+      "kind": "resource_type",
+      "case": "reading_pack",
+      "success": true,
+      "duration_ms": 22451,
+      "resource_id": "63ceffcf-bed0-4b3a-927f-4f86df5ff2bf",
+      "title": "拓展阅读包：二叉树遍历",
+      "preview_mode": "text",
+      "media_asset_id": null,
+      "content_len": 1182,
+      "review_pass": true
+    },
+    {
+      "kind": "resource_type",
+      "case": "review",
+      "success": true,
+      "duration_ms": 27922,
+      "resource_id": "a24de5c4-8c9a-41f7-a3e0-4044c75e0f1d",
+      "title": "二叉树遍历 - 错题解析验收样例",
+      "preview_mode": "text",
+      "media_asset_id": null,
+      "content_len": 1049,
+      "review_pass": true
+    },
+    {
+      "kind": "resource_type",
+      "case": "summary",
+      "success": true,
+      "duration_ms": 28561,
+      "resource_id": "a1cffa61-7eda-488d-8b4d-098b39c90410",
+      "title": "二叉树遍历学习资源",
+      "preview_mode": "text",
+      "media_asset_id": null,
+      "content_len": 940,
+      "review_pass": true
+    },
+    {
+      "kind": "resource_type",
+      "case": "video",
+      "success": true,
+      "duration_ms": 86876,
+      "resource_id": "0ffc237e-d36e-4e14-b330-a17732b5cf97",
+      "title": "二叉树遍历：讲解视频设计稿",
+      "preview_mode": "text",
+      "media_asset_id": null,
+      "content_len": 1381,
+      "review_pass": true
+    }
+  ],
+  "tool_results": [
+    {
+      "kind": "agent_tool",
+      "case": "generate_explanation_explanation",
+      "tool": "generate_explanation",
+      "success": true,
+      "duration_ms": 75581,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "resource",
+          "id": "366c4748-7b12-4ada-8b44-d60273df6e54",
+          "title": "个性化学习资源：数据结构入门"
+        }
+      ],
+      "evidence_count": 1,
+      "output_keys": [
+        "agent_run_id",
+        "citations",
+        "content",
+        "content_format",
+        "created_at",
+        "id",
+        "media_asset_id",
+        "media_asset_type",
+        "media_file_url",
+        "media_mime_type",
+        "personalized_reason",
+        "preview_mode",
+        "resource_id",
+        "resource_type",
+        "review_result",
+        "status",
+        "title",
+        "wiki_page_id"
+      ],
+      "resource_id": "366c4748-7b12-4ada-8b44-d60273df6e54",
+      "asset_id": null,
+      "job_id": null,
+      "preview_mode": "audio",
+      "generation_mode": null,
+      "provider": null,
+      "fallback_used": null
+    },
+    {
+      "kind": "agent_tool",
+      "case": "generate_explanation_summary",
+      "tool": "generate_explanation",
+      "success": true,
+      "duration_ms": 31727,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "resource",
+          "id": "3e39c6d9-f167-463e-8d70-995e066ddded",
+          "title": "📚 数据结构学习总结"
+        }
+      ],
+      "evidence_count": 1,
+      "output_keys": [
+        "agent_run_id",
+        "citations",
+        "content",
+        "content_format",
+        "created_at",
+        "id",
+        "media_asset_id",
+        "media_asset_type",
+        "media_file_url",
+        "media_mime_type",
+        "personalized_reason",
+        "preview_mode",
+        "resource_id",
+        "resource_type",
+        "review_result",
+        "status",
+        "title",
+        "wiki_page_id"
+      ],
+      "resource_id": "3e39c6d9-f167-463e-8d70-995e066ddded",
+      "asset_id": null,
+      "job_id": null,
+      "preview_mode": "text",
+      "generation_mode": null,
+      "provider": null,
+      "fallback_used": null
+    },
+    {
+      "kind": "agent_tool",
+      "case": "generate_explanation_example",
+      "tool": "generate_explanation",
+      "success": true,
+      "duration_ms": 33172,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "resource",
+          "id": "66ad0309-8fbf-4f11-9555-d0fda01cd966",
+          "title": "数据结构学习资源：栈（Stack）"
+        }
+      ],
+      "evidence_count": 1,
+      "output_keys": [
+        "agent_run_id",
+        "citations",
+        "content",
+        "content_format",
+        "created_at",
+        "id",
+        "media_asset_id",
+        "media_asset_type",
+        "media_file_url",
+        "media_mime_type",
+        "personalized_reason",
+        "preview_mode",
+        "resource_id",
+        "resource_type",
+        "review_result",
+        "status",
+        "title",
+        "wiki_page_id"
+      ],
+      "resource_id": "66ad0309-8fbf-4f11-9555-d0fda01cd966",
+      "asset_id": null,
+      "job_id": null,
+      "preview_mode": "text",
+      "generation_mode": null,
+      "provider": null,
+      "fallback_used": null
+    },
+    {
+      "kind": "agent_tool",
+      "case": "generate_explanation_flashcard",
+      "tool": "generate_explanation",
+      "success": true,
+      "duration_ms": 31715,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "resource",
+          "id": "7856bdf7-a76f-409d-9797-29c6f132c7f8",
+          "title": "数据结构复习卡"
+        }
+      ],
+      "evidence_count": 1,
+      "output_keys": [
+        "agent_run_id",
+        "citations",
+        "content",
+        "content_format",
+        "created_at",
+        "id",
+        "media_asset_id",
+        "media_asset_type",
+        "media_file_url",
+        "media_mime_type",
+        "personalized_reason",
+        "preview_mode",
+        "resource_id",
+        "resource_type",
+        "review_result",
+        "status",
+        "title",
+        "wiki_page_id"
+      ],
+      "resource_id": "7856bdf7-a76f-409d-9797-29c6f132c7f8",
+      "asset_id": null,
+      "job_id": null,
+      "preview_mode": "text",
+      "generation_mode": null,
+      "provider": null,
+      "fallback_used": null
+    },
+    {
+      "kind": "agent_tool",
+      "case": "generate_explanation_review",
+      "tool": "generate_explanation",
+      "success": true,
+      "duration_ms": 30282,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "resource",
+          "id": "bb77ac30-d43d-42e2-a073-6f33b6c6371b",
+          "title": "数据结构错题解析：链表操作中的指针陷阱"
+        }
+      ],
+      "evidence_count": 1,
+      "output_keys": [
+        "agent_run_id",
+        "citations",
+        "content",
+        "content_format",
+        "created_at",
+        "id",
+        "media_asset_id",
+        "media_asset_type",
+        "media_file_url",
+        "media_mime_type",
+        "personalized_reason",
+        "preview_mode",
+        "resource_id",
+        "resource_type",
+        "review_result",
+        "status",
+        "title",
+        "wiki_page_id"
+      ],
+      "resource_id": "bb77ac30-d43d-42e2-a073-6f33b6c6371b",
+      "asset_id": null,
+      "job_id": null,
+      "preview_mode": "text",
+      "generation_mode": null,
+      "provider": null,
+      "fallback_used": null
+    },
+    {
+      "kind": "agent_tool",
+      "case": "generate_mindmap",
+      "tool": "generate_mindmap",
+      "success": true,
+      "duration_ms": 16250,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "resource",
+          "subtype": "mindmap",
+          "id": "4bbb3d12-2b14-4f30-98aa-23fb6283d46b",
+          "title": "二叉树遍历 知识思维导图"
+        }
+      ],
+      "evidence_count": 2,
+      "output_keys": [
+        "citations",
+        "content",
+        "media_asset_id",
+        "media_file_url",
+        "media_mime_type",
+        "mermaid_code",
+        "preview_mode",
+        "resource_id",
+        "title",
+        "topic"
+      ],
+      "resource_id": "4bbb3d12-2b14-4f30-98aa-23fb6283d46b",
+      "asset_id": null,
+      "job_id": null,
+      "preview_mode": "image",
+      "generation_mode": null,
+      "provider": null,
+      "fallback_used": null
+    },
+    {
+      "kind": "agent_tool",
+      "case": "generate_diagram",
+      "tool": "generate_diagram",
+      "success": true,
+      "duration_ms": 17132,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "resource",
+          "subtype": "diagram",
+          "id": "96619329-94a6-469e-8fd9-0b37cf84fc4a",
+          "title": "二叉树遍历 图解说明"
+        }
+      ],
+      "evidence_count": 2,
+      "output_keys": [
+        "citations",
+        "concept",
+        "content",
+        "diagram_type",
+        "mermaid_code",
+        "resource_id",
+        "title"
+      ],
+      "resource_id": "96619329-94a6-469e-8fd9-0b37cf84fc4a",
+      "asset_id": null,
+      "job_id": null,
+      "preview_mode": null,
+      "generation_mode": null,
+      "provider": null,
+      "fallback_used": null
+    },
+    {
+      "kind": "agent_tool",
+      "case": "generate_educational_image",
+      "tool": "generate_educational_image",
+      "success": true,
+      "duration_ms": 35731,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "media_asset",
+          "subtype": "image",
+          "asset_id": "6c0b92b9-fd6c-4daf-ba98-a6147a52c5d1",
+          "resource_id": "77970d3c-9534-4116-a97c-debe3dbce8b5",
+          "asset_type": "image",
+          "title": "二叉树遍历 教学插图",
+          "mime_type": "image/png",
+          "file_size": 625806,
+          "file_url": "/api/v1/media-assets/6c0b92b9-fd6c-4daf-ba98-a6147a52c5d1/file",
+          "citations": [],
+          "safety_result": {
+            "mode": "image_brief_based",
+            "passed": true,
+            "risk_level": "low"
+          },
+          "generation_mode": "image"
+        }
+      ],
+      "evidence_count": 0,
+      "output_keys": [
+        "asset_id",
+        "asset_type",
+        "citations",
+        "file_size",
+        "file_url",
+        "generation_mode",
+        "mime_type",
+        "resource_id",
+        "safety_result",
+        "title"
+      ],
+      "resource_id": "77970d3c-9534-4116-a97c-debe3dbce8b5",
+      "asset_id": "6c0b92b9-fd6c-4daf-ba98-a6147a52c5d1",
+      "job_id": null,
+      "preview_mode": null,
+      "generation_mode": "image",
+      "provider": null,
+      "fallback_used": null
+    },
+    {
+      "kind": "agent_tool",
+      "case": "generate_storyboard_html",
+      "tool": "generate_storyboard_html",
+      "success": true,
+      "duration_ms": 72,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "media_asset",
+          "subtype": "storyboard",
+          "asset_id": "3e02605f-f7b7-4ebc-8917-fc1929b1e8aa",
+          "resource_id": "ac2f7187-d480-42dd-96f6-83d34fc8feff",
+          "asset_type": "html",
+          "title": "二叉树遍历 讲解分镜",
+          "mime_type": "text/html",
+          "file_size": 1255,
+          "file_url": "/api/v1/media-assets/3e02605f-f7b7-4ebc-8917-fc1929b1e8aa/file",
+          "citations": [],
+          "safety_result": {
+            "mode": "storyboard_html",
+            "passed": true,
+            "risk_level": "low"
+          }
+        }
+      ],
+      "evidence_count": 0,
+      "output_keys": [
+        "asset_id",
+        "asset_type",
+        "citations",
+        "file_size",
+        "file_url",
+        "mime_type",
+        "resource_id",
+        "safety_result",
+        "subtype",
+        "title"
+      ],
+      "resource_id": "ac2f7187-d480-42dd-96f6-83d34fc8feff",
+      "asset_id": "3e02605f-f7b7-4ebc-8917-fc1929b1e8aa",
+      "job_id": null,
+      "preview_mode": null,
+      "generation_mode": null,
+      "provider": null,
+      "fallback_used": null
+    },
+    {
+      "kind": "agent_tool",
+      "case": "generate_interactive_courseware",
+      "tool": "generate_interactive_courseware",
+      "success": true,
+      "duration_ms": 118,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "media_asset",
+          "subtype": "courseware",
+          "asset_id": "bd0d159c-c0b0-4167-8e9d-00367eaac634",
+          "resource_id": "79aa6a78-4edc-471e-89ed-855059b52d1b",
+          "asset_type": "html",
+          "title": "二叉树遍历 互动课件",
+          "mime_type": "text/html",
+          "file_size": 2482,
+          "file_url": "/api/v1/media-assets/bd0d159c-c0b0-4167-8e9d-00367eaac634/file",
+          "citations": [],
+          "safety_result": {
+            "issues": [],
+            "passed": true,
+            "risk_level": "low"
+          }
+        }
+      ],
+      "evidence_count": 0,
+      "output_keys": [
+        "asset_id",
+        "asset_type",
+        "citations",
+        "file_size",
+        "file_url",
+        "mime_type",
+        "resource_id",
+        "safety_result",
+        "subtype",
+        "title"
+      ],
+      "resource_id": "79aa6a78-4edc-471e-89ed-855059b52d1b",
+      "asset_id": "bd0d159c-c0b0-4167-8e9d-00367eaac634",
+      "job_id": null,
+      "preview_mode": null,
+      "generation_mode": null,
+      "provider": null,
+      "fallback_used": null
+    },
+    {
+      "kind": "agent_tool",
+      "case": "generate_lesson_video",
+      "tool": "generate_lesson_video",
+      "success": true,
+      "duration_ms": 117,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "media_job",
+          "subtype": "video",
+          "job_id": "867a20d3-4297-4a4f-a261-2b19c620e39f",
+          "resource_id": "8c76b5bc-f8fd-4f53-8ded-60b91ff491e4",
+          "status": "queued",
+          "stage": "queued",
+          "progress": 0,
+          "message": "视频任务已进入后台队列，可在 Agent 时间线查看进度。"
+        }
+      ],
+      "evidence_count": 1,
+      "output_keys": [
+        "job_id",
+        "message",
+        "progress",
+        "resource_id",
+        "stage",
+        "status"
+      ],
+      "resource_id": "8c76b5bc-f8fd-4f53-8ded-60b91ff491e4",
+      "asset_id": null,
+      "job_id": "867a20d3-4297-4a4f-a261-2b19c620e39f",
+      "preview_mode": null,
+      "generation_mode": null,
+      "provider": null,
+      "fallback_used": null
+    },
+    {
+      "kind": "agent_tool",
+      "case": "generate_immersive_classroom",
+      "tool": "generate_immersive_classroom",
+      "success": true,
+      "duration_ms": 64,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "media_job",
+          "subtype": "immersive_classroom",
+          "job_id": "d283c5af-8e0c-46cb-b9c4-83b2f3204d2b",
+          "resource_id": "b8462662-9dc8-4b18-b5c8-71a1b947c7cd",
+          "status": "queued",
+          "stage": "queued",
+          "progress": 0,
+          "message": "沉浸课堂任务已进入后台队列，可在 Agent 时间线查看进度。"
+        }
+      ],
+      "evidence_count": 1,
+      "output_keys": [
+        "job_id",
+        "message",
+        "progress",
+        "resource_id",
+        "stage",
+        "status"
+      ],
+      "resource_id": "b8462662-9dc8-4b18-b5c8-71a1b947c7cd",
+      "asset_id": null,
+      "job_id": "d283c5af-8e0c-46cb-b9c4-83b2f3204d2b",
+      "preview_mode": null,
+      "generation_mode": null,
+      "provider": null,
+      "fallback_used": null
+    },
+    {
+      "kind": "agent_tool",
+      "case": "synthesize_speech",
+      "tool": "synthesize_speech",
+      "success": true,
+      "duration_ms": 12743,
+      "error": null,
+      "artifact_refs": [
+        {
+          "type": "audio",
+          "asset_id": "de30dbe7-3f2e-4c6e-8200-3232b632a60e",
+          "title": "语音讲解 · 二叉树遍历包括前序、中序和后序。先看根节点的位置，再观察左右",
+          "mime_type": "audio/wav"
+        }
+      ],
+      "evidence_count": 2,
+      "output_keys": [
+        "asset_id",
+        "audio_base64",
+        "duration_ms",
+        "failed_provider",
+        "fallback_reason",
+        "fallback_used",
+        "format",
+        "model",
+        "provider",
+        "text_length"
+      ],
+      "resource_id": null,
+      "asset_id": "de30dbe7-3f2e-4c6e-8200-3232b632a60e",
+      "job_id": null,
+      "preview_mode": null,
+      "generation_mode": null,
+      "provider": "xiaomi_mimo_audio",
+      "fallback_used": false
+    }
+  ]
+}

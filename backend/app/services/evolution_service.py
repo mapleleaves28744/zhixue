@@ -103,7 +103,9 @@ class EvolutionService:
 
         strategies: list[EvolutionStrategy] = []
         for i, raw in enumerate(raw_strategies):
-            strategy_type = raw.get("strategy_type", "recommendation")
+            from app.services.strategy_materialization_service import StrategyMaterializationService
+
+            strategy_type = StrategyMaterializationService.normalize_strategy_type(raw.get("strategy_type", "recommendation"))
             risk_level = raw.get("risk_level", reviewed_risk)
             if risk_level not in ("low", "medium", "high"):
                 risk_level = "medium"
@@ -131,6 +133,10 @@ class EvolutionService:
         event.status = "completed"
         event.strategies_generated = len(strategies)
         await self.db.commit()
+
+        for strategy in strategies:
+            if strategy.risk_level == "low":
+                await self.apply_strategy(strategy.id, user_id)
 
         for s in strategies:
             await self.db.refresh(s)
@@ -212,6 +218,8 @@ class EvolutionService:
         page: int = 1,
         page_size: int = 20,
     ) -> tuple[list[StrategyRead], int]:
+        if course_id is not None:
+            await self.evaluate_due_strategies(user_id=user_id, course_id=course_id)
         stmt = select(EvolutionStrategy).where(EvolutionStrategy.user_id == user_id)
         if course_id is not None:
             stmt = stmt.where(EvolutionStrategy.course_id == course_id)
@@ -229,8 +237,11 @@ class EvolutionService:
         items = [StrategyRead.model_validate(s) for s in result.scalars().all()]
         return items, total
 
-    async def get_strategy(self, strategy_id: UUID) -> StrategyRead:
-        stmt = select(EvolutionStrategy).where(EvolutionStrategy.id == strategy_id)
+    async def get_strategy(self, strategy_id: UUID, user_id: UUID) -> StrategyRead:
+        stmt = select(EvolutionStrategy).where(
+            EvolutionStrategy.id == strategy_id,
+            EvolutionStrategy.user_id == user_id,
+        )
         result = await self.db.execute(stmt)
         strategy = result.scalar_one_or_none()
         if strategy is None:
@@ -272,6 +283,9 @@ class EvolutionService:
             if prev_strategy and prev_strategy.status == "active":
                 prev_strategy.status = "superseded"
 
+        from app.services.strategy_materialization_service import StrategyMaterializationService
+
+        await StrategyMaterializationService(self.db).materialize(strategy)
         strategy.status = "active"
         await self.db.commit()
         await self.db.refresh(strategy)
@@ -317,6 +331,10 @@ class EvolutionService:
                 status_code=404,
             )
 
+        from app.services.strategy_materialization_service import StrategyMaterializationService
+
+        await StrategyMaterializationService(self.db).materialize(strategy, rollback=True)
+        await StrategyMaterializationService(self.db).materialize(prev_strategy)
         strategy.status = "rolled_back"
         prev_strategy.status = "active"
         await self.db.commit()
@@ -343,6 +361,40 @@ class EvolutionService:
         result = await self.db.execute(stmt)
         items = [EventRead.model_validate(e) for e in result.scalars().all()]
         return items, total
+
+    async def evaluate_due_strategies(self, *, user_id: UUID, course_id: UUID) -> int:
+        from datetime import UTC, datetime, timedelta
+
+        from app.models.learning_record import LearningRecord
+
+        result = await self.db.execute(select(EvolutionStrategy).where(
+            EvolutionStrategy.user_id == user_id,
+            EvolutionStrategy.course_id == course_id,
+            EvolutionStrategy.status == "active",
+            EvolutionStrategy.evaluation_status == "collecting",
+        ))
+        evaluated = 0
+        now = datetime.now(UTC)
+        for strategy in result.scalars().all():
+            applied_at = strategy.applied_at or strategy.updated_at
+            record_count = (await self.db.execute(select(func.count()).select_from(LearningRecord).where(
+                LearningRecord.user_id == user_id,
+                LearningRecord.course_id == course_id,
+                LearningRecord.created_at >= applied_at,
+            ))).scalar() or 0
+            if record_count < 5 and now - applied_at < timedelta(days=7):
+                continue
+            strategy.effect_summary = {
+                "related_behavior_count": int(record_count),
+                "observation_days": max(0, (now - applied_at).days),
+                "message": "已达到效果评估窗口；请结合正确率、重复追问、反馈与路径完成率决定是否保留或回滚。",
+            }
+            strategy.evaluation_status = "ready_for_review"
+            strategy.evaluated_at = now
+            evaluated += 1
+        if evaluated:
+            await self.db.commit()
+        return evaluated
 
     async def _get_latest_version(self, user_id: UUID, course_id: UUID) -> int:
         stmt = (

@@ -172,30 +172,24 @@
 <div class="col-span-4 glass-card rounded-[32px] p-8">
 <div class="flex justify-between items-center mb-6">
 <h3 class="font-headline-sm text-headline-sm">学习分析</h3>
-<select class="bg-transparent border-none text-xs font-bold text-on-surface-variant focus:ring-0">
-<option>本周</option>
-<option>本月</option>
+<select id="analytics-period" class="bg-transparent border-none text-xs font-bold text-on-surface-variant focus:ring-0">
+<option value="week">本周</option>
+<option value="month">本月</option>
 </select>
 </div>
 <div class="flex items-center gap-4 mb-8">
 <div class="flex-1">
 <p class="text-xs text-on-surface-variant font-label-md mb-1">学习时长</p>
-<p class="font-headline-md text-headline-md">18.5 <span class="text-sm font-normal">小时</span></p>
+<p class="font-headline-md text-headline-md" id="analytics-active-hours">-- <span class="text-sm font-normal">小时</span></p>
 </div>
 <div class="flex-1">
 <p class="text-xs text-on-surface-variant font-label-md mb-1">掌握度</p>
-<p class="font-headline-md text-headline-md text-primary">82%</p>
+<p class="font-headline-md text-headline-md text-primary" id="analytics-mastery">--</p>
 </div>
 </div>
 <!-- Mini Sparkline Placeholder -->
-<div class="h-16 w-full flex items-end gap-1">
-<div class="flex-1 bg-primary/10 rounded-t-lg h-[40%]"></div>
-<div class="flex-1 bg-primary/10 rounded-t-lg h-[60%]"></div>
-<div class="flex-1 bg-primary/10 rounded-t-lg h-[45%]"></div>
-<div class="flex-1 bg-primary/20 rounded-t-lg h-[80%]"></div>
-<div class="flex-1 bg-primary/10 rounded-t-lg h-[50%]"></div>
-<div class="flex-1 bg-primary/30 rounded-t-lg h-[90%]"></div>
-<div class="flex-1 bg-primary/40 rounded-t-lg h-[70%]"></div>
+<div class="h-16 w-full flex items-end gap-1" id="analytics-bars">
+<p class="text-xs text-on-surface-variant">完成学习活动后生成真实趋势</p>
 </div>
 </div>
 <!-- 6. Learning Path -->
@@ -203,18 +197,19 @@
 <div class="relative z-10 flex-1">
 <div class="flex items-center gap-3 mb-4">
 <span class="material-symbols-outlined text-primary">route</span>
-<h3 class="font-headline-sm text-headline-sm">当前学习阶段: Dijkstra 算法</h3>
+<h3 class="font-headline-sm text-headline-sm" id="home-learning-path-title">当前学习阶段：同步中</h3>
 </div>
+<p class="text-sm text-on-surface-variant mb-4 line-clamp-2" id="home-learning-path-reason">正在读取你的学习路径与策略版本。</p>
 <div class="flex items-center gap-4">
 <div class="flex-1 h-3 bg-surface-container-high rounded-full overflow-hidden">
-<div class="h-full bg-primary w-[65%] shadow-[0_0_12px_rgba(131,84,0,0.4)]"></div>
+<div class="h-full bg-primary w-[0%] shadow-[0_0_12px_rgba(131,84,0,0.4)]" id="home-learning-path-progress-bar"></div>
 </div>
-<span class="text-sm font-bold text-on-surface-variant">Lvl 12 / 65%</span>
+<span class="text-sm font-bold text-on-surface-variant" id="home-learning-path-progress">--</span>
 </div>
 </div>
 <div class="relative z-10 flex gap-4">
-<button class="bg-surface-container-high/60 hover:bg-surface-variant transition-colors px-6 py-3 rounded-2xl font-label-md text-label-md" onclick="window.parent.location.href='/path-profile'">查看全路径</button>
-<button class="bg-primary text-on-primary px-8 py-3 rounded-2xl font-label-md text-label-md shadow-lg shadow-primary/20 hover:scale-105 transition-transform" onclick="window.parent.location.href='/practice'">继续闯关</button>
+<button class="bg-surface-container-high/60 hover:bg-surface-variant transition-colors px-6 py-3 rounded-2xl font-label-md text-label-md" id="home-learning-path-view">查看全路径</button>
+<button class="bg-primary text-on-primary px-8 py-3 rounded-2xl font-label-md text-label-md shadow-lg shadow-primary/20 hover:scale-105 transition-transform" id="home-learning-path-continue">继续闯关</button>
 </div>
 <!-- Background Image Decoration -->
 <div class="absolute right-0 top-0 h-full w-1/3 opacity-20 pointer-events-none">
@@ -279,6 +274,28 @@
         const weakPointTitle = document.getElementById("home-weak-point-title");
         const activityFeed = document.getElementById("home-activity-feed");
         const viewAllLogsButton = document.getElementById("home-view-all-logs");
+        const analyticsPeriod = document.getElementById("analytics-period");
+        const analyticsActiveHours = document.getElementById("analytics-active-hours");
+        const analyticsMastery = document.getElementById("analytics-mastery");
+        const analyticsBars = document.getElementById("analytics-bars");
+        const learningPathTitle = document.getElementById("home-learning-path-title");
+        const learningPathReason = document.getElementById("home-learning-path-reason");
+        const learningPathProgressBar = document.getElementById("home-learning-path-progress-bar");
+        const learningPathProgress = document.getElementById("home-learning-path-progress");
+        const learningPathViewButton = document.getElementById("home-learning-path-view");
+        const learningPathContinueButton = document.getElementById("home-learning-path-continue");
+
+        function renderLearningAnalyticsSummary(summary) {
+            setText(analyticsActiveHours, `${Number(summary.active_hours || 0).toFixed(1)} 小时`);
+            setText(analyticsMastery, summary.mastery == null ? "暂无数据" : `${Math.round(Number(summary.mastery))}%`);
+            const daily = summary.daily || [];
+            if (!daily.length) {
+                analyticsBars.innerHTML = '<p class="text-xs text-on-surface-variant">暂无有效学习时长，进入问答、知识库或练习页开始积累。</p>';
+                return;
+            }
+            const max = Math.max(...daily.map((item) => Number(item.active_seconds || 0)), 1);
+            analyticsBars.innerHTML = daily.map((item) => `<div title="${item.date}: ${Math.round(Number(item.active_seconds || 0) / 60)} 分钟" class="flex-1 bg-primary/30 rounded-t-lg" style="height:${Math.max(8, Math.round(Number(item.active_seconds || 0) / max * 100))}%"></div>`).join("");
+        }
 
         function homeEmptyStateHtml(title, description) {
             return window.ZhixueUI?.emptyState?.({
@@ -298,6 +315,33 @@
             if (node) {
                 node.textContent = value;
             }
+        }
+
+        function renderLearningPathSummary(data, course) {
+            const paths = data?.items || [];
+            const path = paths.find((item) => item.status === "active") || paths[0];
+            const pathProfilePath = course ? `/path-profile?course_id=${course.id}` : "/path-profile";
+            const practicePath = course ? `/practice?course_id=${course.id}` : "/practice";
+            if (learningPathViewButton) learningPathViewButton.onclick = () => api.navigate(pathProfilePath);
+            if (learningPathContinueButton) learningPathContinueButton.onclick = () => api.navigate(path ? pathProfilePath : practicePath);
+
+            if (!path) {
+                setText(learningPathTitle, "当前学习阶段：暂无学习路径");
+                setText(learningPathReason, "进入学习路径与模型页，Planner Agent 会基于课程、画像和薄弱点生成你的下一步。");
+                setText(learningPathProgress, "0%");
+                if (learningPathProgressBar) learningPathProgressBar.style.width = "0%";
+                return;
+            }
+
+            const items = [...(path.items || [])].sort((a, b) => Number(a.order_index || 0) - Number(b.order_index || 0));
+            const completed = items.filter((item) => item.status === "completed").length;
+            const nextItem = items.find((item) => item.status === "doing") || items.find((item) => item.status === "pending") || items[items.length - 1];
+            const progress = Math.max(0, Math.min(100, Math.round(Number(path.progress || 0))));
+            const title = nextItem?.title || path.title || "个性化学习路径";
+            setText(learningPathTitle, `当前学习阶段：${title}`);
+            setText(learningPathReason, path.reason || nextItem?.reason || "基于你的课程画像、诊断结果和自进化策略推荐。");
+            setText(learningPathProgress, `${completed}/${items.length || 0} 节点 / ${progress}%`);
+            if (learningPathProgressBar) learningPathProgressBar.style.width = `${progress}%`;
         }
 
         function welcomeGreeting() {
@@ -485,6 +529,7 @@
                 if (!course) {
                     setText(latestWikiTitle, "暂无课程 Wiki");
                     setText(latestMaterialTitle, "暂无课程资料");
+                    renderLearningPathSummary({ items: [] }, null);
                     bindCardNavigation(latestWikiCard, "/courses");
                     bindCardNavigation(latestMaterialCard, "/courses");
                     return;
@@ -501,7 +546,7 @@
                     viewAllLogsButton.addEventListener("click", () => api.navigate(pathProfilePath));
                 }
 
-                const [wikiPage, materialPage, quizzes, reports, mastery, mistakes, records, agentRuns] = await Promise.all([
+                const [wikiPage, materialPage, quizzes, reports, mastery, mistakes, records, agentRuns, analytics, learningPaths] = await Promise.all([
                     api.listWikiPages(course.id, { pageSize: 1 }).catch(() => ({ items: [] })),
                     api.listMaterials(course.id, { pageSize: 1 }).catch(() => ({ items: [] })),
                     safeApiCall(() => api.listQuizzes(course.id, { pageSize: 20 }), { items: [] }),
@@ -510,6 +555,8 @@
                     safeApiCall(() => api.listMistakes(course.id, { pageSize: 3 }), { items: [] }),
                     safeApiCall(() => api.listLearningRecords(course.id, { limit: 8 }), { items: [] }),
                     safeApiCall(() => api.listAgentRuns({ pageSize: 5 }), { items: [] }),
+                    safeApiCall(() => api.learningAnalyticsSummary(course.id, analyticsPeriod?.value || "week"), { active_hours: 0, mastery: null, daily: [] }),
+                    safeApiCall(() => api.listLearningPaths(course.id, { pageSize: 5 }), { items: [] }),
                 ]);
 
                 const latestWiki = (wikiPage.items || [])[0];
@@ -523,12 +570,20 @@
                     mistakes: mistakes.items || [],
                 });
                 renderActivityFeed(records.items || [], agentRuns.items || []);
+                renderLearningAnalyticsSummary(analytics);
+                renderLearningPathSummary(learningPaths, course);
             } catch (error) {
                 setText(latestWikiTitle, "同步失败，点击进入知识库");
                 setText(latestMaterialTitle, "同步失败，点击进入知识库");
                 setText(practiceGoalLabel, "练习诊断同步失败");
                 setText(practiceGoalPercent, "--");
                 setText(weakPointTitle, "点击进入练习诊断页查看");
+                setText(learningPathTitle, "当前学习阶段：同步失败");
+                setText(learningPathReason, "点击查看全路径进入学习路径与模型页继续查看。");
+                setText(learningPathProgress, "--");
+                if (learningPathProgressBar) learningPathProgressBar.style.width = "0%";
+                if (learningPathViewButton) learningPathViewButton.onclick = () => api.navigate("/path-profile");
+                if (learningPathContinueButton) learningPathContinueButton.onclick = () => api.navigate("/practice");
                 bindCardNavigation(latestWikiCard, "/knowledge");
                 bindCardNavigation(latestMaterialCard, "/knowledge");
                 bindCardNavigation(practiceDiagnosisCard, "/practice");
@@ -539,6 +594,7 @@
 
         loadWelcomeProfile();
         loadKnowledgeUpdates();
+        analyticsPeriod?.addEventListener("change", loadKnowledgeUpdates);
 
         const homeQuestionInput = document.getElementById("home-assistant-question");
         const homeQuestionSend = document.getElementById("home-assistant-send");

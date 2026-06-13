@@ -25,6 +25,11 @@ class StrategyRead(BaseModel):
     status: str
     risk_level: str
     evidence: list[Any] = []
+    materialized_changes: dict[str, Any] = {}
+    applied_at: datetime | None = None
+    evaluation_status: str = "pending"
+    effect_summary: dict[str, Any] = {}
+    evaluated_at: datetime | None = None
     previous_strategy_id: UUID | None = None
     version_no: int = 1
     created_at: datetime

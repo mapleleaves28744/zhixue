@@ -15,6 +15,7 @@ from app.schemas.tutor import (
     TutorSaveToWikiRequest,
 )
 from app.services.tutor_service import TutorService
+from app.services.conversation_intent import is_simple_greeting
 
 
 def test_tutor_chat_request_defaults() -> None:
@@ -91,6 +92,25 @@ def test_tutor_service_formats_citations() -> None:
 
     assert "[wiki] 递归调用栈" in text
     assert "递归调用会保存每层函数现场" in text
+
+
+def test_simple_greeting_detection_does_not_match_course_questions() -> None:
+    assert is_simple_greeting("你好") is True
+    assert is_simple_greeting("嗨！") is True
+    assert is_simple_greeting("你好，帮我解释一下 BFS") is False
+    assert is_simple_greeting("什么是队列？") is False
+
+
+def test_fast_stream_rule_review_does_not_call_review_agent() -> None:
+    service = TutorService(db=None)  # type: ignore[arg-type]
+
+    review = service._rule_review_answer(
+        answer="队列遵循先进先出原则。",
+        citations=[{"source_type": "document", "title": "队列"}],
+    )
+
+    assert review["pass"] is True
+    assert review["reviewer"] == "fast_stream_rule"
 
 
 def test_tutor_sse_uses_real_stream_events_without_calling_chat() -> None:

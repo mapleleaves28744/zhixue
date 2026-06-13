@@ -132,12 +132,8 @@ export function PetCompanion() {
       setDragging(false)
       setPosition((current) => {
         if (!current) return current
-        const snapped = clampPosition({
-          x: current.x + PET_SIZE / 2 < window.innerWidth / 2 ? EDGE_GAP : window.innerWidth - PET_SIZE - EDGE_GAP,
-          y: current.y,
-        })
-        localStorage.setItem(POSITION_KEY, JSON.stringify(snapped))
-        return snapped
+        localStorage.setItem(POSITION_KEY, JSON.stringify(current))
+        return current
       })
     }
     window.addEventListener("pointermove", onMove)

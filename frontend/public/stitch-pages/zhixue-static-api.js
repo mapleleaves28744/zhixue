@@ -333,6 +333,20 @@
     return request(`/recommendations?${query}`);
   }
 
+  async function listLearningPaths(courseId, params = {}) {
+    const query = new URLSearchParams({
+      page: String(params.page || 1),
+      page_size: String(params.pageSize || 5),
+    });
+    if (courseId) {
+      query.set("course_id", courseId);
+    }
+    if (params.status) {
+      query.set("status", params.status);
+    }
+    return request(`/learning-paths?${query}`);
+  }
+
   async function listQuizzes(courseId, params = {}) {
     const query = new URLSearchParams({
       page: String(params.page || 1),
@@ -811,6 +825,44 @@
     return null;
   }
 
+  function learningAnalyticsSummary(courseId, period = "week") {
+    const query = new URLSearchParams({ period });
+    if (courseId) query.set("course_id", courseId);
+    return request(`/learning-analytics/summary?${query.toString()}`);
+  }
+
+  function restoreMemory(memoryId) {
+    return request(`/student/memory/${memoryId}/restore`, { method: "POST" });
+  }
+
+  function memoryHealth(courseId) {
+    return request(`/student/memory/health${courseId ? `?course_id=${courseId}` : ""}`);
+  }
+
+  function startLearningSessionTracker() {
+    const route = getCurrentRouteForRedirect().split("?")[0];
+    if (!["/knowledge", "/practice", "/assistant"].includes(route) || !getToken()) return;
+    let sessionId = null;
+    let lastActivityAt = Date.now();
+    const markActive = () => { lastActivityAt = Date.now(); };
+    ["click", "keydown", "scroll"].forEach((name) => document.addEventListener(name, markActive, { passive: true }));
+    const beat = async () => {
+      const active = document.visibilityState === "visible" && Date.now() - lastActivityAt <= 120000;
+      try {
+        const data = await request("/learning-analytics/sessions/heartbeat", {
+          method: "POST",
+          body: { session_id: sessionId, course_id: getCourseIdFromUrl(), page: route, active },
+        });
+        sessionId = data.session_id;
+      } catch {}
+    };
+    void beat();
+    window.setInterval(beat, 30000);
+    window.addEventListener("pagehide", () => {
+      if (sessionId) void request(`/learning-analytics/sessions/${sessionId}/end`, { method: "POST" }).catch(() => {});
+    });
+  }
+
   window.ZhixueStatic = {
     formatDate,
     formatSize,
@@ -833,6 +885,9 @@
     getDynamicAgentTask,
     getMediaAsset,
     getPageMascot,
+    learningAnalyticsSummary,
+    memoryHealth,
+    restoreMemory,
     getWikiPage,
     getWikiGraph,
     mediaAssetFileUrl,
@@ -849,6 +904,7 @@
     listAgentConversations,
     listAgentConversationMessages,
     listDiagnosisReports,
+    listLearningPaths,
     listLearningRecords,
     listMaterials,
     listMaterialChunks,
@@ -879,8 +935,12 @@
   };
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", mountLogoutButton, { once: true });
+    document.addEventListener("DOMContentLoaded", () => {
+      mountLogoutButton();
+      startLearningSessionTracker();
+    }, { once: true });
   } else {
     mountLogoutButton();
+    startLearningSessionTracker();
   }
 })();

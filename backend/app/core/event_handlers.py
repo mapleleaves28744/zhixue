@@ -120,6 +120,25 @@ async def on_chat_completed(event: Event) -> None:
     except Exception:
         logger.exception("EventBus: chat mastery update failed")
 
+    try:
+        from uuid import UUID
+
+        from app.db.session import AsyncSessionLocal
+        from app.services.profile_service import ProfileService
+
+        question = str(event.data.get("question") or "").strip()
+        answer = str(event.data.get("answer") or "").strip()
+        if question and question not in {"你好", "您好", "hi", "hello"}:
+            async with AsyncSessionLocal() as db:
+                await ProfileService(db).ingest_dialogue_profile(
+                    user_id=UUID(str(user_id)),
+                    course_id=UUID(str(course_id)),
+                    dialogue_text=f"学生问题：{question}\n回答摘要：{answer[:500]}",
+                    source_message_id=str(event.data.get("message_id") or ""),
+                )
+    except Exception:
+        logger.exception("EventBus: async course profile extraction failed")
+
     if event.data.get("skip_graph_extract"):
         return
 

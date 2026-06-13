@@ -30,15 +30,23 @@ class MemoryAgent(BaseAgent):
 
     async def _reflect(self, context: AgentContext) -> AgentResult:
         from app.models.learning_record import LearningRecord
-        from app.models.memory import StudentMemory
+        from app.models.memory import MemoryReflectionState
+        from app.services.memory_service import MemoryService
 
         course_id_str = context.params.get("course_id")
+        state_condition = [MemoryReflectionState.user_id == context.user_id]
+        state_condition.append(MemoryReflectionState.course_id == context.course_id if course_id_str else MemoryReflectionState.course_id.is_(None))
+        state = (await self.db.execute(select(MemoryReflectionState).where(*state_condition))).scalar_one_or_none()
         stmt = (
             select(LearningRecord)
             .where(LearningRecord.user_id == context.user_id)
-            .order_by(LearningRecord.created_at.desc())
+            .order_by(LearningRecord.created_at.asc())
             .limit(100)
         )
+        if course_id_str:
+            stmt = stmt.where(LearningRecord.course_id == context.course_id)
+        if state and state.last_record_created_at:
+            stmt = stmt.where(LearningRecord.created_at > state.last_record_created_at)
         result = await self.db.execute(stmt)
         records = list(result.scalars().all())
 
@@ -50,9 +58,10 @@ class MemoryAgent(BaseAgent):
         else:
             memories_data = await self._llm_reflect(provider, records)
 
-        created = []
+        memory_service = MemoryService(self.db)
+        actions: list[str] = []
         for m in memories_data:
-            memory = StudentMemory(
+            _, action = await memory_service.upsert_memory(
                 user_id=context.user_id,
                 course_id=context.course_id if course_id_str else None,
                 memory_type=m.get("memory_type", "insight"),
@@ -60,14 +69,20 @@ class MemoryAgent(BaseAgent):
                 evidence=m.get("evidence", []),
                 confidence=m.get("confidence", 0.8),
             )
-            self.db.add(memory)
-            created.append(memory)
+            actions.append(action)
+
+        if records:
+            if state is None:
+                state = MemoryReflectionState(user_id=context.user_id, course_id=context.course_id if course_id_str else None)
+                self.db.add(state)
+            state.last_record_created_at = records[-1].created_at
+            state.last_record_id = records[-1].id
 
         await self.db.commit()
 
         return self.success_result(
-            data={"created_count": len(created)},
-            message=f"反思完成，生成 {len(created)} 条记忆",
+            data={"created_count": actions.count("add"), "reinforced_count": actions.count("reinforce")},
+            message=f"反思完成，新增 {actions.count('add')} 条，强化 {actions.count('reinforce')} 条记忆",
         )
 
     async def _llm_reflect(

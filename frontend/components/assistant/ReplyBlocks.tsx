@@ -19,7 +19,6 @@ interface TutorReplyBlockProps {
   progress?: string
   streaming: boolean
   error?: string | null
-  onStop?: () => void
   onOpenDetail?: () => void
 }
 
@@ -28,7 +27,6 @@ export function TutorReplyBlock({
   progress,
   streaming,
   error,
-  onStop,
   onOpenDetail,
 }: TutorReplyBlockProps) {
   if (streaming) {
@@ -42,17 +40,6 @@ export function TutorReplyBlock({
           error={error}
           onClick={onOpenDetail}
         />
-        {onStop ? (
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={onStop}
-              className="rounded-full border border-outline/20 bg-white/70 px-3 py-1 text-[11px] font-semibold text-outline transition hover:text-primary"
-            >
-              停止生成
-            </button>
-          </div>
-        ) : null}
         {content ? (
           <div className="glass-card rounded-3xl rounded-tl-md p-4">
             <MarkdownRenderer content={content} />
@@ -93,7 +80,6 @@ interface AgentReplyBlockProps {
   chatArtifacts?: ChatArtifactRef[]
   mediaArtifacts?: ChatMediaArtifactRef[]
   pendingMediaJobs?: MediaJobProgressRef[]
-  onPause?: () => void
   onResume?: () => void
   onCancel?: () => void
   onOpenDetail?: () => void
@@ -122,7 +108,6 @@ export function AgentReplyBlock({
   chatArtifacts = [],
   mediaArtifacts = [],
   pendingMediaJobs = [],
-  onPause,
   onResume,
   onCancel,
   onOpenDetail,
@@ -157,15 +142,6 @@ export function AgentReplyBlock({
               className="rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-on-primary shadow-sm"
             >
               恢复查看
-            </button>
-          ) : null}
-          {!paused && streaming && onPause ? (
-            <button
-              type="button"
-              onClick={onPause}
-              className="rounded-full border border-outline/20 bg-white/70 px-3 py-1 text-[11px] font-semibold text-outline transition hover:text-primary"
-            >
-              暂停接收
             </button>
           ) : null}
           {onCancel ? (

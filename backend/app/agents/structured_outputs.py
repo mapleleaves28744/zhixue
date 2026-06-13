@@ -71,7 +71,7 @@ class EvolutionStrategyItem(BaseModel):
 class EvolutionAnalysisOutput(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    strategies: list[EvolutionStrategyItem] = Field(default_factory=list)
+    strategies: list[EvolutionStrategyItem] = Field(min_length=1)
 
 
 class MemoryItemOutput(BaseModel):

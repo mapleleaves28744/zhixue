@@ -8,6 +8,10 @@ export type ResourceType =
   | "diagram"
   | "image"
   | "video"
+  | "animation"
+  | "interactive_courseware"
+  | "code_project"
+  | "reading_pack"
 
 export interface ResourceCitation {
   source_type: string

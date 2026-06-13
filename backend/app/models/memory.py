@@ -5,7 +5,7 @@ from decimal import Decimal
 from typing import Any, TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import DateTime, ForeignKey, Index, Numeric, String, Text, func, text
+from sqlalchemy import DateTime, ForeignKey, Index, Integer, Numeric, String, Text, UniqueConstraint, func, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -21,6 +21,8 @@ class StudentMemory(Base):
     __table_args__ = (
         Index("idx_student_memories_user_id", "user_id"),
         Index("idx_student_memories_course_id", "course_id"),
+        Index("idx_student_memories_active_rank", "user_id", "course_id", "status", "salience"),
+        Index("idx_student_memories_scope_key", "user_id", "course_id", "memory_key"),
     )
 
     id: Mapped[UUID] = mapped_column(
@@ -38,6 +40,7 @@ class StudentMemory(Base):
         ForeignKey("courses.id", ondelete="SET NULL"),
     )
     memory_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    memory_key: Mapped[str] = mapped_column(String(255), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     evidence: Mapped[list[Any]] = mapped_column(
         JSONB,
@@ -49,6 +52,11 @@ class StudentMemory(Base):
         nullable=False,
         server_default=text("0.8000"),
     )
+    status: Mapped[str] = mapped_column(String(32), nullable=False, server_default=text("'active'"))
+    salience: Mapped[Decimal] = mapped_column(Numeric(5, 4), nullable=False, server_default=text("0.5000"))
+    reinforcement_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("1"))
+    last_reinforced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -61,3 +69,17 @@ class StudentMemory(Base):
     )
 
     user: Mapped[User] = relationship("User", back_populates="memories")
+
+
+class MemoryReflectionState(Base):
+    __tablename__ = "memory_reflection_states"
+    __table_args__ = (
+        UniqueConstraint("user_id", "course_id", name="uq_memory_reflection_states_scope"),
+    )
+
+    id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
+    user_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    course_id: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True), ForeignKey("courses.id", ondelete="CASCADE"))
+    last_record_created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_record_id: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())

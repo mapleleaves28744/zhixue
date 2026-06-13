@@ -106,7 +106,16 @@ def build_learning_tool_registry(
             output=data,
             evidence=data.get("citations") or [],
             citations=data.get("citations") or [],
-            artifact_refs=[{"type": "resource", "id": str(result.resource_id), "title": result.title}],
+            artifact_refs=[
+                {
+                    "type": "resource",
+                    "subtype": data.get("resource_type"),
+                    "resource_type": data.get("resource_type"),
+                    "id": str(result.resource_id),
+                    "resource_id": str(result.resource_id),
+                    "title": result.title,
+                }
+            ],
         )
 
     async def generate_quiz(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:

@@ -9,6 +9,8 @@ const assistant = fs.readFileSync(new URL("../components/assistant/AssistantPage
 assert.match(layout, /PetCompanion/)
 assert.match(component, /pointermove/)
 assert.match(component, /zhixue_pet_position/)
+assert.doesNotMatch(component, /const snapped = clampPosition/)
+assert.match(component, /localStorage\.setItem\(POSITION_KEY, JSON\.stringify\(current\)\)/)
 assert.match(component, /30_000/)
 assert.match(component, /prefers-reduced-motion/)
 assert.match(service, /student\/pet\/feed/)

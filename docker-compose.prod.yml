@@ -40,8 +40,13 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://zhixue:zhixue_password@postgres:5432/zhixue}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-zhixue}:${POSTGRES_PASSWORD:-zhixue_password}@postgres:5432/${POSTGRES_DB:-zhixue}
+      REDIS_URL: redis://redis:6379/${REDIS_DB:-0}
+      OPENMAIC_ENABLED: "true"
+      OPENMAIC_BASE_URL: http://openmaic:3000
+      OPENMAIC_PUBLIC_BASE_URL: ${OPENMAIC_PUBLIC_BASE_URL:-http://localhost:3001}
+      OPENMAIC_INTERNAL_TOKEN: ${OPENMAIC_INTERNAL_TOKEN}
+      OPENMAIC_SIGNING_SECRET: ${OPENMAIC_SIGNING_SECRET}
       APP_ENV: production
       DEBUG: "false"
       HF_ENDPOINT: https://hf-mirror.com
@@ -56,6 +61,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      openmaic:
+        condition: service_healthy
     command: >
       sh -c "alembic upgrade head &&
       uvicorn app.main:app --host 0.0.0.0 --port 8000"
@@ -69,8 +76,13 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://zhixue:zhixue_password@postgres:5432/zhixue}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-zhixue}:${POSTGRES_PASSWORD:-zhixue_password}@postgres:5432/${POSTGRES_DB:-zhixue}
+      REDIS_URL: redis://redis:6379/${REDIS_DB:-0}
+      OPENMAIC_ENABLED: "true"
+      OPENMAIC_BASE_URL: http://openmaic:3000
+      OPENMAIC_PUBLIC_BASE_URL: ${OPENMAIC_PUBLIC_BASE_URL:-http://localhost:3001}
+      OPENMAIC_INTERNAL_TOKEN: ${OPENMAIC_INTERNAL_TOKEN}
+      OPENMAIC_SIGNING_SECRET: ${OPENMAIC_SIGNING_SECRET}
       APP_ENV: production
       DEBUG: "false"
       HF_ENDPOINT: https://hf-mirror.com
@@ -87,7 +99,35 @@ services:
         condition: service_healthy
       backend:
         condition: service_started
+      openmaic:
+        condition: service_healthy
     command: arq app.workers.agent_worker.WorkerSettings
+
+  openmaic:
+    build:
+      context: ./third_party/openmaic
+      dockerfile: Dockerfile
+    container_name: zhixue-openmaic
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      OPENMAIC_INTERNAL_TOKEN: ${OPENMAIC_INTERNAL_TOKEN}
+      OPENMAIC_SIGNING_SECRET: ${OPENMAIC_SIGNING_SECRET}
+      OPENMAIC_CLASSROOM_SCENE_CONCURRENCY: ${OPENMAIC_CLASSROOM_SCENE_CONCURRENCY:-2}
+      OPENMAIC_CLASSROOM_TTS_CONCURRENCY: ${OPENMAIC_CLASSROOM_TTS_CONCURRENCY:-2}
+    ports:
+      - "${OPENMAIC_PORT:-3001}:3000"
+    volumes:
+      - ./third_party/openmaic/data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
 
   frontend:
     build:

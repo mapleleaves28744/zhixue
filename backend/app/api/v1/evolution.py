@@ -41,6 +41,10 @@ async def analyze(
                     "status": s.status,
                     "risk_level": s.risk_level,
                     "evidence": s.evidence,
+                    "materialized_changes": s.materialized_changes,
+                    "applied_at": s.applied_at.isoformat() if s.applied_at else None,
+                    "evaluation_status": s.evaluation_status,
+                    "effect_summary": s.effect_summary,
                     "version_no": s.version_no,
                     "created_at": s.created_at.isoformat() if s.created_at else None,
                 }
@@ -102,7 +106,7 @@ async def get_strategy(
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     svc = EvolutionService(db)
-    strategy = await svc.get_strategy(strategy_id)
+    strategy = await svc.get_strategy(strategy_id, current_user.id)
     return success_response(strategy.model_dump(mode="json"), request=request)
 
 

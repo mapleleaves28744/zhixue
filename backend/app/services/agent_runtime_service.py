@@ -19,6 +19,7 @@ from app.models.user import User
 from app.repositories.agent_conversation_repository import AgentConversationRepository
 from app.repositories.agent_task_repository import AgentTaskRepository
 from app.services.agent_queue_service import AgentEventBroker
+from app.services.conversation_intent import is_simple_greeting
 
 
 class AgentTaskCancelled(RuntimeError):
@@ -151,7 +152,7 @@ class AgentRuntimeService:
         state: dict[str, Any],
         payload: dict[str, Any],
     ) -> None:
-        current = await self.tasks.get_by_id(task.id)
+        current = await self._get_task_optional(task.id)
         if current is None:
             return
         if current.status == "cancelled":
@@ -216,6 +217,8 @@ class AgentRuntimeService:
         question = str(task.task_goal or (task.input_payload or {}).get("user_input") or "").strip()
         if not answer or not question:
             return payload
+        if is_simple_greeting(question):
+            return payload
         try:
             user = await self._get_user(task.user_id)
             from app.services.chat_knowledge_pipeline import (
@@ -247,7 +250,7 @@ class AgentRuntimeService:
         return payload
 
     async def _mark_failed(self, task: AgentTask, exc: Exception) -> None:
-        current = await self.tasks.get_by_id(task.id)
+        current = await self._get_task_optional(task.id)
         if current is None or current.status == "cancelled":
             return
         message = str(exc)[:2000] or exc.__class__.__name__
@@ -305,6 +308,8 @@ class AgentRuntimeService:
 
     async def _finish_task(self, task: AgentTask, result: dict[str, Any]) -> None:
         current = await self._get_task(task.id)
+        if current.status == "cancelled":
+            return
         status = result.get("status")
         values: dict[str, Any] = {
             "iteration_count": int(result.get("iteration_count") or 0),
@@ -349,9 +354,16 @@ class AgentRuntimeService:
             await PetService(self.db).safely_create_agent_completion(current)
 
     async def _get_task(self, task_id: UUID) -> AgentTask:
-        task = await self.tasks.get_by_id(task_id)
+        task = await self._get_task_optional(task_id)
         if task is None:
             raise RuntimeError("Agent task not found")
+        return task
+
+    async def _get_task_optional(self, task_id: UUID) -> AgentTask | None:
+        task = await self.tasks.get_by_id(task_id)
+        if task is None:
+            return None
+        await self.db.refresh(task)
         return task
 
     async def _get_user(self, user_id: UUID) -> User:

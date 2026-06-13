@@ -44,6 +44,20 @@ OPENMAIC_INTERNAL_TOKEN=replace-with-a-long-random-service-token
 OPENMAIC_SIGNING_SECRET=replace-with-a-different-long-random-signing-secret
 ```
 
+如果使用仓库根目录的 `docker-compose.prod.yml`，推荐额外设置：
+
+```env
+OPENMAIC_PORT=3001
+OPENMAIC_BASE_URL=http://openmaic:3000
+OPENMAIC_PUBLIC_BASE_URL=https://your-domain.example:3001
+```
+
+说明：
+
+1. `OPENMAIC_BASE_URL` 是 backend / worker 在容器网络内访问 OpenMAIC 的地址。
+2. `OPENMAIC_PUBLIC_BASE_URL` 是浏览器实际打开课堂播放页时看到的公网地址。
+3. `OPENMAIC_PORT` 保持宿主机 `3001 -> container 3000` 的映射，和当前本地演示模式一致，便于直接访问 `http://server-ip:3001/api/health` 排错。
+
 OpenMAIC 进程还需 Xiaomi MiMo 配置：
 
 ```env
@@ -56,6 +70,8 @@ TTS_XIAOMI_MIMO_BASE_URL=...
 ASR_XIAOMI_MIMO_API_KEY=...
 ASR_XIAOMI_MIMO_BASE_URL=...
 ```
+
+当前服务器部署不要依赖本地脚本那套“自动把 `LLM_*` 映射成 `XIAOMI_*`”的行为；请显式填写这些变量，避免容器重启后课堂引擎缺少真实 Provider 配置。
 
 ## 安全边界
 
@@ -75,3 +91,12 @@ python -m pytest tests/test_openmaic_client.py tests/test_immersive_classroom.py
 ```
 
 无真实 MiMo Key 时，智学工坊其他主链路仍可使用 Mock；OpenMAIC 完整真实课堂生成不得用假结果冒充。
+
+## 服务器 Compose 对应关系
+
+若使用仓库根目录的 `docker-compose.prod.yml`：
+
+1. `openmaic` 服务从 `third_party/openmaic/Dockerfile` 构建并以 `next start` 方式运行；
+2. 宿主机 `3001` 默认映射到容器内 `3000`；
+3. `backend` 与 `worker` 默认通过 `http://openmaic:3000` 调用课堂生成、任务状态和 manifest；
+4. `third_party/openmaic/data` 会挂载进容器 `/app/data`，用于保留生成课堂数据。

@@ -28,6 +28,7 @@ from app.schemas.tutor import (
 from app.services.agent_service import AgentService
 from app.services.agent_log_service import AgentLogService
 from app.services.course_service import CourseService
+from app.services.conversation_intent import is_simple_greeting, simple_greeting_answer
 from app.services.learning_record_service import LearningRecordService
 
 
@@ -162,6 +163,14 @@ class TutorService:
         course = await self._get_accessible_course(payload.course_id, current_user)
         if payload.wiki_page_id is not None:
             await self._get_readable_wiki_page(payload.wiki_page_id, course, current_user)
+        if is_simple_greeting(payload.question):
+            async for item in self._stream_simple_greeting(
+                payload=payload,
+                current_user=current_user,
+                course=course,
+            ):
+                yield item
+            return
 
         log_service = AgentLogService(self.db)
         context = AgentContext(
@@ -197,7 +206,8 @@ class TutorService:
             async for chunk in llm.stream_chat(
                 [ChatMessage(role="user", content=prepared["prompt"])],
                 temperature=0.7,
-                max_tokens=2048,
+                max_tokens=1200,
+                thinking={"type": "disabled"},
                 prompt_version_id=prepared["prompt_version_id"],
             ):
                 if not chunk:
@@ -213,10 +223,8 @@ class TutorService:
                     status_code=500,
                 )
 
-            yield {"event": "progress", "data": {"stage": "review", "message": "Review Agent 校验回答依据"}}
-            review_result = await self._review_answer(
-                user_id=current_user.id,
-                course_id=course.id,
+            yield {"event": "progress", "data": {"stage": "review", "message": "快速规则校验回答依据"}}
+            review_result = self._rule_review_answer(
                 answer=answer,
                 citations=prepared["citations"],
             )
@@ -285,6 +293,49 @@ class TutorService:
             )
             await self.db.commit()
             raise
+
+    async def _stream_simple_greeting(
+        self,
+        *,
+        payload: TutorChatRequest,
+        current_user: User,
+        course: Course,
+    ) -> AsyncIterator[dict[str, Any]]:
+        answer = simple_greeting_answer()
+        yield {"event": "delta", "data": {"content": answer}}
+        review_result = self._rule_review_answer(answer=answer, citations=[])
+        record = await self.records.record_event(
+            user_id=current_user.id,
+            course_id=course.id,
+            knowledge_id=payload.knowledge_id,
+            event_type="chat",
+            event_source="tutor",
+            event_payload={
+                "question": payload.question,
+                "answer": answer,
+                "citations": [],
+                "related_knowledge_points": [],
+                "follow_up_questions": [],
+                "review_result": review_result,
+                "provider": "local_intent_router",
+                "fallback_used": False,
+            },
+        )
+        response_payload = {
+            "answer": answer,
+            "citations": [],
+            "related_knowledge_points": [],
+            "follow_up_questions": [],
+            "review_result": review_result,
+            "memory_update_suggestion": {"should_reflect": False, "reason": "简单寒暄不写入长期学习记忆。"},
+            "message_id": record.id,
+            "provider": "local_intent_router",
+            "fallback_used": False,
+        }
+        yield {
+            "event": "done",
+            "data": TutorChatResponse.model_validate(response_payload).model_dump(mode="json"),
+        }
 
     async def save_answer_to_wiki(
         self,
@@ -434,6 +485,24 @@ class TutorService:
             "risk_level": "medium",
             "issues": [review.message],
             "revision_suggestions": "Review Agent 未完成，已按引用数量做规则兜底。",
+        }
+
+    def _rule_review_answer(
+        self,
+        *,
+        answer: str,
+        citations: list[Any],
+    ) -> dict[str, Any]:
+        has_sources = any(
+            isinstance(item, dict) and item.get("source_type") not in {None, "inference"}
+            for item in citations
+        )
+        return {
+            "pass": bool(answer.strip()),
+            "risk_level": "low" if has_sources or is_simple_greeting(answer) else "medium",
+            "issues": [] if has_sources or is_simple_greeting(answer) else ["回答缺少明确课程来源，已标记为 AI 推断内容。"],
+            "revision_suggestions": "",
+            "reviewer": "fast_stream_rule",
         }
 
     async def _get_accessible_course(self, course_id: UUID, current_user: User) -> Course:

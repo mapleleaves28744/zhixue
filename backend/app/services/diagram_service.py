@@ -11,6 +11,7 @@ from app.llm.schemas import ChatMessage
 from app.models.user import User
 from app.repositories.resource_repository import ResourceRepository
 from app.services.knowledge_search_service import KnowledgeSearchService
+from app.services.visual_search_context import search_items
 
 
 # 知识卡片生成约束：复杂度过高会导致文生图乱码或 Mermaid 渲染拥挤
@@ -59,12 +60,13 @@ class DiagramService:
     ) -> dict[str, Any]:
         concept = concept.strip() or "数据结构概念"
         diagram_type = diagram_type if diagram_type in DIAGRAM_PROMPTS else "flowchart"
-        knowledge_items = await KnowledgeSearchService(self.db).search(
+        search_payload = await KnowledgeSearchService(self.db).search(
             current_user=current_user,
             course_id=course_id,
             query=concept,
             top_k=12,
         )
+        knowledge_items = search_items(search_payload)
         response = await get_llm_provider(
             db=self.db,
             user_id=current_user.id,

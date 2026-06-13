@@ -35,14 +35,17 @@ import {
 } from "@/services/agentService"
 import { streamTutorChat } from "@/services/tutorService"
 import { resolveCourseIdFromList, resolveCourseIdSyncFallback } from "@/lib/resolveCourse"
+import { getResourceTypeLabel, normalizeResourceType } from "@/lib/resourceTypes"
 import { listCourses } from "@/services/courseService"
 import { listWikiPages } from "@/services/wikiService"
 import type { AgentMessage, AgentTask, AgentTaskEvent, AssistantMode } from "@/types/agent"
 import { AGENT_ONLY_TOOLS } from "@/types/agent"
 import type { Course } from "@/types/course"
+import type { ResourceType } from "@/types/resource"
 import type { WikiPageSummary } from "@/services/wikiService"
 import type { TutorCitation } from "@/types/tutor"
 import { normalizeAgentAnswer } from "@/lib/normalizeAgentAnswer"
+import { endLearningSession, heartbeatLearningSession } from "@/services/learningAnalyticsService"
 
 const COURSE_KEY = "zhixue_current_course_id"
 const CONVERSATION_KEY = "zhixue_agent_conversation_id"
@@ -87,6 +90,45 @@ function isResourceArtifact(ref: unknown): boolean {
   const type = String(item.type || "")
   if (RESOURCE_ARTIFACT_TYPES.has(type)) return true
   return Boolean(item.resource_id)
+}
+
+function resourceTypeFromArtifact(ref: unknown): ResourceType | null {
+  if (!ref || typeof ref !== "object") return null
+  const item = ref as Record<string, unknown>
+  const candidates = [
+    item.resource_type,
+    item.subtype,
+    item.asset_type,
+    item.preview_mode,
+    typeof item.type === "string" && item.type === "media_job" ? item.subtype : null,
+  ]
+  for (const candidate of candidates) {
+    const normalized = normalizeResourceType(candidate)
+    if (normalized) return normalized
+  }
+  return null
+}
+
+function resourceTypeFromArtifacts(value: unknown): ResourceType | null {
+  if (!Array.isArray(value)) return null
+  for (const item of value) {
+    const normalized = resourceTypeFromArtifact(item)
+    if (normalized) return normalized
+  }
+  return null
+}
+
+function resourceTypeFromEvent(eventType: string, data: Record<string, unknown>): ResourceType | null {
+  if (eventType === "tool_completed") {
+    return resourceTypeFromArtifacts(data.artifact_refs)
+  }
+  if (eventType === "completed") {
+    return resourceTypeFromArtifacts(data.artifacts)
+  }
+  if (eventType === "multimodal_progress") {
+    return resourceTypeFromArtifacts(data.artifact_refs)
+  }
+  return null
 }
 
 function eventProducesResource(eventType: string, data: Record<string, unknown>): boolean {
@@ -188,6 +230,8 @@ export function AssistantPageClient() {
   const searchParams = useSearchParams()
   const [courses, setCourses] = useState<Course[]>([])
   const [courseId, setCourseId] = useState("")
+  const learningSessionIdRef = useRef<string | null>(null)
+  const lastLearningActivityAtRef = useRef(Date.now())
   const [wikiPages, setWikiPages] = useState<WikiPageSummary[]>([])
   const [wikiPageId, setWikiPageId] = useState<string>("")
   const [mode, setMode] = useState<AssistantMode>("fast")
@@ -201,6 +245,9 @@ export function AssistantPageClient() {
   const [activeTutorId, setActiveTutorId] = useState<string | null>(null)
   const [detailTarget, setDetailTarget] = useState<DetailTarget | null>(null)
   const [resourceRefreshSignal, setResourceRefreshSignal] = useState(0)
+  const [resourceRevealType, setResourceRevealType] = useState<ResourceType | null>(
+    () => normalizeResourceType(searchParams.get("resource_type")),
+  )
   const listRef = useRef<HTMLDivElement>(null)
   const scrollOnNextRenderRef = useRef(false)
   const initialHistoryScrollRef = useRef(false)
@@ -209,9 +256,45 @@ export function AssistantPageClient() {
   const tutorStreamControllersRef = useRef<Map<string, AbortController>>(new Map())
   const resourceSyncedTasksRef = useRef<Set<string>>(new Set())
 
-  const bumpResourceList = useCallback(() => {
+  const bumpResourceList = useCallback((targetType: ResourceType | null = null) => {
+    if (targetType) setResourceRevealType(targetType)
     setResourceRefreshSignal((n) => n + 1)
   }, [])
+
+  useEffect(() => {
+    const routeType = normalizeResourceType(searchParams.get("resource_type"))
+    if (routeType) setResourceRevealType(routeType)
+  }, [searchParams])
+
+  useEffect(() => {
+    if (!courseId) return
+    const markActive = () => {
+      lastLearningActivityAtRef.current = Date.now()
+    }
+    const heartbeat = async () => {
+      try {
+        const result = await heartbeatLearningSession({
+          session_id: learningSessionIdRef.current,
+          course_id: courseId,
+          page: "/assistant",
+          active: document.visibilityState === "visible" && Date.now() - lastLearningActivityAtRef.current <= 120_000,
+        })
+        learningSessionIdRef.current = result.session_id
+      } catch {}
+    }
+    window.addEventListener("click", markActive, { passive: true })
+    window.addEventListener("keydown", markActive, { passive: true })
+    window.addEventListener("scroll", markActive, { passive: true })
+    void heartbeat()
+    const timer = window.setInterval(heartbeat, 30_000)
+    return () => {
+      window.clearInterval(timer)
+      window.removeEventListener("click", markActive)
+      window.removeEventListener("keydown", markActive)
+      window.removeEventListener("scroll", markActive)
+      if (learningSessionIdRef.current) void endLearningSession(learningSessionIdRef.current).catch(() => {})
+    }
+  }, [courseId])
 
   useEffect(() => {
     const q = searchParams.get("question")
@@ -387,14 +470,13 @@ export function AssistantPageClient() {
 
   const stopVisibleStreams = useCallback(
     (markAgentPaused = true) => {
-      for (const controller of tutorStreamControllersRef.current.values()) controller.abort()
-      tutorStreamControllersRef.current.clear()
+      for (const messageId of tutorStreamControllersRef.current.keys()) stopTutorStream(messageId)
       for (const taskId of agentStreamControllersRef.current.keys()) {
         stopAgentStream(taskId, { markPaused: markAgentPaused })
       }
       setActiveTutorId(null)
     },
-    [stopAgentStream],
+    [stopAgentStream, stopTutorStream],
   )
 
   useEffect(() => {
@@ -449,7 +531,10 @@ export function AssistantPageClient() {
             events.some((e) => eventProducesResource(e.type, e.data as Record<string, unknown>))
           ) {
             resourceSyncedTasksRef.current.add(taskId)
-            bumpResourceList()
+            const targetType =
+              events.map((e) => resourceTypeFromEvent(e.type, e.data as Record<string, unknown>)).find(Boolean) ??
+              null
+            bumpResourceList(targetType)
           }
           return events
         } catch {
@@ -490,12 +575,16 @@ export function AssistantPageClient() {
               }),
             )
 
+            const targetType = resourceTypeFromEvent(eventType, data as Record<string, unknown>)
             if (
               eventProducesResource(eventType, data as Record<string, unknown>) ||
               (eventType === "multimodal_progress" &&
                 Array.isArray((data as Record<string, unknown>).artifact_refs))
             ) {
-              bumpResourceList()
+              bumpResourceList(targetType)
+              if (targetType && eventType === "multimodal_progress" && Number(data.progress || 0) >= 100) {
+                toast.success(`资源已生成，已放入「${getResourceTypeLabel(targetType)}」分类`)
+              }
             }
 
             if (["tool_started", "tool_completed", "plan_created", "completed"].includes(eventType)) {
@@ -533,7 +622,10 @@ export function AssistantPageClient() {
             previousEventCount = events.length
             if (stableTerminalPolls >= 4) break
           }
-          bumpResourceList()
+          const targetType =
+            events.map((e) => resourceTypeFromEvent(e.type, e.data as Record<string, unknown>)).find(Boolean) ??
+            null
+          bumpResourceList(targetType)
           patchAgentMessage(taskId, { streaming: false })
         }
       } catch (err) {
@@ -563,10 +655,6 @@ export function AssistantPageClient() {
   const approveAgentTask = async (taskId: string, approved: boolean) => {
     await resumeAgentTask(taskId, approved)
     if (approved) void watchAgentTask(taskId)
-  }
-
-  const pauseAgentTaskView = (taskId: string) => {
-    stopAgentStream(taskId, { markPaused: true })
   }
 
   const resumeAgentTaskView = (taskId: string) => {
@@ -740,6 +828,9 @@ export function AssistantPageClient() {
           : m.kind === "agent" && m.taskId === detailTarget.taskId,
       )
     : null
+  const hasActiveStream = messages.some(
+    (message) => message.kind !== "user" && Boolean(message.streaming),
+  )
 
   return (
     <StudentShell title="AI 学习助手">
@@ -840,7 +931,6 @@ export function AssistantPageClient() {
                       progress={msg.progress}
                       streaming={isStreaming}
                       error={msg.error}
-                      onStop={isStreaming ? () => stopTutorStream(msg.id) : undefined}
                       onOpenDetail={() => setDetailTarget({ kind: "tutor", messageId: msg.id })}
                     />
                   </div>
@@ -870,7 +960,6 @@ export function AssistantPageClient() {
                     chatArtifacts={chatArtifacts}
                     mediaArtifacts={mediaArtifacts}
                     pendingMediaJobs={pendingMediaJobs}
-                    onPause={msg.streaming ? () => pauseAgentTaskView(msg.taskId) : undefined}
                     onResume={msg.paused ? () => resumeAgentTaskView(msg.taskId) : undefined}
                     onCancel={canCancelAgentTask ? () => void cancelAgentTaskView(msg.taskId) : undefined}
                     onOpenDetail={() => setDetailTarget({ kind: "agent", taskId: msg.taskId })}
@@ -895,14 +984,31 @@ export function AssistantPageClient() {
                 rows={2}
                 className="min-h-[52px] flex-1 resize-none"
               />
-              <Button onClick={() => void sendMessage()} disabled={sending || !input.trim()}>
-                发送
-              </Button>
+              {hasActiveStream ? (
+                <Button
+                  type="button"
+                  aria-label="停止生成"
+                  title="停止生成"
+                  onClick={() => stopVisibleStreams(true)}
+                  className="h-[52px] w-[52px] shrink-0 rounded-full p-0"
+                >
+                  <span className="h-3 w-3 rounded-[3px] bg-current" aria-hidden="true" />
+                </Button>
+              ) : (
+                <Button onClick={() => void sendMessage()} disabled={sending || !input.trim()}>
+                  发送
+                </Button>
+              )}
             </div>
           </div>
         </section>
 
-        <ResourceSidePanel courseId={courseId} wikiPageId={wikiPageId || null} refreshSignal={resourceRefreshSignal} />
+        <ResourceSidePanel
+          courseId={courseId}
+          wikiPageId={wikiPageId || null}
+          refreshSignal={resourceRefreshSignal}
+          highlightResourceType={resourceRevealType}
+        />
       </div>
 
       {detailTarget?.kind === "tutor" && detailMessage?.kind === "tutor" && (

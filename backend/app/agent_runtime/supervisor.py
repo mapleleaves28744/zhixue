@@ -10,6 +10,7 @@ from app.agent_runtime.answer_text import extract_final_answer_text
 from app.agent_runtime.state import AgentDecision, PlannedToolCall
 from app.agent_runtime import supervisor_intents
 from app.llm.schemas import ChatMessage, ToolCall
+from app.services.conversation_intent import is_simple_greeting, simple_greeting_answer
 
 
 class Supervisor(Protocol):
@@ -30,6 +31,12 @@ class MiMoSupervisor:
         state: dict[str, Any],
         tool_schemas: list[dict[str, Any]],
     ) -> AgentDecision:
+        if is_simple_greeting(str(state.get("goal") or "")):
+            return AgentDecision(
+                status="complete",
+                summary="轻量寒暄直接响应。",
+                final_answer=simple_greeting_answer(),
+            )
         bounded_decision = self._profile_update_only_decision(state, tool_schemas)
         if bounded_decision is not None:
             return bounded_decision
@@ -135,6 +142,7 @@ class MiMoSupervisor:
         available = self._available_tool_names(tool_schemas)
         completed_tools = self._completed_tool_names(state)
         skip_tools = set(state.get("skip_tools") or [])
+        pending_deliverables = self._pending_deliverables(goal, available, completed_tools, skip_tools)
 
         if decision.tool_calls:
             if decision.status == "complete":
@@ -176,8 +184,6 @@ class MiMoSupervisor:
         hint = self._next_tool_hint(state, available, completed_tools, skip_tools)
         if hint and decision.status == "complete":
             return self._force_tool(hint, goal, state, decision, reason="用户指定工具")
-
-        pending_deliverables = self._pending_deliverables(goal, available, completed_tools, skip_tools)
 
         if (
             decision.status == "complete"

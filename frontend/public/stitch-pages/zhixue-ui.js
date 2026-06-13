@@ -231,29 +231,6 @@
 
   function initScrollReveal() {
     scrollReveal();
-    if (!("MutationObserver" in window) || revealMutationObserver || !isElementNode(document.body)) {
-      return;
-    }
-    let pending = false;
-    revealMutationObserver = new MutationObserver((mutations) => {
-      const hasNewElement = mutations.some((mutation) =>
-        Array.from(mutation.addedNodes || []).some(isElementNode)
-      );
-      if (!hasNewElement || pending) {
-        return;
-      }
-      pending = true;
-      window.requestAnimationFrame(() => {
-        pending = false;
-        scrollReveal();
-      });
-    });
-    try {
-      revealMutationObserver.observe(document.body, { childList: true, subtree: true });
-    } catch {
-      revealMutationObserver.disconnect();
-      revealMutationObserver = null;
-    }
   }
 
   function mascotBadge(mascot, label) {

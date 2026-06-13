@@ -12,6 +12,7 @@ from app.repositories.resource_repository import ResourceRepository
 from app.services.diagram_service import CONCISE_MERMAID_RULES
 from app.services.knowledge_search_service import KnowledgeSearchService
 from app.services.resource_media_service import ResourceMediaService
+from app.services.visual_search_context import search_items
 from app.utils.mermaid_util import extract_mermaid_code, repair_mermaid_content
 
 
@@ -33,12 +34,13 @@ class MindmapService:
         topic = topic.strip() or "数据结构知识结构"
         depth = max(2, min(5, int(depth)))
         try:
-            knowledge_items = await KnowledgeSearchService(self.db).search(
+            search_payload = await KnowledgeSearchService(self.db).search(
                 current_user=current_user,
                 course_id=course_id,
                 query=topic,
                 top_k=15,
             )
+            knowledge_items = search_items(search_payload)
         except Exception:
             knowledge_items = []
         response = await get_llm_provider(

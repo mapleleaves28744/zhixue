@@ -93,11 +93,12 @@ class ProfileAgent(BaseAgent):
             profile = StudentProfile(user_id=context.user_id)
             self.db.add(profile)
 
-        profile.profile_summary = profile_data.get("profile_summary", "")
-        profile.mastery_snapshot = profile_data.get("mastery_snapshot", {})
-        profile.weak_points = profile_data.get("weak_points", [])
-        profile.error_patterns = profile_data.get("error_patterns", [])
-        profile.strategy_summary = profile_data.get("strategy_summary", {})
+        if not profile.profile_summary:
+            profile.profile_summary = profile_data.get("profile_summary", "")
+        profile.mastery_snapshot = {**(profile.mastery_snapshot or {}), **profile_data.get("mastery_snapshot", {})}
+        profile.weak_points = self._merge(profile.weak_points, profile_data.get("weak_points", []))
+        profile.error_patterns = self._merge(profile.error_patterns, profile_data.get("error_patterns", []))
+        profile.strategy_summary = {**(profile.strategy_summary or {}), **profile_data.get("strategy_summary", {})}
         profile.version_no += 1
 
         await self.db.commit()
@@ -110,6 +111,16 @@ class ProfileAgent(BaseAgent):
             data={"profile_id": str(profile.id), "version_no": profile.version_no},
             message="画像重建完成",
         )
+
+    def _merge(self, existing: list[Any] | None, incoming: list[Any] | None) -> list[Any]:
+        result: list[Any] = []
+        seen: set[str] = set()
+        for item in list(existing or []) + list(incoming or []):
+            key = json.dumps(item, ensure_ascii=False, sort_keys=True) if isinstance(item, dict) else str(item)
+            if key not in seen:
+                seen.add(key)
+                result.append(item)
+        return result[:20]
 
     async def _llm_rebuild(self, provider: Any, records_text: str) -> dict[str, Any]:
         prompt = (

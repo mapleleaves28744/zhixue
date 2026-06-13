@@ -16,22 +16,47 @@ router = APIRouter()
 @router.get("")
 async def list_memories(
     request: Request,
+    course_id: UUID | None = None,
+    status: str = "active",
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    memories = await MemoryService(db).list_memories(current_user.id)
+    memories = await MemoryService(db).list_memories(current_user.id, course_id, status=status)
     return success_response(
         [m.model_dump(mode="json") for m in memories], request=request
     )
 
 
-@router.post("/reflect")
-async def reflect(
+@router.get("/health")
+async def memory_health(
+    request: Request,
+    course_id: UUID | None = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    health = await MemoryService(db).health(current_user.id, course_id)
+    return success_response(health.model_dump(mode="json"), request=request)
+
+
+@router.post("/{memory_id}/restore")
+async def restore_memory(
+    memory_id: UUID,
     request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    memories = await MemoryService(db).reflect(current_user.id)
+    memory = await MemoryService(db).restore_memory(memory_id, current_user.id)
+    return success_response(memory.model_dump(mode="json"), request=request)
+
+
+@router.post("/reflect")
+async def reflect(
+    request: Request,
+    course_id: UUID | None = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    memories = await MemoryService(db).reflect(current_user.id, course_id)
     return success_response(
         [m.model_dump(mode="json") for m in memories], request=request
     )

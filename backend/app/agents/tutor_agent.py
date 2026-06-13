@@ -11,7 +11,7 @@ from app.models.wiki import WikiPage
 from app.rag.graph_retriever import GraphRetriever
 from app.repositories.course_repository import CourseRepository
 from app.repositories.wiki_repository import WikiRepository
-from app.services.memory_service import MemoryService
+from app.services.personalization_context_service import PersonalizationContextService
 from app.services.prompt_service import PromptService
 from app.services.profile_service import ProfileService
 
@@ -107,8 +107,9 @@ class TutorAgent(BaseAgent):
             enabled=use_wiki,
         )
         wiki_context = self._format_wiki_context(wiki_pages)
-        student_profile = await self._load_profile(context.user_id, use_profile)
-        memory_context = await self._load_memory(context.user_id, context.course_id, use_profile)
+        personalization = await PersonalizationContextService(self.db).get_context(context.user_id, context.course_id) if use_profile else {}
+        student_profile = PersonalizationContextService.format_for_prompt(personalization) if use_profile else "未启用学生画像"
+        memory_context = student_profile
 
         citations = self._build_citations(retrieval_items, wiki_pages)
         if not citations:
@@ -218,20 +219,6 @@ class TutorAgent(BaseAgent):
             )
         except Exception:
             return "学生画像暂不可用"
-
-    async def _load_memory(self, user_id: UUID, course_id: UUID, enabled: bool) -> str:
-        if not enabled:
-            return "未启用长期记忆"
-        try:
-            memories = await MemoryService(self.db).list_memories(user_id, course_id)
-            if not memories:
-                return "暂无长期学习记忆"
-            return "\n".join(
-                f"- {item.memory_type}: {item.content}"
-                for item in memories[:5]
-            )
-        except Exception:
-            return "长期记忆暂不可用"
 
     def _format_wiki_context(self, pages: list[WikiPage]) -> str:
         if not pages:

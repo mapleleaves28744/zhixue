@@ -14,6 +14,7 @@ from app.models.learning_path import LearningPath, LearningPathItem
 from app.models.recommendation import Recommendation
 from app.models.user import User
 from app.services.course_service import CourseService
+from app.services.personalization_context_service import PersonalizationContextService
 
 
 class RecommendationService:
@@ -64,8 +65,13 @@ class RecommendationService:
         for item in existing.scalars().all():
             item.status = "stale"
 
+        personalization = await PersonalizationContextService(self.db).get_context(current_user.id, course_id)
+        recommendation_strategy = personalization["strategies"].get("recommendation")
         created = 0
         for payload in await self._build_payloads(current_user.id, course_id):
+            if recommendation_strategy:
+                payload["strategy_version_id"] = recommendation_strategy.id
+                payload["reason"] = f"{payload['reason']} 生效策略：{recommendation_strategy.description or recommendation_strategy.after_value}"
             self.db.add(Recommendation(**payload))
             created += 1
 

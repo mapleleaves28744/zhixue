@@ -68,3 +68,21 @@ class ProfileDialogueIngestResult(BaseModel):
     preferences: LearningPreferenceRead | None = None
     signals: dict[str, Any] = Field(default_factory=dict)
     evidence: dict[str, Any] = Field(default_factory=dict)
+
+
+class CourseProfileRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    user_id: UUID
+    course_id: UUID
+    learning_goal: str | None = None
+    profile_summary: str | None = None
+    mastery_snapshot: dict[str, Any] = {}
+    weak_points: list[Any] = []
+    error_patterns: list[Any] = []
+    strategy_summary: dict[str, Any] = {}
+    evidence: list[Any] = []
+    version_no: int = 1
+    created_at: datetime
+    updated_at: datetime

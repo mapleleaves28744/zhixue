@@ -5,23 +5,9 @@ import { toast } from "sonner"
 import { ResourceDetailDrawer } from "@/components/assistant/ResourceDetailDrawer"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { getResourceTypeLabel, normalizeResourceType, RESOURCE_CATEGORY_OPTIONS } from "@/lib/resourceTypes"
 import { generateResource, getResource, listResources } from "@/services/resourceService"
 import type { GeneratedResource, ResourceType } from "@/types/resource"
-
-const RESOURCE_TYPES: { value: ResourceType; label: string }[] = [
-  { value: "explanation", label: "讲解" },
-  { value: "summary", label: "总结" },
-  { value: "example", label: "例题" },
-  { value: "flashcard", label: "复习卡" },
-  { value: "review", label: "错题解析" },
-  { value: "mindmap", label: "思维导图" },
-  { value: "diagram", label: "图解" },
-]
-
-const RESOURCE_DISPLAY_LABELS: Record<string, string> = {
-  video: "讲解视频",
-  image: "教学插图",
-}
 
 const LAST_RESOURCE_KEY = "zhixue_last_resource_id"
 
@@ -30,9 +16,16 @@ interface ResourceSidePanelProps {
   wikiPageId?: string | null
   /** 递增时重新拉取资源列表（如 Agent 对话生成资源后） */
   refreshSignal?: number
+  /** Agent 或桌宠跳转要求自动展开的资源分类 */
+  highlightResourceType?: ResourceType | string | null
 }
 
-export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: ResourceSidePanelProps) {
+export function ResourceSidePanel({
+  courseId,
+  wikiPageId,
+  refreshSignal = 0,
+  highlightResourceType = null,
+}: ResourceSidePanelProps) {
   const [resourceType, setResourceType] = useState<ResourceType>("explanation")
   const [requirement, setRequirement] = useState("")
   const [generating, setGenerating] = useState(false)
@@ -44,12 +37,23 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
   const [showingAllCourses, setShowingAllCourses] = useState(false)
 
   const fetchPage = useCallback(
-    async (targetPage: number, restoreLast = false) => {
+    async (targetPage: number, restoreLast = false, targetType: ResourceType = resourceType) => {
       if (!courseId) return
       try {
-        let data = await listResources({ courseId, page: targetPage, pageSize: 20, status: "all" })
+        let data = await listResources({
+          courseId,
+          resourceType: targetType,
+          page: targetPage,
+          pageSize: 20,
+          status: "all",
+        })
         if ((data.total ?? 0) === 0 && targetPage === 1) {
-          const all = await listResources({ page: 1, pageSize: 20, status: "all" })
+          const all = await listResources({
+            resourceType: targetType,
+            page: 1,
+            pageSize: 20,
+            status: "all",
+          })
           if ((all.total ?? 0) > 0) {
             data = all
             setShowingAllCourses(true)
@@ -66,7 +70,11 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
         if (restoreLast && lastId) {
           try {
             const resource = await getResource(lastId)
-            setSelected(resource)
+            if ((normalizeResourceType(resource.resource_type) ?? resourceType) === targetType) {
+              setSelected(resource)
+            } else if (data.items[0]) {
+              setSelected(data.items[0])
+            }
           } catch {
             if (data.items[0]) setSelected(data.items[0])
           }
@@ -77,31 +85,36 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
         toast.error(err instanceof Error ? err.message : "加载资源历史失败")
       }
     },
-    [courseId],
-  )
-
-  const loadHistory = useCallback(
-    async (restoreLast = false) => {
-      await fetchPage(page, restoreLast)
-    },
-    [fetchPage, page],
+    [courseId, resourceType],
   )
 
   useEffect(() => {
     setPage(1)
-    void fetchPage(1, true)
-  }, [fetchPage])
+    void fetchPage(1, true, resourceType)
+  }, [fetchPage, resourceType])
 
   useEffect(() => {
     if (page === 1) return
-    void fetchPage(page, false)
-  }, [page, fetchPage])
+    void fetchPage(page, false, resourceType)
+  }, [page, fetchPage, resourceType])
+
+  useEffect(() => {
+    const routeType = normalizeResourceType(new URLSearchParams(window.location.search).get("resource_type"))
+    if (routeType) setResourceType(routeType)
+  }, [])
 
   useEffect(() => {
     if (!refreshSignal) return
+    const nextType = normalizeResourceType(highlightResourceType)
+    if (nextType && nextType !== resourceType) {
+      setResourceType(nextType)
+      setPage(1)
+      void fetchPage(1, false, nextType)
+      return
+    }
     setPage(1)
-    void fetchPage(1, false)
-  }, [refreshSignal, fetchPage])
+    void fetchPage(1, false, resourceType)
+  }, [refreshSignal, highlightResourceType, fetchPage, resourceType])
 
   const handleGenerate = async () => {
     if (!courseId) {
@@ -136,11 +149,14 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
         content_format: result.content_format,
         preview_mode: result.preview_mode,
       }
+      const nextType = normalizeResourceType(resource.resource_type) ?? resourceType
       localStorage.setItem(`${LAST_RESOURCE_KEY}_${courseId}`, resource.id)
+      setResourceType(nextType)
+      setPage(1)
       setSelected(resource)
       setDrawerOpen(true)
-      toast.success("资源生成成功")
-      await loadHistory(false)
+      toast.success(`资源生成成功，已放入「${getResourceTypeLabel(nextType)}」分类`)
+      await fetchPage(1, false, nextType)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "生成失败")
     } finally {
@@ -163,16 +179,19 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
     <aside className="glass-card flex h-full w-full flex-col overflow-hidden rounded-3xl lg:w-[360px] lg:shrink-0">
       <div className="border-b border-white/60 p-4">
         <h2 className="text-sm font-bold text-on-surface">个性化资源</h2>
-        <p className="mt-1 text-xs text-outline">生成后可从历史中随时找回</p>
+        <p className="mt-1 text-xs text-outline">按类型收纳，生成后自动定位到对应分类</p>
       </div>
 
       <div className="space-y-3 overflow-y-auto p-4">
         <div className="flex flex-wrap gap-2">
-          {RESOURCE_TYPES.map((t) => (
+          {RESOURCE_CATEGORY_OPTIONS.map((t) => (
             <button
               key={t.value}
               type="button"
-              onClick={() => setResourceType(t.value)}
+              onClick={() => {
+                setPage(1)
+                setResourceType(t.value)
+              }}
               className={`rounded-full px-3 py-1 text-xs font-semibold ${
                 resourceType === t.value
                   ? "bg-primary text-on-primary"
@@ -195,7 +214,7 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
 
         <div className="pt-2">
           <p className="mb-2 text-xs font-bold text-outline">
-            我的资源 ({total})
+            我的「{getResourceTypeLabel(resourceType)}」资源 ({total})
             {showingAllCourses ? (
               <span className="ml-1 font-normal text-primary">· 已显示全部课程</span>
             ) : null}
@@ -213,21 +232,30 @@ export function ResourceSidePanel({ courseId, wikiPageId, refreshSignal = 0 }: R
                     ? "volume_up"
                     : item.preview_mode === "video"
                       ? "movie"
-                    : item.preview_mode === "image" || item.preview_mode === "mermaid" || item.resource_type === "mindmap" || item.resource_type === "diagram"
-                      ? "account_tree"
-                      : item.resource_type === "image"
+                      : item.preview_mode === "image" || item.resource_type === "image"
                         ? "image"
-                        : "description"}
+                        : item.preview_mode === "mermaid" || item.resource_type === "mindmap" || item.resource_type === "diagram"
+                          ? "account_tree"
+                          : item.resource_type === "interactive_courseware"
+                            ? "view_in_ar"
+                            : item.resource_type === "code_project"
+                              ? "code_blocks"
+                              : item.resource_type === "flashcard"
+                                ? "style"
+                                : item.resource_type === "review"
+                                  ? "assignment_late"
+                                  : "description"}
                 </span>
                 <span className="mt-1 line-clamp-2 text-xs font-semibold">{item.title}</span>
-                <span className="mt-auto text-[10px] text-outline">
-                  {RESOURCE_DISPLAY_LABELS[item.resource_type] ||
-                    RESOURCE_TYPES.find((t) => t.value === item.resource_type)?.label ||
-                    item.resource_type}
-                </span>
+                <span className="mt-auto text-[10px] text-outline">{getResourceTypeLabel(item.resource_type)}</span>
               </button>
             ))}
           </div>
+          {!history.length && (
+            <div className="rounded-2xl border border-dashed border-primary/30 bg-white/40 p-4 text-xs text-outline">
+              当前还没有「{getResourceTypeLabel(resourceType)}」资源。你可以先在上方输入要求生成，也可以在智能体对话中调用对应工具。
+            </div>
+          )}
           {total > page * 20 && (
             <Button variant="outline" size="sm" className="mt-2 w-full" onClick={() => setPage((p) => p + 1)}>
               加载更多

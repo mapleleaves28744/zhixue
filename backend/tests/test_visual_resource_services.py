@@ -1,6 +1,14 @@
 from __future__ import annotations
 
 
+def test_visual_services_normalize_graph_search_payload_to_items() -> None:
+    from app.services.visual_search_context import search_items
+
+    assert search_items({"items": [{"content": "队列"}], "graph_context": {}}) == [{"content": "队列"}]
+    assert search_items([{"content": "兼容旧列表"}]) == [{"content": "兼容旧列表"}]
+    assert search_items({"graph_context": {}}) == []
+
+
 def test_mindmap_service_extracts_fenced_mermaid_code() -> None:
     from app.services.mindmap_service import MindmapService
 

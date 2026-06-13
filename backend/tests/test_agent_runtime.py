@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from types import SimpleNamespace
 from uuid import uuid4
 
@@ -9,6 +10,7 @@ from app.agent_runtime.graph import LearningAgentGraph
 from app.agent_runtime.service_tools import build_learning_tool_registry
 from app.agent_runtime.state import AgentDecision, PlannedToolCall
 from app.agent_runtime.supervisor import MiMoSupervisor
+from app.services.conversation_intent import is_simple_greeting
 from app.agent_runtime.tools import (
     AgentTool,
     ToolContext,
@@ -272,6 +274,48 @@ async def test_langgraph_agent_completes_when_memory_reflection_fails() -> None:
     assert "memory schema validation failed" in str(reflected[-1]["error_message"])
 
 
+@pytest.mark.asyncio
+async def test_simple_greeting_skips_provider_review_and_memory_reflection() -> None:
+    class ProviderThatMustNotRun:
+        async def chat(self, messages, **kwargs):
+            raise AssertionError("simple greeting must not call the LLM supervisor")
+
+    review_called = False
+    memory_called = False
+
+    async def reviewer(state):
+        nonlocal review_called
+        review_called = True
+        return {}
+
+    async def memory_reflector(state):
+        nonlocal memory_called
+        memory_called = True
+        return {}
+
+    graph = LearningAgentGraph(
+        registry=ToolRegistry(),
+        supervisor=MiMoSupervisor(provider=ProviderThatMustNotRun()),
+        reviewer=reviewer,
+        memory_reflector=memory_reflector,
+    )
+
+    result = await graph.run(
+        task_id=uuid4(),
+        conversation_id=uuid4(),
+        user_id=uuid4(),
+        course_id=uuid4(),
+        goal="你好",
+        thread_id="thread-simple-greeting",
+    )
+
+    assert is_simple_greeting("你好") is True
+    assert result["status"] == "completed"
+    assert "你好" in result["final_answer"]
+    assert review_called is False
+    assert memory_called is False
+
+
 class FakeProvider:
     async def chat(self, messages, **kwargs):
         return ChatResponse(
@@ -356,6 +400,54 @@ class EmptyArgumentToolProvider:
             finish_reason="tool_calls",
             tool_calls=[ToolCall(id="call_empty", name="search_course_knowledge", arguments={})],
         )
+
+
+class DuplicateCompletedToolProvider:
+    async def chat(self, messages, **kwargs):
+        return ChatResponse(
+            content="",
+            finish_reason="tool_calls",
+            tool_calls=[
+                ToolCall(
+                    id="call_duplicate",
+                    name="search_course_knowledge",
+                    arguments={"query": "解释二叉树"},
+                )
+            ],
+        )
+
+
+@pytest.mark.asyncio
+async def test_mimo_supervisor_handles_duplicate_completed_tool_calls_without_crashing() -> None:
+    decision = await MiMoSupervisor(provider=DuplicateCompletedToolProvider()).decide(
+        {
+            "goal": "解释二叉树",
+            "messages": [],
+            "observations": [
+                {
+                    "success": True,
+                    "tool_name": "search_course_knowledge",
+                    "output": {"chunks": [{"content": "二叉树是每个节点最多有两个子节点的树结构。"}]},
+                }
+            ],
+            "artifacts": [],
+            "tool_calls": [{"name": "search_course_knowledge"}],
+        },
+        [
+            {
+                "type": "function",
+                "function": {
+                    "name": "search_course_knowledge",
+                    "description": "检索",
+                    "parameters": {"type": "object", "properties": {"query": {"type": "string"}}},
+                },
+            }
+        ],
+    )
+
+    assert decision.status == "complete"
+    assert decision.tool_calls == []
+    assert "执行详情" in decision.final_answer
 
 
 @pytest.mark.asyncio
@@ -677,6 +769,13 @@ def test_default_learning_tool_registry_exposes_specialized_agents_and_risk_boun
     }.issubset(names)
     assert registry.requires_confirmation("apply_evolution_strategy") is True
     assert registry.risk_level("apply_evolution_strategy") == "high"
+
+
+def test_generate_explanation_artifact_refs_keep_resource_type_for_frontend_categories() -> None:
+    source = Path("app/agent_runtime/service_tools.py").read_text(encoding="utf-8")
+
+    assert '"resource_type": data.get("resource_type")' in source
+    assert '"resource_id": str(result.resource_id)' in source
 
 
 def test_parse_uploaded_document_requires_explicit_material_id_and_is_not_faked_by_supervisor() -> None:
