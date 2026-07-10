@@ -1,15 +1,20 @@
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass, field
 from typing import Any
 from uuid import UUID
 
+import httpx
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.llm.embedding import get_embedding_provider
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -53,7 +58,24 @@ class HybridRetriever:
                 top_k=candidate_k,
                 knowledge_id=knowledge_id,
             )
-        except Exception:
+        except httpx.HTTPError as exc:
+            logger.warning(
+                "Vector retrieval unavailable; using keyword fallback: %s", exc
+            )
+            vector_candidates = []
+        except SQLAlchemyError as exc:
+            if not _is_pgvector_unavailable(exc):
+                raise
+            logger.warning(
+                "Vector retrieval unavailable; using keyword fallback: %s", exc
+            )
+            vector_candidates = []
+        except RuntimeError as exc:
+            if not _is_embedding_unavailable_runtime(exc):
+                raise
+            logger.warning(
+                "Vector retrieval unavailable; using keyword fallback: %s", exc
+            )
             vector_candidates = []
         keyword_candidates = await self._keyword_search(
             course_id=course_id,
@@ -117,12 +139,7 @@ class HybridRetriever:
             "ORDER BY dc.embedding <=> CAST(:query_vec AS vector) "
             "LIMIT :top_k"
         )
-        try:
-            rows = list((await self.db.execute(sql, params)).all())
-        except SQLAlchemyError as exc:
-            if "vector" not in str(exc).lower():
-                raise
-            return []
+        rows = list((await self.db.execute(sql, params)).all())
 
         return [
             RetrievalCandidate(
@@ -338,6 +355,32 @@ def _heading_text(extra_meta: dict[str, Any]) -> str:
     if isinstance(heading, list):
         return " ".join(str(item) for item in heading)
     return str(heading or "")
+
+
+def _is_pgvector_unavailable(exc: SQLAlchemyError) -> bool:
+    message = str(exc).lower()
+    pgvector_markers = (
+        'type "vector" does not exist',
+        "type vector does not exist",
+        'extension "vector"',
+        "extension vector",
+        "operator does not exist",
+        "pgvector unavailable",
+        "pgvector not available",
+    )
+    return "vector" in message and any(marker in message for marker in pgvector_markers)
+
+
+def _is_embedding_unavailable_runtime(exc: RuntimeError) -> bool:
+    message = str(exc).lower()
+    unavailable_markers = (
+        "vector unavailable",
+        "embedding unavailable",
+        "embedding provider unavailable",
+        "real embedding provider is required",
+        "sentence-transformers is required",
+    )
+    return any(marker in message for marker in unavailable_markers)
 
 
 def _min_rank(left: int | None, right: int | None) -> int | None:

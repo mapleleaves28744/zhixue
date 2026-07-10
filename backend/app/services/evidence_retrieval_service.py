@@ -62,7 +62,7 @@ class EvidenceRetrievalService:
         document_items = list(graph_payload.get("items") or [])
         candidate_count = len(document_items) + len(wiki_pages)
         terms = self._question_terms(question)
-        evidence: list[EvidenceItem] = []
+        document_evidence: list[EvidenceItem] = []
         source_counts: dict[UUID, int] = defaultdict(int)
         for item in document_items:
             material_id = self._parse_uuid(item.get("material_id"))
@@ -75,7 +75,7 @@ class EvidenceRetrievalService:
                 continue
             source_counts[material_id] += 1
             meta = item.get("extra_meta") if isinstance(item.get("extra_meta"), dict) else {}
-            evidence.append(
+            document_evidence.append(
                 EvidenceItem(
                     citation_key="",
                     source_type="document",
@@ -93,23 +93,19 @@ class EvidenceRetrievalService:
                 )
             )
 
+        explicit_wiki_evidence: list[EvidenceItem] = []
+        automatic_wiki_evidence: list[EvidenceItem] = []
+        seen_page_ids: set[UUID] = set()
         for page in wiki_pages:
-            evidence.append(
-                EvidenceItem(
-                    citation_key="",
-                    source_type="wiki",
-                    source_id=page.id,
-                    page_id=page.id,
-                    knowledge_id=page.knowledge_id,
-                    title=page.title,
-                    quote=str(page.summary or page.content[:1200] or "Wiki 页面"),
-                    retrieval_mode="wiki_explicit" if page.id == wiki_page_id else "wiki_match",
-                    rerank_score=1.0 if page.id == wiki_page_id else 0.0,
-                    confidence="strong" if page.id == wiki_page_id else "acceptable",
-                )
-            )
+            if page.id in seen_page_ids:
+                continue
+            seen_page_ids.add(page.id)
+            is_explicit = page.id == wiki_page_id
+            target = explicit_wiki_evidence if is_explicit else automatic_wiki_evidence
+            target.append(self._wiki_evidence(page, is_explicit=is_explicit))
 
         limit = min(self.MAX_EVIDENCE, max(top_k, 0))
+        evidence = explicit_wiki_evidence + document_evidence + automatic_wiki_evidence
         selected = evidence[:limit]
         selected = [
             replace(item, citation_key=f"S{index}")
@@ -139,22 +135,19 @@ class EvidenceRetrievalService:
         ):
             public_owner_id = course.owner_id
 
+        allowed_owner_ids = {user_id}
+        if public_owner_id is not None:
+            allowed_owner_ids.add(public_owner_id)
+
+        explicit_page: WikiPage | None = None
         if wiki_page_id is not None:
-            page = await self.wiki.get_by_id_simple(wiki_page_id)
-            readable = (
-                page is not None
-                and page.course_id == course_id
-                and page.status == "active"
-                and (
-                    page.owner_id == user_id
-                    or (public_owner_id is not None and page.owner_id == public_owner_id)
-                )
-            )
-            if not readable or page is None:
+            explicit_page = await self.wiki.get_by_id_simple(wiki_page_id)
+            if explicit_page is None or not self._is_readable_wiki_page(
+                explicit_page, course_id=course_id, allowed_owner_ids=allowed_owner_ids
+            ):
                 return []
-            if knowledge_id is not None and page.knowledge_id != knowledge_id:
+            if knowledge_id is not None and explicit_page.knowledge_id != knowledge_id:
                 return []
-            return [page]
 
         owner_ids = [user_id]
         if public_owner_id is not None and public_owner_id != user_id:
@@ -162,15 +155,54 @@ class EvidenceRetrievalService:
         pages, _ = await self.wiki.list_by_owners(owner_ids, course_id, page_size=20)
         terms = [term.lower() for term in self._question_terms(question) if len(term) >= 2]
         scored: list[tuple[int, WikiPage]] = []
+        seen_page_ids = {explicit_page.id} if explicit_page is not None else set()
         for page in pages:
+            if page.id in seen_page_ids:
+                continue
+            if not self._is_readable_wiki_page(
+                page,
+                course_id=course_id,
+                allowed_owner_ids=allowed_owner_ids,
+            ):
+                continue
             if knowledge_id is not None and page.knowledge_id != knowledge_id:
                 continue
             haystack = f"{page.title}\n{page.summary or ''}\n{page.content}".lower()
             score = sum(1 for term in terms if term in haystack)
             if score:
                 scored.append((score, page))
+                seen_page_ids.add(page.id)
         scored.sort(key=lambda item: item[0], reverse=True)
-        return [page for _, page in scored[:3]]
+        automatic_pages = [page for _, page in scored[:3]]
+        return ([explicit_page] if explicit_page is not None else []) + automatic_pages
+
+    def _is_readable_wiki_page(
+        self,
+        page: WikiPage | None,
+        *,
+        course_id: UUID,
+        allowed_owner_ids: set[UUID],
+    ) -> bool:
+        return (
+            page is not None
+            and page.course_id == course_id
+            and page.status == "active"
+            and page.owner_id in allowed_owner_ids
+        )
+
+    def _wiki_evidence(self, page: WikiPage, *, is_explicit: bool) -> EvidenceItem:
+        return EvidenceItem(
+            citation_key="",
+            source_type="wiki",
+            source_id=page.id,
+            page_id=page.id,
+            knowledge_id=page.knowledge_id,
+            title=page.title,
+            quote=str(page.summary or page.content[:1200] or "Wiki 页面"),
+            retrieval_mode="wiki_explicit" if is_explicit else "wiki_match",
+            rerank_score=1.0 if is_explicit else 0.0,
+            confidence="strong" if is_explicit else "acceptable",
+        )
 
     def _accept_document(self, item: dict[str, Any], terms: list[str]) -> bool:
         vector = float(item.get("vector_score") or 0.0)

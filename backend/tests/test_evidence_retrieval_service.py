@@ -9,6 +9,20 @@ import pytest
 from app.services.evidence_retrieval_service import EvidenceRetrievalService
 
 
+def _document_item(material_id: object, *, index: int) -> dict[str, object]:
+    return {
+        "chunk_id": str(uuid4()),
+        "material_id": str(material_id),
+        "content": f"栈相关文档片段 {index}",
+        "source_title": "数据结构讲义",
+        "vector_score": 0.8,
+        "keyword_score": 0.0,
+        "score": 0.8,
+        "retrieval_mode": "vector",
+        "extra_meta": {},
+    }
+
+
 @pytest.mark.asyncio
 async def test_retrieval_filters_low_confidence_and_limits_two_chunks_per_material() -> None:
     material_id = uuid4()
@@ -161,6 +175,62 @@ async def test_explicit_wiki_is_strong_and_auto_matched_wiki_is_acceptable() -> 
     assert automatic_bundle.evidence[0].confidence == "acceptable"
 
 
+@pytest.mark.asyncio
+async def test_explicit_wiki_precedes_documents_and_deduplicated_auto_wiki() -> None:
+    user_id = uuid4()
+    course_id = uuid4()
+    knowledge_id = uuid4()
+    material_id = uuid4()
+    second_material_id = uuid4()
+    explicit = SimpleNamespace(
+        id=uuid4(), course_id=course_id, owner_id=user_id, status="active",
+        knowledge_id=knowledge_id, title="栈的显式页面", summary="显式选择",
+        content="栈是后进先出结构。",
+    )
+    automatic = SimpleNamespace(
+        id=uuid4(), course_id=course_id, owner_id=user_id, status="active",
+        knowledge_id=knowledge_id, title="栈如何工作", summary="自动匹配",
+        content="栈支持入栈和出栈。",
+    )
+    service = EvidenceRetrievalService(db=None)  # type: ignore[arg-type]
+    service.graph.search = AsyncMock(
+        return_value={
+            "items": [
+                *[_document_item(material_id, index=index) for index in range(5)],
+                _document_item(second_material_id, index=5),
+            ],
+            "graph_context": {},
+        }
+    )
+    service.courses = MagicMock()
+    service.courses.get_by_id = AsyncMock(
+        return_value=SimpleNamespace(
+            owner_id=user_id, visibility="private", status="active"
+        )
+    )
+    service.wiki = MagicMock()
+    service.wiki.get_by_id_simple = AsyncMock(return_value=explicit)
+    service.wiki.list_by_owners = AsyncMock(
+        return_value=([explicit, automatic, explicit], 3)
+    )
+
+    bundle = await service.retrieve(
+        course_id=course_id, user_id=user_id, question="栈如何工作？", top_k=5,
+        knowledge_id=knowledge_id, wiki_page_id=explicit.id,
+        use_rag=True, use_wiki=True,
+    )
+
+    assert [item.retrieval_mode for item in bundle.evidence] == [
+        "wiki_explicit", "vector", "vector", "vector", "wiki_match"
+    ]
+    assert [item.source_id for item in bundle.evidence].count(explicit.id) == 1
+    assert [item.source_id for item in bundle.evidence].count(material_id) == 2
+    assert bundle.evidence[-1].source_id == automatic.id
+    assert [item.citation_key for item in bundle.evidence] == [
+        "S1", "S2", "S3", "S4", "S5"
+    ]
+
+
 def test_wiki_related_point_uses_real_knowledge_id() -> None:
     from app.agents.tutor_agent import TutorAgent
 
@@ -219,6 +289,80 @@ async def test_auto_wiki_matching_requires_text_and_matching_knowledge_id() -> N
 
 
 @pytest.mark.asyncio
+async def test_auto_wiki_matching_rechecks_course_status_and_allowed_owner() -> None:
+    user_id = uuid4()
+    course_id = uuid4()
+    public_owner_id = uuid4()
+    common = {
+        "knowledge_id": None,
+        "title": "栈结构",
+        "summary": "后进先出",
+        "content": "栈支持入栈和出栈。",
+    }
+    user_page = SimpleNamespace(
+        id=uuid4(), course_id=course_id, owner_id=user_id, status="active", **common
+    )
+    public_page = SimpleNamespace(
+        id=uuid4(), course_id=course_id, owner_id=public_owner_id, status="active", **common
+    )
+    wrong_course = SimpleNamespace(
+        id=uuid4(), course_id=uuid4(), owner_id=user_id, status="active", **common
+    )
+    wrong_owner = SimpleNamespace(
+        id=uuid4(), course_id=course_id, owner_id=uuid4(), status="active", **common
+    )
+    inactive = SimpleNamespace(
+        id=uuid4(), course_id=course_id, owner_id=user_id, status="archived", **common
+    )
+    service = EvidenceRetrievalService(db=None)  # type: ignore[arg-type]
+    service.courses = MagicMock()
+    service.courses.get_by_id = AsyncMock(
+        return_value=SimpleNamespace(
+            owner_id=public_owner_id, visibility="public_template", status="active"
+        )
+    )
+    service.wiki = MagicMock()
+    service.wiki.list_by_owners = AsyncMock(
+        return_value=([wrong_course, wrong_owner, inactive, user_page, public_page], 5)
+    )
+
+    pages = await service._load_wiki_pages(
+        course_id=course_id, user_id=user_id, question="栈结构是什么？",
+        knowledge_id=None, wiki_page_id=None,
+    )
+
+    assert pages == [user_page, public_page]
+
+
+@pytest.mark.parametrize(
+    ("item", "terms", "expected_confidence"),
+    [
+        ({"keyword_score": 1.0, "vector_score": 0.0}, ["栈"], "strong"),
+        ({"keyword_score": 0.0, "vector_score": 0.55}, ["栈"], "strong"),
+        (
+            {
+                "keyword_score": 0.0,
+                "vector_score": 0.45,
+                "source_title": "数据结构：栈",
+            },
+            ["栈"],
+            "acceptable",
+        ),
+    ],
+    ids=["keyword-1.0", "vector-0.55", "title-hit-vector-0.45"],
+)
+def test_document_acceptance_includes_exact_confidence_boundaries(
+    item: dict[str, object],
+    terms: list[str],
+    expected_confidence: str,
+) -> None:
+    service = EvidenceRetrievalService(db=None)  # type: ignore[arg-type]
+
+    assert service._accept_document(item, terms) is True
+    assert service._confidence(item) == expected_confidence
+
+
+@pytest.mark.asyncio
 async def test_auto_wiki_matching_returns_empty_when_question_has_no_match() -> None:
     user_id = uuid4()
     course_id = uuid4()
@@ -260,6 +404,7 @@ async def test_explicit_wiki_page_must_be_readable_and_match_knowledge_filter() 
     service.courses.get_by_id = AsyncMock(return_value=None)
     service.wiki = MagicMock()
     service.wiki.get_by_id_simple = AsyncMock(return_value=page)
+    service.wiki.list_by_owners = AsyncMock(return_value=([], 0))
 
     readable = await service._load_wiki_pages(
         course_id=course_id, user_id=user_id, question="完全不同的问题",
