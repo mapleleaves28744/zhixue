@@ -22,6 +22,16 @@ def _keyword_candidate() -> RetrievalCandidate:
     )
 
 
+def _http_status_error(status_code: int) -> httpx.HTTPStatusError:
+    request = httpx.Request("POST", "https://embedding.example/v1/embeddings")
+    response = httpx.Response(status_code, request=request)
+    return httpx.HTTPStatusError(
+        f"embedding provider returned {status_code}",
+        request=request,
+        response=response,
+    )
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "vector_error",
@@ -31,13 +41,32 @@ def _keyword_candidate() -> RetrievalCandidate:
             {},
             Exception('type "vector" does not exist'),
         ),
+        ProgrammingError(
+            "CREATE EXTENSION vector",
+            {},
+            Exception('extension "vector" is not available'),
+        ),
         httpx.ConnectError(
             "embedding provider unavailable",
             request=httpx.Request("POST", "https://embedding.example/v1/embeddings"),
         ),
+        httpx.ReadTimeout(
+            "embedding provider timed out",
+            request=httpx.Request("POST", "https://embedding.example/v1/embeddings"),
+        ),
+        _http_status_error(429),
+        _http_status_error(503),
         RuntimeError("vector unavailable"),
     ],
-    ids=["pgvector-unavailable", "embedding-unavailable", "vector-runtime-unavailable"],
+    ids=[
+        "pgvector-type-missing",
+        "pgvector-extension-missing",
+        "embedding-connect-error",
+        "embedding-timeout",
+        "embedding-http-429",
+        "embedding-http-503",
+        "vector-runtime-unavailable",
+    ],
 )
 async def test_known_vector_unavailability_falls_back_to_keyword_candidates(
     vector_error: Exception,
@@ -73,8 +102,29 @@ async def test_known_vector_unavailability_falls_back_to_keyword_candidates(
     [
         AttributeError("programming bug"),
         RuntimeError("Embedding dimension mismatch: expected 1024, got 768"),
+        _http_status_error(400),
+        _http_status_error(401),
+        _http_status_error(403),
+        ProgrammingError(
+            "SELECT embedding + 1",
+            {},
+            Exception("operator does not exist: vector + integer"),
+        ),
+        ProgrammingError(
+            "SELECT embedding <=> :query_vec",
+            {},
+            Exception("operator does not exist: vector <=> text"),
+        ),
     ],
-    ids=["attribute-error", "unrecognized-runtime-error"],
+    ids=[
+        "attribute-error",
+        "unrecognized-runtime-error",
+        "embedding-http-400",
+        "embedding-http-401",
+        "embedding-http-403",
+        "non-pgvector-operator-mismatch",
+        "wrong-vector-operand-type",
+    ],
 )
 async def test_unknown_vector_error_is_not_hidden_by_keyword_fallback(
     vector_error: Exception,
@@ -83,9 +133,10 @@ async def test_unknown_vector_error_is_not_hidden_by_keyword_fallback(
     retriever._vector_search = AsyncMock(side_effect=vector_error)
     retriever._keyword_search = AsyncMock(return_value=[_keyword_candidate()])
 
-    with pytest.raises(type(vector_error), match=str(vector_error)):
+    with pytest.raises(type(vector_error)) as exc_info:
         await retriever.search(uuid4(), "什么是栈？", uuid4(), top_k=5)
 
+    assert exc_info.value is vector_error
     retriever._keyword_search.assert_not_awaited()
 
 

@@ -58,7 +58,15 @@ class HybridRetriever:
                 top_k=candidate_k,
                 knowledge_id=knowledge_id,
             )
-        except httpx.HTTPError as exc:
+        except httpx.TransportError as exc:
+            logger.warning(
+                "Vector retrieval unavailable; using keyword fallback: %s", exc
+            )
+            vector_candidates = []
+        except httpx.HTTPStatusError as exc:
+            status_code = exc.response.status_code
+            if status_code != 429 and not 500 <= status_code <= 599:
+                raise
             logger.warning(
                 "Vector retrieval unavailable; using keyword fallback: %s", exc
             )
@@ -362,13 +370,14 @@ def _is_pgvector_unavailable(exc: SQLAlchemyError) -> bool:
     pgvector_markers = (
         'type "vector" does not exist',
         "type vector does not exist",
-        'extension "vector"',
-        "extension vector",
-        "operator does not exist",
-        "pgvector unavailable",
-        "pgvector not available",
+        'extension "vector" is not available',
+        'extension "vector" does not exist',
+        'extension "vector" is not installed',
+        "extension vector is not available",
+        "extension vector does not exist",
+        "extension vector is not installed",
     )
-    return "vector" in message and any(marker in message for marker in pgvector_markers)
+    return any(marker in message for marker in pgvector_markers)
 
 
 def _is_embedding_unavailable_runtime(exc: RuntimeError) -> bool:
