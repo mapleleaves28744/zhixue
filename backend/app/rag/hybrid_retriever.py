@@ -45,13 +45,16 @@ class HybridRetriever:
         knowledge_id: UUID | None = None,
     ) -> list[RetrievalCandidate]:
         candidate_k = max(top_k * 8, 30)
-        vector_candidates = await self._vector_search(
-            course_id=course_id,
-            query=query,
-            user_id=user_id,
-            top_k=candidate_k,
-            knowledge_id=knowledge_id,
-        )
+        try:
+            vector_candidates = await self._vector_search(
+                course_id=course_id,
+                query=query,
+                user_id=user_id,
+                top_k=candidate_k,
+                knowledge_id=knowledge_id,
+            )
+        except Exception:
+            vector_candidates = []
         keyword_candidates = await self._keyword_search(
             course_id=course_id,
             query=query,
@@ -309,6 +312,24 @@ def _query_terms(query: str) -> list[str]:
     for term in domain_terms:
         if term.lower() in query.lower():
             terms.append(term)
+
+    generated_count = 0
+    for segment in list(terms):
+        for chinese_run in re.findall(r"[\u4e00-\u9fff]+", segment):
+            for width in range(2, 5):
+                for start in range(0, len(chinese_run) - width + 1):
+                    window = chinese_run[start : start + width]
+                    if window not in terms:
+                        terms.append(window)
+                        generated_count += 1
+                    if generated_count >= 24:
+                        break
+                if generated_count >= 24:
+                    break
+            if generated_count >= 24:
+                break
+        if generated_count >= 24:
+            break
     return list(dict.fromkeys(term.strip() for term in terms if len(term.strip()) >= 1))
 
 

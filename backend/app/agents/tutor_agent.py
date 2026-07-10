@@ -205,7 +205,7 @@ class TutorAgent(BaseAgent):
                 scored.append((score, page))
         if scored:
             return [page for _, page in sorted(scored, key=lambda item: item[0], reverse=True)[:3]]
-        return pages[:3]
+        return []
 
     async def _load_profile(self, user_id: UUID, enabled: bool) -> str:
         if not enabled:
@@ -294,7 +294,13 @@ class TutorAgent(BaseAgent):
         question: str,
         wiki_pages: list[WikiPage],
     ) -> list[dict[str, str | None]]:
-        related = [{"knowledge_id": str(page.id), "name": page.title} for page in wiki_pages[:3]]
+        related = [
+            {
+                "knowledge_id": str(page.knowledge_id) if page.knowledge_id else None,
+                "name": page.title,
+            }
+            for page in wiki_pages[:3]
+        ]
         keyword_map = {
             "递归": "递归调用栈",
             "栈": "栈",

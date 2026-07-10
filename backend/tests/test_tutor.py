@@ -70,11 +70,13 @@ def test_tutor_agent_formats_graph_context() -> None:
 
 def test_tutor_agent_builds_wiki_related_points() -> None:
     agent = TutorAgent(db=None)  # type: ignore[arg-type]
-    wiki_page = SimpleNamespace(id=uuid4(), title="递归调用栈")
+    knowledge_id = uuid4()
+    wiki_page = SimpleNamespace(id=uuid4(), knowledge_id=knowledge_id, title="递归调用栈")
 
     related = agent._related_knowledge_points("Why is recursion related to stack?", [wiki_page])
 
     assert related[0]["name"] == "递归调用栈"
+    assert related[0]["knowledge_id"] == str(knowledge_id)
 
 
 def test_tutor_service_formats_citations() -> None:
