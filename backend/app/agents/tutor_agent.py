@@ -6,7 +6,6 @@ from uuid import UUID
 from app.agents.base_agent import BaseAgent
 from app.agents.context import AgentContext, AgentResult
 from app.agents.registry import AgentRegistry
-from app.llm import ChatMessage, get_llm_provider
 from app.models.wiki import WikiPage
 from app.rag.graph_retriever import GraphRetriever
 from app.repositories.course_repository import CourseRepository
@@ -22,48 +21,28 @@ class TutorAgent(BaseAgent):
     description = "基于 RAG、Wiki、画像和记忆的课程问答"
 
     async def run(self, context: AgentContext) -> AgentResult:
-        try:
-            prepared = await self.prepare_chat_context(context)
-        except ValueError:
+        question = str(context.params.get("question") or "").strip()
+        if not question:
             return self.error_result(message="缺少 question 参数")
 
-        llm = get_llm_provider(
-            db=self.db,
-            user_id=context.user_id,
-            course_id=context.course_id,
-            agent_run_id=context.run_id,
-        )
-        response = await llm.chat(
-            [ChatMessage(role="user", content=prepared["prompt"])],
-            temperature=0.7,
-            max_tokens=2048,
-            prompt_version_id=prepared["prompt_version_id"],
-        )
-        response_meta = response.raw or {}
+        from app.models.user import User
+        from app.schemas.tutor import TutorChatRequest
+        from app.services.grounded_qa_pipeline import GroundedQaPipeline
+        from sqlalchemy import select
 
-        answer = self.finalize_answer(response.content, prepared["citations"])
-
+        user = (
+            await self.db.execute(select(User).where(User.id == context.user_id))
+        ).scalar_one()
+        response = await GroundedQaPipeline(self.db).answer(
+            TutorChatRequest.model_validate(
+                {"course_id": context.course_id, **context.params}
+            ),
+            user,
+        )
         return self.success_result(
-            data={
-                "answer": answer,
-                "model": response.model,
-                "citations": prepared["citations"],
-                "related_knowledge_points": prepared["related_knowledge_points"],
-                "follow_up_questions": prepared["follow_up_questions"],
-                "save_to_wiki_candidate": self._save_candidate(prepared["question"], answer),
-                "agent_run_id": str(context.run_id) if context.run_id else None,
-                "provider": response.provider,
-                "fallback_used": bool(response_meta.get("fallback_used")),
-                "failed_provider": response_meta.get("failed_provider"),
-                "fallback_reason": response_meta.get("fallback_reason"),
-                "memory_update_suggestion": {
-                    "should_reflect": True,
-                    "reason": "本次问答可作为学生关注知识点和解释偏好的证据。",
-                },
-                "graph_context": prepared.get("graph_context") or {},
-            },
+            data=response.model_dump(mode="json"),
             message="问答完成",
-            evidence=prepared["evidence"],
+            evidence=response.citations,  # type: ignore[arg-type]
         )
 
     async def prepare_chat_context(self, context: AgentContext) -> dict[str, Any]:

@@ -4,10 +4,14 @@ from __future__ import annotations
 import asyncio
 import json
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 from uuid import uuid4
+
+import pytest
 
 from app.api.v1.tutor import _stream_tutor_chat
 from app.agents.tutor_agent import TutorAgent
+from app.agents.context import AgentContext
 from app.schemas.tutor import (
     TutorChatRequest,
     TutorChatResponse,
@@ -77,6 +81,48 @@ def test_tutor_agent_builds_wiki_related_points() -> None:
 
     assert related[0]["name"] == "递归调用栈"
     assert related[0]["knowledge_id"] == str(knowledge_id)
+
+
+@pytest.mark.asyncio
+async def test_tutor_agent_run_delegates_to_grounded_pipeline(monkeypatch) -> None:
+    user_id = uuid4()
+    course_id = uuid4()
+    user = SimpleNamespace(id=user_id, role="student")
+    response = TutorChatResponse(answer="栈遵循后进先出。", provider="mock")
+    answer = AsyncMock(return_value=response)
+
+    class FakePipeline:
+        def __init__(self, db: object) -> None:
+            self.db = db
+
+        async def answer(self, payload: TutorChatRequest, current_user: object):
+            return await answer(payload, current_user)
+
+    class FakeResult:
+        def scalar_one(self) -> object:
+            return user
+
+    class FakeDB:
+        async def execute(self, statement: object) -> FakeResult:
+            return FakeResult()
+
+    import app.services.grounded_qa_pipeline as pipeline_module
+
+    monkeypatch.setattr(pipeline_module, "GroundedQaPipeline", FakePipeline)
+    result = await TutorAgent(FakeDB()).run(  # type: ignore[arg-type]
+        AgentContext(
+            user_id=user_id,
+            course_id=course_id,
+            task_type="course_qa",
+            params={"question": "什么是栈？"},
+        )
+    )
+
+    assert result.success is True
+    delegated_payload, delegated_user = answer.await_args.args
+    assert delegated_payload.course_id == course_id
+    assert delegated_payload.question == "什么是栈？"
+    assert delegated_user is user
 
 
 def test_tutor_service_formats_citations() -> None:

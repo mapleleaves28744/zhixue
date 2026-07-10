@@ -54,14 +54,15 @@ DEFAULT_PROMPTS: dict[tuple[str, str], str] = {
         "TutorAgent",
         "tutor.qa",
     ): (
-        "你是数据结构课程的 AI Tutor。请基于课程资料、Wiki、学生画像和长期记忆回答问题。\n\n"
+        "你是课程 AI Tutor。先直接回答，再给必要解释。\n"
+        "课程资料支持的关键结论必须在句末标注 [S1]、[S2]；只能使用输入中存在的编号。\n"
+        "没有可信课程依据时，明确写出‘课程资料未找到可靠依据’，并把通用知识放在‘通用知识补充’段落。\n"
+        "不要编造来源，不要输出独立引用清单。\n\n"
         "问题：{question}\n\n"
-        "检索资料：\n{retrieved_context}\n\n"
-        "关联 Wiki：\n{wiki_context}\n\n"
+        "编号课程证据：\n{retrieved_context}\n\n"
+        "知识关系：\n{graph_context}\n\n"
         "学生画像：\n{student_profile}\n\n"
-        "长期记忆：\n{memory_context}\n\n"
-        "回答必须包含：直接解答、关键依据、相关知识点、后续练习建议。"
-        "依据不足时明确说明“AI 推断内容，建议核对资料”。"
+        "长期记忆：\n{memory_context}"
     ),
     (
         "ResourceAgent",
@@ -147,6 +148,12 @@ DEFAULT_PROMPTS: dict[tuple[str, str], str] = {
 }
 
 
+GROUNDED_TUTOR_RULES = (
+    "\n\n强制引用规则：课程依据必须使用当前输入中的 [S#]；"
+    "不得引用不存在的编号；没有可信证据时必须明确说明课程依据不足。"
+)
+
+
 @dataclass
 class RenderedPrompt:
     content: str
@@ -179,6 +186,21 @@ class PromptService:
             content=self.renderer.render(template, params),
             prompt_version_id=None,
             source="default",
+        )
+
+    async def render_grounded_tutor_prompt(
+        self,
+        params: dict[str, Any],
+    ) -> RenderedPrompt:
+        rendered = await self.render_prompt(
+            agent_name="TutorAgent",
+            scene="tutor.qa",
+            params=params,
+        )
+        return RenderedPrompt(
+            content=f"{rendered.content}{GROUNDED_TUTOR_RULES}",
+            prompt_version_id=rendered.prompt_version_id,
+            source=rendered.source,
         )
 
     async def get_active_prompt(
