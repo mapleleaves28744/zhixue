@@ -241,3 +241,228 @@ async def _test_tutor_sse_empty_answer_emits_error_not_empty_delta() -> None:
     assert chunks == [
         f"event: error\ndata: {json.dumps({'message': 'Tutor 回答为空'}, ensure_ascii=False)}\n\n"
     ]
+
+
+@pytest.mark.asyncio
+async def test_tutor_service_chat_and_stream_are_thin_pipeline_delegates(
+    monkeypatch,
+) -> None:
+    expected = TutorChatResponse(answer="来自统一管线")
+    answer = AsyncMock(return_value=expected)
+    stream_calls: list[tuple[object, object]] = []
+
+    class FakePipeline:
+        def __init__(self, db: object) -> None:
+            self.db = db
+
+        async def answer(self, payload, current_user):
+            return await answer(payload, current_user)
+
+        async def stream(self, payload, current_user):
+            stream_calls.append((payload, current_user))
+            async for event in _async_events(
+                [
+                    {"event": "delta", "data": {"content": "流式"}},
+                    {"event": "done", "data": expected.model_dump(mode="json")},
+                ]
+            ):
+                yield event
+
+    import app.services.tutor_service as tutor_module
+
+    monkeypatch.setattr(tutor_module, "GroundedQaPipeline", FakePipeline, raising=False)
+    service = TutorService(db=SimpleNamespace())  # type: ignore[arg-type]
+    payload = TutorChatRequest(course_id=uuid4(), question="什么是栈？")
+    user = SimpleNamespace(id=uuid4(), role="student")
+
+    assert await service.chat(payload=payload, current_user=user) is expected
+    events = [event async for event in service.stream_chat(payload=payload, current_user=user)]
+
+    answer.assert_awaited_once_with(payload, user)
+    assert stream_calls == [(payload, user)]
+    assert [event["event"] for event in events] == ["delta", "done"]
+
+
+async def _async_events(events):
+    for event in events:
+        yield event
+
+
+@pytest.mark.asyncio
+async def test_publish_chat_completed_enqueues_validated_citations(monkeypatch) -> None:
+    from app.services import chat_knowledge_pipeline as module
+
+    bus = SimpleNamespace(publish=AsyncMock())
+    monkeypatch.setattr("app.core.event_bus.get_event_bus", lambda: bus)
+    citations = [{"citation_key": "S1", "source_type": "document", "title": "栈讲义"}]
+
+    await module.publish_chat_completed(
+        user_id=uuid4(),
+        course_id=uuid4(),
+        question="什么是栈？",
+        answer="后进先出 [S1]。",
+        citations=citations,
+    )
+
+    data = bus.publish.await_args.args[1]
+    assert data["citations"] == citations
+
+
+@pytest.mark.asyncio
+async def test_event_bus_publish_only_enqueues_without_waiting_for_handler() -> None:
+    from app.core.event_bus import EventBus
+
+    bus = EventBus()
+    handler_called = asyncio.Event()
+
+    async def slow_handler(event):
+        handler_called.set()
+        await asyncio.sleep(10)
+
+    bus.subscribe("chat_completed", slow_handler)
+
+    event = await asyncio.wait_for(
+        bus.publish("chat_completed", {"answer": "完成"}), timeout=0.1
+    )
+
+    assert event.event_type == "chat_completed"
+    assert bus._queue.qsize() == 1
+    assert handler_called.is_set() is False
+
+
+@pytest.mark.asyncio
+async def test_tutor_postprocess_runs_review_and_memory_before_commit(monkeypatch) -> None:
+    from app.core.event_bus import Event
+    from app.services.agent_service import AgentService
+    from app.services.memory_service import MemoryService
+    from app.services.tutor_postprocess_service import TutorPostprocessService
+
+    review = AsyncMock(return_value=SimpleNamespace(success=True))
+    reflect = AsyncMock(return_value=[])
+    monkeypatch.setattr(AgentService, "run_task", review)
+    monkeypatch.setattr(MemoryService, "reflect", reflect)
+    db = SimpleNamespace(commit=AsyncMock())
+    user_id = uuid4()
+    course_id = uuid4()
+
+    await TutorPostprocessService(db).run(  # type: ignore[arg-type]
+        Event(
+            event_type="chat_completed",
+            data={
+                "user_id": user_id,
+                "course_id": course_id,
+                "answer": "后进先出 [S1]。",
+                "citations": [{"citation_key": "S1", "title": "栈讲义"}],
+            },
+        )
+    )
+
+    assert review.await_args.kwargs["task_type"] == "review_content"
+    assert "S1" in review.await_args.kwargs["params"]["content"]
+    reflect.assert_awaited_once_with(user_id, course_id)
+    db.commit.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_chat_postprocess_uses_session_independent_from_mastery(monkeypatch) -> None:
+    from app.core.event_bus import Event
+    from app.core.event_handlers import on_chat_completed
+    from app.services.mastery_service import MasteryService
+    from app.services.tutor_postprocess_service import TutorPostprocessService
+
+    sessions = [
+        SimpleNamespace(commit=AsyncMock()),
+        SimpleNamespace(commit=AsyncMock()),
+        SimpleNamespace(commit=AsyncMock()),
+    ]
+    entered: list[object] = []
+
+    class SessionContext:
+        def __init__(self, db):
+            self.db = db
+
+        async def __aenter__(self):
+            entered.append(self.db)
+            return self.db
+
+        async def __aexit__(self, *args):
+            return False
+
+    def session_factory():
+        return SessionContext(sessions[len(entered)])
+
+    monkeypatch.setattr("app.db.session.AsyncSessionLocal", session_factory)
+    monkeypatch.setattr(MasteryService, "sync_profile_snapshot", AsyncMock())
+    monkeypatch.setattr(
+        "app.services.profile_service.ProfileService.ingest_dialogue_profile",
+        AsyncMock(),
+    )
+    postprocess_run = AsyncMock()
+    monkeypatch.setattr(TutorPostprocessService, "run", postprocess_run)
+
+    await on_chat_completed(
+        Event(
+            event_type="chat_completed",
+            data={
+                "user_id": uuid4(),
+                "course_id": uuid4(),
+                "question": "什么是栈？",
+                "answer": "栈遵循后进先出。",
+                "skip_graph_extract": True,
+            },
+        )
+    )
+
+    assert entered == sessions
+    assert postprocess_run.await_args.args[0] is not None
+    assert postprocess_run.await_args.args[0].event_type == "chat_completed"
+
+
+@pytest.mark.asyncio
+async def test_chat_greeting_skips_deep_postprocess_and_graph(monkeypatch) -> None:
+    from app.core.event_bus import Event
+    from app.core.event_handlers import on_chat_completed
+    from app.services.tutor_postprocess_service import TutorPostprocessService
+
+    postprocess_run = AsyncMock()
+    graph_extract = AsyncMock()
+    monkeypatch.setattr(TutorPostprocessService, "run", postprocess_run)
+    monkeypatch.setattr(
+        "app.workers.knowledge_extract_worker.handle_chat_completed", graph_extract
+    )
+
+    await on_chat_completed(
+        Event(
+            event_type="chat_completed",
+            data={
+                "user_id": uuid4(),
+                "course_id": uuid4(),
+                "question": "嗨！",
+                "answer": "你好！",
+            },
+        )
+    )
+
+    postprocess_run.assert_not_awaited()
+    graph_extract.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_router_keeps_partial_delta_then_emits_error() -> None:
+    class BrokenStreamingService:
+        async def stream_chat(self, *args, **kwargs):
+            yield {"event": "delta", "data": {"content": "已经生成的部分"}}
+            raise RuntimeError("provider stream interrupted")
+
+    chunks = [
+        chunk
+        async for chunk in _stream_tutor_chat(
+            BrokenStreamingService(),  # type: ignore[arg-type]
+            TutorChatRequest(course_id=uuid4(), question="什么是栈？", stream=True),
+            SimpleNamespace(id=uuid4(), role="student"),
+        )
+    ]
+
+    assert "已经生成的部分" in chunks[0]
+    assert chunks[-1].startswith("event: error")
+    assert "provider stream interrupted" in chunks[-1]

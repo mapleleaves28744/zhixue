@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import logging
+from collections.abc import AsyncIterator
+from types import SimpleNamespace
 from time import perf_counter
 from typing import Any
 from uuid import UUID
@@ -32,6 +35,8 @@ from app.services.learning_record_service import LearningRecordService
 from app.services.personalization_context_service import PersonalizationContextService
 from app.services.prompt_service import PromptService
 
+logger = logging.getLogger(__name__)
+
 
 class GroundedQaPipeline:
     def __init__(self, db: AsyncSession) -> None:
@@ -51,17 +56,144 @@ class GroundedQaPipeline:
         persist_conversation_messages: bool = True,
         agent_run_id: UUID | None = None,
     ) -> TutorChatResponse:
+        response, course = await self._answer_without_persistence(
+            payload,
+            current_user,
+            agent_run_id=agent_run_id,
+        )
+        return await self._finalize_persistence(
+            response=response,
+            payload=payload,
+            current_user=current_user,
+            course=course,
+            persist_conversation_messages=persist_conversation_messages,
+        )
+
+    async def stream(
+        self,
+        payload: TutorChatRequest,
+        current_user: User,
+        *,
+        persist_conversation_messages: bool = True,
+    ) -> AsyncIterator[dict[str, Any]]:
         started = perf_counter()
+        yield {
+            "event": "progress",
+            "data": {"stage": "retrieve_context", "message": "正在检索课程依据"},
+        }
         course = await self._authorize(payload, current_user)
         if is_simple_greeting(payload.question):
-            return await self._answer_greeting(
+            yield {
+                "event": "progress",
+                "data": {"stage": "llm_generation", "message": "正在生成回答"},
+            }
+            answer = simple_greeting_answer()
+            yield {"event": "delta", "data": {"content": answer}}
+            yield {
+                "event": "progress",
+                "data": {"stage": "validate_citations", "message": "正在核验引用"},
+            }
+            response = await self._complete_greeting_and_persist(
+                answer=answer,
                 payload=payload,
                 current_user=current_user,
                 course=course,
-                persist_conversation_messages=persist_conversation_messages,
                 started=started,
-                agent_run_id=agent_run_id,
+                persist_conversation_messages=persist_conversation_messages,
             )
+            yield {"event": "done", "data": response.model_dump(mode="json")}
+            return
+
+        run = None
+        if callable(getattr(self.db, "add", None)):
+            run = await self.logs.start_run(
+                task_type="course_qa",
+                agent_name="TutorAgent",
+                input_payload={"params": payload.model_dump(mode="json")},
+                user_id=current_user.id,
+                course_id=course.id,
+            )
+        self._agent_run_id = run.id if run is not None else None
+        try:
+            retrieval_started = perf_counter()
+            bundle = await self._retrieve(payload, current_user)
+            retrieval_ms = int((perf_counter() - retrieval_started) * 1000)
+            yield {"event": "evidence", "data": self._evidence_event(bundle)}
+            yield {
+                "event": "progress",
+                "data": {
+                    "stage": "llm_generation",
+                    "message": "正在基于课程依据生成回答",
+                },
+            }
+            provider, prompt, prompt_version_id = await self._build_generation(
+                bundle, payload, current_user
+            )
+            chunks: list[str] = []
+            first_token_ms: int | None = None
+            generation_started = perf_counter()
+            async for chunk in provider.stream_chat(
+                [ChatMessage(role="user", content=prompt)],
+                temperature=0.2,
+                max_tokens=1200,
+                thinking={"type": "disabled"},
+                prompt_version_id=prompt_version_id,
+            ):
+                if not chunk:
+                    continue
+                if first_token_ms is None:
+                    first_token_ms = int((perf_counter() - started) * 1000)
+                chunks.append(chunk)
+                yield {"event": "delta", "data": {"content": chunk}}
+            yield {
+                "event": "progress",
+                "data": {"stage": "validate_citations", "message": "正在核验引用"},
+            }
+            response = await self._complete_and_persist(
+                answer="".join(chunks),
+                bundle=bundle,
+                payload=payload,
+                current_user=current_user,
+                course=course,
+                provider=provider,
+                retrieval_ms=retrieval_ms,
+                first_token_ms=first_token_ms,
+                generation_ms=int((perf_counter() - generation_started) * 1000),
+                total_ms=int((perf_counter() - started) * 1000),
+                persist_conversation_messages=persist_conversation_messages,
+            )
+            if run is not None:
+                await self._finish_stream_run(
+                    run_id=run.id,
+                    output_payload=response.model_dump(mode="json"),
+                    status="success",
+                    duration_ms=response.performance.total_ms,
+                )
+            yield {"event": "done", "data": response.model_dump(mode="json")}
+        except Exception as exc:
+            if run is not None:
+                await self._finish_stream_run(
+                    run_id=run.id,
+                    output_payload={},
+                    status="failed",
+                    duration_ms=int((perf_counter() - started) * 1000),
+                    error_message=str(exc),
+                )
+            raise
+        finally:
+            self._agent_run_id = None
+
+    async def _answer_without_persistence(
+        self,
+        payload: TutorChatRequest,
+        current_user: User,
+        *,
+        agent_run_id: UUID | None = None,
+    ) -> tuple[TutorChatResponse, Course]:
+        started = perf_counter()
+        course = await self._authorize(payload, current_user)
+        if is_simple_greeting(payload.question):
+            return self._greeting_response(started, agent_run_id), course
 
         manages_run = agent_run_id is None
         if manages_run:
@@ -89,49 +221,20 @@ class GroundedQaPipeline:
                 thinking={"type": "disabled"},
                 prompt_version_id=prompt_version_id,
             )
-            answer = llm_response.content.strip()
-            validated = self.validator.validate(answer, bundle.evidence)
-            if validated.unknown_keys:
-                for key in validated.unknown_keys:
-                    answer = answer.replace(f"[{key}]", "")
-                answer = answer.strip()
-                if bundle.evidence:
-                    validated = CitationValidationResult(
-                        citations=validated.citations,
-                        unknown_keys=validated.unknown_keys,
-                        grounding_status="partial",
-                        grounding_message="回答中的未知引用编号已移除，部分内容需核对课程资料。",
-                    )
-            performance = TutorPerformance(
-                retrieval_ms=retrieval_ms,
-                first_token_ms=None,
-                generation_ms=int((perf_counter() - generation_started) * 1000),
-                total_ms=int((perf_counter() - started) * 1000),
-                llm_call_count=1,
-                evidence_candidate_count=bundle.candidate_count,
-                evidence_accepted_count=len(bundle.evidence),
-            )
-            response = self._build_response(
-                answer=answer,
-                validation=validated,
+            response = self._complete_response(
+                answer=llm_response.content.strip(),
                 bundle=bundle,
                 payload=payload,
                 llm_response=llm_response,
-                performance=performance,
-            ).model_copy(update={"agent_run_id": agent_run_id})
-            message_id, conversation_id = await self._persist(
-                response=response,
-                payload=payload,
-                current_user=current_user,
-                course=course,
-                persist_conversation_messages=persist_conversation_messages,
-            )
-            response = response.model_copy(
-                update={
-                    "message_id": message_id,
-                    "conversation_id": conversation_id,
-                    "postprocess_status": "queued" if message_id else "skipped",
-                }
+                performance=TutorPerformance(
+                    retrieval_ms=retrieval_ms,
+                    generation_ms=int((perf_counter() - generation_started) * 1000),
+                    total_ms=int((perf_counter() - started) * 1000),
+                    llm_call_count=1,
+                    evidence_candidate_count=bundle.candidate_count,
+                    evidence_accepted_count=len(bundle.evidence),
+                ),
+                agent_run_id=agent_run_id,
             )
             if manages_run and agent_run_id is not None:
                 await self.logs.finish_run(
@@ -140,13 +243,13 @@ class GroundedQaPipeline:
                         **response.model_dump(mode="json"),
                         "evidence_candidate_count": bundle.candidate_count,
                         "evidence_accepted_count": len(bundle.evidence),
-                        "grounding_status": validated.grounding_status,
+                        "grounding_status": response.grounding_status,
                     },
                     status="success",
-                    duration_ms=int((perf_counter() - started) * 1000),
+                    duration_ms=response.performance.total_ms,
                     error_message=None,
                 )
-            return response
+            return response, course
         except Exception as exc:
             if manages_run and agent_run_id is not None:
                 await self.logs.finish_run(
@@ -160,18 +263,15 @@ class GroundedQaPipeline:
         finally:
             self._agent_run_id = None
 
-    async def _answer_greeting(
+    def _greeting_response(
         self,
-        *,
-        payload: TutorChatRequest,
-        current_user: User,
-        course: Course,
-        persist_conversation_messages: bool,
         started: float,
-        agent_run_id: UUID | None,
+        agent_run_id: UUID | None = None,
+        *,
+        answer: str | None = None,
     ) -> TutorChatResponse:
-        response = TutorChatResponse(
-            answer=simple_greeting_answer(),
+        return TutorChatResponse(
+            answer=answer or simple_greeting_answer(),
             provider="local_intent_router",
             agent_run_id=agent_run_id,
             review_result={
@@ -188,19 +288,209 @@ class GroundedQaPipeline:
                 llm_call_count=0,
             ),
         )
-        message_id, conversation_id = await self._persist(
+
+    async def _complete_greeting_and_persist(
+        self,
+        *,
+        answer: str,
+        payload: TutorChatRequest,
+        current_user: User,
+        course: Course,
+        started: float,
+        persist_conversation_messages: bool,
+    ) -> TutorChatResponse:
+        return await self._finalize_persistence(
+            response=self._greeting_response(started, answer=answer),
+            payload=payload,
+            current_user=current_user,
+            course=course,
+            persist_conversation_messages=persist_conversation_messages,
+        )
+
+    async def _complete_and_persist(
+        self,
+        *,
+        answer: str,
+        bundle: EvidenceBundle,
+        payload: TutorChatRequest,
+        current_user: User,
+        course: Course,
+        provider: object,
+        retrieval_ms: int,
+        first_token_ms: int | None,
+        generation_ms: int,
+        total_ms: int,
+        persist_conversation_messages: bool,
+    ) -> TutorChatResponse:
+        inner = getattr(provider, "inner", provider)
+        llm_response = SimpleNamespace(
+            model=getattr(inner, "_model", None),
+            provider=getattr(inner, "provider_name", getattr(provider, "provider_name", None)),
+            raw={
+                "fallback_used": bool(getattr(provider, "fallback_used", False)),
+                "failed_provider": getattr(provider, "failed_provider", None),
+                "fallback_reason": getattr(provider, "fallback_reason", None),
+            },
+        )
+        response = self._complete_response(
+            answer=answer,
+            bundle=bundle,
+            payload=payload,
+            llm_response=llm_response,
+            performance=TutorPerformance(
+                retrieval_ms=retrieval_ms,
+                first_token_ms=first_token_ms,
+                generation_ms=generation_ms,
+                total_ms=total_ms,
+                llm_call_count=1,
+                evidence_candidate_count=bundle.candidate_count,
+                evidence_accepted_count=len(bundle.evidence),
+            ),
+            agent_run_id=self._agent_run_id,
+        )
+        return await self._finalize_persistence(
             response=response,
             payload=payload,
             current_user=current_user,
             course=course,
             persist_conversation_messages=persist_conversation_messages,
         )
-        return response.model_copy(
+
+    def _complete_response(
+        self,
+        *,
+        answer: str,
+        bundle: EvidenceBundle,
+        payload: TutorChatRequest,
+        llm_response: object,
+        performance: TutorPerformance,
+        agent_run_id: UUID | None,
+    ) -> TutorChatResponse:
+        answer = answer.strip()
+        if not answer:
+            raise RuntimeError("Tutor 回答为空")
+        validated = self.validator.validate(answer, bundle.evidence)
+        if validated.unknown_keys:
+            for key in validated.unknown_keys:
+                answer = answer.replace(f"[{key}]", "")
+            answer = answer.strip()
+            if bundle.evidence:
+                validated = CitationValidationResult(
+                    citations=validated.citations,
+                    unknown_keys=validated.unknown_keys,
+                    grounding_status="partial",
+                    grounding_message="回答中的未知引用编号已移除，部分内容需核对课程资料。",
+                )
+        return self._build_response(
+            answer=answer,
+            validation=validated,
+            bundle=bundle,
+            payload=payload,
+            llm_response=llm_response,
+            performance=performance,
+        ).model_copy(update={"agent_run_id": agent_run_id})
+
+    async def _finish_stream_run(
+        self,
+        *,
+        run_id: UUID,
+        output_payload: dict[str, Any],
+        status: str,
+        duration_ms: int,
+        error_message: str | None = None,
+    ) -> None:
+        try:
+            await self.logs.finish_run(
+                run_id=run_id,
+                output_payload=output_payload,
+                status=status,
+                duration_ms=duration_ms,
+                error_message=error_message,
+            )
+            await self.db.commit()
+        except Exception:
+            rollback = getattr(self.db, "rollback", None)
+            if rollback is not None:
+                await rollback()
+
+    async def _finalize_persistence(
+        self,
+        *,
+        response: TutorChatResponse,
+        payload: TutorChatRequest,
+        current_user: User,
+        course: Course,
+        persist_conversation_messages: bool,
+    ) -> TutorChatResponse:
+        message_id, conversation_id = await self._safe_persist(
+            response=response,
+            payload=payload,
+            current_user=current_user,
+            course=course,
+            persist_conversation_messages=persist_conversation_messages,
+        )
+        completed = response.model_copy(
             update={
                 "message_id": message_id,
                 "conversation_id": conversation_id,
                 "postprocess_status": "queued" if message_id else "skipped",
             }
+        )
+        if message_id is not None:
+            try:
+                await self._publish_postprocess(
+                    response=completed,
+                    payload=payload,
+                    current_user=current_user,
+                    course=course,
+                )
+            except Exception:
+                logger.exception("grounded Tutor postprocess enqueue failed")
+        return completed
+
+    async def _safe_persist(
+        self,
+        *,
+        response: TutorChatResponse,
+        payload: TutorChatRequest,
+        current_user: User,
+        course: Course,
+        persist_conversation_messages: bool,
+    ) -> tuple[UUID | None, UUID | None]:
+        try:
+            return await self._persist(
+                response=response,
+                payload=payload,
+                current_user=current_user,
+                course=course,
+                persist_conversation_messages=persist_conversation_messages,
+            )
+        except Exception:
+            rollback = getattr(self.db, "rollback", None)
+            if rollback is not None:
+                await rollback()
+            return None, payload.conversation_id
+
+    async def _publish_postprocess(
+        self,
+        *,
+        response: TutorChatResponse,
+        payload: TutorChatRequest,
+        current_user: User,
+        course: Course,
+    ) -> None:
+        from app.services.chat_knowledge_pipeline import publish_chat_completed
+
+        await publish_chat_completed(
+            user_id=current_user.id,
+            course_id=course.id,
+            question=payload.question,
+            answer=response.answer,
+            citations=[item.model_dump(mode="json") for item in response.citations],
+            knowledge_id=payload.knowledge_id,
+            message_id=str(response.message_id) if response.message_id else None,
+            extract_result=None,
+            source="grounded_qa_pipeline",
         )
 
     async def _authorize(
@@ -318,8 +608,83 @@ class GroundedQaPipeline:
         course: Course,
         persist_conversation_messages: bool,
     ) -> tuple[UUID | None, UUID | None]:
-        del response, current_user, course, persist_conversation_messages
-        return None, payload.conversation_id
+        conversation = None
+        try:
+            if persist_conversation_messages:
+                if payload.conversation_id is not None:
+                    conversation = await self.conversations.get_for_user(
+                        payload.conversation_id, current_user.id
+                    )
+                    if conversation is None:
+                        raise ValueError("conversation does not belong to current user")
+                    if getattr(conversation, "course_id", course.id) != course.id:
+                        raise ValueError("conversation does not belong to current course")
+                else:
+                    conversation = await self.conversations.create(
+                        user_id=current_user.id,
+                        course_id=course.id,
+                        title=payload.question[:80],
+                    )
+                await self.conversations.add_message(
+                    conversation=conversation,
+                    user_id=current_user.id,
+                    role="user",
+                    content=payload.question,
+                    message_type="text",
+                    payload={"course_id": str(course.id)},
+                )
+
+            response_payload = response.model_dump(mode="json")
+            record = await self.records.record_event(
+                user_id=current_user.id,
+                course_id=course.id,
+                knowledge_id=payload.knowledge_id,
+                event_type="chat",
+                event_source="tutor",
+                event_payload={
+                    "question": payload.question,
+                    **response_payload,
+                },
+                commit=False,
+            )
+            if conversation is not None:
+                assistant_payload = {
+                    **response_payload,
+                    "learning_record_id": str(record.id),
+                    "message_id": str(record.id),
+                    "conversation_id": str(conversation.id),
+                    "postprocess_status": "queued",
+                }
+                await self.conversations.add_message(
+                    conversation=conversation,
+                    user_id=current_user.id,
+                    role="assistant",
+                    content=response.answer,
+                    message_type="tutor",
+                    payload=assistant_payload,
+                )
+
+            await self.db.commit()
+            await self.db.refresh(record)
+            if conversation is not None:
+                await self.db.refresh(conversation)
+            conversation_id = (
+                conversation.id if conversation is not None else payload.conversation_id
+            )
+            return record.id, conversation_id
+        except Exception:
+            rollback = getattr(self.db, "rollback", None)
+            if rollback is not None:
+                await rollback()
+            return None, payload.conversation_id
+
+    def _evidence_event(self, bundle: EvidenceBundle) -> dict[str, Any]:
+        return {
+            "citations": [item.as_citation() for item in bundle.evidence],
+            "candidate_count": bundle.candidate_count,
+            "accepted_count": len(bundle.evidence),
+            "graph_context": self._graph_context_payload(bundle.graph_context),
+        }
 
     def _format_evidence(self, evidence: list[EvidenceItem]) -> str:
         if not evidence:
