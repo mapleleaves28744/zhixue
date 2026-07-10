@@ -38,11 +38,15 @@ class TutorAgent(BaseAgent):
                 {"course_id": context.course_id, **context.params}
             ),
             user,
+            agent_run_id=context.run_id,
         )
         return self.success_result(
             data=response.model_dump(mode="json"),
             message="问答完成",
-            evidence=response.citations,  # type: ignore[arg-type]
+            evidence=[
+                f"[{citation.citation_key or citation.source_type}] {citation.title}"
+                for citation in response.citations
+            ],
         )
 
     async def prepare_chat_context(self, context: AgentContext) -> dict[str, Any]:

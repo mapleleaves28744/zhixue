@@ -87,16 +87,37 @@ def test_tutor_agent_builds_wiki_related_points() -> None:
 async def test_tutor_agent_run_delegates_to_grounded_pipeline(monkeypatch) -> None:
     user_id = uuid4()
     course_id = uuid4()
+    run_id = uuid4()
     user = SimpleNamespace(id=user_id, role="student")
-    response = TutorChatResponse(answer="栈遵循后进先出。", provider="mock")
+    response = TutorChatResponse(
+        answer="栈遵循后进先出。",
+        provider="mock",
+        citations=[
+            {
+                "citation_key": "S1",
+                "source_type": "document",
+                "title": "栈讲义",
+            }
+        ],
+    )
     answer = AsyncMock(return_value=response)
 
     class FakePipeline:
         def __init__(self, db: object) -> None:
             self.db = db
 
-        async def answer(self, payload: TutorChatRequest, current_user: object):
-            return await answer(payload, current_user)
+        async def answer(
+            self,
+            payload: TutorChatRequest,
+            current_user: object,
+            *,
+            agent_run_id=None,
+        ):
+            return await answer(
+                payload,
+                current_user,
+                agent_run_id=agent_run_id,
+            )
 
     class FakeResult:
         def scalar_one(self) -> object:
@@ -115,6 +136,7 @@ async def test_tutor_agent_run_delegates_to_grounded_pipeline(monkeypatch) -> No
             course_id=course_id,
             task_type="course_qa",
             params={"question": "什么是栈？"},
+            run_id=run_id,
         )
     )
 
@@ -123,6 +145,10 @@ async def test_tutor_agent_run_delegates_to_grounded_pipeline(monkeypatch) -> No
     assert delegated_payload.course_id == course_id
     assert delegated_payload.question == "什么是栈？"
     assert delegated_user is user
+    assert answer.await_args.kwargs["agent_run_id"] == run_id
+    assert all(isinstance(item, str) for item in result.evidence)
+    assert "S1" in result.evidence[0]
+    assert "栈讲义" in result.evidence[0]
 
 
 def test_tutor_service_formats_citations() -> None:

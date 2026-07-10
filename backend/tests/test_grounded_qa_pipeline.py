@@ -11,7 +11,11 @@ from app.rag.evidence import EvidenceBundle, EvidenceItem, GraphContext
 from app.schemas.tutor import TutorChatRequest
 from app.services.grounded_qa_pipeline import GroundedQaPipeline
 from app.services.personalization_context_service import PersonalizationContextService
-from app.services.prompt_service import GROUNDED_TUTOR_RULES, PromptService
+from app.services.prompt_service import (
+    GROUNDED_TUTOR_RULES,
+    PromptService,
+    RenderedPrompt,
+)
 
 
 class _PromptResult:
@@ -71,6 +75,9 @@ async def test_answer_uses_one_llm_call_and_no_sync_review() -> None:
     }
     assert result.grounding_status == "insufficient"
     assert result.citations == []
+    assert "[S1]" not in result.answer
+    assert result.review_result["pass"] is False
+    assert "未知引用编号：S1" in result.review_result["issues"]
     assert result.performance.llm_call_count == 1
     finish_payload = pipeline.logs.finish_run.await_args.kwargs["output_payload"]
     assert finish_payload["evidence_candidate_count"] == 0
@@ -80,19 +87,87 @@ async def test_answer_uses_one_llm_call_and_no_sync_review() -> None:
 
 @pytest.mark.asyncio
 async def test_simple_greeting_skips_retrieval_and_llm() -> None:
+    external_run_id = uuid4()
     pipeline = GroundedQaPipeline(db=None)  # type: ignore[arg-type]
     pipeline._authorize = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
     pipeline._retrieve = AsyncMock()
     pipeline._persist = AsyncMock(return_value=(None, None))
+    pipeline.logs.start_run = AsyncMock()
+    pipeline.logs.finish_run = AsyncMock()
 
     result = await pipeline.answer(
         TutorChatRequest(course_id=uuid4(), question="你好"),
         SimpleNamespace(id=uuid4(), role="student"),
+        agent_run_id=external_run_id,
     )
 
     pipeline._retrieve.assert_not_awaited()
+    pipeline.logs.start_run.assert_not_awaited()
+    pipeline.logs.finish_run.assert_not_awaited()
     assert result.provider == "local_intent_router"
+    assert result.agent_run_id == external_run_id
     assert result.performance.llm_call_count == 0
+
+
+@pytest.mark.asyncio
+async def test_answer_reuses_external_agent_run_without_managing_log(
+    monkeypatch,
+) -> None:
+    external_run_id = uuid4()
+    provider = SimpleNamespace(
+        chat=AsyncMock(
+            return_value=SimpleNamespace(
+                content="栈遵循后进先出。",
+                model="mock",
+                provider="mock",
+                raw={},
+            )
+        )
+    )
+    pipeline = GroundedQaPipeline(db=None)  # type: ignore[arg-type]
+    pipeline._authorize = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
+    pipeline._retrieve = AsyncMock(
+        return_value=EvidenceBundle([], GraphContext(), 0)
+    )
+    render_prompt = AsyncMock(
+        return_value=RenderedPrompt(content="grounded prompt")
+    )
+    monkeypatch.setattr(
+        PromptService,
+        "render_grounded_tutor_prompt",
+        render_prompt,
+    )
+    provider_context = {}
+
+    def fake_get_llm_provider(**kwargs):
+        provider_context.update(kwargs)
+        return provider
+
+    import app.services.grounded_qa_pipeline as pipeline_module
+
+    monkeypatch.setattr(
+        pipeline_module,
+        "get_llm_provider",
+        fake_get_llm_provider,
+    )
+    pipeline._persist = AsyncMock(return_value=(None, None))
+    pipeline.logs.start_run = AsyncMock()
+    pipeline.logs.finish_run = AsyncMock()
+
+    result = await pipeline.answer(
+        TutorChatRequest(
+            course_id=uuid4(),
+            question="什么是栈？",
+            use_profile=False,
+        ),
+        SimpleNamespace(id=uuid4(), role="student"),
+        agent_run_id=external_run_id,
+    )
+
+    pipeline.logs.start_run.assert_not_awaited()
+    pipeline.logs.finish_run.assert_not_awaited()
+    assert provider_context["agent_run_id"] == external_run_id
+    assert result.agent_run_id == external_run_id
 
 
 @pytest.mark.asyncio
@@ -148,7 +223,10 @@ async def test_answer_keeps_only_markers_used_by_the_model() -> None:
     )
 
     assert [citation.citation_key for citation in result.citations] == ["S2"]
-    assert result.grounding_status == "grounded"
+    assert "[S9]" not in result.answer
+    assert result.grounding_status == "partial"
+    assert result.review_result["pass"] is False
+    assert "未知引用编号：S9" in result.review_result["issues"]
     assert result.performance.evidence_candidate_count == 7
     assert result.performance.evidence_accepted_count == 2
     assert result.fallback_used is True

@@ -49,6 +49,7 @@ class GroundedQaPipeline:
         current_user: User,
         *,
         persist_conversation_messages: bool = True,
+        agent_run_id: UUID | None = None,
     ) -> TutorChatResponse:
         started = perf_counter()
         course = await self._authorize(payload, current_user)
@@ -59,16 +60,20 @@ class GroundedQaPipeline:
                 course=course,
                 persist_conversation_messages=persist_conversation_messages,
                 started=started,
+                agent_run_id=agent_run_id,
             )
 
-        run = await self.logs.start_run(
-            task_type="course_qa",
-            agent_name="TutorAgent",
-            input_payload={"params": payload.model_dump(mode="json")},
-            user_id=current_user.id,
-            course_id=course.id,
-        )
-        self._agent_run_id = run.id
+        manages_run = agent_run_id is None
+        if manages_run:
+            run = await self.logs.start_run(
+                task_type="course_qa",
+                agent_name="TutorAgent",
+                input_payload={"params": payload.model_dump(mode="json")},
+                user_id=current_user.id,
+                course_id=course.id,
+            )
+            agent_run_id = run.id
+        self._agent_run_id = agent_run_id
         try:
             retrieval_started = perf_counter()
             bundle = await self._retrieve(payload, current_user)
@@ -86,6 +91,17 @@ class GroundedQaPipeline:
             )
             answer = llm_response.content.strip()
             validated = self.validator.validate(answer, bundle.evidence)
+            if validated.unknown_keys:
+                for key in validated.unknown_keys:
+                    answer = answer.replace(f"[{key}]", "")
+                answer = answer.strip()
+                if bundle.evidence:
+                    validated = CitationValidationResult(
+                        citations=validated.citations,
+                        unknown_keys=validated.unknown_keys,
+                        grounding_status="partial",
+                        grounding_message="回答中的未知引用编号已移除，部分内容需核对课程资料。",
+                    )
             performance = TutorPerformance(
                 retrieval_ms=retrieval_ms,
                 first_token_ms=None,
@@ -102,7 +118,7 @@ class GroundedQaPipeline:
                 payload=payload,
                 llm_response=llm_response,
                 performance=performance,
-            ).model_copy(update={"agent_run_id": run.id})
+            ).model_copy(update={"agent_run_id": agent_run_id})
             message_id, conversation_id = await self._persist(
                 response=response,
                 payload=payload,
@@ -117,27 +133,29 @@ class GroundedQaPipeline:
                     "postprocess_status": "queued" if message_id else "skipped",
                 }
             )
-            await self.logs.finish_run(
-                run_id=run.id,
-                output_payload={
-                    **response.model_dump(mode="json"),
-                    "evidence_candidate_count": bundle.candidate_count,
-                    "evidence_accepted_count": len(bundle.evidence),
-                    "grounding_status": validated.grounding_status,
-                },
-                status="success",
-                duration_ms=int((perf_counter() - started) * 1000),
-                error_message=None,
-            )
+            if manages_run and agent_run_id is not None:
+                await self.logs.finish_run(
+                    run_id=agent_run_id,
+                    output_payload={
+                        **response.model_dump(mode="json"),
+                        "evidence_candidate_count": bundle.candidate_count,
+                        "evidence_accepted_count": len(bundle.evidence),
+                        "grounding_status": validated.grounding_status,
+                    },
+                    status="success",
+                    duration_ms=int((perf_counter() - started) * 1000),
+                    error_message=None,
+                )
             return response
         except Exception as exc:
-            await self.logs.finish_run(
-                run_id=run.id,
-                output_payload={},
-                status="failed",
-                duration_ms=int((perf_counter() - started) * 1000),
-                error_message=str(exc),
-            )
+            if manages_run and agent_run_id is not None:
+                await self.logs.finish_run(
+                    run_id=agent_run_id,
+                    output_payload={},
+                    status="failed",
+                    duration_ms=int((perf_counter() - started) * 1000),
+                    error_message=str(exc),
+                )
             raise
         finally:
             self._agent_run_id = None
@@ -150,10 +168,12 @@ class GroundedQaPipeline:
         course: Course,
         persist_conversation_messages: bool,
         started: float,
+        agent_run_id: UUID | None,
     ) -> TutorChatResponse:
         response = TutorChatResponse(
             answer=simple_greeting_answer(),
             provider="local_intent_router",
+            agent_run_id=agent_run_id,
             review_result={
                 "pass": True,
                 "risk_level": "low",
