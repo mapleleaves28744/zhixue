@@ -29,6 +29,10 @@ class FallbackLLMProvider(BaseLLMProvider):
     def __init__(self, primary: BaseLLMProvider, fallback: BaseLLMProvider) -> None:
         self.primary = primary
         self.fallback = fallback
+        self.last_stream_fallback_used = False
+        self.last_stream_failed_provider: str | None = None
+        self.last_stream_fallback_reason: str | None = None
+        self.last_stream_provider_name = primary.provider_name
 
     async def chat(
         self,
@@ -83,6 +87,11 @@ class FallbackLLMProvider(BaseLLMProvider):
         model_config: LLMModelConfig | None = None,
         **kwargs: object,
     ) -> AsyncIterator[str]:
+        self.last_stream_fallback_used = False
+        self.last_stream_failed_provider = None
+        self.last_stream_fallback_reason = None
+        self.last_stream_provider_name = self.primary.provider_name
+        emitted = False
         try:
             async for chunk in self.primary.stream_chat(
                 messages,
@@ -92,14 +101,27 @@ class FallbackLLMProvider(BaseLLMProvider):
                 model_config=model_config,
                 **kwargs,
             ):
+                if chunk:
+                    emitted = True
                 yield chunk
         except Exception as exc:
+            if emitted:
+                logger.warning(
+                    "LLM stream provider %s failed after output started; fallback suppressed: %s",
+                    self.primary.provider_name,
+                    exc,
+                )
+                raise
             logger.warning(
                 "LLM stream provider %s failed, falling back to %s: %s",
                 self.primary.provider_name,
                 self.fallback.provider_name,
                 exc,
             )
+            self.last_stream_fallback_used = True
+            self.last_stream_failed_provider = self.primary.provider_name
+            self.last_stream_fallback_reason = str(exc)
+            self.last_stream_provider_name = self.fallback.provider_name
             async for chunk in self.fallback.stream_chat(
                 messages,
                 model=model,
@@ -265,7 +287,24 @@ class LoggingLLMProvider(BaseLLMProvider):
         response = ChatResponse(
             content="".join(chunks),
             model=model or (model_config.model if model_config else "") or settings.llm_model_name,
-            provider=self.inner.provider_name,
+            provider=str(
+                getattr(
+                    self.inner,
+                    "last_stream_provider_name",
+                    self.inner.provider_name,
+                )
+            ),
+            raw={
+                "fallback_used": bool(
+                    getattr(self.inner, "last_stream_fallback_used", False)
+                ),
+                "failed_provider": getattr(
+                    self.inner, "last_stream_failed_provider", None
+                ),
+                "fallback_reason": getattr(
+                    self.inner, "last_stream_fallback_reason", None
+                ),
+            },
         )
         await self._log_call(
             operation="stream_chat",

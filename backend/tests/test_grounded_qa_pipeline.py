@@ -9,7 +9,7 @@ import pytest
 from app.models.prompt import PromptVersion
 from app.rag.evidence import EvidenceBundle, EvidenceItem, GraphContext
 from app.schemas.tutor import TutorChatRequest, TutorChatResponse, TutorPerformance
-from app.services.grounded_qa_pipeline import GroundedQaPipeline
+from app.services.grounded_qa_pipeline import GroundedQaPipeline, PersistedChatWrite
 from app.services.personalization_context_service import PersonalizationContextService
 from app.services.prompt_service import (
     GROUNDED_TUTOR_RULES,
@@ -54,7 +54,7 @@ async def test_answer_uses_one_llm_call_and_no_sync_review() -> None:
     pipeline._build_generation = AsyncMock(
         return_value=(provider, "grounded prompt", None)
     )
-    pipeline._persist = AsyncMock(return_value=(None, None))
+    pipeline._persist = AsyncMock(return_value=PersistedChatWrite(None, None))
     pipeline.logs.start_run = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
     pipeline.logs.finish_run = AsyncMock()
 
@@ -91,7 +91,7 @@ async def test_simple_greeting_skips_retrieval_and_llm() -> None:
     pipeline = GroundedQaPipeline(db=None)  # type: ignore[arg-type]
     pipeline._authorize = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
     pipeline._retrieve = AsyncMock()
-    pipeline._persist = AsyncMock(return_value=(None, None))
+    pipeline._persist = AsyncMock(return_value=PersistedChatWrite(None, None))
     pipeline.logs.start_run = AsyncMock()
     pipeline.logs.finish_run = AsyncMock()
 
@@ -150,7 +150,7 @@ async def test_answer_reuses_external_agent_run_without_managing_log(
         "get_llm_provider",
         fake_get_llm_provider,
     )
-    pipeline._persist = AsyncMock(return_value=(None, None))
+    pipeline._persist = AsyncMock(return_value=PersistedChatWrite(None, None))
     pipeline.logs.start_run = AsyncMock()
     pipeline.logs.finish_run = AsyncMock()
 
@@ -213,7 +213,7 @@ async def test_answer_keeps_only_markers_used_by_the_model() -> None:
     pipeline._authorize = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
     pipeline._retrieve = AsyncMock(return_value=bundle)
     pipeline._build_generation = AsyncMock(return_value=(provider, "prompt", None))
-    pipeline._persist = AsyncMock(return_value=(None, None))
+    pipeline._persist = AsyncMock(return_value=PersistedChatWrite(None, None))
     pipeline.logs.start_run = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
     pipeline.logs.finish_run = AsyncMock()
 
@@ -378,8 +378,15 @@ async def test_event_publish_failure_does_not_hide_committed_answer() -> None:
     pipeline._answer_without_persistence = AsyncMock(
         return_value=(expected, SimpleNamespace(id=request.course_id))
     )
-    pipeline._safe_persist = AsyncMock(return_value=(record_id, None))
-    pipeline._publish_postprocess = AsyncMock(side_effect=RuntimeError("queue unavailable"))
+    persisted = PersistedChatWrite(
+        message_id=record_id,
+        conversation_id=None,
+        record=SimpleNamespace(event_payload={"postprocess_status": "queued"}),
+        assistant_message=None,
+    )
+    pipeline._safe_persist = AsyncMock(return_value=persisted)
+    pipeline._publish_postprocess = AsyncMock(return_value=False)
+    pipeline._mark_postprocess_skipped = AsyncMock()
 
     result = await pipeline.answer(
         request, SimpleNamespace(id=uuid4(), role="student")
@@ -387,7 +394,8 @@ async def test_event_publish_failure_does_not_hide_committed_answer() -> None:
 
     assert result.answer == expected.answer
     assert result.message_id == record_id
-    assert result.postprocess_status == "queued"
+    assert result.postprocess_status == "skipped"
+    pipeline._mark_postprocess_skipped.assert_awaited_once_with(persisted)
 
 
 @pytest.mark.asyncio
@@ -401,7 +409,10 @@ async def test_persist_writes_learning_record_and_messages_in_one_commit() -> No
     db = SimpleNamespace(commit=AsyncMock(), refresh=AsyncMock(), rollback=AsyncMock())
     pipeline = GroundedQaPipeline(db=db)  # type: ignore[arg-type]
     pipeline.conversations.get_for_user = AsyncMock(return_value=conversation)
-    pipeline.conversations.add_message = AsyncMock()
+    assistant_message = SimpleNamespace(payload={})
+    pipeline.conversations.add_message = AsyncMock(
+        side_effect=[SimpleNamespace(id=uuid4()), assistant_message]
+    )
     pipeline.records.record_event = AsyncMock(return_value=record)
     response = TutorChatResponse(
         answer="栈遵循后进先出 [S1]。",
@@ -410,6 +421,7 @@ async def test_persist_writes_learning_record_and_messages_in_one_commit() -> No
         grounding_message="回答已绑定课程依据。",
         provider="mock",
         fallback_used=False,
+        postprocess_status="queued",
     )
     payload = TutorChatRequest(
         course_id=course_id,
@@ -425,7 +437,10 @@ async def test_persist_writes_learning_record_and_messages_in_one_commit() -> No
         persist_conversation_messages=True,
     )
 
-    assert result == (record_id, conversation_id)
+    assert result.message_id == record_id
+    assert result.conversation_id == conversation_id
+    assert result.record is record
+    assert result.assistant_message is assistant_message
     assert pipeline.records.record_event.await_args.kwargs["commit"] is False
     learning_payload = pipeline.records.record_event.await_args.kwargs["event_payload"]
     assert learning_payload["answer"] == response.answer
@@ -465,7 +480,8 @@ async def test_persist_without_conversation_messages_still_records_learning() ->
         persist_conversation_messages=False,
     )
 
-    assert result == (record.id, conversation_id)
+    assert result.message_id == record.id
+    assert result.conversation_id == conversation_id
     pipeline.records.record_event.assert_awaited_once()
     pipeline.conversations.get_for_user.assert_not_awaited()
     pipeline.conversations.create.assert_not_awaited()
@@ -490,7 +506,7 @@ async def test_persist_rolls_back_all_chat_writes_when_assistant_message_fails()
         question="什么是栈？",
     )
 
-    result = await pipeline._persist(
+    result = await pipeline._safe_persist(
         response=TutorChatResponse(answer="后进先出。"),
         payload=payload,
         current_user=SimpleNamespace(id=uuid4(), role="student"),
@@ -498,9 +514,32 @@ async def test_persist_rolls_back_all_chat_writes_when_assistant_message_fails()
         persist_conversation_messages=True,
     )
 
-    assert result == (None, conversation.id)
+    assert result.message_id is None
+    assert result.conversation_id == conversation.id
     db.commit.assert_not_awaited()
     db.rollback.assert_awaited_once()
+
+
+def test_stream_provider_metadata_reports_real_fallback() -> None:
+    inner = SimpleNamespace(
+        provider_name="fallback",
+        last_stream_fallback_used=True,
+        last_stream_failed_provider="primary",
+        last_stream_fallback_reason="timeout",
+        last_stream_provider_name="mock",
+        fallback=SimpleNamespace(provider_name="mock", _model="mock-model"),
+        primary=SimpleNamespace(provider_name="primary", _model="primary-model"),
+    )
+    provider = SimpleNamespace(inner=inner)
+
+    metadata = GroundedQaPipeline(db=None)._stream_provider_metadata(provider)  # type: ignore[arg-type]
+
+    assert metadata.provider == "mock"
+    assert metadata.model == "mock-model"
+    assert metadata.raw["fallback_used"] is True
+    assert metadata.raw["failed_provider"] == "primary"
+    assert metadata.raw["fallback_reason"] == "timeout"
+    assert metadata.llm_call_count == 2
 
 
 @pytest.mark.asyncio
@@ -510,7 +549,7 @@ async def test_stream_greeting_omits_evidence_and_model_call() -> None:
     pipeline._authorize = AsyncMock(return_value=SimpleNamespace(id=request.course_id))
     pipeline._retrieve = AsyncMock()
     pipeline._build_generation = AsyncMock()
-    pipeline._safe_persist = AsyncMock(return_value=(None, None))
+    pipeline._safe_persist = AsyncMock(return_value=PersistedChatWrite(None, None))
 
     events = [
         event

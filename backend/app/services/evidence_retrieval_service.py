@@ -7,6 +7,8 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.error_codes import ErrorCode
+from app.core.exceptions import BusinessException
 from app.models.wiki import WikiPage
 from app.rag.evidence import EvidenceBundle, EvidenceItem, GraphContext
 from app.rag.graph_retriever import GraphRetriever
@@ -38,6 +40,7 @@ class EvidenceRetrievalService:
         wiki_page_id: UUID | None,
         use_rag: bool,
         use_wiki: bool,
+        is_admin: bool = False,
     ) -> EvidenceBundle:
         graph_payload: dict[str, Any] = {"items": [], "graph_context": {}}
         if use_rag:
@@ -57,6 +60,7 @@ class EvidenceRetrievalService:
                 question=question,
                 knowledge_id=knowledge_id,
                 wiki_page_id=wiki_page_id,
+                is_admin=is_admin,
             )
 
         document_items = list(graph_payload.get("items") or [])
@@ -125,6 +129,7 @@ class EvidenceRetrievalService:
         question: str,
         knowledge_id: UUID | None,
         wiki_page_id: UUID | None,
+        is_admin: bool = False,
     ) -> list[WikiPage]:
         course = await self.courses.get_by_id(course_id)
         public_owner_id = None
@@ -142,10 +147,13 @@ class EvidenceRetrievalService:
         explicit_page: WikiPage | None = None
         if wiki_page_id is not None:
             explicit_page = await self.wiki.get_by_id_simple(wiki_page_id)
-            if explicit_page is None or not self._is_readable_wiki_page(
-                explicit_page, course_id=course_id, allowed_owner_ids=allowed_owner_ids
-            ):
-                return []
+            self._require_readable_explicit_page(
+                explicit_page,
+                course_id=course_id,
+                allowed_owner_ids=allowed_owner_ids,
+                is_admin=is_admin,
+            )
+            assert explicit_page is not None
             if knowledge_id is not None and explicit_page.knowledge_id != knowledge_id:
                 return []
 
@@ -163,6 +171,7 @@ class EvidenceRetrievalService:
                 page,
                 course_id=course_id,
                 allowed_owner_ids=allowed_owner_ids,
+                is_admin=is_admin,
             ):
                 continue
             if knowledge_id is not None and page.knowledge_id != knowledge_id:
@@ -182,13 +191,66 @@ class EvidenceRetrievalService:
         *,
         course_id: UUID,
         allowed_owner_ids: set[UUID],
+        is_admin: bool = False,
     ) -> bool:
         return (
             page is not None
             and page.course_id == course_id
             and page.status == "active"
-            and page.owner_id in allowed_owner_ids
+            and (is_admin or page.owner_id in allowed_owner_ids)
         )
+
+    async def require_readable_wiki_page(
+        self,
+        *,
+        course_id: UUID,
+        user_id: UUID,
+        wiki_page_id: UUID,
+        is_admin: bool = False,
+    ) -> WikiPage:
+        course = await self.courses.get_by_id(course_id)
+        allowed_owner_ids = {user_id}
+        if (
+            course is not None
+            and course.visibility == "public_template"
+            and course.status == "active"
+        ):
+            allowed_owner_ids.add(course.owner_id)
+        page = await self.wiki.get_by_id_simple(wiki_page_id)
+        self._require_readable_explicit_page(
+            page,
+            course_id=course_id,
+            allowed_owner_ids=allowed_owner_ids,
+            is_admin=is_admin,
+        )
+        assert page is not None
+        return page
+
+    def _require_readable_explicit_page(
+        self,
+        page: WikiPage | None,
+        *,
+        course_id: UUID,
+        allowed_owner_ids: set[UUID],
+        is_admin: bool,
+    ) -> None:
+        if page is not None and page.course_id == course_id and page.status == "archived":
+            raise BusinessException(
+                code=ErrorCode.PARAM_ERROR,
+                detail="已归档的 Wiki 页面不可用于问答",
+                status_code=400,
+            )
+        if not self._is_readable_wiki_page(
+            page,
+            course_id=course_id,
+            allowed_owner_ids=allowed_owner_ids,
+            is_admin=is_admin,
+        ):
+            raise BusinessException(
+                code=ErrorCode.NOT_FOUND,
+                detail="Wiki 页面不存在",
+                status_code=404,
+            )
 
     def _wiki_evidence(self, page: WikiPage, *, is_explicit: bool) -> EvidenceItem:
         return EvidenceItem(

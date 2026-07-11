@@ -90,6 +90,8 @@ async def on_chat_completed(event: Event) -> None:
         return
     question = str(event.data.get("question") or "").strip()
     is_greeting = is_simple_greeting(question)
+    if is_greeting:
+        return
 
     try:
         from uuid import UUID
@@ -150,9 +152,6 @@ async def on_chat_completed(event: Event) -> None:
                 await TutorPostprocessService(db).run(event)
         except Exception:
             logger.exception("EventBus: Tutor deep postprocess failed")
-
-    if is_greeting:
-        return
 
     if event.data.get("skip_graph_extract"):
         return

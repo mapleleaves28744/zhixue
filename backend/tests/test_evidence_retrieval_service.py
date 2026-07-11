@@ -6,6 +6,7 @@ from uuid import uuid4
 
 import pytest
 
+from app.core.exceptions import BusinessException
 from app.services.evidence_retrieval_service import EvidenceRetrievalService
 
 
@@ -417,3 +418,40 @@ async def test_explicit_wiki_page_must_be_readable_and_match_knowledge_filter() 
 
     assert readable == [page]
     assert mismatched == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("page_overrides", "expected_status"),
+    [
+        ({"course_id": uuid4()}, 404),
+        ({"owner_id": uuid4()}, 404),
+        ({"status": "archived"}, 400),
+    ],
+    ids=["other-course", "other-owner", "archived"],
+)
+async def test_explicit_wiki_page_preserves_chat_error_semantics(
+    page_overrides: dict[str, object], expected_status: int
+) -> None:
+    user_id = uuid4()
+    course_id = uuid4()
+    page = SimpleNamespace(**{
+        "id": uuid4(), "course_id": course_id, "owner_id": user_id,
+        "status": "active", "knowledge_id": None, "title": "递归调用栈",
+        "summary": None, "content": "递归现场。", **page_overrides,
+    })
+    service = EvidenceRetrievalService(db=None)  # type: ignore[arg-type]
+    service.courses = MagicMock()
+    service.courses.get_by_id = AsyncMock(return_value=None)
+    service.wiki = MagicMock()
+    service.wiki.get_by_id_simple = AsyncMock(return_value=page)
+
+    with pytest.raises(BusinessException) as exc_info:
+        await service.require_readable_wiki_page(
+            course_id=course_id,
+            user_id=user_id,
+            wiki_page_id=page.id,
+            is_admin=False,
+        )
+
+    assert exc_info.value.status_code == expected_status

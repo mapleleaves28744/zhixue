@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from collections.abc import AsyncIterator
+from dataclasses import dataclass, field
 from types import SimpleNamespace
 from time import perf_counter
 from typing import Any
@@ -36,6 +37,22 @@ from app.services.personalization_context_service import PersonalizationContextS
 from app.services.prompt_service import PromptService
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class PersistedChatWrite:
+    message_id: UUID | None
+    conversation_id: UUID | None
+    record: object | None = None
+    assistant_message: object | None = None
+
+
+@dataclass(frozen=True)
+class StreamProviderMetadata:
+    provider: str | None
+    model: str | None
+    raw: dict[str, Any] = field(default_factory=dict)
+    llm_call_count: int = 1
 
 
 class GroundedQaPipeline:
@@ -322,15 +339,11 @@ class GroundedQaPipeline:
         total_ms: int,
         persist_conversation_messages: bool,
     ) -> TutorChatResponse:
-        inner = getattr(provider, "inner", provider)
+        metadata = self._stream_provider_metadata(provider)
         llm_response = SimpleNamespace(
-            model=getattr(inner, "_model", None),
-            provider=getattr(inner, "provider_name", getattr(provider, "provider_name", None)),
-            raw={
-                "fallback_used": bool(getattr(provider, "fallback_used", False)),
-                "failed_provider": getattr(provider, "failed_provider", None),
-                "fallback_reason": getattr(provider, "fallback_reason", None),
-            },
+            model=metadata.model,
+            provider=metadata.provider,
+            raw=metadata.raw,
         )
         response = self._complete_response(
             answer=answer,
@@ -342,7 +355,7 @@ class GroundedQaPipeline:
                 first_token_ms=first_token_ms,
                 generation_ms=generation_ms,
                 total_ms=total_ms,
-                llm_call_count=1,
+                llm_call_count=metadata.llm_call_count,
                 evidence_candidate_count=bundle.candidate_count,
                 evidence_accepted_count=len(bundle.evidence),
             ),
@@ -354,6 +367,32 @@ class GroundedQaPipeline:
             current_user=current_user,
             course=course,
             persist_conversation_messages=persist_conversation_messages,
+        )
+
+    def _stream_provider_metadata(self, provider: object) -> StreamProviderMetadata:
+        inner = getattr(provider, "inner", provider)
+        fallback_used = bool(getattr(inner, "last_stream_fallback_used", False))
+        if fallback_used:
+            actual = getattr(inner, "fallback", inner)
+            provider_name = getattr(
+                inner,
+                "last_stream_provider_name",
+                getattr(actual, "provider_name", None),
+            )
+            model = getattr(actual, "_model", None)
+        else:
+            actual = getattr(inner, "primary", inner)
+            provider_name = getattr(actual, "provider_name", getattr(inner, "provider_name", None))
+            model = getattr(actual, "_model", None)
+        return StreamProviderMetadata(
+            provider=str(provider_name) if provider_name is not None else None,
+            model=model,
+            raw={
+                "fallback_used": fallback_used,
+                "failed_provider": getattr(inner, "last_stream_failed_provider", None),
+                "fallback_reason": getattr(inner, "last_stream_fallback_reason", None),
+            },
+            llm_call_count=2 if fallback_used else 1,
         )
 
     def _complete_response(
@@ -422,8 +461,12 @@ class GroundedQaPipeline:
         course: Course,
         persist_conversation_messages: bool,
     ) -> TutorChatResponse:
-        message_id, conversation_id = await self._safe_persist(
-            response=response,
+        should_postprocess = not is_simple_greeting(payload.question)
+        response_for_storage = response.model_copy(
+            update={"postprocess_status": "queued" if should_postprocess else "skipped"}
+        )
+        persisted = await self._safe_persist(
+            response=response_for_storage,
             payload=payload,
             current_user=current_user,
             course=course,
@@ -431,14 +474,18 @@ class GroundedQaPipeline:
         )
         completed = response.model_copy(
             update={
-                "message_id": message_id,
-                "conversation_id": conversation_id,
-                "postprocess_status": "queued" if message_id else "skipped",
+                "message_id": persisted.message_id,
+                "conversation_id": persisted.conversation_id,
+                "postprocess_status": (
+                    "queued"
+                    if persisted.message_id is not None and should_postprocess
+                    else "skipped"
+                ),
             }
         )
-        if message_id is not None:
+        if persisted.message_id is not None and should_postprocess:
             try:
-                await self._publish_postprocess(
+                enqueued = await self._publish_postprocess(
                     response=completed,
                     payload=payload,
                     current_user=current_user,
@@ -446,6 +493,10 @@ class GroundedQaPipeline:
                 )
             except Exception:
                 logger.exception("grounded Tutor postprocess enqueue failed")
+                enqueued = False
+            if not enqueued:
+                completed = completed.model_copy(update={"postprocess_status": "skipped"})
+                await self._mark_postprocess_skipped(persisted)
         return completed
 
     async def _safe_persist(
@@ -456,7 +507,7 @@ class GroundedQaPipeline:
         current_user: User,
         course: Course,
         persist_conversation_messages: bool,
-    ) -> tuple[UUID | None, UUID | None]:
+    ) -> PersistedChatWrite:
         try:
             return await self._persist(
                 response=response,
@@ -466,10 +517,11 @@ class GroundedQaPipeline:
                 persist_conversation_messages=persist_conversation_messages,
             )
         except Exception:
+            logger.exception("grounded Tutor persistence failed; answer kept in response")
             rollback = getattr(self.db, "rollback", None)
             if rollback is not None:
                 await rollback()
-            return None, payload.conversation_id
+            return PersistedChatWrite(None, payload.conversation_id)
 
     async def _publish_postprocess(
         self,
@@ -478,10 +530,10 @@ class GroundedQaPipeline:
         payload: TutorChatRequest,
         current_user: User,
         course: Course,
-    ) -> None:
+    ) -> bool:
         from app.services.chat_knowledge_pipeline import publish_chat_completed
 
-        await publish_chat_completed(
+        return await publish_chat_completed(
             user_id=current_user.id,
             course_id=course.id,
             question=payload.question,
@@ -492,6 +544,23 @@ class GroundedQaPipeline:
             extract_result=None,
             source="grounded_qa_pipeline",
         )
+
+    async def _mark_postprocess_skipped(self, persisted: PersistedChatWrite) -> None:
+        try:
+            if persisted.record is not None:
+                event_payload = dict(getattr(persisted.record, "event_payload", {}) or {})
+                event_payload["postprocess_status"] = "skipped"
+                setattr(persisted.record, "event_payload", event_payload)
+            if persisted.assistant_message is not None:
+                message_payload = dict(getattr(persisted.assistant_message, "payload", {}) or {})
+                message_payload["postprocess_status"] = "skipped"
+                setattr(persisted.assistant_message, "payload", message_payload)
+            await self.db.commit()
+        except Exception:
+            logger.exception("failed to persist skipped Tutor postprocess status")
+            rollback = getattr(self.db, "rollback", None)
+            if rollback is not None:
+                await rollback()
 
     async def _authorize(
         self,
@@ -516,6 +585,7 @@ class GroundedQaPipeline:
             wiki_page_id=payload.wiki_page_id,
             use_rag=payload.use_rag,
             use_wiki=payload.use_wiki,
+            is_admin=getattr(current_user, "role", None) == "admin",
         )
 
     async def _build_generation(
@@ -607,76 +677,70 @@ class GroundedQaPipeline:
         current_user: User,
         course: Course,
         persist_conversation_messages: bool,
-    ) -> tuple[UUID | None, UUID | None]:
+    ) -> PersistedChatWrite:
         conversation = None
-        try:
-            if persist_conversation_messages:
-                if payload.conversation_id is not None:
-                    conversation = await self.conversations.get_for_user(
-                        payload.conversation_id, current_user.id
-                    )
-                    if conversation is None:
-                        raise ValueError("conversation does not belong to current user")
-                    if getattr(conversation, "course_id", course.id) != course.id:
-                        raise ValueError("conversation does not belong to current course")
-                else:
-                    conversation = await self.conversations.create(
-                        user_id=current_user.id,
-                        course_id=course.id,
-                        title=payload.question[:80],
-                    )
-                await self.conversations.add_message(
-                    conversation=conversation,
-                    user_id=current_user.id,
-                    role="user",
-                    content=payload.question,
-                    message_type="text",
-                    payload={"course_id": str(course.id)},
+        if persist_conversation_messages:
+            if payload.conversation_id is not None:
+                conversation = await self.conversations.get_for_user(
+                    payload.conversation_id, current_user.id
                 )
-
-            response_payload = response.model_dump(mode="json")
-            record = await self.records.record_event(
+                if conversation is None:
+                    raise ValueError("conversation does not belong to current user")
+                if getattr(conversation, "course_id", course.id) != course.id:
+                    raise ValueError("conversation does not belong to current course")
+            else:
+                conversation = await self.conversations.create(
+                    user_id=current_user.id,
+                    course_id=course.id,
+                    title=payload.question[:80],
+                )
+            await self.conversations.add_message(
+                conversation=conversation,
                 user_id=current_user.id,
-                course_id=course.id,
-                knowledge_id=payload.knowledge_id,
-                event_type="chat",
-                event_source="tutor",
-                event_payload={
-                    "question": payload.question,
-                    **response_payload,
-                },
-                commit=False,
+                role="user",
+                content=payload.question,
+                message_type="text",
+                payload={"course_id": str(course.id)},
             )
-            if conversation is not None:
-                assistant_payload = {
-                    **response_payload,
-                    "learning_record_id": str(record.id),
-                    "message_id": str(record.id),
-                    "conversation_id": str(conversation.id),
-                    "postprocess_status": "queued",
-                }
-                await self.conversations.add_message(
-                    conversation=conversation,
-                    user_id=current_user.id,
-                    role="assistant",
-                    content=response.answer,
-                    message_type="tutor",
-                    payload=assistant_payload,
-                )
 
-            await self.db.commit()
-            await self.db.refresh(record)
-            if conversation is not None:
-                await self.db.refresh(conversation)
-            conversation_id = (
-                conversation.id if conversation is not None else payload.conversation_id
+        response_payload = response.model_dump(mode="json")
+        record = await self.records.record_event(
+            user_id=current_user.id,
+            course_id=course.id,
+            knowledge_id=payload.knowledge_id,
+            event_type="chat",
+            event_source="tutor",
+            event_payload={"question": payload.question, **response_payload},
+            commit=False,
+        )
+        assistant_message = None
+        if conversation is not None:
+            assistant_payload = {
+                **response_payload,
+                "learning_record_id": str(record.id),
+                "message_id": str(record.id),
+                "conversation_id": str(conversation.id),
+            }
+            assistant_message = await self.conversations.add_message(
+                conversation=conversation,
+                user_id=current_user.id,
+                role="assistant",
+                content=response.answer,
+                message_type="tutor",
+                payload=assistant_payload,
             )
-            return record.id, conversation_id
-        except Exception:
-            rollback = getattr(self.db, "rollback", None)
-            if rollback is not None:
-                await rollback()
-            return None, payload.conversation_id
+
+        await self.db.commit()
+        await self.db.refresh(record)
+        if conversation is not None:
+            await self.db.refresh(conversation)
+        conversation_id = conversation.id if conversation is not None else payload.conversation_id
+        return PersistedChatWrite(
+            message_id=record.id,
+            conversation_id=conversation_id,
+            record=record,
+            assistant_message=assistant_message,
+        )
 
     def _evidence_event(self, bundle: EvidenceBundle) -> dict[str, Any]:
         return {

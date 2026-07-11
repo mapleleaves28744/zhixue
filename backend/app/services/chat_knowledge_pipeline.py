@@ -51,7 +51,7 @@ async def publish_chat_completed(
     message_id: str | None = None,
     extract_result: dict[str, Any] | None = None,
     source: str = "chat_pipeline",
-) -> None:
+) -> bool:
     try:
         from app.core.event_bus import get_event_bus
 
@@ -70,8 +70,10 @@ async def publish_chat_completed(
             },
             source=source,
         )
+        return True
     except Exception:
         logger.exception("chat_knowledge_pipeline: publish chat_completed failed")
+        return False
 
 
 def summarize_extract_for_ui(result: dict[str, Any] | None) -> dict[str, int]:

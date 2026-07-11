@@ -296,7 +296,7 @@ async def test_publish_chat_completed_enqueues_validated_citations(monkeypatch) 
     monkeypatch.setattr("app.core.event_bus.get_event_bus", lambda: bus)
     citations = [{"citation_key": "S1", "source_type": "document", "title": "栈讲义"}]
 
-    await module.publish_chat_completed(
+    published = await module.publish_chat_completed(
         user_id=uuid4(),
         course_id=uuid4(),
         question="什么是栈？",
@@ -306,6 +306,24 @@ async def test_publish_chat_completed_enqueues_validated_citations(monkeypatch) 
 
     data = bus.publish.await_args.args[1]
     assert data["citations"] == citations
+    assert published is True
+
+
+@pytest.mark.asyncio
+async def test_publish_chat_completed_reports_enqueue_failure(monkeypatch) -> None:
+    from app.services import chat_knowledge_pipeline as module
+
+    bus = SimpleNamespace(publish=AsyncMock(side_effect=RuntimeError("queue unavailable")))
+    monkeypatch.setattr("app.core.event_bus.get_event_bus", lambda: bus)
+
+    published = await module.publish_chat_completed(
+        user_id=uuid4(),
+        course_id=uuid4(),
+        question="什么是栈？",
+        answer="后进先出。",
+    )
+
+    assert published is False
 
 
 @pytest.mark.asyncio
@@ -422,10 +440,13 @@ async def test_chat_postprocess_uses_session_independent_from_mastery(monkeypatc
 async def test_chat_greeting_skips_deep_postprocess_and_graph(monkeypatch) -> None:
     from app.core.event_bus import Event
     from app.core.event_handlers import on_chat_completed
+    from app.services.mastery_service import MasteryService
     from app.services.tutor_postprocess_service import TutorPostprocessService
 
     postprocess_run = AsyncMock()
     graph_extract = AsyncMock()
+    mastery_update = AsyncMock()
+    monkeypatch.setattr(MasteryService, "apply_ask_update", mastery_update)
     monkeypatch.setattr(TutorPostprocessService, "run", postprocess_run)
     monkeypatch.setattr(
         "app.workers.knowledge_extract_worker.handle_chat_completed", graph_extract
@@ -437,6 +458,7 @@ async def test_chat_greeting_skips_deep_postprocess_and_graph(monkeypatch) -> No
             data={
                 "user_id": uuid4(),
                 "course_id": uuid4(),
+                "knowledge_id": uuid4(),
                 "question": "嗨！",
                 "answer": "你好！",
             },
@@ -445,6 +467,7 @@ async def test_chat_greeting_skips_deep_postprocess_and_graph(monkeypatch) -> No
 
     postprocess_run.assert_not_awaited()
     graph_extract.assert_not_awaited()
+    mastery_update.assert_not_awaited()
 
 
 @pytest.mark.asyncio
