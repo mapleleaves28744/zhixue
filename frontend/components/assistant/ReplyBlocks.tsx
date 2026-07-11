@@ -13,12 +13,17 @@ import { InlineChatResources } from "@/components/assistant/InlineChatResources"
 import { InlineMediaArtifacts } from "@/components/assistant/InlineMediaArtifacts"
 import { MediaJobProgressCard } from "@/components/assistant/MediaJobProgressCard"
 import type { MediaJobProgressRef } from "@/components/assistant/extractChatArtifacts"
+import { TutorEvidencePanel } from "@/components/assistant/TutorEvidencePanel"
+import type { TutorChatResponse } from "@/types/tutor"
 
 interface TutorReplyBlockProps {
   content: string
   progress?: string
   streaming: boolean
   error?: string | null
+  result?: TutorChatResponse | null
+  wikiPageId?: string | null
+  onFollowUp?: (question: string) => void
   onOpenDetail?: () => void
 }
 
@@ -27,6 +32,9 @@ export function TutorReplyBlock({
   progress,
   streaming,
   error,
+  result,
+  wikiPageId,
+  onFollowUp,
   onOpenDetail,
 }: TutorReplyBlockProps) {
   if (streaming) {
@@ -64,6 +72,14 @@ export function TutorReplyBlock({
   return (
     <div className="glass-card max-w-[88%] rounded-3xl rounded-tl-md p-4 shadow-sm">
       <MarkdownRenderer content={content} />
+      {error ? <p className="mt-3 text-xs text-destructive">回答中断：{error}</p> : null}
+      {result ? (
+        <TutorEvidencePanel
+          response={result}
+          wikiPageId={wikiPageId || null}
+          onFollowUp={onFollowUp || (() => undefined)}
+        />
+      ) : null}
     </div>
   )
 }
