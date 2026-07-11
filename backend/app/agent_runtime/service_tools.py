@@ -65,15 +65,17 @@ def build_learning_tool_registry(
 
     async def answer_question(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
         from app.schemas.tutor import TutorChatRequest
-        from app.services.tutor_service import TutorService
+        from app.services.grounded_qa_pipeline import GroundedQaPipeline
 
-        result = await TutorService(db).chat(
-            payload=TutorChatRequest(
+        result = await GroundedQaPipeline(db).answer(
+            TutorChatRequest(
                 course_id=context.course_id,
+                conversation_id=context.conversation_id,
                 question=str(arguments["question"]),
                 top_k=int(arguments.get("top_k") or 5),
             ),
-            current_user=current_user,
+            current_user,
+            persist_conversation_messages=False,
         )
         data = result.model_dump(mode="json")
         refs = [{"type": "tutor_answer", "id": str(result.message_id)}] if result.message_id else []
@@ -82,6 +84,7 @@ def build_learning_tool_registry(
             evidence=data.get("citations") or [],
             citations=data.get("citations") or [],
             artifact_refs=refs,
+            final_answer=result.answer,
         )
 
     async def generate_path(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:

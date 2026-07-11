@@ -19,7 +19,6 @@ from app.models.user import User
 from app.repositories.agent_conversation_repository import AgentConversationRepository
 from app.repositories.agent_task_repository import AgentTaskRepository
 from app.services.agent_queue_service import AgentEventBroker
-from app.services.conversation_intent import is_simple_greeting
 
 
 class AgentTaskCancelled(RuntimeError):
@@ -182,7 +181,6 @@ class AgentRuntimeService:
             values.update(status="waiting_confirmation", requires_confirmation=True, risk_level="high")
         elif event_type == "completed":
             values["status"] = "succeeded"
-            payload = await self._attach_knowledge_extract(current, payload)
         elif event_type == "failed":
             values["status"] = "failed"
         await self.tasks.update_task(current, **values)
@@ -209,47 +207,6 @@ class AgentRuntimeService:
                 )
         await self.db.commit()
         await self.broker.publish(task.id, event_type, {**payload, "sequence_no": event.sequence_no})
-
-    async def _attach_knowledge_extract(
-        self,
-        task: AgentTask,
-        payload: dict[str, Any],
-    ) -> dict[str, Any]:
-        answer = str(payload.get("final_answer") or "").strip()
-        question = str(task.task_goal or (task.input_payload or {}).get("user_input") or "").strip()
-        if not answer or not question:
-            return payload
-        if is_simple_greeting(question):
-            return payload
-        try:
-            user = await self._get_user(task.user_id)
-            from app.services.chat_knowledge_pipeline import (
-                extract_knowledge_from_dialogue,
-                publish_chat_completed,
-                summarize_extract_for_ui,
-            )
-
-            extract_result = await extract_knowledge_from_dialogue(
-                self.db,
-                current_user=user,
-                course_id=task.course_id,
-                question=question,
-                answer=answer,
-            )
-            summary = summarize_extract_for_ui(extract_result)
-            payload = {**payload, "knowledge_extract": summary}
-            await publish_chat_completed(
-                user_id=task.user_id,
-                course_id=task.course_id,
-                question=question,
-                answer=answer,
-                message_id=str(task.id),
-                extract_result=extract_result,
-                source="agent_runtime_service",
-            )
-        except Exception:
-            pass
-        return payload
 
     async def _mark_failed(self, task: AgentTask, exc: Exception) -> None:
         current = await self._get_task_optional(task.id)
@@ -278,6 +235,7 @@ class AgentRuntimeService:
             return None
         output = dict(step.output_payload or {})
         citations = output.pop("_citations", [])
+        final_answer = output.pop("_final_answer", None)
         return ToolExecutionResult(
             success=step.status == "succeeded",
             output=output,
@@ -286,6 +244,7 @@ class AgentRuntimeService:
             citations=citations,
             error_message=step.error_message,
             attempts=step.retry_count + 1,
+            final_answer=final_answer,
         )
 
     async def _save_tool_result(self, key: str, result: ToolExecutionResult) -> None:
@@ -296,6 +255,8 @@ class AgentRuntimeService:
         output_payload = dict(result.output or {})
         if result.citations:
             output_payload["_citations"] = result.citations
+        if result.final_answer:
+            output_payload["_final_answer"] = result.final_answer
         await self.tasks.update_step(
             step,
             status="succeeded" if result.success else "failed",
@@ -328,6 +289,7 @@ class AgentRuntimeService:
         }
         if status == "completed":
             values.update(status="succeeded", finished_at=datetime.now(UTC), error_message=None)
+            qa_output = self._grounded_qa_output(result)
             await self.conversations.add_message(
                 conversation=await self._get_conversation(current),
                 user_id=current.user_id,
@@ -338,6 +300,20 @@ class AgentRuntimeService:
                     "artifacts": result.get("artifacts") or [],
                     "citations": result.get("citations") or [],
                     "review_result": result.get("review_result") or {},
+                    "learning_record_id": qa_output.get("message_id"),
+                    "grounding_status": qa_output.get("grounding_status"),
+                    "grounding_message": qa_output.get("grounding_message"),
+                    "follow_up_questions": qa_output.get("follow_up_questions") or [],
+                    "related_knowledge_points": qa_output.get("related_knowledge_points") or [],
+                    "provider": qa_output.get("provider"),
+                    "model": qa_output.get("model"),
+                    "fallback_used": bool(qa_output.get("fallback_used")),
+                    "failed_provider": qa_output.get("failed_provider"),
+                    "fallback_reason": qa_output.get("fallback_reason"),
+                    "performance": qa_output.get("performance") or {},
+                    "postprocess_status": qa_output.get("postprocess_status") or "skipped",
+                    "knowledge_extract": qa_output.get("knowledge_extract") or {},
+                    "graph_context": qa_output.get("graph_context") or {},
                 },
             )
         elif status == "waiting_confirmation":
@@ -351,6 +327,13 @@ class AgentRuntimeService:
         await self.tasks.update_task(current, **values)
         await self.db.commit()
         if status == "completed":
+            qa_output = self._grounded_qa_output(result)
+            if (
+                not qa_output
+                or not qa_output.get("message_id")
+                or qa_output.get("postprocess_status") != "queued"
+            ):
+                await self._publish_chat_completed(current, result)
             from app.services.pet_service import PetService
 
             await PetService(self.db).safely_create_agent_completion(current)
@@ -371,6 +354,29 @@ class AgentRuntimeService:
                     )
                 except Exception:
                     pass
+
+    def _grounded_qa_output(self, result: dict[str, Any]) -> dict[str, Any]:
+        for observation in reversed(result.get("observations") or []):
+            if observation.get("success") and observation.get("tool_name") == "answer_course_question":
+                return dict(observation.get("output") or {})
+        return {}
+
+    async def _publish_chat_completed(self, task: AgentTask, result: dict[str, Any]) -> None:
+        question = str(task.task_goal or (task.input_payload or {}).get("user_input") or "").strip()
+        answer = extract_final_answer_text(result.get("final_answer") or "").strip()
+        if not question or not answer:
+            return
+        from app.services.chat_knowledge_pipeline import publish_chat_completed
+
+        await publish_chat_completed(
+            user_id=task.user_id,
+            course_id=task.course_id,
+            question=question,
+            answer=answer,
+            citations=list(result.get("citations") or []),
+            message_id=str(task.id),
+            source="agent_runtime_service",
+        )
 
     async def _get_task(self, task_id: UUID) -> AgentTask:
         task = await self._get_task_optional(task_id)

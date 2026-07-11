@@ -105,8 +105,13 @@ async def test_build_feed_returns_generating_when_cache_miss() -> None:
     user = MagicMock()
     user.id = uuid4()
     course_id = uuid4()
+    search_service = MagicMock()
+    search_service.enabled = True
 
-    with patch("app.services.external_resource_feed_service.CourseService") as course_service:
+    with patch(
+        "app.services.external_resource_feed_service.WebSearchService",
+        return_value=search_service,
+    ), patch("app.services.external_resource_feed_service.CourseService") as course_service:
         course_service.return_value.get_readable_course = AsyncMock()
         with patch.object(
             service,

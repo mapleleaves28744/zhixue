@@ -8,11 +8,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { getResourceTypeLabel, normalizeResourceType, RESOURCE_CATEGORY_OPTIONS } from "@/lib/resourceTypes"
 import { generateResource, getResource, listResources } from "@/services/resourceService"
 import type { GeneratedResource, ResourceType } from "@/types/resource"
+import { cn } from "@/lib/utils"
 
 const LAST_RESOURCE_KEY = "zhixue_last_resource_id"
 
-interface ResourceSidePanelProps {
+export interface ResourceSidePanelProps {
   courseId: string
+  className?: string
   wikiPageId?: string | null
   /** 递增时重新拉取资源列表（如 Agent 对话生成资源后） */
   refreshSignal?: number
@@ -22,6 +24,7 @@ interface ResourceSidePanelProps {
 
 export function ResourceSidePanel({
   courseId,
+  className,
   wikiPageId,
   refreshSignal = 0,
   highlightResourceType = null,
@@ -183,7 +186,7 @@ export function ResourceSidePanel({
   }
 
   return (
-    <aside className="glass-card flex h-full w-full flex-col overflow-hidden rounded-3xl lg:w-[360px] lg:shrink-0">
+    <aside className={cn("glass-card flex min-h-0 w-full flex-col overflow-hidden rounded-3xl", className)}>
       <div className="border-b border-white/60 p-4">
         <h2 className="text-sm font-bold text-on-surface">个性化资源</h2>
         <p className="mt-1 text-xs text-outline">按类型收纳，生成后自动定位到对应分类</p>

@@ -159,11 +159,31 @@ class MiMoSupervisor:
                 reasoning_content=decision.reasoning_content,
             )
 
+        required_tools = supervisor_intents.plan_required_tools(
+            goal,
+            is_profile_update_only=self._is_profile_update_only_goal(goal),
+        )
+        if (
+            required_tools == ["answer_course_question"]
+            and "answer_course_question" in available
+            and "answer_course_question" not in completed_tools
+            and "answer_course_question" not in skip_tools
+        ):
+            return self._force_tool(
+                "answer_course_question",
+                goal,
+                state,
+                decision,
+                reason="显式课程依据问答统一由可信问答内核完成",
+            )
+
         if decision.tool_calls:
             if decision.status == "complete":
                 decision.status = "continue"
             decision.tool_calls = [
-                call for call in decision.tool_calls if call.name not in completed_tools
+                call
+                for call in decision.tool_calls
+                if call.name not in completed_tools and call.name not in skip_tools
             ]
             if not decision.tool_calls:
                 pending_deliverables = self._pending_deliverables(
@@ -221,15 +241,34 @@ class MiMoSupervisor:
         if (
             decision.status == "complete"
             and self._requires_explicit_retrieval(goal, completed_tools, state, skip_tools)
-            and "search_course_knowledge" in available
-            and "search_course_knowledge" not in skip_tools
+            and (
+                (
+                    "answer_course_question" in available
+                    and "answer_course_question" not in skip_tools
+                )
+                or (
+                    "search_course_knowledge" in available
+                    and "search_course_knowledge" not in skip_tools
+                )
+            )
         ):
+            grounded_tool = (
+                "answer_course_question"
+                if required_tools == ["answer_course_question"]
+                and "answer_course_question" in available
+                and "answer_course_question" not in skip_tools
+                else "search_course_knowledge"
+            )
             return self._force_tool(
-                "search_course_knowledge",
+                grounded_tool,
                 goal,
                 state,
                 decision,
-                reason="用户明确要求基于课程资料回答，必须先检索",
+                reason=(
+                    "用户明确要求基于课程资料回答，必须使用可信问答内核"
+                    if grounded_tool == "answer_course_question"
+                    else "生成多模态产物前必须先检索课程依据"
+                ),
             )
 
         if (
@@ -358,7 +397,12 @@ class MiMoSupervisor:
         state: dict[str, Any],
         skip_tools: set[str],
     ) -> bool:
-        if "search_course_knowledge" in completed_tools or "search_course_knowledge" in skip_tools:
+        if (
+            "search_course_knowledge" in completed_tools
+            or "answer_course_question" in completed_tools
+            or "search_course_knowledge" in skip_tools
+            or "answer_course_question" in skip_tools
+        ):
             return False
         if state.get("citations"):
             return False

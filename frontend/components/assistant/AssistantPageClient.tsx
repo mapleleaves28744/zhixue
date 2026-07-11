@@ -16,9 +16,11 @@ import { extractSpeechAudio } from "@/components/assistant/extractSpeechAudio"
 import { ConversationHistoryHover } from "@/components/assistant/ConversationHistoryHover"
 import { ModeToggle } from "@/components/assistant/ModeToggle"
 import { ResourceSidePanel } from "@/components/assistant/ResourceSidePanel"
+import { ResourcePanelDialog } from "@/components/assistant/ResourcePanelDialog"
 import { agentStatusLine } from "@/components/assistant/streamLabels"
 import { StudentShell } from "@/components/assistant/StudentShell"
 import { ToolSelector } from "@/components/assistant/ToolSelector"
+import { useTutorStream, type TutorStreamSnapshot } from "@/hooks/useTutorStream"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -33,8 +35,8 @@ import {
   sendAgentConversationMessage,
   streamAgentTaskEvents,
 } from "@/services/agentService"
-import { streamTutorChat } from "@/services/tutorService"
 import { resolveCourseIdFromList, resolveCourseIdSyncFallback } from "@/lib/resolveCourse"
+import { getToken } from "@/lib/auth"
 import { getResourceTypeLabel, normalizeResourceType } from "@/lib/resourceTypes"
 import { listCourses } from "@/services/courseService"
 import { listWikiPages } from "@/services/wikiService"
@@ -43,7 +45,7 @@ import { AGENT_ONLY_TOOLS } from "@/types/agent"
 import type { Course } from "@/types/course"
 import type { ResourceType } from "@/types/resource"
 import type { WikiPageSummary } from "@/services/wikiService"
-import type { TutorCitation } from "@/types/tutor"
+import type { TutorChatResponse, TutorCitation } from "@/types/tutor"
 import { normalizeAgentAnswer } from "@/lib/normalizeAgentAnswer"
 import { endLearningSession, heartbeatLearningSession } from "@/services/learningAnalyticsService"
 
@@ -60,6 +62,7 @@ type ChatItem =
       progress?: string
       error?: string | null
       citations?: TutorCitation[]
+      result?: TutorChatResponse | null
     }
   | {
       id: string
@@ -79,6 +82,7 @@ type DetailTarget = { kind: "tutor"; messageId: string } | { kind: "agent"; task
 
 const RESOURCE_ARTIFACT_TYPES = new Set(["resource", "media_asset"])
 const TERMINAL_TASK_STATUSES = new Set(["succeeded", "failed", "cancelled"])
+type CourseLoadState = "loading" | "ready" | "unauthenticated" | "unavailable" | "empty"
 
 function isTaskTerminal(status?: string | null): boolean {
   return Boolean(status && TERMINAL_TASK_STATUSES.has(status))
@@ -216,11 +220,51 @@ function messagesFromHistory(items: AgentMessage[]): ChatItem[] {
       })
       continue
     }
+    const payload = m.payload || {}
+    const citations = (payload.citations as TutorCitation[]) || []
+    const groundingStatus = String(payload.grounding_status || "")
+    const resultPayload: TutorChatResponse | null = groundingStatus
+      ? {
+          answer: m.content,
+          citations,
+          related_knowledge_points:
+            (payload.related_knowledge_points as TutorChatResponse["related_knowledge_points"]) || [],
+          follow_up_questions: (payload.follow_up_questions as string[]) || [],
+          review_result: (payload.review_result as Record<string, unknown>) || {},
+          memory_update_suggestion:
+            (payload.memory_update_suggestion as Record<string, unknown>) || {},
+          message_id: String(payload.learning_record_id || "") || null,
+          conversation_id: m.conversation_id,
+          model: typeof payload.model === "string" ? payload.model : null,
+          provider: typeof payload.provider === "string" ? payload.provider : null,
+          fallback_used: Boolean(payload.fallback_used),
+          failed_provider:
+            typeof payload.failed_provider === "string" ? payload.failed_provider : null,
+          fallback_reason:
+            typeof payload.fallback_reason === "string" ? payload.fallback_reason : null,
+          knowledge_extract: (payload.knowledge_extract as Record<string, unknown>) || {},
+          graph_context: (payload.graph_context as Record<string, unknown>) || {},
+          grounding_status: groundingStatus as TutorChatResponse["grounding_status"],
+          grounding_message: String(payload.grounding_message || ""),
+          performance:
+            (payload.performance as TutorChatResponse["performance"]) || {
+              retrieval_ms: 0,
+              first_token_ms: null,
+              generation_ms: 0,
+              total_ms: 0,
+              llm_call_count: 0,
+              evidence_candidate_count: citations.length,
+              evidence_accepted_count: citations.length,
+            },
+          postprocess_status: payload.postprocess_status === "queued" ? "queued" : "skipped",
+        }
+      : null
     result.push({
       id: m.id,
       kind: "tutor",
       content: m.content,
-      citations: (m.payload?.citations as TutorCitation[]) || [],
+      citations,
+      result: resultPayload,
     })
   }
   return result
@@ -230,6 +274,7 @@ export function AssistantPageClient() {
   const searchParams = useSearchParams()
   const [courses, setCourses] = useState<Course[]>([])
   const [courseId, setCourseId] = useState("")
+  const [courseLoadState, setCourseLoadState] = useState<CourseLoadState>("loading")
   const learningSessionIdRef = useRef<string | null>(null)
   const lastLearningActivityAtRef = useRef(Date.now())
   const [wikiPages, setWikiPages] = useState<WikiPageSummary[]>([])
@@ -242,9 +287,9 @@ export function AssistantPageClient() {
   const [messages, setMessages] = useState<ChatItem[]>([])
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
-  const [activeTutorId, setActiveTutorId] = useState<string | null>(null)
   const [detailTarget, setDetailTarget] = useState<DetailTarget | null>(null)
   const [resourceRefreshSignal, setResourceRefreshSignal] = useState(0)
+  const [resourceDialogOpen, setResourceDialogOpen] = useState(false)
   const [resourceRevealType, setResourceRevealType] = useState<ResourceType | null>(
     () => normalizeResourceType(searchParams.get("resource_type")),
   )
@@ -253,8 +298,35 @@ export function AssistantPageClient() {
   const initialHistoryScrollRef = useRef(false)
   const watchingTasksRef = useRef<Set<string>>(new Set())
   const agentStreamControllersRef = useRef<Map<string, AbortController>>(new Map())
-  const tutorStreamControllersRef = useRef<Map<string, AbortController>>(new Map())
   const resourceSyncedTasksRef = useRef<Set<string>>(new Set())
+
+  const handleTutorSnapshot = useCallback((snapshot: TutorStreamSnapshot) => {
+    const streaming = !["completed", "interrupted", "failed"].includes(snapshot.status)
+    setMessages((prev) =>
+      prev.map((message) =>
+        message.kind === "tutor" && message.id === snapshot.requestId
+          ? {
+              ...message,
+              content: snapshot.answer || message.content,
+              streaming,
+              progress: snapshot.progress || undefined,
+              error: snapshot.error,
+              citations: snapshot.result?.citations || message.citations || [],
+              result: snapshot.result,
+            }
+          : message,
+      ),
+    )
+    if (snapshot.status === "completed" && snapshot.result?.conversation_id) {
+      const nextConversationId = snapshot.result.conversation_id
+      setConversationId(nextConversationId)
+      localStorage.setItem(`${CONVERSATION_KEY}_${courseId}`, nextConversationId)
+    }
+  }, [courseId])
+  const {
+    start: startTutorStream,
+    stopAll: stopAllTutorStreams,
+  } = useTutorStream({ onSnapshot: handleTutorSnapshot })
 
   const bumpResourceList = useCallback((targetType: ResourceType | null = null) => {
     if (targetType) setResourceRevealType(targetType)
@@ -301,24 +373,39 @@ export function AssistantPageClient() {
     if (q) setInput(q)
   }, [searchParams])
 
-  useEffect(() => {
-    listCourses()
-      .then(async (data) => {
-        setCourses(data.items)
-        const urlCourseId = searchParams.get("course_id")
-        if (!data.items.length) {
-          setCourseId("")
-          return
-        }
-        try {
-          const initial = await resolveCourseIdFromList(data.items, urlCourseId)
-          setCourseId(initial)
-        } catch {
-          setCourseId(resolveCourseIdSyncFallback(data.items))
-        }
-      })
-      .catch(() => toast.error("加载课程失败"))
+  const loadCourses = useCallback(async () => {
+    if (!getToken()) {
+      setCourseLoadState("unauthenticated")
+      setCourses([])
+      setCourseId("")
+      return
+    }
+    setCourseLoadState("loading")
+    try {
+      const data = await listCourses()
+      setCourses(data.items)
+      const urlCourseId = searchParams.get("course_id")
+      if (!data.items.length) {
+        setCourseId("")
+        setCourseLoadState("empty")
+        return
+      }
+      try {
+        setCourseId(await resolveCourseIdFromList(data.items, urlCourseId))
+      } catch {
+        setCourseId(resolveCourseIdSyncFallback(data.items))
+      }
+      setCourseLoadState("ready")
+    } catch {
+      setCourses([])
+      setCourseId("")
+      setCourseLoadState(getToken() ? "unavailable" : "unauthenticated")
+    }
   }, [searchParams])
+
+  useEffect(() => {
+    void loadCourses()
+  }, [loadCourses])
 
   useEffect(() => {
     if (!courseId) return
@@ -456,27 +543,14 @@ export function AssistantPageClient() {
     [patchAgentMessage],
   )
 
-  const stopTutorStream = useCallback((messageId: string) => {
-    tutorStreamControllersRef.current.get(messageId)?.abort()
-    tutorStreamControllersRef.current.delete(messageId)
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.kind === "tutor" && m.id === messageId
-          ? { ...m, streaming: false, progress: "已停止生成" }
-          : m,
-      ),
-    )
-  }, [])
-
   const stopVisibleStreams = useCallback(
     (markAgentPaused = true) => {
-      for (const messageId of tutorStreamControllersRef.current.keys()) stopTutorStream(messageId)
+      stopAllTutorStreams()
       for (const taskId of agentStreamControllersRef.current.keys()) {
         stopAgentStream(taskId, { markPaused: markAgentPaused })
       }
-      setActiveTutorId(null)
     },
-    [stopAgentStream, stopTutorStream],
+    [stopAgentStream, stopAllTutorStreams],
   )
 
   useEffect(() => {
@@ -688,10 +762,14 @@ export function AssistantPageClient() {
     }
   }
 
-  const sendMessage = async () => {
-    const question = input.trim()
+  const sendMessage = async (questionOverride?: string) => {
+    const question = (questionOverride ?? input).trim()
     if (!question || sending) return
-    if (!courseId) {
+    if (messages.some((message) => message.kind !== "user" && Boolean(message.streaming))) {
+      toast.info("请先停止或等待当前回答完成")
+      return
+    }
+    if (courseLoadState !== "ready" || !courseId) {
       toast.error("请先选择课程")
       return
     }
@@ -707,9 +785,6 @@ export function AssistantPageClient() {
 
       if (!useAgentPath) {
         const tutorId = `t-${Date.now()}`
-        const controller = new AbortController()
-        tutorStreamControllersRef.current.set(tutorId, controller)
-        setActiveTutorId(tutorId)
         setMessages((prev) => [
           ...prev,
           {
@@ -721,9 +796,11 @@ export function AssistantPageClient() {
           },
         ])
         setSending(false)
-        void streamTutorChat(
+        void startTutorStream(
+          tutorId,
           {
             course_id: courseId,
+            conversation_id: conversationId,
             question,
             wiki_page_id: wikiPageId || null,
             use_rag: useRag,
@@ -731,61 +808,7 @@ export function AssistantPageClient() {
             use_profile: false,
             stream: true,
           },
-          {
-            signal: controller.signal,
-            onProgress: (p) => {
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.kind === "tutor" && m.id === tutorId
-                    ? { ...m, progress: p.message || p.stage || "处理中…" }
-                    : m,
-                ),
-              )
-            },
-            onDelta: (chunk) => {
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.kind === "tutor" && m.id === tutorId
-                    ? { ...m, content: `${m.content}${chunk}` }
-                    : m,
-                ),
-              )
-            },
-            onDone: (final) => {
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.kind === "tutor" && m.id === tutorId
-                    ? {
-                        ...m,
-                        content: final.answer || m.content,
-                        streaming: false,
-                        progress: undefined,
-                        citations: final.citations || m.citations || [],
-                      }
-                    : m,
-                ),
-              )
-            },
-          },
         )
-          .catch((err) => {
-            if (controller.signal.aborted) return
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.kind === "tutor" && m.id === tutorId
-                  ? {
-                      ...m,
-                      streaming: false,
-                      error: err instanceof Error ? err.message : "请求失败",
-                    }
-                  : m,
-              ),
-            )
-          })
-          .finally(() => {
-            tutorStreamControllersRef.current.delete(tutorId)
-            setActiveTutorId((current) => (current === tutorId ? null : current))
-          })
       } else {
         if (mode === "fast") {
           setMode("agent")
@@ -795,7 +818,7 @@ export function AssistantPageClient() {
         const accepted = await sendAgentConversationMessage(convId, {
           content: question,
           tool_hints: toolHints,
-          skip_tools: useRag ? [] : ["search_course_knowledge"],
+          skip_tools: useRag ? [] : ["search_course_knowledge", "answer_course_question"],
         })
         const taskId = accepted.task.id
         setMessages((prev) => [
@@ -834,8 +857,8 @@ export function AssistantPageClient() {
 
   return (
     <StudentShell title="AI 学习助手">
-      <div className="mx-auto flex h-[calc(100dvh-7rem)] max-w-[1540px] flex-col gap-4 lg:flex-row">
-        <section className="glass-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl">
+      <div className="mx-auto flex h-[calc(100dvh-7rem)] max-w-[1540px] gap-4">
+        <section className="glass-card flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-3xl">
           <div className="flex flex-wrap items-center gap-3 border-b border-white/60 bg-white/30 p-4">
             <ConversationHistoryHover
               courseId={courseId}
@@ -851,7 +874,15 @@ export function AssistantPageClient() {
             />
             <select
               value={courseId}
-              onChange={(e) => setCourseId(e.target.value)}
+              onChange={(e) => {
+                stopVisibleStreams(true)
+                setDetailTarget(null)
+                setConversationId(null)
+                setMessages([])
+                setWikiPages([])
+                setWikiPageId("")
+                setCourseId(e.target.value)
+              }}
               className="rounded-xl border border-white/80 bg-white/60 px-3 py-2 text-sm"
             >
               {courses.map((c) => (
@@ -887,6 +918,16 @@ export function AssistantPageClient() {
               <input type="checkbox" checked={useWiki} onChange={(e) => setUseWiki(e.target.checked)} />
               Wiki
             </label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="ml-auto rounded-full xl:hidden"
+              onClick={() => setResourceDialogOpen(true)}
+            >
+              <span className="material-symbols-outlined mr-1 text-base">auto_stories</span>
+              学习资源
+            </Button>
           </div>
 
           {mode === "agent" && (
@@ -905,6 +946,29 @@ export function AssistantPageClient() {
           )}
 
           <div ref={listRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+            {courseLoadState !== "ready" ? (
+              <div className="rounded-3xl border border-white/70 bg-white/45 p-5 text-sm text-outline shadow-sm">
+                <p className="font-bold text-ink">
+                  {courseLoadState === "loading"
+                    ? "正在加载课程…"
+                    : courseLoadState === "unauthenticated"
+                      ? "请先登录后使用智能问答"
+                      : courseLoadState === "empty"
+                        ? "当前还没有可用课程"
+                        : "课程加载失败，后端服务可能暂不可用"}
+                </p>
+                <p className="mt-1 text-xs">
+                  {courseLoadState === "empty"
+                    ? "请先在课程空间创建课程并添加学习资料。"
+                    : "问答区会保留，服务恢复后可以直接重试。"}
+                </p>
+                {courseLoadState === "unavailable" ? (
+                  <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => void loadCourses()}>
+                    重试加载
+                  </Button>
+                ) : null}
+              </div>
+            ) : null}
             {!messages.length && (
               <div className="flex h-full flex-col items-center justify-center text-center text-outline">
                 <span className="material-symbols-outlined mb-2 text-4xl text-primary/40">smart_toy</span>
@@ -931,6 +995,12 @@ export function AssistantPageClient() {
                       progress={msg.progress}
                       streaming={isStreaming}
                       error={msg.error}
+                      result={msg.result}
+                      wikiPageId={wikiPageId || null}
+                      onFollowUp={(question) => {
+                        setInput(question)
+                        void sendMessage(question)
+                      }}
                       onOpenDetail={() => setDetailTarget({ kind: "tutor", messageId: msg.id })}
                     />
                   </div>
@@ -983,6 +1053,7 @@ export function AssistantPageClient() {
                 placeholder="输入问题，Enter 发送，Shift+Enter 换行"
                 rows={2}
                 className="min-h-[52px] flex-1 resize-none"
+                disabled={courseLoadState !== "ready"}
               />
               {hasActiveStream ? (
                 <Button
@@ -995,7 +1066,7 @@ export function AssistantPageClient() {
                   <span className="h-3 w-3 rounded-[3px] bg-current" aria-hidden="true" />
                 </Button>
               ) : (
-                <Button onClick={() => void sendMessage()} disabled={sending || !input.trim()}>
+                <Button onClick={() => void sendMessage()} disabled={courseLoadState !== "ready" || sending || !input.trim()}>
                   发送
                 </Button>
               )}
@@ -1003,7 +1074,21 @@ export function AssistantPageClient() {
           </div>
         </section>
 
-        <ResourceSidePanel
+        <div className="hidden xl:block h-full w-[360px] shrink-0">
+          <ResourceSidePanel
+            className="h-full"
+            courseId={courseId}
+            wikiPageId={wikiPageId || null}
+            refreshSignal={resourceRefreshSignal}
+            highlightResourceType={resourceRevealType}
+          />
+        </div>
+      </div>
+
+      <div className="xl:hidden">
+        <ResourcePanelDialog
+          open={resourceDialogOpen}
+          onOpenChange={setResourceDialogOpen}
           courseId={courseId}
           wikiPageId={wikiPageId || null}
           refreshSignal={resourceRefreshSignal}

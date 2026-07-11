@@ -157,6 +157,10 @@ class MockLLMProvider(BaseLLMProvider):
         if not user_input:
             return "你好！我是智学工坊的 AI 学习助手，有什么可以帮助你的吗？"
 
+        grounded_tutor = self._generate_grounded_tutor_response(user_input)
+        if grounded_tutor is not None:
+            return grounded_tutor
+
         topic = self._detect_topic(user_input)
 
         if self._is_provider_status_question(user_input):
@@ -338,6 +342,33 @@ class MockLLMProvider(BaseLLMProvider):
             },
             ensure_ascii=False,
         )
+
+    @staticmethod
+    def _generate_grounded_tutor_response(user_input: str) -> str | None:
+        if "编号课程证据：" not in user_input or "强制引用规则：" not in user_input:
+            return None
+        section_match = re.search(
+            r"编号课程证据：\s*(.*?)(?:\n\n知识关系：|\Z)",
+            user_input,
+            flags=re.DOTALL,
+        )
+        evidence_section = section_match.group(1).strip() if section_match else ""
+        evidence = re.findall(
+            r"\[S(\d+)\]\s*标题：(.*?)\n页码：.*?\n原文：(.*?)(?=\n\n\[S\d+\]|\Z)",
+            evidence_section,
+            flags=re.DOTALL,
+        )
+        if not evidence:
+            return "课程资料未找到可靠依据，无法根据当前课程内容回答这个问题。"
+
+        supported_points: list[str] = []
+        for number, _title, quote in evidence[:2]:
+            concise_quote = re.sub(r"\s+", " ", quote).strip()[:260].rstrip("。！？；; ")
+            if concise_quote:
+                supported_points.append(f"{concise_quote} [S{number}]。")
+        if not supported_points:
+            return "课程资料未找到可靠依据，无法根据当前课程内容回答这个问题。"
+        return "根据当前课程资料：\n\n" + "\n\n".join(supported_points)
 
     def _detect_topic(self, user_input: str) -> str:
         for topic in ("栈与队列", "二叉树", "树", "图", "查找", "排序", "线性表", "串", "数组", "数据结构"):

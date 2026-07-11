@@ -33,6 +33,8 @@ Thumbs.db
 # Runtime data
 uploads/
 storage/
+!backend/app/storage/
+!backend/app/storage/*.py
 *.log
 
 # 本地 SSH 代理配置（含个人端口，勿提交）

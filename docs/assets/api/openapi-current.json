@@ -9115,6 +9115,18 @@
             "minLength": 1,
             "title": "Question"
           },
+          "conversation_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Id"
+          },
           "session_id": {
             "anyOf": [
               {
