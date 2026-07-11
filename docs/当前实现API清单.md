@@ -5,6 +5,13 @@
 > HTTP 操作数：**143**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
+## Tutor Grounded QA 协议补充（2026-07-11）
+
+- `POST /api/v1/tutor/chat` 保持现有路由与统一鉴权；请求使用 `TutorChatRequest`，支持 `course_id`、`question`、`conversation_id`、可选 Wiki 上下文和 `stream`。
+- 流式响应按 `progress → evidence → delta → done` 推送 SSE，异常使用 `error`；客户端必须以 `done` 为成功终态，且只允许在首个 `delta` 前尝试一次非流式降级。
+- `done` 结果包含回答、经校验的真实来源引用、相关知识点、追问建议、grounding/fallback/mock 状态、性能指标和 `learning_record_id`。反馈与保存 Wiki 使用该学习记录 ID，不使用 Agent 消息 ID。
+- 该补充描述现有端点的响应语义，没有新增 API 路由或数据库结构。
+
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
 |---|---|---|---|---|
 | `GET` | `/` | Public | - | - |
