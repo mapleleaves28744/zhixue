@@ -338,7 +338,7 @@ async def test_auto_wiki_matching_rechecks_course_status_and_allowed_owner() -> 
 @pytest.mark.parametrize(
     ("item", "terms", "expected_confidence"),
     [
-        ({"keyword_score": 1.0, "vector_score": 0.0}, ["栈"], "strong"),
+        ({"keyword_score": 1.0, "vector_score": 0.0, "content": "栈遵循后进先出"}, ["栈"], "strong"),
         ({"keyword_score": 0.0, "vector_score": 0.55}, ["栈"], "strong"),
         (
             {
@@ -361,6 +361,21 @@ def test_document_acceptance_includes_exact_confidence_boundaries(
 
     assert service._accept_document(item, terms) is True
     assert service._confidence(item) == expected_confidence
+
+
+def test_keyword_evidence_requires_discriminative_question_overlap() -> None:
+    service = EvidenceRetrievalService(db=None)  # type: ignore[arg-type]
+    item = {
+        "keyword_score": 4.5,
+        "vector_score": 0.0,
+        "source_title": "数据结构讲义",
+        "content": "本页用于课程知识库和学生复习资料。",
+    }
+
+    assert service._accept_document(
+        item,
+        ["数据结构", "课程", "资料", "量子", "纠缠", "贝尔", "不等式"],
+    ) is False
 
 
 @pytest.mark.asyncio

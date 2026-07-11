@@ -657,3 +657,40 @@ async def _test_embedding_fallback_provider_uses_mock_vectors() -> None:
     assert len(vectors) == 2
     assert len(vectors[0]) == 1024
     assert vectors[0] != vectors[1]
+@pytest.mark.asyncio
+async def test_mock_provider_grounded_tutor_uses_available_source_marker() -> None:
+    provider = MockLLMProvider()
+    response = await provider.chat(
+        [
+            ChatMessage(
+                role="user",
+                content=(
+                    "问题：栈为什么适合括号匹配？\n\n"
+                    "编号课程证据：\n[S1] 标题：栈\n页码：12\n原文：栈遵循后进先出，适合匹配嵌套括号。\n\n"
+                    "知识关系：\n无\n\n强制引用规则：课程依据必须使用当前输入中的 [S#]"
+                ),
+            )
+        ]
+    )
+
+    assert "[S1]" in response.content
+    assert "栈遵循后进先出" in response.content
+
+
+@pytest.mark.asyncio
+async def test_mock_provider_grounded_tutor_refuses_without_course_evidence() -> None:
+    provider = MockLLMProvider()
+    response = await provider.chat(
+        [
+            ChatMessage(
+                role="user",
+                content=(
+                    "问题：课程讲义规定 2030 年考试日期吗？\n\n"
+                    "编号课程证据：\n课程资料未找到可靠依据。\n\n"
+                    "知识关系：\n无\n\n强制引用规则：没有可信证据时必须明确说明课程依据不足。"
+                ),
+            )
+        ]
+    )
+
+    assert response.content == "课程资料未找到可靠依据，无法根据当前课程内容回答这个问题。"

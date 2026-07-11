@@ -105,7 +105,9 @@ async def test_answer_tool_final_answer_bypasses_second_supervisor_call() -> Non
 
 
 def test_agent_runtime_no_longer_extracts_dialogue_synchronously() -> None:
-    source = Path("app/services/agent_runtime_service.py").read_text(encoding="utf-8")
+    source = (Path(__file__).resolve().parents[1] / "app/services/agent_runtime_service.py").read_text(
+        encoding="utf-8"
+    )
     assert "extract_knowledge_from_dialogue(" not in source
 
 
@@ -972,7 +974,9 @@ def test_default_learning_tool_registry_exposes_specialized_agents_and_risk_boun
 
 
 def test_generate_explanation_artifact_refs_keep_resource_type_for_frontend_categories() -> None:
-    source = Path("app/agent_runtime/service_tools.py").read_text(encoding="utf-8")
+    source = (Path(__file__).resolve().parents[1] / "app/agent_runtime/service_tools.py").read_text(
+        encoding="utf-8"
+    )
 
     assert '"resource_type": data.get("resource_type")' in source
     assert '"resource_id": str(result.resource_id)' in source

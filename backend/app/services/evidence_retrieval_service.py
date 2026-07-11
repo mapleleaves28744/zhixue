@@ -22,6 +22,11 @@ class EvidenceRetrievalService:
     KEYWORD_STRONG = 1.0
     MAX_EVIDENCE = 5
     MAX_PER_SOURCE = 2
+    GENERIC_QUERY_TERMS = {
+        "什么", "是什么", "为什么", "如何", "怎么", "哪些", "是否", "给出",
+        "当前", "课程", "资料", "讲义", "数据", "结构", "数据结构", "内容",
+        "问题", "具体", "规定", "说明", "解释", "关系", "之间",
+    }
 
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
@@ -65,7 +70,7 @@ class EvidenceRetrievalService:
 
         document_items = list(graph_payload.get("items") or [])
         candidate_count = len(document_items) + len(wiki_pages)
-        terms = self._question_terms(question)
+        terms = self._meaningful_question_terms(question)
         document_evidence: list[EvidenceItem] = []
         source_counts: dict[UUID, int] = defaultdict(int)
         for item in document_items:
@@ -161,7 +166,11 @@ class EvidenceRetrievalService:
         if public_owner_id is not None and public_owner_id != user_id:
             owner_ids.append(public_owner_id)
         pages, _ = await self.wiki.list_by_owners(owner_ids, course_id, page_size=20)
-        terms = [term.lower() for term in self._question_terms(question) if len(term) >= 2]
+        terms = [
+            term.lower()
+            for term in self._meaningful_question_terms(question)
+            if len(term) >= 2 or term in {"栈", "树", "图", "堆", "串"}
+        ]
         scored: list[tuple[int, WikiPage]] = []
         seen_page_ids = {explicit_page.id} if explicit_page is not None else set()
         for page in pages:
@@ -269,9 +278,17 @@ class EvidenceRetrievalService:
     def _accept_document(self, item: dict[str, Any], terms: list[str]) -> bool:
         vector = float(item.get("vector_score") or 0.0)
         keyword = float(item.get("keyword_score") or 0.0)
+        meaningful_terms = [
+            term.lower()
+            for term in terms
+            if (len(term.strip()) >= 2 or term.strip() in {"栈", "树", "图", "堆", "串"})
+            and term.strip().lower() not in self.GENERIC_QUERY_TERMS
+        ]
         title = str(item.get("source_title") or "").lower()
-        title_hit = any(term.lower() in title for term in terms)
-        return keyword >= self.KEYWORD_STRONG or vector >= self.VECTOR_STRONG or (
+        content = str(item.get("content") or "").lower()
+        title_hit = any(term in title for term in meaningful_terms)
+        lexical_support = any(term in f"{title}\n{content}" for term in meaningful_terms)
+        return (keyword >= self.KEYWORD_STRONG and lexical_support) or vector >= self.VECTOR_STRONG or (
             title_hit and vector >= self.VECTOR_WITH_TITLE
         )
 
@@ -286,6 +303,13 @@ class EvidenceRetrievalService:
         from app.rag.hybrid_retriever import _query_terms
 
         return _query_terms(question)
+
+    def _meaningful_question_terms(self, question: str) -> list[str]:
+        cleaned = question
+        for term in sorted(self.GENERIC_QUERY_TERMS, key=len, reverse=True):
+            cleaned = cleaned.replace(term, " ")
+        terms = self._question_terms(cleaned)
+        return terms or self._question_terms(question)
 
     def _graph_context(self, value: object) -> GraphContext:
         payload = value if isinstance(value, dict) else {}

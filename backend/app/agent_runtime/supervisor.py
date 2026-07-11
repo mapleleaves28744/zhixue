@@ -222,14 +222,30 @@ class MiMoSupervisor:
         if (
             decision.status == "complete"
             and self._requires_explicit_retrieval(goal, completed_tools, state, skip_tools)
-            and "answer_course_question" in available
+            and (
+                "answer_course_question" in available
+                or (
+                    "search_course_knowledge" in available
+                    and "search_course_knowledge" not in skip_tools
+                )
+            )
         ):
+            grounded_tool = (
+                "answer_course_question"
+                if required_tools == ["answer_course_question"]
+                and "answer_course_question" in available
+                else "search_course_knowledge"
+            )
             return self._force_tool(
-                "answer_course_question",
+                grounded_tool,
                 goal,
                 state,
                 decision,
-                reason="用户明确要求基于课程资料回答，必须使用可信问答内核",
+                reason=(
+                    "用户明确要求基于课程资料回答，必须使用可信问答内核"
+                    if grounded_tool == "answer_course_question"
+                    else "生成多模态产物前必须先检索课程依据"
+                ),
             )
 
         if decision.status == "complete" and pending_deliverables:

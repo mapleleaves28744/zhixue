@@ -63,6 +63,12 @@ export function useTutorStream({
       snapshotsRef.current = { ...snapshotsRef.current, [requestId]: first }
       setStreams(snapshotsRef.current)
       onSnapshotRef.current(first)
+      const updateCurrent = (
+        updater: (current: TutorStreamSnapshot) => TutorStreamSnapshot,
+      ) => {
+        if (controllersRef.current.get(requestId) !== controller) return
+        update(requestId, updater)
+      }
 
       try {
         return await streamTutorChat(payload, {
@@ -74,27 +80,27 @@ export function useTutorStream({
                 : stage === "llm_generation"
                   ? "generating"
                   : "retrieving"
-            update(requestId, (current) => ({
+            updateCurrent((current) => ({
               ...current,
               status,
               progress: message || stage || "处理中…",
             }))
           },
           onEvidence: (evidence) => {
-            update(requestId, (current) => ({
+            updateCurrent((current) => ({
               ...current,
               progress: evidence.grounding_message || current.progress,
             }))
           },
           onDelta: (content) => {
-            update(requestId, (current) => ({
+            updateCurrent((current) => ({
               ...current,
               status: "generating",
               answer: `${current.answer}${content}`,
             }))
           },
           onDone: (result) => {
-            update(requestId, (current) => ({
+            updateCurrent((current) => ({
               ...current,
               status: "completed",
               progress: "",
@@ -104,7 +110,7 @@ export function useTutorStream({
             }))
           },
           onInterrupted: (error) => {
-            update(requestId, (current) => ({
+            updateCurrent((current) => ({
               ...current,
               status: "interrupted",
               progress: "生成已中断",
@@ -115,7 +121,7 @@ export function useTutorStream({
       } catch (error) {
         if (controller.signal.aborted) return null
         const message = error instanceof Error ? error.message : "请求失败"
-        update(requestId, (current) => ({
+        updateCurrent((current) => ({
           ...current,
           status: "failed",
           progress: "",
