@@ -31,6 +31,7 @@ class ToolExecutionResult:
     citations: list[Any] = field(default_factory=list)
     error_message: str | None = None
     attempts: int = 1
+    final_answer: str | None = None
 
 
 ToolHandler = Callable[[ToolContext, dict[str, Any]], Awaitable[ToolExecutionResult]]

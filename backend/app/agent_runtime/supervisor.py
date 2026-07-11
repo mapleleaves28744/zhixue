@@ -311,7 +311,11 @@ class MiMoSupervisor:
         state: dict[str, Any],
         skip_tools: set[str],
     ) -> bool:
-        if "search_course_knowledge" in completed_tools or "search_course_knowledge" in skip_tools:
+        if (
+            "search_course_knowledge" in completed_tools
+            or "answer_course_question" in completed_tools
+            or "search_course_knowledge" in skip_tools
+        ):
             return False
         if state.get("citations"):
             return False

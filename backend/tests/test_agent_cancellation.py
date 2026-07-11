@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
 import pytest
@@ -116,15 +117,9 @@ def _build_service(task: SimpleNamespace) -> tuple[AgentRuntimeService, FakeTask
 
 @pytest.mark.asyncio
 async def test_record_event_does_not_turn_cancelled_task_into_succeeded(
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     task = _build_task()
     service, tasks, conversations, broker = _build_service(task)
-
-    async def passthrough_payload(current_task: object, payload: dict[str, object]) -> dict[str, object]:  # noqa: ARG001
-        return payload
-
-    monkeypatch.setattr(service, "_attach_knowledge_extract", passthrough_payload)
 
     with pytest.raises(AgentTaskCancelled):
         await service._record_event(
@@ -160,6 +155,52 @@ async def test_finish_task_does_not_turn_cancelled_task_into_succeeded() -> None
     assert tasks.update_calls == []
     assert conversations.messages == []
     assert broker.published == []
+
+
+@pytest.mark.asyncio
+async def test_finish_task_reuses_grounded_record_without_duplicate_publish(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    task = _build_task(status="running")
+    db = FakeAsyncSession({task.id: "running"})
+    service = AgentRuntimeService(db, broker=FakeBroker())
+    service.tasks = FakeTaskRepository(task)
+    conversations = FakeConversationRepository()
+    service.conversations = conversations
+    publish = AsyncMock()
+    monkeypatch.setattr(service, "_publish_chat_completed", publish)
+
+    from app.services.pet_service import PetService
+
+    monkeypatch.setattr(PetService, "safely_create_agent_completion", AsyncMock())
+    record_id = uuid4()
+    await service._finish_task(
+        task,
+        {
+            "status": "completed",
+            "final_answer": "栈是后进先出 [S1]。",
+            "artifacts": [],
+            "citations": [{"citation_key": "S1"}],
+            "observations": [
+                {
+                    "success": True,
+                    "tool_name": "answer_course_question",
+                    "output": {
+                        "message_id": str(record_id),
+                        "grounding_status": "grounded",
+                        "grounding_message": "回答已绑定课程依据。",
+                        "follow_up_questions": ["能举例吗？"],
+                        "related_knowledge_points": [{"name": "栈"}],
+                    },
+                }
+            ],
+        },
+    )
+
+    publish.assert_not_awaited()
+    payload = conversations.messages[0]["payload"]
+    assert payload["learning_record_id"] == str(record_id)
+    assert payload["grounding_status"] == "grounded"
 
 
 @pytest.mark.asyncio

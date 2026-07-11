@@ -211,8 +211,10 @@ def plan_required_tools(goal: str, *, is_profile_update_only: bool) -> list[str]
         )
     ) and not tools:
         tools.append("update_profile_from_dialogue")
-    if search_explicit_intent(goal) and "search_course_knowledge" not in tools:
-        tools.insert(0, "search_course_knowledge")
+    if search_explicit_intent(goal) and not tools:
+        tools.append("answer_course_question")
+    elif search_explicit_intent(goal) and tools == ["search_course_knowledge"]:
+        tools = ["answer_course_question"]
     if not tools and qa_intent(goal):
         tools.append("answer_course_question")
 

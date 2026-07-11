@@ -27,6 +27,123 @@ class QueryInput(SimpleNamespace):
     pass
 
 
+def test_explicit_course_source_qa_plans_only_grounded_answer() -> None:
+    from app.agent_runtime.supervisor_intents import plan_required_tools
+
+    assert plan_required_tools(
+        "基于课程资料解释栈并给出引用",
+        is_profile_update_only=False,
+    ) == ["answer_course_question"]
+
+
+@pytest.mark.asyncio
+async def test_answer_tool_final_answer_bypasses_second_supervisor_call() -> None:
+    class OneDecisionSupervisor:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        async def decide(self, state, tool_schemas):
+            self.calls += 1
+            if self.calls > 1:
+                raise AssertionError("grounded answer must not be summarized again")
+            return AgentDecision(
+                status="continue",
+                summary="调用共享问答内核",
+                plan=["回答课程问题"],
+                tool_calls=[
+                    PlannedToolCall(
+                        id="qa-1",
+                        name="answer_course_question",
+                        arguments={"question": "解释栈"},
+                    )
+                ],
+            )
+
+    async def answer_handler(context, arguments):
+        return ToolExecutionResult(
+            output={"answer": "栈是 LIFO [S1]。"},
+            final_answer="栈是 LIFO [S1]。",
+            citations=[{"citation_key": "S1"}],
+        )
+
+    supervisor = OneDecisionSupervisor()
+    registry = ToolRegistry()
+    registry.register(
+        AgentTool(
+            name="answer_course_question",
+            description="答疑",
+            agent_name="TutorAgent",
+            input_schema={"type": "object", "properties": {}},
+            handler=answer_handler,
+        )
+    )
+    result = await LearningAgentGraph(registry=registry, supervisor=supervisor).run(
+        task_id=uuid4(),
+        conversation_id=uuid4(),
+        user_id=uuid4(),
+        course_id=uuid4(),
+        goal="解释栈",
+        thread_id="grounded-pass-through",
+    )
+
+    assert result["final_answer"] == "栈是 LIFO [S1]。"
+    assert supervisor.calls == 1
+
+
+def test_agent_runtime_no_longer_extracts_dialogue_synchronously() -> None:
+    source = Path("app/services/agent_runtime_service.py").read_text(encoding="utf-8")
+    assert "extract_knowledge_from_dialogue(" not in source
+
+
+@pytest.mark.asyncio
+async def test_answer_tool_reuses_grounded_pipeline_without_conversation_messages(monkeypatch) -> None:
+    from app.schemas.tutor import TutorChatResponse
+    import app.services.grounded_qa_pipeline as pipeline_module
+
+    calls: list[tuple[object, object, bool]] = []
+
+    class FakePipeline:
+        def __init__(self, db) -> None:
+            self.db = db
+
+        async def answer(self, payload, current_user, *, persist_conversation_messages=True):
+            calls.append((payload, current_user, persist_conversation_messages))
+            return TutorChatResponse(
+                answer="栈是后进先出 [S1]。",
+                citations=[
+                    {
+                        "citation_key": "S1",
+                        "source_type": "document",
+                        "title": "数据结构讲义",
+                    }
+                ],
+                grounding_status="grounded",
+                grounding_message="回答已由课程资料支持。",
+                message_id=uuid4(),
+            )
+
+    monkeypatch.setattr(pipeline_module, "GroundedQaPipeline", FakePipeline)
+    user = SimpleNamespace(id=uuid4())
+    registry = build_learning_tool_registry(SimpleNamespace(), user)  # type: ignore[arg-type]
+    conversation_id = uuid4()
+    result = await registry.execute(
+        "answer_course_question",
+        {"question": "解释栈"},
+        ToolContext(
+            task_id=uuid4(),
+            tool_call_id="qa-shared",
+            user_id=user.id,
+            course_id=uuid4(),
+            conversation_id=conversation_id,
+        ),
+    )
+
+    assert result.success is True
+    assert result.final_answer == "栈是后进先出 [S1]。"
+    assert calls[0][0].conversation_id == conversation_id
+    assert calls[0][2] is False
+
+
 @pytest.mark.asyncio
 async def test_tool_registry_retries_and_reuses_idempotent_result() -> None:
     attempts = 0
