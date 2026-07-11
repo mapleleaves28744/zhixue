@@ -185,8 +185,9 @@ async def test_finish_task_reuses_grounded_record_without_duplicate_publish(
                 {
                     "success": True,
                     "tool_name": "answer_course_question",
-                    "output": {
-                        "message_id": str(record_id),
+                        "output": {
+                            "message_id": str(record_id),
+                            "postprocess_status": "queued",
                         "grounding_status": "grounded",
                         "grounding_message": "回答已绑定课程依据。",
                         "follow_up_questions": ["能举例吗？"],
@@ -201,6 +202,44 @@ async def test_finish_task_reuses_grounded_record_without_duplicate_publish(
     payload = conversations.messages[0]["payload"]
     assert payload["learning_record_id"] == str(record_id)
     assert payload["grounding_status"] == "grounded"
+
+
+@pytest.mark.asyncio
+async def test_finish_task_compensates_when_grounded_postprocess_was_skipped(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    task = _build_task(status="running")
+    db = FakeAsyncSession({task.id: "running"})
+    service = AgentRuntimeService(db, broker=FakeBroker())
+    service.tasks = FakeTaskRepository(task)
+    service.conversations = FakeConversationRepository()
+    publish = AsyncMock()
+    monkeypatch.setattr(service, "_publish_chat_completed", publish)
+
+    from app.services.pet_service import PetService
+
+    monkeypatch.setattr(PetService, "safely_create_agent_completion", AsyncMock())
+    result = {
+        "status": "completed",
+        "final_answer": "课程依据不足。",
+        "artifacts": [],
+        "citations": [],
+        "observations": [
+            {
+                "success": True,
+                "tool_name": "answer_course_question",
+                "output": {
+                    "answer": "课程依据不足。",
+                    "message_id": None,
+                    "postprocess_status": "skipped",
+                },
+            }
+        ],
+    }
+
+    await service._finish_task(task, result)
+
+    publish.assert_awaited_once_with(task, result)
 
 
 @pytest.mark.asyncio

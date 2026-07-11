@@ -129,6 +129,27 @@ def search_explicit_intent(goal: str) -> bool:
     return any(k in goal for k in ("检索", "课程资料", "课程知识库", "基于资料", "基于课程", "引用", "来源"))
 
 
+def search_only_intent(goal: str) -> bool:
+    has_search_action = any(k in goal for k in ("检索", "搜索", "查找", "找出"))
+    has_answer_action = any(
+        k in goal
+        for k in (
+            "解释",
+            "讲解",
+            "回答",
+            "什么是",
+            "是什么",
+            "为什么",
+            "如何",
+            "怎么",
+            "帮我理解",
+            "给出引用",
+            "引用回答",
+        )
+    )
+    return has_search_action and not has_answer_action
+
+
 def should_prepare_speech_script(goal: str) -> bool:
     return any(k in goal for k in ("讲解", "解释", "说明", "队列", "栈", "树", "图", "算法", "结构"))
 
@@ -211,8 +232,8 @@ def plan_required_tools(goal: str, *, is_profile_update_only: bool) -> list[str]
         )
     ) and not tools:
         tools.append("update_profile_from_dialogue")
-    if search_explicit_intent(goal) and not tools:
-        tools.append("answer_course_question")
+    if (search_explicit_intent(goal) or search_only_intent(goal)) and not tools:
+        tools.append("search_course_knowledge" if search_only_intent(goal) else "answer_course_question")
     elif search_explicit_intent(goal) and tools == ["search_course_knowledge"]:
         tools = ["answer_course_question"]
     if not tools and qa_intent(goal):

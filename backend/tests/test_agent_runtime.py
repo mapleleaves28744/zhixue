@@ -36,6 +36,20 @@ def test_explicit_course_source_qa_plans_only_grounded_answer() -> None:
     ) == ["answer_course_question"]
 
 
+@pytest.mark.parametrize(
+    "goal",
+    [
+        "请检索课程资料中所有提到栈的片段",
+        "请在课程知识库中搜索递归",
+        "查找栈相关片段",
+    ],
+)
+def test_explicit_search_only_goal_keeps_standalone_search(goal: str) -> None:
+    from app.agent_runtime.supervisor_intents import plan_required_tools
+
+    assert plan_required_tools(goal, is_profile_update_only=False) == ["search_course_knowledge"]
+
+
 @pytest.mark.asyncio
 async def test_answer_tool_final_answer_bypasses_second_supervisor_call() -> None:
     class OneDecisionSupervisor:
@@ -226,6 +240,42 @@ async def test_tool_registry_reuses_persisted_result_after_process_restart() -> 
 
     assert result.output["title"] == "已有资源"
     assert called is False
+
+
+@pytest.mark.asyncio
+async def test_result_saver_failure_does_not_rerun_committed_tool() -> None:
+    handler_calls = 0
+
+    async def committed_handler(context, arguments):
+        nonlocal handler_calls
+        handler_calls += 1
+        return ToolExecutionResult(output={"message_id": "record-1"}, final_answer="已提交回答")
+
+    async def failing_saver(key, result):
+        raise RuntimeError("step persistence unavailable")
+
+    registry = ToolRegistry(result_saver=failing_saver)
+    registry.register(
+        AgentTool(
+            name="answer_course_question",
+            description="课程答疑",
+            agent_name="TutorAgent",
+            input_schema={"type": "object", "properties": {}},
+            handler=committed_handler,
+            writes_db=True,
+            max_retries=2,
+        )
+    )
+
+    result = await registry.execute(
+        "answer_course_question",
+        {},
+        ToolContext(task_id=uuid4(), tool_call_id="qa-save-fail", user_id=uuid4(), course_id=uuid4()),
+    )
+
+    assert result.success is True
+    assert result.final_answer == "已提交回答"
+    assert handler_calls == 1
 
 
 @pytest.mark.asyncio
@@ -584,13 +634,46 @@ async def test_mimo_supervisor_requires_retrieval_for_explicitly_grounded_goal()
                     "description": "检索",
                     "parameters": {"type": "object", "properties": {"query": {"type": "string"}}},
                 },
-            }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "answer_course_question",
+                    "description": "可信课程答疑",
+                    "parameters": {"type": "object", "properties": {"question": {"type": "string"}}},
+                },
+            },
         ],
     )
 
     assert decision.status == "continue"
-    assert decision.tool_calls[0].name == "search_course_knowledge"
-    assert decision.tool_calls[0].arguments["query"] == "请基于课程资料解释栈，并给出引用。"
+    assert decision.tool_calls[0].name == "answer_course_question"
+    assert decision.tool_calls[0].arguments["question"] == "请基于课程资料解释栈，并给出引用。"
+
+
+@pytest.mark.asyncio
+async def test_mimo_supervisor_replaces_native_search_for_explicit_grounded_qa() -> None:
+    decision = await MiMoSupervisor(provider=FakeProvider()).decide(
+        {
+            "goal": "基于课程资料解释栈并给出引用",
+            "messages": [],
+            "observations": [],
+            "citations": [],
+        },
+        [
+            {
+                "type": "function",
+                "function": {
+                    "name": name,
+                    "description": name,
+                    "parameters": {"type": "object", "properties": {}},
+                },
+            }
+            for name in ("search_course_knowledge", "answer_course_question")
+        ],
+    )
+
+    assert [call.name for call in decision.tool_calls] == ["answer_course_question"]
 
 
 @pytest.mark.asyncio

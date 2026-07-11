@@ -143,6 +143,23 @@ class MiMoSupervisor:
         completed_tools = self._completed_tool_names(state)
         skip_tools = set(state.get("skip_tools") or [])
 
+        required_tools = supervisor_intents.plan_required_tools(
+            goal,
+            is_profile_update_only=self._is_profile_update_only_goal(goal),
+        )
+        if (
+            required_tools == ["answer_course_question"]
+            and "answer_course_question" in available
+            and "answer_course_question" not in completed_tools
+        ):
+            return self._force_tool(
+                "answer_course_question",
+                goal,
+                state,
+                decision,
+                reason="显式课程依据问答统一由可信问答内核完成",
+            )
+
         if decision.tool_calls:
             if decision.status == "complete":
                 decision.status = "continue"
@@ -205,15 +222,14 @@ class MiMoSupervisor:
         if (
             decision.status == "complete"
             and self._requires_explicit_retrieval(goal, completed_tools, state, skip_tools)
-            and "search_course_knowledge" in available
-            and "search_course_knowledge" not in skip_tools
+            and "answer_course_question" in available
         ):
             return self._force_tool(
-                "search_course_knowledge",
+                "answer_course_question",
                 goal,
                 state,
                 decision,
-                reason="用户明确要求基于课程资料回答，必须先检索",
+                reason="用户明确要求基于课程资料回答，必须使用可信问答内核",
             )
 
         if decision.status == "complete" and pending_deliverables:

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from dataclasses import dataclass, field
 from typing import Any, Awaitable, Callable, Literal
 from uuid import UUID
 
 from jsonschema import Draft202012Validator, ValidationError as JsonSchemaValidationError
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -119,8 +122,7 @@ class ToolRegistry:
                 attempts=1,
             )
             self._results[context.idempotency_key] = result
-            if self._result_saver is not None:
-                await self._result_saver(context.idempotency_key, result)
+            await self._save_result_safely(context.idempotency_key, result)
             return result
         attempts = 0
         last_error: Exception | None = None
@@ -131,22 +133,29 @@ class ToolRegistry:
                     tool.handler(context, arguments),
                     timeout=tool.timeout_seconds,
                 )
-                result.attempts = attempts
-                self._results[context.idempotency_key] = result
-                if self._result_saver is not None:
-                    await self._result_saver(context.idempotency_key, result)
-                return result
             except Exception as exc:
                 last_error = exc
+                continue
+            result.attempts = attempts
+            self._results[context.idempotency_key] = result
+            await self._save_result_safely(context.idempotency_key, result)
+            return result
         result = ToolExecutionResult(
             success=False,
             error_message=str(last_error or "工具执行失败")[:2000],
             attempts=attempts,
         )
         self._results[context.idempotency_key] = result
-        if self._result_saver is not None:
-            await self._result_saver(context.idempotency_key, result)
+        await self._save_result_safely(context.idempotency_key, result)
         return result
+
+    async def _save_result_safely(self, key: str, result: ToolExecutionResult) -> None:
+        if self._result_saver is None:
+            return
+        try:
+            await self._result_saver(key, result)
+        except Exception:
+            logger.exception("Agent tool result persistence failed for %s", key)
 
     def _validate_arguments(self, tool: AgentTool, arguments: dict[str, Any]) -> None:
         schema = tool.input_schema or {"type": "object"}

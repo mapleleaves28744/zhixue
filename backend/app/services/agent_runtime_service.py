@@ -303,6 +303,15 @@ class AgentRuntimeService:
                     "grounding_message": qa_output.get("grounding_message"),
                     "follow_up_questions": qa_output.get("follow_up_questions") or [],
                     "related_knowledge_points": qa_output.get("related_knowledge_points") or [],
+                    "provider": qa_output.get("provider"),
+                    "model": qa_output.get("model"),
+                    "fallback_used": bool(qa_output.get("fallback_used")),
+                    "failed_provider": qa_output.get("failed_provider"),
+                    "fallback_reason": qa_output.get("fallback_reason"),
+                    "performance": qa_output.get("performance") or {},
+                    "postprocess_status": qa_output.get("postprocess_status") or "skipped",
+                    "knowledge_extract": qa_output.get("knowledge_extract") or {},
+                    "graph_context": qa_output.get("graph_context") or {},
                 },
             )
         elif status == "waiting_confirmation":
@@ -316,7 +325,12 @@ class AgentRuntimeService:
         await self.tasks.update_task(current, **values)
         await self.db.commit()
         if status == "completed":
-            if not self._grounded_qa_output(result):
+            qa_output = self._grounded_qa_output(result)
+            if (
+                not qa_output
+                or not qa_output.get("message_id")
+                or qa_output.get("postprocess_status") != "queued"
+            ):
                 await self._publish_chat_completed(current, result)
             from app.services.pet_service import PetService
 
