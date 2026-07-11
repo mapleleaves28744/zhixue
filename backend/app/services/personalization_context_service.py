@@ -56,3 +56,13 @@ class PersonalizationContextService:
         if context.get("strategies"):
             parts.append("当前生效策略：" + "；".join(f"{key}={item.after_value}" for key, item in context["strategies"].items()))
         return "\n".join(parts) or "暂无个性化证据，使用通用教学策略。"
+
+    @staticmethod
+    def format_profile_for_prompt(context: dict[str, Any]) -> str:
+        profile_only = {**context, "memories": []}
+        return PersonalizationContextService.format_for_prompt(profile_only)
+
+    @staticmethod
+    def format_memories_for_prompt(context: dict[str, Any]) -> str:
+        memories = context.get("memories") or []
+        return "；".join(item.content for item in memories) or "暂无可用长期学习记忆。"

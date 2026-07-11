@@ -1,14 +1,15 @@
 import { redirect } from "next/navigation"
 
 type LoginPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     redirect?: string
-  }
+  }>
 }
 
-export default function LoginPage({ searchParams }: LoginPageProps) {
-  const target = searchParams?.redirect
-    ? `/?auth=login&redirect=${encodeURIComponent(searchParams.redirect)}`
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = await searchParams
+  const target = params?.redirect
+    ? `/?auth=login&redirect=${encodeURIComponent(params.redirect)}`
     : "/?auth=login"
 
   redirect(target)

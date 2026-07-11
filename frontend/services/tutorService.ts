@@ -9,10 +9,14 @@ import type {
   TutorSaveToWikiRequest,
 } from "@/types/tutor"
 
-export function chatWithTutor(payload: TutorChatRequest): Promise<TutorChatResponse> {
+export function chatWithTutor(
+  payload: TutorChatRequest,
+  signal?: AbortSignal,
+): Promise<TutorChatResponse> {
   return request<TutorChatResponse>("/api/v1/tutor/chat", {
     method: "POST",
     body: payload,
+    signal,
   })
 }
 
@@ -20,8 +24,12 @@ export type TutorStreamHandlers = {
   onOpen?: () => void
   onClose?: () => void
   onProgress?: (data: { stage?: string; message?: string }) => void
+  onEvidence?: (
+    data: Pick<TutorChatResponse, "grounding_status" | "grounding_message" | "citations">,
+  ) => void
   onDelta?: (content: string) => void
   onDone?: (data: TutorChatResponse) => void
+  onInterrupted?: (error: Error) => void
   signal?: AbortSignal
 }
 
@@ -35,6 +43,18 @@ export async function streamTutorChat(
   }
 
   let finalPayload: TutorChatResponse | null = null
+  let receivedDelta = false
+  let receivedDone = false
+  let fallbackAttempted = false
+
+  const runFallback = async (): Promise<TutorChatResponse | null> => {
+    if (handlers.signal?.aborted) return finalPayload
+    fallbackAttempted = true
+    const fallback = await chatWithTutor({ ...payload, stream: false }, handlers.signal)
+    if (handlers.signal?.aborted) return finalPayload
+    handlers.onDone?.(fallback)
+    return fallback
+  }
 
   try {
     await consumeSseStream(
@@ -45,13 +65,23 @@ export async function streamTutorChat(
         signal: handlers.signal,
         onEvent: (eventName, data) => {
           if (eventName === "delta") {
-            handlers.onDelta?.(String(data.content || ""))
+            const content = String(data.content || "")
+            if (content) receivedDelta = true
+            handlers.onDelta?.(content)
+          } else if (eventName === "evidence") {
+            handlers.onEvidence?.(
+              data as unknown as Pick<
+                TutorChatResponse,
+                "grounding_status" | "grounding_message" | "citations"
+              >,
+            )
           } else if (eventName === "progress") {
             handlers.onProgress?.({
               stage: String(data.stage || ""),
               message: String(data.message || ""),
             })
           } else if (eventName === "done") {
+            receivedDone = true
             finalPayload = data as unknown as TutorChatResponse
             handlers.onDone?.(finalPayload)
           } else if (eventName === "error") {
@@ -65,14 +95,24 @@ export async function streamTutorChat(
         body: JSON.stringify({ ...payload, stream: true }),
       },
     )
+    if (!receivedDone) {
+      const eofError = new Error("AI Tutor 流式连接提前结束")
+      if (!receivedDelta) return await runFallback()
+      handlers.onInterrupted?.(eofError)
+      return finalPayload
+    }
   } catch (error) {
+    if (receivedDone) return finalPayload
     if (handlers.signal?.aborted) {
       return finalPayload
     }
-    const fallback = await chatWithTutor(payload)
-    if (fallback.answer) handlers.onDelta?.(fallback.answer)
-    handlers.onDone?.(fallback)
-    return fallback
+    const streamError = error instanceof Error ? error : new Error("AI Tutor 流式请求失败")
+    if (fallbackAttempted) throw streamError
+    if (!receivedDelta) {
+      return await runFallback()
+    }
+    handlers.onInterrupted?.(streamError)
+    return finalPayload
   }
 
   return finalPayload

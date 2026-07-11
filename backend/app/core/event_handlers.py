@@ -8,6 +8,7 @@ import logging
 from typing import Any
 
 from app.core.event_bus import Event, get_event_bus
+from app.services.conversation_intent import is_simple_greeting
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +88,10 @@ async def on_chat_completed(event: Event) -> None:
     knowledge_id = event.data.get("knowledge_id")
     if not user_id or not course_id:
         return
+    question = str(event.data.get("question") or "").strip()
+    is_greeting = is_simple_greeting(question)
+    if is_greeting:
+        return
 
     try:
         from uuid import UUID
@@ -126,9 +131,8 @@ async def on_chat_completed(event: Event) -> None:
         from app.db.session import AsyncSessionLocal
         from app.services.profile_service import ProfileService
 
-        question = str(event.data.get("question") or "").strip()
         answer = str(event.data.get("answer") or "").strip()
-        if question and question not in {"你好", "您好", "hi", "hello"}:
+        if question and not is_greeting:
             async with AsyncSessionLocal() as db:
                 await ProfileService(db).ingest_dialogue_profile(
                     user_id=UUID(str(user_id)),
@@ -138,6 +142,16 @@ async def on_chat_completed(event: Event) -> None:
                 )
     except Exception:
         logger.exception("EventBus: async course profile extraction failed")
+
+    if not is_greeting:
+        try:
+            from app.db.session import AsyncSessionLocal
+            from app.services.tutor_postprocess_service import TutorPostprocessService
+
+            async with AsyncSessionLocal() as db:
+                await TutorPostprocessService(db).run(event)
+        except Exception:
+            logger.exception("EventBus: Tutor deep postprocess failed")
 
     if event.data.get("skip_graph_extract"):
         return

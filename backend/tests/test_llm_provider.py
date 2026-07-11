@@ -4,6 +4,7 @@ import asyncio
 
 import pytest
 
+from app.core.exceptions import BusinessException
 from app.llm.adapters.base import BaseLLMProvider
 from app.llm.adapters.mock_provider import MockLLMProvider
 from app.llm.adapters.openai_compatible import OpenAICompatibleLLMProvider
@@ -512,6 +513,37 @@ class FailingProvider(BaseLLMProvider):
         raise RuntimeError("embedding failed")
 
 
+class PartialThenFailProvider(BaseLLMProvider):
+    provider_name = "partial-primary"
+
+    async def chat(self, *args, **kwargs) -> ChatResponse:
+        raise NotImplementedError
+
+    async def stream_chat(self, *args, **kwargs):
+        yield "主模型已输出"
+        raise RuntimeError("stream failed after first token")
+
+    async def embedding(self, *args, **kwargs):
+        raise NotImplementedError
+
+
+class RecordingStreamProvider(BaseLLMProvider):
+    provider_name = "recording-fallback"
+
+    def __init__(self) -> None:
+        self.stream_calls = 0
+
+    async def chat(self, *args, **kwargs) -> ChatResponse:
+        raise NotImplementedError
+
+    async def stream_chat(self, *args, **kwargs):
+        self.stream_calls += 1
+        yield "回退回答"
+
+    async def embedding(self, *args, **kwargs):
+        raise NotImplementedError
+
+
 def test_logging_provider_records_failed_calls_safely() -> None:
     asyncio.run(_test_logging_provider_records_failed_calls_safely())
 
@@ -566,6 +598,41 @@ async def _test_llm_fallback_provider_uses_mock_when_primary_fails() -> None:
     assert "栈" in response.content
 
 
+@pytest.mark.asyncio
+async def test_stream_fallback_is_allowed_before_first_token() -> None:
+    fallback = RecordingStreamProvider()
+    inner = FallbackLLMProvider(FailingProvider(), fallback)
+    provider = LoggingLLMProvider(inner, db=FakeDB())  # type: ignore[arg-type]
+
+    chunks = [chunk async for chunk in provider.stream_chat([ChatMessage(role="user", content="栈")])]
+
+    assert chunks == ["回退回答"]
+    assert fallback.stream_calls == 1
+    assert inner.last_stream_fallback_used is True
+    assert inner.last_stream_failed_provider == "failing"
+    assert inner.last_stream_provider_name == "recording-fallback"
+    assert getattr(provider.db.items[0], "provider") == "recording-fallback"
+
+
+@pytest.mark.asyncio
+async def test_stream_fallback_is_forbidden_after_first_token() -> None:
+    fallback = RecordingStreamProvider()
+    inner = FallbackLLMProvider(PartialThenFailProvider(), fallback)
+    db = FakeDB()
+    provider = LoggingLLMProvider(inner, db=db)  # type: ignore[arg-type]
+    chunks: list[str] = []
+
+    with pytest.raises(BusinessException) as exc_info:
+        async for chunk in provider.stream_chat([ChatMessage(role="user", content="栈")]):
+            chunks.append(chunk)
+
+    assert chunks == ["主模型已输出"]
+    assert exc_info.value.detail == "stream failed after first token"
+    assert fallback.stream_calls == 0
+    assert inner.last_stream_fallback_used is False
+    assert getattr(db.items[0], "status") == "failed"
+
+
 class FailingEmbeddingProvider(BaseEmbeddingProvider):
     @property
     def dimension(self) -> int:
@@ -590,3 +657,40 @@ async def _test_embedding_fallback_provider_uses_mock_vectors() -> None:
     assert len(vectors) == 2
     assert len(vectors[0]) == 1024
     assert vectors[0] != vectors[1]
+@pytest.mark.asyncio
+async def test_mock_provider_grounded_tutor_uses_available_source_marker() -> None:
+    provider = MockLLMProvider()
+    response = await provider.chat(
+        [
+            ChatMessage(
+                role="user",
+                content=(
+                    "问题：栈为什么适合括号匹配？\n\n"
+                    "编号课程证据：\n[S1] 标题：栈\n页码：12\n原文：栈遵循后进先出，适合匹配嵌套括号。\n\n"
+                    "知识关系：\n无\n\n强制引用规则：课程依据必须使用当前输入中的 [S#]"
+                ),
+            )
+        ]
+    )
+
+    assert "[S1]" in response.content
+    assert "栈遵循后进先出" in response.content
+
+
+@pytest.mark.asyncio
+async def test_mock_provider_grounded_tutor_refuses_without_course_evidence() -> None:
+    provider = MockLLMProvider()
+    response = await provider.chat(
+        [
+            ChatMessage(
+                role="user",
+                content=(
+                    "问题：课程讲义规定 2030 年考试日期吗？\n\n"
+                    "编号课程证据：\n课程资料未找到可靠依据。\n\n"
+                    "知识关系：\n无\n\n强制引用规则：没有可信证据时必须明确说明课程依据不足。"
+                ),
+            )
+        ]
+    )
+
+    assert response.content == "课程资料未找到可靠依据，无法根据当前课程内容回答这个问题。"

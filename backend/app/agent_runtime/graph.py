@@ -66,7 +66,7 @@ class LearningAgentGraph:
         builder.add_conditional_edges(
             "observe",
             self._route_observation,
-            {"execute_tool": "execute_tool", "supervisor": "supervisor"},
+            {"execute_tool": "execute_tool", "supervisor": "supervisor", "finalize": "finalize"},
         )
         builder.add_edge("review", "memory_reflect")
         builder.add_edge("memory_reflect", "finalize")
@@ -313,13 +313,14 @@ class LearningAgentGraph:
                 "artifact_refs": result.artifact_refs,
                 "citations": result.citations,
                 "error_message": result.error_message,
+                "final_answer": result.final_answer,
             },
         }
 
     async def _observe(self, state: AgentState) -> dict[str, Any]:
         result = dict(state.get("last_tool_result") or {})
         await self.event_sink("observation", state, result)
-        return {
+        update: dict[str, Any] = {
             "observations": [*(state.get("observations") or []), result],
             "artifacts": [
                 *(state.get("artifacts") or []),
@@ -331,10 +332,16 @@ class LearningAgentGraph:
             ],
             "status": "observing",
         }
+        if result.get("success") and result.get("final_answer"):
+            update["final_answer"] = result["final_answer"]
+        return update
 
     def _route_observation(self, state: AgentState) -> str:
-        if state.get("pending_tool_calls") and state.get("last_tool_result", {}).get("success"):
+        result = state.get("last_tool_result", {})
+        if state.get("pending_tool_calls") and result.get("success"):
             return "execute_tool"
+        if result.get("success") and result.get("final_answer"):
+            return "finalize"
         return "supervisor"
 
     async def _review(self, state: AgentState) -> dict[str, Any]:

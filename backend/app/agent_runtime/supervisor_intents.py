@@ -201,6 +201,27 @@ def web_search_intent(goal: str) -> bool:
     return False
 
 
+def search_only_intent(goal: str) -> bool:
+    has_search_action = any(k in goal for k in ("检索", "搜索", "查找", "找出"))
+    has_answer_action = any(
+        k in goal
+        for k in (
+            "解释",
+            "讲解",
+            "回答",
+            "什么是",
+            "是什么",
+            "为什么",
+            "如何",
+            "怎么",
+            "帮我理解",
+            "给出引用",
+            "引用回答",
+        )
+    )
+    return has_search_action and not has_answer_action
+
+
 def should_prepare_speech_script(goal: str) -> bool:
     return any(k in goal for k in ("讲解", "解释", "说明", "队列", "栈", "树", "图", "算法", "结构"))
 
@@ -537,12 +558,14 @@ def plan_required_tools(goal: str, *, is_profile_update_only: bool) -> list[str]
         )
     ) and not tools:
         tools.append("update_profile_from_dialogue")
-    if search_explicit_intent(goal) and "search_course_knowledge" not in tools:
-        tools.insert(0, "search_course_knowledge")
     if web_search_intent(goal) and "search_web" not in tools:
         tools.insert(0, "search_web")
-        if qa_intent(goal) and "answer_course_question" not in tools:
-            tools.append("answer_course_question")
+    elif (search_explicit_intent(goal) or search_only_intent(goal)) and not tools:
+        tools.append("search_course_knowledge" if search_only_intent(goal) else "answer_course_question")
+    elif not web_search_intent(goal) and search_explicit_intent(goal) and "search_course_knowledge" not in tools:
+        # 生成资源、诊断或推荐等多意图任务仍需先取得课程证据；纯问答则由
+        # answer_course_question 内部完成检索与一次生成，避免重复工具调用。
+        tools.insert(0, "search_course_knowledge")
     if not tools and qa_intent(goal):
         tools.append("answer_course_question")
 

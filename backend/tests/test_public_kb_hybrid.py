@@ -111,31 +111,38 @@ def test_public_data_structure_course_payload_is_public_template() -> None:
     assert payload["status"] == "active"
 
 
-def test_public_kb_metrics_counts_accuracy_recall_and_hallucination() -> None:
+def test_public_kb_metrics_separate_retrieval_from_answer_quality() -> None:
     module = importlib.import_module("scripts.evaluate_public_kb")
     rows = [
         {
             "question": "栈是什么",
+            "answerable": True,
             "expected_sources": ["runestone-pythonds"],
             "retrieved_source_ids": ["runestone-pythonds", "open-data-structures"],
-            "answer_has_citation": True,
-            "answer_grounded": True,
+            "llm_evaluated": True,
+            "cited_source_ids": ["runestone-pythonds"],
+            "answer_correct": True,
+            "refused": False,
         },
         {
             "question": "B 树是什么",
+            "answerable": True,
             "expected_sources": ["open-data-structures"],
             "retrieved_source_ids": [],
-            "answer_has_citation": False,
-            "answer_grounded": False,
+            "llm_evaluated": False,
+            "cited_source_ids": [],
+            "answer_correct": None,
+            "refused": False,
         },
     ]
 
     metrics = module.calculate_metrics(rows)
 
     assert metrics["question_count"] == 2
-    assert metrics["retrieval_recall"] == 0.5
-    assert metrics["answer_accuracy"] == 0.5
-    assert metrics["hallucination_rate"] == 0.5
+    assert metrics["recall_at_5"] == 0.5
+    assert metrics["mrr"] == 0.5
+    assert metrics["citation_precision"] == 1.0
+    assert metrics["answer_correctness"] == 1.0
 
 
 def test_seed_material_metadata_is_json_safe() -> None:
