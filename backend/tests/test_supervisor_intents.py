@@ -5,6 +5,8 @@ from __future__ import annotations
 import pytest
 
 from app.agent_runtime import supervisor_intents
+from app.agent_runtime.supervisor_completion import format_search_output_answer
+from app.agent_runtime.supervisor_policy import safe_arguments
 from app.agent_runtime.supervisor import MiMoSupervisor
 from app.llm.schemas import ChatResponse, ToolCall
 
@@ -14,6 +16,37 @@ class DirectCompleteProvider:
         return ChatResponse(
             content='{"status":"complete","summary":"直接完成","final_answer":"这是文字回答。"}'
         )
+
+
+def test_completion_formats_empty_course_search() -> None:
+    answer = format_search_output_answer("search_course_knowledge", {"items": []}, "栈")
+
+    assert "未找到相关结果" in answer
+
+
+def test_safe_arguments_compatibility_for_courseware_ppt_goal() -> None:
+    goal = "请做一份二叉树讲解 PPT"
+
+    expected = safe_arguments("generate_interactive_courseware", {}, goal)
+    actual = MiMoSupervisor(provider=object())._safe_arguments(
+        "generate_interactive_courseware", {}, goal
+    )
+
+    assert actual == expected
+    assert actual["topic"] == expected["topic"]
+    assert actual["interaction_type"] == "stepper"
+
+
+@pytest.mark.asyncio
+async def test_profile_only_decision_keeps_original_plan_text() -> None:
+    decision = await MiMoSupervisor(provider=object()).decide(
+        {"goal": "我是软件工程大二学生，递归比较薄弱，请记住我的学习偏好。", "observations": [], "messages": []},
+        [{"type": "function", "function": {"name": "update_profile_from_dialogue"}}],
+    )
+
+    assert decision.summary == "本轮仅更新对话式学习画像，不扩张为资源或练习生成任务。"
+    assert decision.plan == ["从当前对话提取并更新学习画像"]
+    assert decision.tool_calls[0].name == "update_profile_from_dialogue"
 
 
 @pytest.mark.parametrize(

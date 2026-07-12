@@ -135,7 +135,7 @@ DEFAULT_PROMPTS: dict[tuple[str, str], str] = {
     ): (
         "请分析是否需要更新学习策略。自进化只能更新画像、偏好、Prompt 参数和推荐策略，不能修改代码、数据库结构或权限。\n\n"
         "证据：{evidence}\n\n"
-        "输出 change_summary、before_snapshot、after_snapshot、risk_level 和 rollback 说明。"
+        "只输出 JSON 对象：{{\"strategies\":[{{\"strategy_type\":\"recommendation\",\"change_summary\":\"说明\",\"before_value\":{{}},\"after_value\":{{}},\"risk_level\":\"low|medium|high\",\"evidence\":[\"证据\"]}}]}}。"
     ),
     (
         "ReviewAgent",

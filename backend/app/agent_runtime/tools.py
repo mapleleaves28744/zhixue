@@ -40,6 +40,7 @@ class ToolExecutionResult:
 ToolHandler = Callable[[ToolContext, dict[str, Any]], Awaitable[ToolExecutionResult]]
 ResultLoader = Callable[[str], Awaitable[ToolExecutionResult | None]]
 ResultSaver = Callable[[str, ToolExecutionResult], Awaitable[None]]
+HandlerErrorRecovery = Callable[[Exception], Awaitable[None]]
 
 
 @dataclass
@@ -72,11 +73,13 @@ class ToolRegistry:
         *,
         result_loader: ResultLoader | None = None,
         result_saver: ResultSaver | None = None,
+        on_handler_error: HandlerErrorRecovery | None = None,
     ) -> None:
         self._tools: dict[str, AgentTool] = {}
         self._results: dict[str, ToolExecutionResult] = {}
         self._result_loader = result_loader
         self._result_saver = result_saver
+        self._on_handler_error = on_handler_error
 
     def register(self, tool: AgentTool) -> None:
         if tool.name in self._tools:
@@ -145,6 +148,8 @@ class ToolRegistry:
             error_message=str(last_error or "工具执行失败")[:2000],
             attempts=attempts,
         )
+        if last_error is not None:
+            await self._recover_from_handler_error(last_error)
         self._results[context.idempotency_key] = result
         await self._save_result_safely(context.idempotency_key, result)
         return result
@@ -156,6 +161,14 @@ class ToolRegistry:
             await self._result_saver(key, result)
         except Exception:
             logger.exception("Agent tool result persistence failed for %s", key)
+
+    async def _recover_from_handler_error(self, error: Exception) -> None:
+        if self._on_handler_error is None:
+            return
+        try:
+            await self._on_handler_error(error)
+        except Exception:
+            logger.exception("Agent tool handler recovery failed")
 
     def _validate_arguments(self, tool: AgentTool, arguments: dict[str, Any]) -> None:
         schema = tool.input_schema or {"type": "object"}

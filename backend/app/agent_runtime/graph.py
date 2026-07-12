@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from typing import Any, Awaitable, Callable
 from uuid import UUID
 
@@ -10,6 +11,7 @@ from langgraph.types import Command, interrupt
 from app.agent_runtime.answer_text import extract_final_answer_text
 from app.agent_runtime.state import AgentState
 from app.agent_runtime.supervisor import Supervisor
+from app.agent_runtime.tool_selector import select_tool_schemas
 from app.agent_runtime.tools import ToolContext, ToolRegistry
 from app.services.conversation_intent import is_simple_greeting
 
@@ -163,7 +165,11 @@ class LearningAgentGraph:
                 "final_answer": self._budget_message(state),
                 "iteration_count": iteration_count,
             }
-        decision = await self.supervisor.decide(state, self.registry.tool_schemas())
+        tool_schemas = self.registry.tool_schemas()
+        candidate_tool_schemas = select_tool_schemas(state, tool_schemas)
+        supervisor_started = time.perf_counter()
+        decision = await self.supervisor.decide(state, candidate_tool_schemas)
+        supervisor_duration_ms = int((time.perf_counter() - supervisor_started) * 1000)
         replans = state.get("replan_count", 0)
         observations = state.get("observations") or []
         if decision.status == "replan" or (observations and observations[-1].get("success") is False):
@@ -187,6 +193,9 @@ class LearningAgentGraph:
                 "reasoning_content": decision.reasoning_content or "",
                 "iteration_count": iteration_count,
                 "replan_count": replans,
+                "total_tool_count": len(tool_schemas),
+                "candidate_tool_count": len(candidate_tool_schemas),
+                "supervisor_duration_ms": supervisor_duration_ms,
             },
         )
         return {
@@ -277,7 +286,10 @@ class LearningAgentGraph:
                 "arguments": call.get("arguments") or {},
             },
         )
+        tool_started = time.perf_counter()
         result = await self.registry.execute(name, dict(call.get("arguments") or {}), context)
+        duration_ms = int((time.perf_counter() - tool_started) * 1000)
+        result.duration_ms = duration_ms
         await self.event_sink(
             "tool_completed",
             state,
@@ -286,6 +298,7 @@ class LearningAgentGraph:
                 "tool_name": name,
                 "success": result.success,
                 "attempts": result.attempts,
+                "duration_ms": duration_ms,
                 "error_message": result.error_message,
                 "artifact_refs": result.artifact_refs,
             },
