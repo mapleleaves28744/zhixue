@@ -37,57 +37,60 @@ class AgentRuntimeService:
             return {"status": "already_claimed"}
         await self.db.commit()
 
-        task = await self._get_task(task_id)
-        if task.status == "cancelled":
-            return {"status": "cancelled", "final_answer": "任务已由用户取消。"}
-        user = await self._get_user(task.user_id)
-        messages = await self.conversations.list_messages(task.conversation_id, limit=80)
-        provider = get_llm_provider(
-            db=self.db,
-            user_id=task.user_id,
-            course_id=task.course_id,
-            allow_mock_fallback=False,
-        )
-        registry = build_learning_tool_registry(
-            self.db,
-            user,
-            result_loader=self._load_tool_result,
-            result_saver=self._save_tool_result,
-        )
-        supervisor = MiMoSupervisor(provider=provider)
-
-        async def context_loader(state) -> dict[str, Any]:
-            context = await self._load_context(task, user)
-            await self.db.commit()
-            return context
-
-        async def reviewer(state) -> dict[str, Any]:
-            from app.services.agent_service import AgentService
-
-            content = {
-                "goal": state.get("goal"),
-                "final_answer": state.get("final_answer"),
-                "artifacts": state.get("artifacts") or [],
-                "citations": state.get("citations") or [],
-            }
-            result = await AgentService(self.db).run_task(
-                task_type="review_content",
-                user_id=user.id,
-                course_id=task.course_id,
-                params={"content": str(content)[:4000]},
-            )
-            return result.data if result.success else {"pass": False, "issues": [result.message]}
-
-        async def memory_reflector(state) -> dict[str, Any]:
-            from app.services.memory_service import MemoryService
-
-            await MemoryService(self.db).reflect(user.id, task.course_id)
-            return {}
-
-        async def event_sink(event_type: str, state, payload: dict[str, Any]) -> None:
-            await self._record_event(task, registry, event_type, state, payload)
-
+        task: AgentTask | None = None
         try:
+            task = await self._get_task(task_id)
+            if task.status == "cancelled":
+                await self.db.rollback()
+                return {"status": "cancelled", "final_answer": "任务已由用户取消。"}
+            user = await self._get_user(task.user_id)
+            messages = await self.conversations.list_messages(task.conversation_id, limit=80)
+            provider = get_llm_provider(
+                db=self.db,
+                user_id=task.user_id,
+                course_id=task.course_id,
+                allow_mock_fallback=False,
+            )
+            registry = build_learning_tool_registry(
+                self.db,
+                user,
+                result_loader=self._load_tool_result,
+                result_saver=self._save_tool_result,
+            )
+            supervisor = MiMoSupervisor(provider=provider)
+
+            async def context_loader(state) -> dict[str, Any]:
+                context = await self._load_context(task, user)
+                await self.db.commit()
+                return context
+
+            async def reviewer(state) -> dict[str, Any]:
+                from app.services.agent_service import AgentService
+
+                content = {
+                    "goal": state.get("goal"),
+                    "final_answer": state.get("final_answer"),
+                    "artifacts": state.get("artifacts") or [],
+                    "citations": state.get("citations") or [],
+                }
+                result = await AgentService(self.db).run_task(
+                    task_type="review_content",
+                    user_id=user.id,
+                    course_id=task.course_id,
+                    params={"content": str(content)[:4000]},
+                )
+                return result.data if result.success else {"pass": False, "issues": [result.message]}
+
+            async def memory_reflector(state) -> dict[str, Any]:
+                from app.services.memory_service import MemoryService
+
+                await MemoryService(self.db).reflect(user.id, task.course_id)
+                return {}
+
+            async def event_sink(event_type: str, state, payload: dict[str, Any]) -> None:
+                await self._record_event(task, registry, event_type, state, payload)
+
+            await self.db.commit()
             async with AsyncPostgresSaver.from_conn_string(_psycopg_url(settings.database_url)) as checkpointer:
                 graph = LearningAgentGraph(
                     registry=registry,
@@ -119,12 +122,17 @@ class AgentRuntimeService:
                 else:
                     result = await graph.resume(thread_id=task.thread_id or str(task.id), approved=approved)
         except AgentTaskCancelled:
+            await self.db.rollback()
             return {"status": "cancelled", "final_answer": "任务已由用户取消。"}
         except Exception as exc:
             await self.db.rollback()
-            await self._mark_failed(task, exc)
+            if task is None:
+                task = await self._get_task_optional(task_id)
+            if task is not None:
+                await self._mark_failed(task, exc)
             raise
 
+        assert task is not None
         await self._finish_task(task, result)
         return result
 

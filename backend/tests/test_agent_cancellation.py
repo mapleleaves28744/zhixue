@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
@@ -7,6 +8,7 @@ from uuid import UUID, uuid4
 import pytest
 
 from app.services.agent_runtime_service import AgentRuntimeService, AgentTaskCancelled
+from app.repositories.agent_task_repository import AgentTaskRepository
 
 
 class FakeAsyncSession:
@@ -63,6 +65,28 @@ class ClaimTaskRepository(FakeTaskRepository):
     async def claim_queued_task(self, task_id: UUID, started_at: object) -> bool:  # noqa: ARG002
         self.claim_calls += 1
         return self.claim_succeeds
+
+
+class DurationTaskRepository(FakeTaskRepository):
+    def __init__(self, task: SimpleNamespace, step: SimpleNamespace) -> None:
+        super().__init__(task)
+        self.step = step
+        self.step_update_calls: list[dict[str, object]] = []
+
+    async def get_step_by_tool_call(
+        self,
+        task_id: UUID,
+        tool_call_id: str,
+    ) -> SimpleNamespace | None:
+        if task_id == self.task.id and tool_call_id == self.step.tool_call_id:
+            return self.step
+        return None
+
+    async def update_step(self, step: SimpleNamespace, **values: object) -> SimpleNamespace:
+        self.step_update_calls.append(values)
+        for key, value in values.items():
+            setattr(step, key, value)
+        return step
 
 
 class FakeConversationRepository:
@@ -325,6 +349,99 @@ async def test_execute_rolls_back_before_recording_runtime_failure(
         await service.execute(task.id)
 
     marked_failed.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_execute_commits_before_graph_resume(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service, task = build_runtime_service_for_claim(True)
+    monkeypatch.setattr(service, "_get_user", AsyncMock(return_value=SimpleNamespace(id=task.user_id)))
+    monkeypatch.setattr(service, "_finish_task", AsyncMock())
+    monkeypatch.setattr(
+        "app.services.agent_runtime_service.AsyncPostgresSaver.from_conn_string",
+        lambda _: _FakeCheckpointerContext(),
+    )
+
+    class ResumingGraph:
+        def __init__(self, **kwargs: object) -> None:  # noqa: ARG002
+            pass
+
+        async def resume(self, *, thread_id: str, approved: bool) -> dict[str, object]:  # noqa: ARG002
+            assert service.db.commit_calls >= 2
+            return {"status": "completed"}
+
+    monkeypatch.setattr("app.services.agent_runtime_service.LearningAgentGraph", ResumingGraph)
+
+    assert await service.execute(task.id, approved=True) == {"status": "completed"}
+
+
+@pytest.mark.asyncio
+async def test_execute_setup_failure_rolls_back_and_marks_claimed_task_failed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service, task = build_runtime_service_for_claim(True)
+    marked_failed = AsyncMock()
+
+    async def assert_rollback_then_mark_failed(*args: object) -> None:
+        assert service.db.rollback_calls == 1
+
+    marked_failed.side_effect = assert_rollback_then_mark_failed
+    monkeypatch.setattr(service, "_get_user", AsyncMock(side_effect=RuntimeError("user load failed")))
+    monkeypatch.setattr(service, "_mark_failed", marked_failed)
+
+    with pytest.raises(RuntimeError, match="user load failed"):
+        await service.execute(task.id)
+
+    marked_failed.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_tool_completed_event_persists_duration_to_matching_step() -> None:
+    task = _build_task(status="running")
+    step = SimpleNamespace(tool_call_id="timed-call")
+    service = AgentRuntimeService(FakeAsyncSession({task.id: "running"}), broker=FakeBroker())
+    tasks = DurationTaskRepository(task, step)
+    service.tasks = tasks
+    service.conversations = FakeConversationRepository()
+
+    await service._record_event(
+        task,
+        registry=SimpleNamespace(),
+        event_type="tool_completed",
+        state={},
+        payload={"tool_call_id": "timed-call", "duration_ms": 27},
+    )
+
+    assert tasks.step_update_calls == [{"duration_ms": 27}]
+
+
+@pytest.mark.asyncio
+async def test_claim_queued_task_uses_queued_langgraph_conditional_update() -> None:
+    class CapturingSession:
+        def __init__(self) -> None:
+            self.statement = None
+
+        async def execute(self, statement):
+            self.statement = statement
+            return SimpleNamespace(rowcount=1)
+
+    session = CapturingSession()
+    task_id = uuid4()
+    started_at = datetime.now(UTC)
+
+    assert await AgentTaskRepository(session).claim_queued_task(task_id, started_at) is True
+
+    compiled = session.statement.compile()
+    statement = str(session.statement)
+    assert "UPDATE agent_tasks" in statement
+    assert "agent_tasks.status = :status_1" in statement
+    assert "agent_tasks.runtime_mode = :runtime_mode_1" in statement
+    assert task_id in compiled.params.values()
+    assert "queued" in compiled.params.values()
+    assert "langgraph" in compiled.params.values()
+    assert "running" in compiled.params.values()
+    assert started_at in compiled.params.values()
 
 
 class _FakeCheckpointerContext:
