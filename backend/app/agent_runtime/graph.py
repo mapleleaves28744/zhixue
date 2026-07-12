@@ -10,6 +10,7 @@ from langgraph.types import Command, interrupt
 from app.agent_runtime.answer_text import extract_final_answer_text
 from app.agent_runtime.state import AgentState
 from app.agent_runtime.supervisor import Supervisor
+from app.agent_runtime.tool_selector import select_tool_schemas
 from app.agent_runtime.tools import ToolContext, ToolRegistry
 from app.services.conversation_intent import is_simple_greeting
 
@@ -163,7 +164,9 @@ class LearningAgentGraph:
                 "final_answer": self._budget_message(state),
                 "iteration_count": iteration_count,
             }
-        decision = await self.supervisor.decide(state, self.registry.tool_schemas())
+        tool_schemas = self.registry.tool_schemas()
+        candidate_tool_schemas = select_tool_schemas(state, tool_schemas)
+        decision = await self.supervisor.decide(state, candidate_tool_schemas)
         replans = state.get("replan_count", 0)
         observations = state.get("observations") or []
         if decision.status == "replan" or (observations and observations[-1].get("success") is False):
@@ -187,6 +190,8 @@ class LearningAgentGraph:
                 "reasoning_content": decision.reasoning_content or "",
                 "iteration_count": iteration_count,
                 "replan_count": replans,
+                "total_tool_count": len(tool_schemas),
+                "candidate_tool_count": len(candidate_tool_schemas),
             },
         )
         return {

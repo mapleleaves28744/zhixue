@@ -10,6 +10,7 @@ from app.agent_runtime.graph import LearningAgentGraph
 from app.agent_runtime.service_tools import build_learning_tool_registry
 from app.agent_runtime.state import AgentDecision, PlannedToolCall
 from app.agent_runtime.supervisor import MiMoSupervisor
+from app.agent_runtime.tool_selector import select_tool_schemas
 from app.services.conversation_intent import is_simple_greeting
 from app.agent_runtime.tools import (
     AgentTool,
@@ -25,6 +26,120 @@ from app.services.agent_queue_service import AgentEventBroker
 
 class QueryInput(SimpleNamespace):
     pass
+
+
+def schema(name: str) -> dict[str, object]:
+    return {
+        "type": "function",
+        "function": {"name": name, "parameters": {"type": "object"}},
+    }
+
+
+def test_course_qa_exposes_only_grounded_tools() -> None:
+    tools = [
+        schema(name)
+        for name in ("search_course_knowledge", "answer_course_question", "generate_quiz")
+    ]
+
+    selected = select_tool_schemas(
+        {"goal": "解释栈", "tool_hints": [], "skip_tools": []}, tools
+    )
+
+    assert [item["function"]["name"] for item in selected] == [  # type: ignore[index]
+        "search_course_knowledge",
+        "answer_course_question",
+    ]
+
+
+def test_ppt_excludes_video_tool() -> None:
+    tools = [
+        schema(name)
+        for name in (
+            "search_course_knowledge",
+            "generate_interactive_courseware",
+            "generate_lesson_video",
+        )
+    ]
+
+    selected = select_tool_schemas(
+        {"goal": "做一份二叉树 PPT", "tool_hints": [], "skip_tools": []}, tools
+    )
+
+    assert {item["function"]["name"] for item in selected} == {  # type: ignore[index]
+        "search_course_knowledge",
+        "generate_interactive_courseware",
+    }
+
+
+def test_skipping_every_candidate_does_not_expose_unrelated_tools() -> None:
+    tools = [
+        schema(name)
+        for name in ("search_course_knowledge", "answer_course_question", "generate_quiz")
+    ]
+
+    selected = select_tool_schemas(
+        {
+            "goal": "解释栈",
+            "tool_hints": [],
+            "skip_tools": ["search_course_knowledge", "answer_course_question"],
+        },
+        tools,
+    )
+
+    assert selected == []
+
+
+@pytest.mark.asyncio
+async def test_supervisor_receives_intent_scoped_schemas_and_plan_counts() -> None:
+    class InspectingSupervisor:
+        def __init__(self) -> None:
+            self.tool_names: list[str] = []
+
+        async def decide(self, state, tool_schemas):
+            self.tool_names = [item["function"]["name"] for item in tool_schemas]
+            return AgentDecision(
+                status="complete",
+                summary="回答完成",
+                final_answer="栈是后进先出。",
+            )
+
+    async def handler(context: ToolContext, arguments: dict[str, object]) -> ToolExecutionResult:
+        return ToolExecutionResult(output={"ok": True})
+
+    registry = ToolRegistry()
+    for name in ("search_course_knowledge", "answer_course_question", "generate_quiz"):
+        registry.register(
+            AgentTool(
+                name=name,
+                description=name,
+                agent_name="TestAgent",
+                input_schema={"type": "object", "properties": {}},
+                handler=handler,
+            )
+        )
+    events: list[tuple[str, dict[str, object]]] = []
+
+    async def event_sink(event_type, state, payload):
+        events.append((event_type, payload))
+
+    supervisor = InspectingSupervisor()
+    graph = LearningAgentGraph(registry=registry, supervisor=supervisor, event_sink=event_sink)
+    await graph._supervise(
+        {
+            "goal": "解释栈",
+            "tool_hints": [],
+            "skip_tools": [],
+            "iteration_count": 0,
+            "tool_call_count": 0,
+            "replan_count": 0,
+            "observations": [],
+        }
+    )
+
+    assert supervisor.tool_names == ["search_course_knowledge", "answer_course_question"]
+    plan_payload = next(payload for event_type, payload in events if event_type == "plan_created")
+    assert plan_payload["total_tool_count"] == 3
+    assert plan_payload["candidate_tool_count"] == 2
 
 
 def test_explicit_course_source_qa_plans_only_grounded_answer() -> None:
