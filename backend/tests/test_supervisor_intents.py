@@ -6,6 +6,7 @@ import pytest
 
 from app.agent_runtime import supervisor_intents
 from app.agent_runtime.supervisor_completion import format_search_output_answer
+from app.agent_runtime.supervisor_policy import safe_arguments
 from app.agent_runtime.supervisor import MiMoSupervisor
 from app.llm.schemas import ChatResponse, ToolCall
 
@@ -21,6 +22,19 @@ def test_completion_formats_empty_course_search() -> None:
     answer = format_search_output_answer("search_course_knowledge", {"items": []}, "栈")
 
     assert "未找到相关结果" in answer
+
+
+def test_safe_arguments_compatibility_for_courseware_ppt_goal() -> None:
+    goal = "请做一份二叉树讲解 PPT"
+
+    expected = safe_arguments("generate_interactive_courseware", {}, goal)
+    actual = MiMoSupervisor(provider=object())._safe_arguments(
+        "generate_interactive_courseware", {}, goal
+    )
+
+    assert actual == expected
+    assert actual["topic"] == expected["topic"]
+    assert actual["interaction_type"] == "stepper"
 
 
 @pytest.mark.parametrize(

@@ -13,7 +13,7 @@ from app.agent_runtime.supervisor_completion import (
     format_search_output_answer,
     normalize_completion_answer,
 )
-from app.agent_runtime.supervisor_policy import apply_safety_net
+from app.agent_runtime.supervisor_policy import apply_safety_net, safe_arguments
 from app.agent_runtime.supervisor_prompt import build_messages
 from app.agent_runtime.state import AgentDecision, PlannedToolCall
 from app.agent_runtime import supervisor_intents
@@ -772,6 +772,15 @@ class MiMoSupervisor:
         return any(keyword in goal for keyword in keywords)
 
     def _safe_arguments(
+        self,
+        tool_name: str,
+        arguments: dict[str, Any],
+        goal: str,
+        state: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        return safe_arguments(tool_name, arguments, goal, state)
+
+    def _safe_arguments_legacy(
         self,
         tool_name: str,
         arguments: dict[str, Any],
