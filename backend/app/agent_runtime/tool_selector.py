@@ -24,7 +24,11 @@ def select_tool_schemas(
     available_candidates = [name for name in names if name in available]
     if available_candidates:
         return [available[name] for name in available_candidates if name not in skipped]
-    return list(tool_schemas)
+    return [
+        item
+        for item in tool_schemas
+        if str(item.get("function", {}).get("name")) not in skipped
+    ]
 
 
 def _dedupe(items: Sequence[str]) -> list[str]:

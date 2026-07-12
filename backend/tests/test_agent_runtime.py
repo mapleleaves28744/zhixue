@@ -89,6 +89,21 @@ def test_skipping_every_candidate_does_not_expose_unrelated_tools() -> None:
     assert selected == []
 
 
+def test_fallback_excludes_skipped_tools() -> None:
+    tools = [schema(name) for name in ("generate_quiz", "search_web")]
+
+    selected = select_tool_schemas(
+        {
+            "goal": "随便聊聊",
+            "tool_hints": [],
+            "skip_tools": ["generate_quiz"],
+        },
+        tools,
+    )
+
+    assert [item["function"]["name"] for item in selected] == ["search_web"]  # type: ignore[index]
+
+
 @pytest.mark.asyncio
 async def test_supervisor_receives_intent_scoped_schemas_and_plan_counts() -> None:
     class InspectingSupervisor:
