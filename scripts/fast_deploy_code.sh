@@ -18,6 +18,8 @@ sync_backend() {
   docker cp "${ROOT}/backend/app/." zhixue-worker:/app/app/
   log "重启 backend worker"
   docker compose -f "${COMPOSE_FILE}" restart backend worker
+  log "重启 nginx，刷新 backend 上游地址"
+  docker compose -f "${COMPOSE_FILE}" restart nginx 2>/dev/null || true
   log "检查 worker 关键依赖 moviepy"
   docker exec zhixue-worker python -c "import moviepy" 2>/dev/null \
     || docker exec zhixue-worker pip install -q 'moviepy>=2.0.0'

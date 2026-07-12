@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class QuizQuestionLLM(BaseModel):
@@ -35,6 +35,21 @@ class ReviewOutput(BaseModel):
     risk_level: Literal["low", "medium", "high"] = "medium"
     issues: list[str] = Field(default_factory=list)
     revision_suggestions: str | list[str] = ""
+
+    @field_validator("issues", mode="before")
+    @classmethod
+    def normalize_issues(cls, value: object) -> list[str]:
+        if not isinstance(value, list):
+            return [str(value)] if value else []
+        normalized: list[str] = []
+        for item in value:
+            if isinstance(item, dict):
+                category = str(item.get("type") or "问题").strip()
+                description = str(item.get("description") or item.get("message") or "").strip()
+                normalized.append(f"{category}：{description}" if description else category)
+            elif str(item).strip():
+                normalized.append(str(item))
+        return normalized
 
     @field_validator("risk_level", mode="before")
     @classmethod
@@ -73,6 +88,13 @@ class EvolutionAnalysisOutput(BaseModel):
 
     strategies: list[EvolutionStrategyItem] = Field(min_length=1)
 
+    @model_validator(mode="before")
+    @classmethod
+    def wrap_flat_strategy(cls, value: object) -> object:
+        if not isinstance(value, dict) or "strategies" in value:
+            return value
+        return {"strategies": [value]}
+
 
 class MemoryItemOutput(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -81,6 +103,15 @@ class MemoryItemOutput(BaseModel):
     content: str = ""
     evidence: list[str] = Field(default_factory=list)
     confidence: float = 0.8
+
+    @field_validator("evidence", mode="before")
+    @classmethod
+    def normalize_evidence(cls, value: object) -> list[str]:
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return [str(item) for item in value if str(item).strip()]
+        return [str(value)] if str(value).strip() else []
 
 
 class MemoryReflectOutput(BaseModel):
