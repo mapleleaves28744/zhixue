@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -22,6 +23,7 @@ from app.llm.schemas import ChatResponse, ToolCall
 from app.models.agent_conversation import AgentConversation, AgentMessage, AgentTaskEvent
 from app.models.agent_task import AgentTask, AgentTaskStep
 from app.services.agent_queue_service import AgentEventBroker
+from app.services.agent_runtime_service import AgentRuntimeService
 
 
 class QueryInput(SimpleNamespace):
@@ -63,6 +65,34 @@ EXPECTED_LEARNING_TOOL_NAMES = {
 }
 
 
+EXPECTED_LEARNING_TOOL_CONTRACTS = {
+    "analyze_learning_diagnosis": ("DiagnosisAgent", True, "low", False, 120, {"type": "object", "properties": {}, "required": [], "additionalProperties": False}),
+    "answer_course_question": ("TutorAgent", True, "low", False, 120, {"type": "object", "properties": {"question": {"type": "string"}, "top_k": {"type": "integer", "minimum": 1, "maximum": 20}}, "required": ["question"], "additionalProperties": False}),
+    "apply_evolution_strategy": ("EvolutionAgent", True, "high", True, 120, {"type": "object", "properties": {"strategy_id": {"type": "string"}}, "required": [], "additionalProperties": False}),
+    "generate_diagram": ("KnowledgeAgent", True, "low", False, 120, {"type": "object", "properties": {"concept": {"type": "string", "description": "需要图解的概念"}, "diagram_type": {"type": "string", "enum": ["flowchart", "sequence", "class", "er"]}}, "required": ["concept"], "additionalProperties": False}),
+    "generate_educational_image": ("VisualResourceAgent", True, "low", False, 180, {"type": "object", "properties": {"topic": {"type": "string", "minLength": 1}, "image_type": {"type": "string", "enum": ["concept_illustration", "process_visual", "analogy", "cover", "summary_card"]}, "style": {"type": "string"}, "size": {"type": "string", "enum": ["1024x1024", "1280x720", "720x1280", "1024x768"]}, "requirement": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
+    "generate_explanation": ("ResourceAgent", True, "low", False, 120, {"type": "object", "properties": {"topic": {"type": "string"}, "resource_type": {"type": "string", "enum": ["explanation", "summary", "example", "flashcard", "review"]}, "requirement": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
+    "generate_immersive_classroom": ("ImmersiveClassroomAgent", True, "low", False, 30, {"type": "object", "properties": {"topic": {"type": "string", "minLength": 1}, "learning_goal": {"type": "string"}, "generate_video_export": {"type": "boolean"}, "enable_images": {"type": "boolean"}, "enable_video_clips": {"type": "boolean"}, "enable_tts": {"type": "boolean"}}, "required": ["topic"], "additionalProperties": False}),
+    "generate_interactive_courseware": ("CoursewareAgent", True, "low", False, 180, {"type": "object", "properties": {"topic": {"type": "string", "minLength": 1}, "interaction_type": {"type": "string", "enum": ["stepper", "drag_sort", "quiz_simulation", "graph_traversal", "timeline"]}, "target_level": {"type": "string"}, "requirement": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
+    "generate_learning_path": ("PlannerAgent", True, "low", False, 120, {"type": "object", "properties": {"goal": {"type": "string"}}, "required": ["goal"], "additionalProperties": False}),
+    "generate_lesson_video": ("VideoResourceAgent", True, "low", False, 30, {"type": "object", "properties": {"topic": {"type": "string", "minLength": 1}, "duration_seconds": {"type": "integer", "minimum": 30, "maximum": 240}, "visual_mode": {"type": "string", "enum": ["storyboard", "animated_diagram", "t2v_broll", "mixed"]}, "voice": {"type": "string"}, "target_level": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
+    "generate_mindmap": ("KnowledgeAgent", True, "low", False, 120, {"type": "object", "properties": {"topic": {"type": "string", "description": "知识主题"}, "scope": {"type": "string", "enum": ["course", "chapter", "custom"]}, "depth": {"type": "integer", "minimum": 2, "maximum": 5}}, "required": ["topic"], "additionalProperties": False}),
+    "generate_quiz": ("QuizAgent", True, "low", False, 120, {"type": "object", "properties": {"topic": {"type": "string"}, "count": {"type": "integer", "minimum": 1, "maximum": 20}, "difficulty": {"type": "string", "enum": ["easy", "medium", "hard"]}, "question_types": {"type": "array", "items": {"type": "string"}}}, "required": ["topic"], "additionalProperties": False}),
+    "generate_storyboard_html": ("VideoResourceAgent", True, "low", False, 120, {"type": "object", "properties": {"topic": {"type": "string", "minLength": 1}, "duration_seconds": {"type": "integer", "minimum": 30, "maximum": 240}, "requirement": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
+    "parse_uploaded_document": ("KnowledgeAgent", True, "low", False, 120, {"type": "object", "properties": {"material_id": {"type": "string", "description": "课程资料 UUID"}}, "required": ["material_id"], "additionalProperties": False}),
+    "rebuild_profile": ("ProfileAgent", True, "low", False, 120, {"type": "object", "properties": {}, "required": [], "additionalProperties": False}),
+    "reflect_learning_memory": ("MemoryAgent", True, "low", False, 120, {"type": "object", "properties": {}, "required": [], "additionalProperties": False}),
+    "refresh_recommendations": ("RecommendAgent", True, "low", False, 120, {"type": "object", "properties": {}, "required": [], "additionalProperties": False}),
+    "review_artifacts": ("ReviewAgent", False, "low", False, 120, {"type": "object", "properties": {"content": {"type": "string"}}, "required": ["content"], "additionalProperties": False}),
+    "review_multimodal_asset": ("ReviewAgent", False, "low", False, 120, {"type": "object", "properties": {"asset_id": {"type": "string", "minLength": 1}}, "required": ["asset_id"], "additionalProperties": False}),
+    "search_course_knowledge": ("KnowledgeAgent", False, "low", False, 120, {"type": "object", "properties": {"query": {"type": "string"}, "top_k": {"type": "integer", "minimum": 1, "maximum": 20}}, "required": ["query"], "additionalProperties": False}),
+    "search_web": ("KnowledgeAgent", False, "low", False, 45, {"type": "object", "properties": {"query": {"type": "string", "description": "搜索关键词或完整问题"}, "max_results": {"type": "integer", "minimum": 1, "maximum": 10}, "domain": {"type": "string", "description": "可选垂直领域，如 general/academic/code/finance"}}, "required": ["query"], "additionalProperties": False}),
+    "synthesize_speech": ("TutorAgent", False, "low", False, 120, {"type": "object", "properties": {"text": {"type": "string", "description": "要转换的文字"}, "model_type": {"type": "string", "enum": ["tts", "voiceclone", "voicedesign"]}, "voice": {"type": "string", "description": "音色，可由具体 Provider 解释"}, "speed": {"type": "number", "minimum": 0.5, "maximum": 2.0}, "response_format": {"type": "string", "enum": ["wav", "mp3"]}}, "required": ["text"], "additionalProperties": False}),
+    "transcribe_audio": ("TutorAgent", False, "low", False, 60, {"type": "object", "properties": {"audio_base64": {"type": "string", "description": "Base64 编码的音频数据"}, "filename": {"type": "string", "description": "文件名（用于推断格式）"}, "language": {"type": "string", "description": "语言代码，默认 zh"}}, "required": ["audio_base64"], "additionalProperties": False}),
+    "update_profile_from_dialogue": ("ProfileAgent", True, "low", False, 120, {"type": "object", "properties": {"dialogue_text": {"type": "string"}, "source_message_id": {"type": "string"}}, "required": ["dialogue_text"], "additionalProperties": False}),
+}
+
+
 def test_learning_registry_keeps_public_tool_contracts() -> None:
     from app.agent_runtime.toolsets import (
         register_knowledge_tools,
@@ -73,15 +103,16 @@ def test_learning_registry_keeps_public_tool_contracts() -> None:
     )
 
     registry = build_learning_tool_registry(SimpleNamespace(), SimpleNamespace(id=uuid4()))
-    schemas = {
-        item["function"]["name"]: item["function"]["parameters"]
-        for item in registry.tool_schemas()
-    }
-
-    assert set(schemas) == EXPECTED_LEARNING_TOOL_NAMES
-    assert schemas["generate_interactive_courseware"]["required"] == ["topic"]
-    assert registry.risk_level("apply_evolution_strategy") == "high"
-    assert registry.requires_confirmation("apply_evolution_strategy") is True
+    assert set(EXPECTED_LEARNING_TOOL_CONTRACTS) == EXPECTED_LEARNING_TOOL_NAMES
+    assert {item["function"]["name"] for item in registry.tool_schemas()} == EXPECTED_LEARNING_TOOL_NAMES
+    for name, (agent_name, writes_db, risk_level, requires_confirmation, timeout_seconds, input_schema) in EXPECTED_LEARNING_TOOL_CONTRACTS.items():
+        tool = registry.get(name)
+        assert tool.agent_name == agent_name
+        assert tool.writes_db is writes_db
+        assert tool.risk_level == risk_level
+        assert tool.requires_confirmation is requires_confirmation
+        assert tool.timeout_seconds == timeout_seconds
+        assert tool.input_schema == input_schema
     assert all(
         callable(register_toolset)
         for register_toolset in (
@@ -216,6 +247,73 @@ async def test_supervisor_receives_intent_scoped_schemas_and_plan_counts() -> No
     assert plan_payload["candidate_tool_count"] == 2
     assert isinstance(plan_payload["supervisor_duration_ms"], int)
     assert plan_payload["supervisor_duration_ms"] >= 0
+
+
+@pytest.mark.asyncio
+async def test_non_candidate_tool_call_is_not_executed_from_full_registry() -> None:
+    class NonCandidateToolProvider:
+        async def chat(self, messages, **kwargs):
+            return ChatResponse(
+                content="",
+                finish_reason="tool_calls",
+                tool_calls=[ToolCall(id="non-candidate-quiz", name="generate_quiz", arguments={"topic": "栈"})],
+            )
+
+    executed_quiz = False
+
+    async def search_handler(context: ToolContext, arguments: dict[str, object]) -> ToolExecutionResult:
+        return ToolExecutionResult(output={"query": arguments["query"]})
+
+    async def quiz_handler(context: ToolContext, arguments: dict[str, object]) -> ToolExecutionResult:
+        nonlocal executed_quiz
+        executed_quiz = True
+        return ToolExecutionResult(output={"quiz": "unexpected"})
+
+    registry = ToolRegistry()
+    registry.register(
+        AgentTool(
+            name="search_course_knowledge",
+            description="检索课程资料",
+            agent_name="KnowledgeAgent",
+            input_schema={"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]},
+            handler=search_handler,
+        )
+    )
+    registry.register(
+        AgentTool(
+            name="answer_course_question",
+            description="课程答疑",
+            agent_name="TutorAgent",
+            input_schema={"type": "object", "properties": {"question": {"type": "string"}}, "required": ["question"]},
+            handler=search_handler,
+        )
+    )
+    registry.register(
+        AgentTool(
+            name="generate_quiz",
+            description="生成练习",
+            agent_name="QuizAgent",
+            input_schema={"type": "object", "properties": {"topic": {"type": "string"}}, "required": ["topic"]},
+            handler=quiz_handler,
+        )
+    )
+
+    result = await LearningAgentGraph(
+        registry=registry,
+        supervisor=MiMoSupervisor(provider=NonCandidateToolProvider()),
+    ).run(
+        task_id=uuid4(),
+        conversation_id=uuid4(),
+        user_id=uuid4(),
+        course_id=uuid4(),
+        goal="解释栈",
+        thread_id="non-candidate-tool-call",
+        skip_tools=["answer_course_question"],
+    )
+
+    assert result["status"] == "completed"
+    assert executed_quiz is False
+    assert all(call["name"] != "generate_quiz" for call in result["tool_calls"])
 
 
 def test_explicit_course_source_qa_plans_only_grounded_answer() -> None:
@@ -565,6 +663,53 @@ async def test_result_saver_failure_does_not_rerun_committed_tool() -> None:
 
 
 @pytest.mark.asyncio
+async def test_failed_database_tool_rolls_back_before_runtime_saves_failed_step() -> None:
+    class StepRepository:
+        def __init__(self, task_id: object, step: SimpleNamespace) -> None:
+            self.task_id = task_id
+            self.step = step
+            self.update_calls: list[dict[str, object]] = []
+
+        async def get_step_by_tool_call(self, task_id: object, tool_call_id: str):
+            if task_id == self.task_id and tool_call_id == self.step.tool_call_id:
+                return self.step
+            return None
+
+        async def update_step(self, step: SimpleNamespace, **values: object) -> SimpleNamespace:
+            self.update_calls.append(values)
+            for key, value in values.items():
+                setattr(step, key, value)
+            return step
+
+    task_id = uuid4()
+    step = SimpleNamespace(tool_call_id="failed-write")
+    db = SimpleNamespace(commit=AsyncMock(), rollback=AsyncMock())
+    service = AgentRuntimeService(db)  # type: ignore[arg-type]
+    steps = StepRepository(task_id, step)
+    service.tasks = steps  # type: ignore[assignment]
+    registry = build_learning_tool_registry(
+        db,
+        SimpleNamespace(id=uuid4(), role="student"),
+        result_saver=service._save_tool_result,
+    )
+
+    async def failed_write(context: ToolContext, arguments: dict[str, object]) -> ToolExecutionResult:
+        raise RuntimeError("database write failed")
+
+    registry.get("generate_quiz").handler = failed_write
+    result = await registry.execute(
+        "generate_quiz",
+        {"topic": "栈"},
+        ToolContext(task_id=task_id, tool_call_id="failed-write", user_id=uuid4(), course_id=uuid4()),
+    )
+
+    assert result.success is False
+    db.rollback.assert_awaited_once()
+    assert steps.update_calls
+    assert steps.update_calls[-1]["status"] == "failed"
+
+
+@pytest.mark.asyncio
 async def test_tool_registry_rejects_unknown_and_high_risk_tools() -> None:
     async def handler(context: ToolContext, arguments: dict[str, object]) -> ToolExecutionResult:
         return ToolExecutionResult(output={"ok": True})
@@ -829,7 +974,7 @@ class StructuredDecisionProvider:
 async def test_mimo_supervisor_parses_structured_tool_fallback_without_exposing_thoughts() -> None:
     decision = await MiMoSupervisor(provider=StructuredDecisionProvider()).decide(
         {"goal": "解释栈", "messages": [], "observations": [], "artifacts": []},
-        [],
+        [schema("search_course_knowledge")],
     )
 
     assert decision.status == "continue"
@@ -1098,7 +1243,7 @@ async def test_mimo_supervisor_routes_explicit_strategy_apply_to_high_risk_tool(
 async def test_mimo_supervisor_fills_safe_arguments_for_selected_tool() -> None:
     decision = await MiMoSupervisor(provider=EmptyArgumentToolProvider()).decide(
         {"goal": "请检索二叉树资料", "messages": [], "observations": [], "tool_calls": []},
-        [],
+        [schema("search_course_knowledge")],
     )
 
     assert decision.tool_calls[0].arguments["query"] == "检索二叉树资料"

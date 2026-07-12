@@ -210,7 +210,9 @@ def apply_safety_net(
             decision.status = "continue"
         decision.tool_calls = [
             call for call in decision.tool_calls
-            if call.name not in completed_tools and call.name not in skip_tools
+            if call.name in available
+            and call.name not in completed_tools
+            and call.name not in skip_tools
         ]
         if not decision.tool_calls:
             pending = host.pending_deliverables(goal, available, completed_tools, skip_tools)

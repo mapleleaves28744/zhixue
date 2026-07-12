@@ -37,7 +37,11 @@ def build_learning_tool_registry(
     result_loader=None,
     result_saver=None,
 ) -> ToolRegistry:
-    registry = ToolRegistry(result_loader=result_loader, result_saver=result_saver)
+    registry = ToolRegistry(
+        result_loader=result_loader,
+        result_saver=result_saver,
+        on_handler_error=lambda _error: db.rollback(),
+    )
 
     _register_toolsets(registry, db, current_user)
     return registry
