@@ -37,6 +37,18 @@ def test_safe_arguments_compatibility_for_courseware_ppt_goal() -> None:
     assert actual["interaction_type"] == "stepper"
 
 
+@pytest.mark.asyncio
+async def test_profile_only_decision_keeps_original_plan_text() -> None:
+    decision = await MiMoSupervisor(provider=object()).decide(
+        {"goal": "我是软件工程大二学生，递归比较薄弱，请记住我的学习偏好。", "observations": [], "messages": []},
+        [{"type": "function", "function": {"name": "update_profile_from_dialogue"}}],
+    )
+
+    assert decision.summary == "本轮仅更新对话式学习画像，不扩张为资源或练习生成任务。"
+    assert decision.plan == ["从当前对话提取并更新学习画像"]
+    assert decision.tool_calls[0].name == "update_profile_from_dialogue"
+
+
 @pytest.mark.parametrize(
     ("goal", "must_include", "must_exclude"),
     [

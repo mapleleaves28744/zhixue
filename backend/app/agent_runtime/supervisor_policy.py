@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Protocol
+from typing import Any
 
 from app.agent_runtime import supervisor_intents
 from app.agent_runtime.state import AgentDecision, PlannedToolCall
@@ -153,7 +153,7 @@ class SupervisorPolicy:
             return None
         if "update_profile_from_dialogue" in self.completed_tool_names(state):
             return AgentDecision(status="complete", summary="对话式学习画像已更新。", final_answer="已记录你的学习目标、偏好和薄弱点，后续学习建议会参考这些信息。")
-        return self.force_tool("update_profile_from_dialogue", goal, state, AgentDecision(status="continue", summary="本轮仅更新对话式学习画像，不扩张为资源或练习生成任务。"), reason="本轮仅更新对话式学习画像，不扩张为资源或练习生成任务。")
+        return AgentDecision(status="continue", summary="本轮仅更新对话式学习画像，不扩张为资源或练习生成任务。", plan=["从当前对话提取并更新学习画像"], tool_calls=[PlannedToolCall(id=f"call_{uuid4().hex}", name="update_profile_from_dialogue", arguments=safe_arguments("update_profile_from_dialogue", {}, goal, state))])
 
     def intent_first_decision(self, state: dict[str, Any], schemas: list[dict[str, Any]]) -> AgentDecision | None:
         goal = str(state.get("goal") or "")
@@ -175,51 +175,16 @@ class SupervisorPolicy:
         return any(keyword in goal for keyword in ("什么是", "讲解", "解释", "为什么", "如何", "帮我", "BFS", "DFS", "广度优先", "深度优先", "排序", "队列", "栈", "二叉树", "图", "遍历", "算法", "数据结构", "哈希", "链表"))
 
 
-class _PolicyHost(Protocol):
-    def _available_tool_names(self, tool_schemas: list[dict[str, Any]]) -> set[str]: ...
-    def _completed_tool_names(self, state: dict[str, Any]) -> set[str]: ...
-    def _is_profile_update_only_goal(self, goal: str) -> bool: ...
-    def _force_tool(self, tool_name: str, goal: str, state: dict[str, Any], decision: AgentDecision, *, reason: str) -> AgentDecision: ...
-    def _pending_deliverables(self, goal: str, available: set[str], completed_tools: set[str], skip_tools: set[str]) -> list[str]: ...
-    def _filter_tool_calls_for_profile_only(self, goal: str, tool_calls: list[Any]) -> list[Any]: ...
-    def _align_tool_calls_with_deliverables(self, goal: str, completed_tools: set[str], tool_calls: list[Any], available: set[str], skip_tools: set[str], state: dict[str, Any]) -> list[Any]: ...
-    def _safe_arguments(self, tool_name: str, arguments: dict[str, Any], goal: str, state: dict[str, Any] | None = None) -> dict[str, Any]: ...
-    def _next_tool_hint(self, state: dict[str, Any], available: set[str], completed_tools: set[str], skip_tools: set[str]) -> str | None: ...
-    def _requires_explicit_retrieval(self, goal: str, completed_tools: set[str], state: dict[str, Any], skip_tools: set[str]) -> bool: ...
-    def _has_wrong_deliverable_only(self, state: dict[str, Any], goal: str) -> bool: ...
-    def _normalize_completion_answer(self, state: dict[str, Any], goal: str, answer: str) -> str: ...
-    def _should_use_fallback_planner(self, goal: str, state: dict[str, Any], available: set[str], completed_tools: set[str], skip_tools: set[str], pending_deliverables: list[str]) -> bool: ...
-    def _fallback_next_tool(self, goal: str, available: set[str], completed_tools: set[str], skip_tools: set[str]) -> str | None: ...
-    def _build_completion_answer(self, state: dict[str, Any]) -> str: ...
-
-
-SupervisorPolicy._available_tool_names = staticmethod(SupervisorPolicy.available_tool_names)
-SupervisorPolicy._completed_tool_names = staticmethod(SupervisorPolicy.completed_tool_names)
-SupervisorPolicy._is_profile_update_only_goal = staticmethod(SupervisorPolicy.is_profile_update_only_goal)
-SupervisorPolicy._force_tool = SupervisorPolicy.force_tool
-SupervisorPolicy._pending_deliverables = SupervisorPolicy.pending_deliverables
-SupervisorPolicy._filter_tool_calls_for_profile_only = SupervisorPolicy.filter_tool_calls_for_profile_only
-SupervisorPolicy._align_tool_calls_with_deliverables = SupervisorPolicy.align_tool_calls_with_deliverables
-SupervisorPolicy._safe_arguments = staticmethod(safe_arguments)
-SupervisorPolicy._next_tool_hint = staticmethod(SupervisorPolicy.next_tool_hint)
-SupervisorPolicy._requires_explicit_retrieval = staticmethod(SupervisorPolicy.requires_explicit_retrieval)
-SupervisorPolicy._has_wrong_deliverable_only = staticmethod(SupervisorPolicy.has_wrong_deliverable_only)
-SupervisorPolicy._normalize_completion_answer = staticmethod(normalize_completion_answer)
-SupervisorPolicy._should_use_fallback_planner = SupervisorPolicy.should_use_fallback_planner
-SupervisorPolicy._fallback_next_tool = SupervisorPolicy.fallback_next_tool
-SupervisorPolicy._build_completion_answer = staticmethod(build_completion_answer)
-
-
 def apply_safety_net(
-    host: _PolicyHost,
+    host: SupervisorPolicy,
     state: dict[str, Any],
     tool_schemas: list[dict[str, Any]],
     decision: AgentDecision,
 ) -> AgentDecision:
     """Apply the deterministic safety boundary around an LLM decision."""
     goal = str(state.get("goal") or "")
-    available = host._available_tool_names(tool_schemas)
-    completed_tools = host._completed_tool_names(state)
+    available = host.available_tool_names(tool_schemas)
+    completed_tools = host.completed_tool_names(state)
     skip_tools = set(state.get("skip_tools") or [])
     observations = list(state.get("observations") or [])
     if observations and observations[-1].get("success") is False:
@@ -235,10 +200,10 @@ def apply_safety_net(
         )
 
     required_tools = supervisor_intents.plan_required_tools(
-        goal, is_profile_update_only=host._is_profile_update_only_goal(goal)
+        goal, is_profile_update_only=host.is_profile_update_only_goal(goal)
     )
     if required_tools == ["answer_course_question"] and "answer_course_question" in available and "answer_course_question" not in completed_tools and "answer_course_question" not in skip_tools:
-        return host._force_tool("answer_course_question", goal, state, decision, reason="显式课程依据问答统一由可信问答内核完成")
+        return host.force_tool("answer_course_question", goal, state, decision, reason="显式课程依据问答统一由可信问答内核完成")
 
     if decision.tool_calls:
         if decision.status == "complete":
@@ -248,43 +213,43 @@ def apply_safety_net(
             if call.name not in completed_tools and call.name not in skip_tools
         ]
         if not decision.tool_calls:
-            pending = host._pending_deliverables(goal, available, completed_tools, skip_tools)
+            pending = host.pending_deliverables(goal, available, completed_tools, skip_tools)
             if not pending:
-                return AgentDecision(status="complete", summary="所需交付物已全部生成。", final_answer=host._build_completion_answer(state), reasoning_content=decision.reasoning_content)
+                return AgentDecision(status="complete", summary="所需交付物已全部生成。", final_answer=build_completion_answer(state), reasoning_content=decision.reasoning_content)
             tool_name = pending[0]
-            return host._force_tool(tool_name, goal, state, decision, reason=f"用户要求的{supervisor_intents.deliverable_label(tool_name)}尚未生成，禁止重复调用已完成工具")
-        decision.tool_calls = host._filter_tool_calls_for_profile_only(goal, decision.tool_calls)
-        decision.tool_calls = host._align_tool_calls_with_deliverables(goal, completed_tools, decision.tool_calls, available, skip_tools, state)
+            return host.force_tool(tool_name, goal, state, decision, reason=f"用户要求的{supervisor_intents.deliverable_label(tool_name)}尚未生成，禁止重复调用已完成工具")
+        decision.tool_calls = host.filter_tool_calls_for_profile_only(goal, decision.tool_calls)
+        decision.tool_calls = host.align_tool_calls_with_deliverables(goal, completed_tools, decision.tool_calls, available, skip_tools, state)
         for call in decision.tool_calls:
-            call.arguments = host._safe_arguments(call.name, call.arguments, goal, state)
+            call.arguments = safe_arguments(call.name, call.arguments, goal, state)
         if decision.tool_calls:
             return decision
-        pending = host._pending_deliverables(goal, available, completed_tools, skip_tools)
+        pending = host.pending_deliverables(goal, available, completed_tools, skip_tools)
         if pending:
             tool_name = pending[0]
-            return host._force_tool(tool_name, goal, state, decision, reason=f"用户要求的{supervisor_intents.deliverable_label(tool_name)}尚未生成，安全约束后需补调")
+            return host.force_tool(tool_name, goal, state, decision, reason=f"用户要求的{supervisor_intents.deliverable_label(tool_name)}尚未生成，安全约束后需补调")
 
-    pending = host._pending_deliverables(goal, available, completed_tools, skip_tools)
-    hint = host._next_tool_hint(state, available, completed_tools, skip_tools)
+    pending = host.pending_deliverables(goal, available, completed_tools, skip_tools)
+    hint = host.next_tool_hint(state, available, completed_tools, skip_tools)
     if hint and decision.status == "complete":
-        return host._force_tool(hint, goal, state, decision, reason="用户指定工具")
-    if decision.status == "complete" and host._requires_explicit_retrieval(goal, completed_tools, state, skip_tools) and (("answer_course_question" in available and "answer_course_question" not in skip_tools) or ("search_course_knowledge" in available and "search_course_knowledge" not in skip_tools)):
+        return host.force_tool(hint, goal, state, decision, reason="用户指定工具")
+    if decision.status == "complete" and host.requires_explicit_retrieval(goal, completed_tools, state, skip_tools) and (("answer_course_question" in available and "answer_course_question" not in skip_tools) or ("search_course_knowledge" in available and "search_course_knowledge" not in skip_tools)):
         grounded_tool = "answer_course_question" if required_tools == ["answer_course_question"] and "answer_course_question" in available and "answer_course_question" not in skip_tools else "search_course_knowledge"
-        return host._force_tool(grounded_tool, goal, state, decision, reason="用户明确要求基于课程资料回答，必须使用可信问答内核" if grounded_tool == "answer_course_question" else "生成多模态产物前必须先检索课程依据")
+        return host.force_tool(grounded_tool, goal, state, decision, reason="用户明确要求基于课程资料回答，必须使用可信问答内核" if grounded_tool == "answer_course_question" else "生成多模态产物前必须先检索课程依据")
     if decision.status == "complete" and supervisor_intents.web_search_intent(goal) and "search_web" not in completed_tools and "search_web" in available and "search_web" not in skip_tools:
-        return host._force_tool("search_web", goal, state, decision, reason="用户要求联网搜索，必须先获取实时网页结果")
+        return host.force_tool("search_web", goal, state, decision, reason="用户要求联网搜索，必须先获取实时网页结果")
     if decision.status == "complete" and pending:
         tool_name = pending[0]
-        return host._force_tool(tool_name, goal, state, decision, reason=f"用户要求的{supervisor_intents.deliverable_label(tool_name)}尚未生成，禁止仅用文字/Markdown 代替")
-    if decision.status == "complete" and host._has_wrong_deliverable_only(state, goal):
-        wrong_pending = host._pending_deliverables(goal, available, completed_tools, skip_tools)
+        return host.force_tool(tool_name, goal, state, decision, reason=f"用户要求的{supervisor_intents.deliverable_label(tool_name)}尚未生成，禁止仅用文字/Markdown 代替")
+    if decision.status == "complete" and host.has_wrong_deliverable_only(state, goal):
+        wrong_pending = host.pending_deliverables(goal, available, completed_tools, skip_tools)
         if wrong_pending:
             tool_name = wrong_pending[0]
-            return host._force_tool(tool_name, goal, state, decision, reason=f"已调用错误工具，需补生成{supervisor_intents.deliverable_label(tool_name)}")
+            return host.force_tool(tool_name, goal, state, decision, reason=f"已调用错误工具，需补生成{supervisor_intents.deliverable_label(tool_name)}")
     if decision.status == "complete":
-        decision.final_answer = host._normalize_completion_answer(state, goal, decision.final_answer)
-    if decision.status == "complete" and host._should_use_fallback_planner(goal, state, available, completed_tools, skip_tools, pending):
-        fallback = host._fallback_next_tool(goal, available, completed_tools, skip_tools)
+        decision.final_answer = normalize_completion_answer(state, goal, decision.final_answer)
+    if decision.status == "complete" and host.should_use_fallback_planner(goal, state, available, completed_tools, skip_tools, pending):
+        fallback = host.fallback_next_tool(goal, available, completed_tools, skip_tools)
         if fallback:
-            return host._force_tool(fallback, goal, state, decision, reason=f"LLM 未调用工具，安全网补调 {fallback}")
+            return host.force_tool(fallback, goal, state, decision, reason=f"LLM 未调用工具，安全网补调 {fallback}")
     return decision
