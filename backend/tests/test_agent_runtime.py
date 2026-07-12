@@ -35,6 +35,65 @@ def schema(name: str) -> dict[str, object]:
     }
 
 
+EXPECTED_LEARNING_TOOL_NAMES = {
+    "search_course_knowledge",
+    "search_web",
+    "answer_course_question",
+    "generate_learning_path",
+    "generate_explanation",
+    "generate_quiz",
+    "parse_uploaded_document",
+    "generate_mindmap",
+    "generate_diagram",
+    "transcribe_audio",
+    "synthesize_speech",
+    "analyze_learning_diagnosis",
+    "refresh_recommendations",
+    "update_profile_from_dialogue",
+    "rebuild_profile",
+    "reflect_learning_memory",
+    "review_artifacts",
+    "review_multimodal_asset",
+    "apply_evolution_strategy",
+    "generate_educational_image",
+    "generate_immersive_classroom",
+    "generate_lesson_video",
+    "generate_storyboard_html",
+    "generate_interactive_courseware",
+}
+
+
+def test_learning_registry_keeps_public_tool_contracts() -> None:
+    from app.agent_runtime.toolsets import (
+        register_knowledge_tools,
+        register_learning_tools,
+        register_media_tools,
+        register_profile_tools,
+        register_review_tools,
+    )
+
+    registry = build_learning_tool_registry(SimpleNamespace(), SimpleNamespace(id=uuid4()))
+    schemas = {
+        item["function"]["name"]: item["function"]["parameters"]
+        for item in registry.tool_schemas()
+    }
+
+    assert set(schemas) == EXPECTED_LEARNING_TOOL_NAMES
+    assert schemas["generate_interactive_courseware"]["required"] == ["topic"]
+    assert registry.risk_level("apply_evolution_strategy") == "high"
+    assert registry.requires_confirmation("apply_evolution_strategy") is True
+    assert all(
+        callable(register_toolset)
+        for register_toolset in (
+            register_knowledge_tools,
+            register_learning_tools,
+            register_profile_tools,
+            register_review_tools,
+            register_media_tools,
+        )
+    )
+
+
 def test_course_qa_exposes_only_grounded_tools() -> None:
     tools = [
         schema(name)
@@ -1140,7 +1199,7 @@ def test_default_learning_tool_registry_exposes_specialized_agents_and_risk_boun
 
 
 def test_generate_explanation_artifact_refs_keep_resource_type_for_frontend_categories() -> None:
-    source = (Path(__file__).resolve().parents[1] / "app/agent_runtime/service_tools.py").read_text(
+    source = (Path(__file__).resolve().parents[1] / "app/agent_runtime/toolsets/learning_tools.py").read_text(
         encoding="utf-8"
     )
 
