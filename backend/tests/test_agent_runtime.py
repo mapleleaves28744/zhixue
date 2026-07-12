@@ -330,6 +330,64 @@ async def test_answer_tool_final_answer_bypasses_second_supervisor_call() -> Non
     assert supervisor.calls == 1
 
 
+@pytest.mark.asyncio
+async def test_tool_completed_event_has_duration_ms() -> None:
+    class OneToolSupervisor:
+        async def decide(self, state, tool_schemas):
+            if state.get("observations"):
+                return AgentDecision(status="complete", summary="完成", final_answer="栈是后进先出。")
+            return AgentDecision(
+                status="continue",
+                summary="查询课程知识",
+                tool_calls=[
+                    PlannedToolCall(
+                        id="tool-duration-call",
+                        name="search_course_knowledge",
+                        arguments={"query": "栈"},
+                    )
+                ],
+            )
+
+    async def handler(context: ToolContext, arguments: dict[str, object]) -> ToolExecutionResult:
+        return ToolExecutionResult(output={"query": arguments["query"]})
+
+    events: list[tuple[str, dict[str, object]]] = []
+
+    async def event_sink(event_type, state, payload):
+        events.append((event_type, payload))
+
+    registry = ToolRegistry()
+    registry.register(
+        AgentTool(
+            name="search_course_knowledge",
+            description="检索课程知识库",
+            agent_name="KnowledgeAgent",
+            input_schema={
+                "type": "object",
+                "properties": {"query": {"type": "string"}},
+                "required": ["query"],
+            },
+            handler=handler,
+        )
+    )
+    await LearningAgentGraph(
+        registry=registry,
+        supervisor=OneToolSupervisor(),
+        event_sink=event_sink,
+    ).run(
+        task_id=uuid4(),
+        conversation_id=uuid4(),
+        user_id=uuid4(),
+        course_id=uuid4(),
+        goal="解释栈",
+        thread_id="tool-duration",
+    )
+
+    payload = next(payload for kind, payload in events if kind == "tool_completed")
+    assert isinstance(payload["duration_ms"], int)
+    assert payload["duration_ms"] >= 0
+
+
 def test_agent_runtime_no_longer_extracts_dialogue_synchronously() -> None:
     source = (Path(__file__).resolve().parents[1] / "app/services/agent_runtime_service.py").read_text(
         encoding="utf-8"

@@ -33,6 +33,10 @@ class AgentRuntimeService:
         self.broker = broker or AgentEventBroker()
 
     async def execute(self, task_id: UUID, *, approved: bool | None = None) -> dict[str, Any]:
+        if not await self.tasks.claim_queued_task(task_id, datetime.now(UTC)):
+            return {"status": "already_claimed"}
+        await self.db.commit()
+
         task = await self._get_task(task_id)
         if task.status == "cancelled":
             return {"status": "cancelled", "final_answer": "任务已由用户取消。"}
@@ -53,7 +57,9 @@ class AgentRuntimeService:
         supervisor = MiMoSupervisor(provider=provider)
 
         async def context_loader(state) -> dict[str, Any]:
-            return await self._load_context(task, user)
+            context = await self._load_context(task, user)
+            await self.db.commit()
+            return context
 
         async def reviewer(state) -> dict[str, Any]:
             from app.services.agent_service import AgentService
@@ -80,14 +86,6 @@ class AgentRuntimeService:
 
         async def event_sink(event_type: str, state, payload: dict[str, Any]) -> None:
             await self._record_event(task, registry, event_type, state, payload)
-
-        await self.tasks.update_task(
-            task,
-            status="running",
-            started_at=task.started_at or datetime.now(UTC),
-            error_message=None,
-        )
-        await self.db.commit()
 
         try:
             async with AsyncPostgresSaver.from_conn_string(_psycopg_url(settings.database_url)) as checkpointer:
@@ -123,6 +121,7 @@ class AgentRuntimeService:
         except AgentTaskCancelled:
             return {"status": "cancelled", "final_answer": "任务已由用户取消。"}
         except Exception as exc:
+            await self.db.rollback()
             await self._mark_failed(task, exc)
             raise
 
@@ -205,6 +204,13 @@ class AgentRuntimeService:
                     retry_count=0,
                     decision_summary=state.get("decision_summary"),
                 )
+        elif event_type == "tool_completed":
+            tool_call_id = str(payload.get("tool_call_id") or "")
+            duration_ms = payload.get("duration_ms")
+            if tool_call_id and isinstance(duration_ms, int):
+                step = await self.tasks.get_step_by_tool_call(task.id, tool_call_id)
+                if step is not None:
+                    await self.tasks.update_step(step, duration_ms=duration_ms)
         await self.db.commit()
         await self.broker.publish(task.id, event_type, {**payload, "sequence_no": event.sequence_no})
 
@@ -265,6 +271,7 @@ class AgentRuntimeService:
             artifact_refs=result.artifact_refs,
             error_message=result.error_message,
             retry_count=max(0, result.attempts - 1),
+            duration_ms=getattr(result, "duration_ms", None),
             finished_at=datetime.now(UTC),
         )
         await self.db.commit()

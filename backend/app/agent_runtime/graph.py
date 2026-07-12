@@ -286,7 +286,10 @@ class LearningAgentGraph:
                 "arguments": call.get("arguments") or {},
             },
         )
+        tool_started = time.perf_counter()
         result = await self.registry.execute(name, dict(call.get("arguments") or {}), context)
+        duration_ms = int((time.perf_counter() - tool_started) * 1000)
+        result.duration_ms = duration_ms
         await self.event_sink(
             "tool_completed",
             state,
@@ -295,6 +298,7 @@ class LearningAgentGraph:
                 "tool_name": name,
                 "success": result.success,
                 "attempts": result.attempts,
+                "duration_ms": duration_ms,
                 "error_message": result.error_message,
                 "artifact_refs": result.artifact_refs,
             },

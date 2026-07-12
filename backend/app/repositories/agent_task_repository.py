@@ -5,7 +5,7 @@ from uuid import UUID
 
 from datetime import datetime
 
-from sqlalchemy import or_, select
+from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.agent_task import AgentTask, AgentTaskStep
@@ -28,6 +28,18 @@ class AgentTaskRepository:
             .limit(limit)
         )
         return list(result.scalars().all())
+
+    async def claim_queued_task(self, task_id: UUID, started_at: datetime) -> bool:
+        result = await self.db.execute(
+            update(AgentTask)
+            .where(
+                AgentTask.id == task_id,
+                AgentTask.status == "queued",
+                AgentTask.runtime_mode == "langgraph",
+            )
+            .values(status="running", started_at=started_at, error_message=None)
+        )
+        return result.rowcount == 1
 
     async def list_stale_running_tasks(self, *, older_than: datetime, limit: int = 20) -> list[AgentTask]:
         result = await self.db.execute(
