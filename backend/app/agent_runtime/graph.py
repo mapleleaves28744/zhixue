@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from typing import Any, Awaitable, Callable
 from uuid import UUID
 
@@ -166,7 +167,9 @@ class LearningAgentGraph:
             }
         tool_schemas = self.registry.tool_schemas()
         candidate_tool_schemas = select_tool_schemas(state, tool_schemas)
+        supervisor_started = time.perf_counter()
         decision = await self.supervisor.decide(state, candidate_tool_schemas)
+        supervisor_duration_ms = int((time.perf_counter() - supervisor_started) * 1000)
         replans = state.get("replan_count", 0)
         observations = state.get("observations") or []
         if decision.status == "replan" or (observations and observations[-1].get("success") is False):
@@ -192,6 +195,7 @@ class LearningAgentGraph:
                 "replan_count": replans,
                 "total_tool_count": len(tool_schemas),
                 "candidate_tool_count": len(candidate_tool_schemas),
+                "supervisor_duration_ms": supervisor_duration_ms,
             },
         )
         return {

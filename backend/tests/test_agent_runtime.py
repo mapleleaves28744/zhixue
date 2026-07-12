@@ -214,6 +214,8 @@ async def test_supervisor_receives_intent_scoped_schemas_and_plan_counts() -> No
     plan_payload = next(payload for event_type, payload in events if event_type == "plan_created")
     assert plan_payload["total_tool_count"] == 3
     assert plan_payload["candidate_tool_count"] == 2
+    assert isinstance(plan_payload["supervisor_duration_ms"], int)
+    assert plan_payload["supervisor_duration_ms"] >= 0
 
 
 def test_explicit_course_source_qa_plans_only_grounded_answer() -> None:

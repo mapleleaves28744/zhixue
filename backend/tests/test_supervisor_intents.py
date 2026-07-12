@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from app.agent_runtime import supervisor_intents
+from app.agent_runtime.supervisor_completion import format_search_output_answer
 from app.agent_runtime.supervisor import MiMoSupervisor
 from app.llm.schemas import ChatResponse, ToolCall
 
@@ -14,6 +15,12 @@ class DirectCompleteProvider:
         return ChatResponse(
             content='{"status":"complete","summary":"直接完成","final_answer":"这是文字回答。"}'
         )
+
+
+def test_completion_formats_empty_course_search() -> None:
+    answer = format_search_output_answer("search_course_knowledge", {"items": []}, "栈")
+
+    assert "未找到相关结果" in answer
 
 
 @pytest.mark.parametrize(
