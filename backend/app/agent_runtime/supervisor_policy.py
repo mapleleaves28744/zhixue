@@ -206,6 +206,10 @@ def apply_safety_net(
         return host.force_tool("answer_course_question", goal, state, decision, reason="显式课程依据问答统一由可信问答内核完成")
 
     if decision.tool_calls:
+        requested_calls = list(decision.tool_calls)
+        all_calls_rejected_as_non_candidates = all(
+            call.name not in available for call in requested_calls
+        )
         if decision.status == "complete":
             decision.status = "continue"
         decision.tool_calls = [
@@ -215,6 +219,35 @@ def apply_safety_net(
             and call.name not in skip_tools
         ]
         if not decision.tool_calls:
+            if all_calls_rejected_as_non_candidates:
+                safe_tool = host.next_tool_hint(state, available, completed_tools, skip_tools)
+                safe_tool = safe_tool or host.fallback_next_tool(
+                    goal, available, completed_tools, skip_tools
+                )
+                safe_tool = safe_tool or next(
+                    (
+                        str(item.get("function", {}).get("name"))
+                        for item in tool_schemas
+                        if str(item.get("function", {}).get("name")) in available
+                        and str(item.get("function", {}).get("name")) not in completed_tools
+                        and str(item.get("function", {}).get("name")) not in skip_tools
+                    ),
+                    None,
+                )
+                if safe_tool:
+                    return host.force_tool(
+                        safe_tool,
+                        goal,
+                        state,
+                        decision,
+                        reason="模型请求了非候选工具，安全网改用允许的候选工具",
+                    )
+                return AgentDecision(
+                    status="replan",
+                    summary="模型请求了当前任务不允许的工具，需要基于候选工具重新规划。",
+                    plan=["仅根据当前候选工具重新规划下一步"],
+                    reasoning_content=decision.reasoning_content,
+                )
             pending = host.pending_deliverables(goal, available, completed_tools, skip_tools)
             if not pending:
                 return AgentDecision(status="complete", summary="所需交付物已全部生成。", final_answer=build_completion_answer(state), reasoning_content=decision.reasoning_content)

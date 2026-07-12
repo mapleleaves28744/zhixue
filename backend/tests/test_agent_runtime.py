@@ -252,16 +252,25 @@ async def test_supervisor_receives_intent_scoped_schemas_and_plan_counts() -> No
 @pytest.mark.asyncio
 async def test_non_candidate_tool_call_is_not_executed_from_full_registry() -> None:
     class NonCandidateToolProvider:
+        def __init__(self) -> None:
+            self.calls = 0
+
         async def chat(self, messages, **kwargs):
-            return ChatResponse(
-                content="",
-                finish_reason="tool_calls",
-                tool_calls=[ToolCall(id="non-candidate-quiz", name="generate_quiz", arguments={"topic": "栈"})],
-            )
+            self.calls += 1
+            if self.calls == 1:
+                return ChatResponse(
+                    content="",
+                    finish_reason="tool_calls",
+                    tool_calls=[ToolCall(id="non-candidate-quiz", name="generate_quiz", arguments={"topic": "栈"})],
+                )
+            return ChatResponse(content='{"status":"complete","summary":"已完成","final_answer":"栈是后进先出。"}')
 
     executed_quiz = False
+    executed_search = False
 
     async def search_handler(context: ToolContext, arguments: dict[str, object]) -> ToolExecutionResult:
+        nonlocal executed_search
+        executed_search = True
         return ToolExecutionResult(output={"query": arguments["query"]})
 
     async def quiz_handler(context: ToolContext, arguments: dict[str, object]) -> ToolExecutionResult:
@@ -298,9 +307,10 @@ async def test_non_candidate_tool_call_is_not_executed_from_full_registry() -> N
         )
     )
 
+    provider = NonCandidateToolProvider()
     result = await LearningAgentGraph(
         registry=registry,
-        supervisor=MiMoSupervisor(provider=NonCandidateToolProvider()),
+        supervisor=MiMoSupervisor(provider=provider),
     ).run(
         task_id=uuid4(),
         conversation_id=uuid4(),
@@ -313,7 +323,10 @@ async def test_non_candidate_tool_call_is_not_executed_from_full_registry() -> N
 
     assert result["status"] == "completed"
     assert executed_quiz is False
+    assert executed_search is True
+    assert provider.calls == 2
     assert all(call["name"] != "generate_quiz" for call in result["tool_calls"])
+    assert [call["name"] for call in result["tool_calls"]] == ["search_course_knowledge"]
 
 
 def test_explicit_course_source_qa_plans_only_grounded_answer() -> None:
