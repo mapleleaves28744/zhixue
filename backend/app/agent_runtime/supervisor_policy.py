@@ -4,7 +4,9 @@ import re
 from typing import Any, Protocol
 
 from app.agent_runtime import supervisor_intents
-from app.agent_runtime.state import AgentDecision
+from app.agent_runtime.state import AgentDecision, PlannedToolCall
+from app.agent_runtime.supervisor_completion import build_completion_answer, normalize_completion_answer
+from uuid import uuid4
 
 
 def _topic_for_tool(tool_name: str, goal: str, state: dict[str, Any]) -> str:
@@ -73,6 +75,106 @@ def safe_arguments(
     return normalized
 
 
+class SupervisorPolicy:
+    _GENERATION_TOOLS = {"generate_learning_path", "generate_explanation", "generate_quiz", "generate_mindmap", "generate_diagram", "generate_educational_image", "generate_lesson_video", "generate_immersive_classroom", "generate_storyboard_html", "generate_interactive_courseware", "answer_course_question"}
+
+    @staticmethod
+    def available_tool_names(tool_schemas: list[dict[str, Any]]) -> set[str]:
+        return {str(item.get("function", {}).get("name")) for item in tool_schemas if isinstance(item, dict) and item.get("function", {}).get("name")}
+
+    @staticmethod
+    def completed_tool_names(state: dict[str, Any]) -> set[str]:
+        return {str(item.get("tool_name")) for item in state.get("observations") or [] if item.get("success") is True and item.get("tool_name")}
+
+    @staticmethod
+    def is_profile_update_only_goal(goal: str) -> bool:
+        return supervisor_intents.is_profile_update_only_goal(goal)
+
+    def required_deliverables(self, goal: str) -> list[str]:
+        return supervisor_intents.required_deliverables(goal)
+
+    def required_tools(self, goal: str) -> list[str]:
+        tools = supervisor_intents.plan_required_tools(goal, is_profile_update_only=self.is_profile_update_only_goal(goal))
+        if self.is_profile_update_only_goal(goal):
+            return tools
+        needs_grounding = any(name in self._GENERATION_TOOLS for name in tools) or self.should_ground_in_course_materials(goal)
+        return ["search_course_knowledge", *tools] if needs_grounding and "search_course_knowledge" not in tools else tools
+
+    def pending_deliverables(self, goal: str, available: set[str], completed_tools: set[str], skip_tools: set[str]) -> list[str]:
+        deliverable_set = set(self.required_deliverables(goal))
+        ordered = supervisor_intents.plan_required_tools(goal, is_profile_update_only=self.is_profile_update_only_goal(goal))
+        return [name for name in ordered if name in deliverable_set and name in available and name not in completed_tools and name not in skip_tools]
+
+    @staticmethod
+    def next_tool_hint(state: dict[str, Any], available: set[str], completed_tools: set[str], skip_tools: set[str]) -> str | None:
+        return next((str(name) for name in reversed(state.get("tool_hints") or []) if name in available and name not in completed_tools and name not in skip_tools), None)
+
+    @staticmethod
+    def requires_explicit_retrieval(goal: str, completed_tools: set[str], state: dict[str, Any], skip_tools: set[str]) -> bool:
+        if {"search_course_knowledge", "answer_course_question"} & (completed_tools | skip_tools) or state.get("citations"):
+            return False
+        return any(phrase in goal for phrase in ("基于课程资料", "基于资料", "给出引用", "引用来源", "课程知识库"))
+
+    def fallback_next_tool(self, goal: str, available: set[str], completed_tools: set[str], skip_tools: set[str]) -> str | None:
+        return next((name for name in self.required_tools(goal) if name in available and name not in completed_tools and name not in skip_tools), None)
+
+    def should_use_fallback_planner(self, goal: str, state: dict[str, Any], available: set[str], completed_tools: set[str], skip_tools: set[str], pending: list[str]) -> bool:
+        if pending or int(state.get("tool_call_count") or 0) > 0 or self.is_profile_update_only_goal(goal):
+            return False
+        return supervisor_intents.plan_required_tools(goal, is_profile_update_only=False) != ["answer_course_question"] and bool(self.fallback_next_tool(goal, available, completed_tools, skip_tools))
+
+    def force_tool(self, tool_name: str, goal: str, state: dict[str, Any], decision: AgentDecision, *, reason: str) -> AgentDecision:
+        return AgentDecision(status="continue", summary=reason, plan=[f"调用 {tool_name}"], tool_calls=[PlannedToolCall(id=f"call_{uuid4().hex}", name=tool_name, arguments=safe_arguments(tool_name, {}, goal, state))], reasoning_content=decision.reasoning_content)
+
+    def filter_tool_calls_for_profile_only(self, goal: str, calls: list[PlannedToolCall]) -> list[PlannedToolCall]:
+        return [call for call in calls if call.name == "update_profile_from_dialogue"] if self.is_profile_update_only_goal(goal) else calls
+
+    def align_tool_calls_with_deliverables(self, goal: str, completed: set[str], calls: list[PlannedToolCall], available: set[str], skip: set[str], state: dict[str, Any]) -> list[PlannedToolCall]:
+        pending = self.pending_deliverables(goal, available, completed, skip)
+        if not pending or not calls or pending[0] in {call.name for call in calls}:
+            return calls
+        chosen = {call.name for call in calls}
+        prep = {"search_course_knowledge", "generate_explanation", "answer_course_question"}
+        if pending[0] == "synthesize_speech" and chosen.issubset(prep) and ("generate_explanation" in chosen and "generate_explanation" not in completed or supervisor_intents.should_prepare_speech_script(goal) and "generate_explanation" not in completed):
+            return calls
+        return [PlannedToolCall(id=f"call_{uuid4().hex}", name=pending[0], arguments=safe_arguments(pending[0], {}, goal, state))] if chosen.isdisjoint(set(pending)) else calls
+
+    def deliverables_complete_decision(self, state: dict[str, Any], schemas: list[dict[str, Any]]) -> AgentDecision | None:
+        goal = str(state.get("goal") or "")
+        if not self.required_deliverables(goal):
+            return None
+        if self.pending_deliverables(goal, self.available_tool_names(schemas), self.completed_tool_names(state), set(state.get("skip_tools") or [])):
+            return None
+        return AgentDecision(status="complete", summary="所需交付物已全部生成。", final_answer=build_completion_answer(state))
+
+    def profile_update_only_decision(self, state: dict[str, Any], schemas: list[dict[str, Any]]) -> AgentDecision | None:
+        goal = str(state.get("goal") or "")
+        if not self.is_profile_update_only_goal(goal) or "update_profile_from_dialogue" not in self.available_tool_names(schemas):
+            return None
+        if "update_profile_from_dialogue" in self.completed_tool_names(state):
+            return AgentDecision(status="complete", summary="对话式学习画像已更新。", final_answer="已记录你的学习目标、偏好和薄弱点，后续学习建议会参考这些信息。")
+        return self.force_tool("update_profile_from_dialogue", goal, state, AgentDecision(status="continue", summary="本轮仅更新对话式学习画像，不扩张为资源或练习生成任务。"), reason="本轮仅更新对话式学习画像，不扩张为资源或练习生成任务。")
+
+    def intent_first_decision(self, state: dict[str, Any], schemas: list[dict[str, Any]]) -> AgentDecision | None:
+        goal = str(state.get("goal") or "")
+        if int(state.get("tool_call_count") or 0) > 0 or not supervisor_intents.should_intent_first_route(goal):
+            return None
+        available, skip = self.available_tool_names(schemas), set(state.get("skip_tools") or [])
+        calls = [PlannedToolCall(id=f"call_{uuid4().hex}", name=name, arguments=safe_arguments(name, {}, goal, state)) for name in self.required_tools(goal) if name in available and name not in skip]
+        return AgentDecision(status="continue", summary=f"意图识别：优先调用 {supervisor_intents.deliverable_label(calls[-1].name)}", plan=[f"调用 {item.name}" for item in calls], tool_calls=calls) if calls else None
+
+    @staticmethod
+    def has_wrong_deliverable_only(state: dict[str, Any], goal: str) -> bool:
+        required = set(supervisor_intents.required_deliverables(goal))
+        completed = {str(item.get("tool_name")) for item in state.get("observations") or [] if item.get("success") is True and item.get("tool_name")}
+        generation = {"generate_lesson_video", "generate_immersive_classroom", "generate_interactive_courseware", "generate_storyboard_html", "generate_educational_image", "generate_diagram", "generate_mindmap", "generate_explanation", "synthesize_speech"}
+        return bool(required) and not bool(required & completed) and bool(completed & generation)
+
+    @staticmethod
+    def should_ground_in_course_materials(goal: str) -> bool:
+        return any(keyword in goal for keyword in ("什么是", "讲解", "解释", "为什么", "如何", "帮我", "BFS", "DFS", "广度优先", "深度优先", "排序", "队列", "栈", "二叉树", "图", "遍历", "算法", "数据结构", "哈希", "链表"))
+
+
 class _PolicyHost(Protocol):
     def _available_tool_names(self, tool_schemas: list[dict[str, Any]]) -> set[str]: ...
     def _completed_tool_names(self, state: dict[str, Any]) -> set[str]: ...
@@ -89,6 +191,23 @@ class _PolicyHost(Protocol):
     def _should_use_fallback_planner(self, goal: str, state: dict[str, Any], available: set[str], completed_tools: set[str], skip_tools: set[str], pending_deliverables: list[str]) -> bool: ...
     def _fallback_next_tool(self, goal: str, available: set[str], completed_tools: set[str], skip_tools: set[str]) -> str | None: ...
     def _build_completion_answer(self, state: dict[str, Any]) -> str: ...
+
+
+SupervisorPolicy._available_tool_names = staticmethod(SupervisorPolicy.available_tool_names)
+SupervisorPolicy._completed_tool_names = staticmethod(SupervisorPolicy.completed_tool_names)
+SupervisorPolicy._is_profile_update_only_goal = staticmethod(SupervisorPolicy.is_profile_update_only_goal)
+SupervisorPolicy._force_tool = SupervisorPolicy.force_tool
+SupervisorPolicy._pending_deliverables = SupervisorPolicy.pending_deliverables
+SupervisorPolicy._filter_tool_calls_for_profile_only = SupervisorPolicy.filter_tool_calls_for_profile_only
+SupervisorPolicy._align_tool_calls_with_deliverables = SupervisorPolicy.align_tool_calls_with_deliverables
+SupervisorPolicy._safe_arguments = staticmethod(safe_arguments)
+SupervisorPolicy._next_tool_hint = staticmethod(SupervisorPolicy.next_tool_hint)
+SupervisorPolicy._requires_explicit_retrieval = staticmethod(SupervisorPolicy.requires_explicit_retrieval)
+SupervisorPolicy._has_wrong_deliverable_only = staticmethod(SupervisorPolicy.has_wrong_deliverable_only)
+SupervisorPolicy._normalize_completion_answer = staticmethod(normalize_completion_answer)
+SupervisorPolicy._should_use_fallback_planner = SupervisorPolicy.should_use_fallback_planner
+SupervisorPolicy._fallback_next_tool = SupervisorPolicy.fallback_next_tool
+SupervisorPolicy._build_completion_answer = staticmethod(build_completion_answer)
 
 
 def apply_safety_net(
