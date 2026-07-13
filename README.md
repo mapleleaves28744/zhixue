@@ -20,8 +20,8 @@
 判断当前项目实际能力时，优先阅读：
 
 - `docs/当前实现基线.md`
-- `docs/11_API接口设计/16_当前实现API清单.md`
-- `docs/10_数据库设计/15_当前实现数据库清单.md`
+- `docs/当前实现API清单.md`
+- `docs/当前实现数据库清单.md`
 
 早期 PRD 和设计方案用于表达目标与约束，不代表其中所有接口、页面或增强能力均已实现。
 
@@ -35,13 +35,14 @@
 - `/assistant` 已 React 化（快速 Tutor SSE + LangGraph 智能体）；Supervisor 采用 LLM 主导、规则安全网决策模型。
 - `/assistant` 支持一句话生成基于课程 RAG、画像和薄弱点的 OpenMAIC 个性化沉浸课堂，并异步导出带配音、烧录字幕的 MP4 知识点讲解视频。
 - 前端已从存在高危公告的 Next.js 14.2.35 升级至 Next.js 16.2.7，`npm audit` 为 0 vulnerabilities。
+- 2026-07-13 `change_8` 活动快照：147 个 HTTP 操作、44 张 ORM 表、24 个 migration、69 个 Service 文件、61 个后端测试文件，466 项 pytest 通过。
 
-最近一次本地验收：
+最近一次本地验收（2026-07-13，`change_8`）：
 
 ```powershell
 cd backend
 python -m pytest -q --maxfail=1
-# 323 passed；DEF-012～015 修复后全量回归
+# 466 passed，6 warnings
 
 python -m alembic upgrade head
 # OK
