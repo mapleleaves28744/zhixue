@@ -197,27 +197,51 @@ async function hydrateAgentMessage(
 
 function messagesFromHistory(items: AgentMessage[]): ChatItem[] {
   const result: ChatItem[] = []
+  const agentMessageByTaskId = new Map<string, number>()
   let lastUserContent = ""
 
   for (const m of items.slice(-40)) {
     if (m.role === "user") {
       lastUserContent = m.content
       result.push({ id: m.id, kind: "user", content: m.content })
+      if (m.task_id) {
+        agentMessageByTaskId.set(m.task_id, result.length)
+        result.push({
+          id: `history-task-${m.task_id}`,
+          kind: "agent",
+          taskId: m.task_id,
+          userQuestion: m.content,
+          events: [],
+          task: null,
+          finalAnswer: "",
+          streaming: true,
+          error: null,
+          payloadArtifacts: [],
+        })
+      }
       continue
     }
     if (m.task_id) {
-      result.push({
+      const existingIndex = agentMessageByTaskId.get(m.task_id)
+      const existing = existingIndex === undefined ? null : result[existingIndex]
+      const agentMessage: Extract<ChatItem, { kind: "agent" }> = {
         id: m.id,
         kind: "agent",
         taskId: m.task_id,
-        userQuestion: lastUserContent,
-        events: [],
-        task: null,
+        userQuestion: existing?.kind === "agent" ? existing.userQuestion : lastUserContent,
+        events: existing?.kind === "agent" ? existing.events : [],
+        task: existing?.kind === "agent" ? existing.task : null,
         finalAnswer: normalizeAgentAnswer(m.content),
         streaming: false,
         error: null,
         payloadArtifacts: (m.payload?.artifacts as Record<string, unknown>[]) || [],
-      })
+      }
+      if (existingIndex === undefined) {
+        agentMessageByTaskId.set(m.task_id, result.length)
+        result.push(agentMessage)
+      } else {
+        result[existingIndex] = agentMessage
+      }
       continue
     }
     const payload = m.payload || {}
@@ -870,6 +894,10 @@ export function AssistantPageClient() {
                 setConversationId(id)
                 localStorage.setItem(`${CONVERSATION_KEY}_${courseId}`, id)
                 setMessages([])
+              }}
+              onOpenResources={(resourceType) => {
+                bumpResourceList(resourceType)
+                setResourceDialogOpen(true)
               }}
             />
             <select

@@ -24,10 +24,44 @@ from app.models.agent_conversation import AgentConversation, AgentMessage, Agent
 from app.models.agent_task import AgentTask, AgentTaskStep
 from app.services.agent_queue_service import AgentEventBroker
 from app.services.agent_runtime_service import AgentRuntimeService
+from app.repositories.agent_task_repository import build_task_thread_id
+from app.agent_runtime.supervisor_policy import safe_arguments
 
 
 class QueryInput(SimpleNamespace):
     pass
+
+
+def test_dynamic_agent_task_uses_a_unique_checkpoint_thread() -> None:
+    """同一对话的不同消息不能复用 LangGraph checkpoint 状态。"""
+    conversation_thread = "agent-conversation-123"
+    first_task = uuid4()
+    second_task = uuid4()
+
+    assert build_task_thread_id(conversation_thread, first_task) == f"{conversation_thread}:{first_task}"
+    assert build_task_thread_id(conversation_thread, first_task) != build_task_thread_id(
+        conversation_thread, second_task
+    )
+
+
+def test_video_safe_arguments_respect_requested_duration() -> None:
+    arguments = safe_arguments(
+        "generate_lesson_video",
+        {},
+        "生成一个 60 秒中文讲解视频，主题是广度优先搜索为什么使用队列。",
+    )
+
+    assert arguments["duration_seconds"] == 60
+
+
+def test_quiz_safe_arguments_respect_requested_question_count() -> None:
+    arguments = safe_arguments(
+        "generate_quiz",
+        {},
+        "请生成 6 道二叉树遍历练习题，包含基础题和综合应用题。",
+    )
+
+    assert arguments["count"] == 6
 
 
 def schema(name: str) -> dict[str, object]:
@@ -69,7 +103,7 @@ EXPECTED_LEARNING_TOOL_CONTRACTS = {
     "analyze_learning_diagnosis": ("DiagnosisAgent", True, "low", False, 120, {"type": "object", "properties": {}, "required": [], "additionalProperties": False}),
     "answer_course_question": ("TutorAgent", True, "low", False, 120, {"type": "object", "properties": {"question": {"type": "string"}, "top_k": {"type": "integer", "minimum": 1, "maximum": 20}}, "required": ["question"], "additionalProperties": False}),
     "apply_evolution_strategy": ("EvolutionAgent", True, "high", True, 120, {"type": "object", "properties": {"strategy_id": {"type": "string"}}, "required": [], "additionalProperties": False}),
-    "generate_diagram": ("KnowledgeAgent", True, "low", False, 120, {"type": "object", "properties": {"concept": {"type": "string", "description": "需要图解的概念"}, "diagram_type": {"type": "string", "enum": ["flowchart", "sequence", "class", "er"]}}, "required": ["concept"], "additionalProperties": False}),
+    "generate_diagram": ("KnowledgeAgent", True, "low", False, 120, {"type": "object", "properties": {"concept": {"type": "string", "description": "需要图解的概念"}, "diagram_type": {"type": "string", "enum": ["flowchart", "sequence", "class", "er"]}, "requirement": {"type": "string", "description": "必须在图中表达的步骤或重点"}}, "required": ["concept"], "additionalProperties": False}),
     "generate_educational_image": ("VisualResourceAgent", True, "low", False, 180, {"type": "object", "properties": {"topic": {"type": "string", "minLength": 1}, "image_type": {"type": "string", "enum": ["concept_illustration", "process_visual", "analogy", "cover", "summary_card"]}, "style": {"type": "string"}, "size": {"type": "string", "enum": ["1024x1024", "1280x720", "720x1280", "1024x768"]}, "requirement": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
     "generate_explanation": ("ResourceAgent", True, "low", False, 120, {"type": "object", "properties": {"topic": {"type": "string"}, "resource_type": {"type": "string", "enum": ["explanation", "summary", "example", "flashcard", "review"]}, "requirement": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
     "generate_immersive_classroom": ("ImmersiveClassroomAgent", True, "low", False, 30, {"type": "object", "properties": {"topic": {"type": "string", "minLength": 1}, "learning_goal": {"type": "string"}, "generate_video_export": {"type": "boolean"}, "enable_images": {"type": "boolean"}, "enable_video_clips": {"type": "boolean"}, "enable_tts": {"type": "boolean"}}, "required": ["topic"], "additionalProperties": False}),

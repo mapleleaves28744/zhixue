@@ -301,7 +301,7 @@
 <script>
         (() => {
             const API_BASE_URL = localStorage.getItem("zhixue_api_base") || "http://localhost:8000/api/v1";
-            const defaultCourseRoute = "/courses";
+            const defaultCourseRoute = "/home";
             const modal = document.getElementById("zhixue-auth-modal");
             const closeButton = document.getElementById("zhixue-auth-close");
             const form = document.getElementById("zhixue-auth-form");
@@ -566,7 +566,7 @@
                     }
                     const tokenResponse = await login(username, password);
                     persistSession(tokenResponse);
-                    setMessage("登录成功，正在进入课程空间。", "success");
+                    setMessage("登录成功，正在进入主页。", "success");
                     setTimeout(() => topNavigate(getRedirectTarget()), 350);
                 } catch (error) {
                     setMessage(error.message || "操作失败，请稍后重试。", "error");
@@ -616,4 +616,3 @@
 
 
 </body></html>
-

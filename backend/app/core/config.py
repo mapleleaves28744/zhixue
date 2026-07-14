@@ -79,6 +79,27 @@ class Settings(BaseSettings):
     multimodal_public_base_url: str = Field(default="", alias="MULTIMODAL_PUBLIC_BASE_URL")
     multimodal_job_poll_interval_seconds: int = Field(default=3, alias="MULTIMODAL_JOB_POLL_INTERVAL_SECONDS")
     multimodal_job_max_wait_seconds: int = Field(default=600, alias="MULTIMODAL_JOB_MAX_WAIT_SECONDS")
+    cloudbase_image_api_key: str = Field(default="", alias="CLOUDBASE_IMAGE_API_KEY")
+    cloudbase_image_base_url: str = Field(
+        default="",
+        alias="CLOUDBASE_IMAGE_BASE_URL",
+    )
+    cloudbase_image_model: str = Field(
+        default="HY-Image-3.0-Plus-4090-Tob-v1.0",
+        alias="CLOUDBASE_IMAGE_MODEL",
+    )
+    cloudbase_image_timeout_seconds: int = Field(default=180, alias="CLOUDBASE_IMAGE_TIMEOUT_SECONDS")
+    qwen_image_api_key: str = Field(default="", alias="QWEN_IMAGE_API_KEY")
+    qwen_image_base_url: str = Field(
+        default="https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
+        alias="QWEN_IMAGE_BASE_URL",
+    )
+    qwen_image_model: str = Field(
+        default="qwen-image-2.0-pro-2026-06-22",
+        alias="QWEN_IMAGE_MODEL",
+    )
+    qwen_image_timeout_seconds: int = Field(default=180, alias="QWEN_IMAGE_TIMEOUT_SECONDS")
+    qwen_image_prompt_extend: bool = Field(default=True, alias="QWEN_IMAGE_PROMPT_EXTEND")
 
     # ── OpenMAIC 沉浸课堂引擎 ──
     openmaic_enabled: bool = Field(default=False, alias="OPENMAIC_ENABLED")

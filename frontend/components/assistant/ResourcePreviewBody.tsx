@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { MermaidDiagram } from "@/components/assistant/MermaidDiagram"
+import { FlashcardDeck } from "@/components/assistant/FlashcardDeck"
 import { MediaAssetPreview } from "@/components/assistant/MediaAssetPreview"
 import { MarkdownRenderer } from "@/components/markdown/MarkdownRenderer"
 import { buildApiUrl } from "@/lib/api"
@@ -228,18 +229,15 @@ export function ResourcePreviewBody({
 
       {previewMode === "mermaid" ? (
         <div className="space-y-3">
-          {hasMedia && liveResource.media_mime_type?.startsWith("image/") ? (
-            <MediaAssetPreview
-              assetId={liveResource.media_asset_id!}
-              mimeType={liveResource.media_mime_type}
-              title={liveResource.title}
-            />
-          ) : null}
           <MermaidDiagram code={liveResource.content} title={liveResource.title} />
         </div>
       ) : null}
 
-      {previewMode === "text" && !pendingJob ? <MarkdownRenderer content={liveResource.content} /> : null}
+      {liveResource.resource_type === "flashcard" && !pendingJob ? (
+        <FlashcardDeck content={liveResource.content} title={liveResource.title} />
+      ) : null}
+
+      {previewMode === "text" && liveResource.resource_type !== "flashcard" && !pendingJob ? <MarkdownRenderer content={liveResource.content} /> : null}
 
       {showPersonalizedReason && liveResource.personalized_reason ? (
         <details className="mt-4 rounded-xl bg-primary/5 p-3">

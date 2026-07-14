@@ -117,6 +117,7 @@ def register_knowledge_tools(
             course_id=context.course_id,
             concept=concept,
             diagram_type=str(arguments.get("diagram_type") or "flowchart"),
+            requirement=str(arguments.get("requirement") or "") or None,
         )
         return ToolExecutionResult(
             output=result,
@@ -136,4 +137,4 @@ def register_knowledge_tools(
     if include("generate_mindmap"):
         register_tool(registry, "generate_mindmap", "围绕课程知识点生成 Mermaid 思维导图，可视化知识结构关系。", "KnowledgeAgent", {"topic": {"type": "string", "description": "知识主题"}, "scope": {"type": "string", "enum": ["course", "chapter", "custom"]}, "depth": {"type": "integer", "minimum": 2, "maximum": 5}}, ["topic"], generate_mindmap_handler, writes_db=True)
     if include("generate_diagram"):
-        register_tool(registry, "generate_diagram", "围绕知识概念生成流程图、架构图或示意图的 Mermaid 代码。", "KnowledgeAgent", {"concept": {"type": "string", "description": "需要图解的概念"}, "diagram_type": {"type": "string", "enum": ["flowchart", "sequence", "class", "er"]}}, ["concept"], generate_diagram_handler, writes_db=True)
+        register_tool(registry, "generate_diagram", "围绕知识概念生成流程图、架构图或示意图的 Mermaid 代码。", "KnowledgeAgent", {"concept": {"type": "string", "description": "需要图解的概念"}, "diagram_type": {"type": "string", "enum": ["flowchart", "sequence", "class", "er"]}, "requirement": {"type": "string", "description": "必须在图中表达的步骤或重点"}}, ["concept"], generate_diagram_handler, writes_db=True)

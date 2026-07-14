@@ -52,7 +52,20 @@ export function MermaidDiagram({ code, title }: MermaidDiagramProps) {
     loadMermaid()
       .then(async (mermaid) => {
         if (cancelled || !hostRef.current) return
-        mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" })
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          securityLevel: "loose",
+          themeVariables: {
+            primaryColor: "#fff3df",
+            primaryTextColor: "#3d2a16",
+            primaryBorderColor: "#b56b00",
+            lineColor: "#c78a30",
+            tertiaryColor: "#edf5ff",
+            fontFamily: "Noto Sans SC, Microsoft YaHei, system-ui, sans-serif",
+          },
+          mindmap: { padding: 22 },
+        })
         const { svg } = await mermaid.render(`zhixue-mmd-${Date.now()}`, normalized)
         if (!cancelled && hostRef.current) {
           hostRef.current.innerHTML = svg
@@ -70,15 +83,15 @@ export function MermaidDiagram({ code, title }: MermaidDiagramProps) {
   }, [normalized])
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white shadow-sm">
-      <div className="flex items-center gap-2 border-b border-primary/10 bg-primary/5 px-4 py-3 text-sm font-bold text-primary">
+    <div className="overflow-hidden rounded-2xl border border-amber-200/70 bg-gradient-to-br from-white via-amber-50/30 to-orange-50/40 shadow-sm">
+      <div className="flex items-center gap-2 border-b border-amber-200/60 bg-amber-50/70 px-4 py-3 text-sm font-bold text-amber-800">
         <span className="material-symbols-outlined text-lg">account_tree</span>
         思维导图预览
       </div>
       {error ? (
         <p className="p-4 text-sm font-semibold text-error">{error}</p>
       ) : (
-        <div ref={hostRef} className="flex min-h-[280px] items-center justify-center overflow-auto p-4" />
+        <div ref={hostRef} className="flex min-h-[320px] items-center justify-center overflow-auto p-5 [&_svg]:min-w-[680px] [&_svg]:max-w-none" />
       )}
       <details className="border-t border-primary/10 bg-white/80 px-4 py-3">
         <summary className="cursor-pointer text-xs font-bold text-outline">查看 Mermaid 源码</summary>

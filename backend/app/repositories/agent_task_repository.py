@@ -12,6 +12,11 @@ from app.models.agent_task import AgentTask, AgentTaskStep
 from app.schemas.agent_task import AgentTaskPlan
 
 
+def build_task_thread_id(conversation_thread_id: str, task_id: UUID) -> str:
+    """Create an isolated LangGraph checkpoint thread for one conversation message."""
+    return f"{conversation_thread_id}:{task_id}"
+
+
 class AgentTaskRepository:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
@@ -137,6 +142,7 @@ class AgentTaskRepository:
         )
         self.db.add(task)
         await self.db.flush()
+        task.thread_id = build_task_thread_id(thread_id, task.id)
         return task
 
     async def get_step_by_tool_call(

@@ -16,10 +16,11 @@ from app.repositories.mastery_repository import MasteryRepository
 class MasteryService:
     """BKT 简化版 + 艾宾浩斯遗忘曲线，掌握度单一事实源。"""
 
-    LEARN_RATE = 0.25
-    FORGET_BASE = 0.04
-    ASK_WEAK_PENALTY = 0.03
-    ASK_REVIEW_BONUS = 0.02
+    INITIAL_MASTERY = 0.5
+    MASTERY_FLOOR = 0.35
+    BASE_LEARN_RATE = 0.18
+    DECAY_GRACE_DAYS = 1.0
+    ASK_REVIEW_BONUS = 0.01
 
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
@@ -97,14 +98,11 @@ class MasteryService:
         row = self._apply_decay(row, now)
 
         if is_correct:
-            row.mastery_score = min(
-                1.0,
-                float(row.mastery_score) + self.LEARN_RATE * max(0.15, 1.0 - float(row.mastery_score)),
-            )
+            row.mastery_score = self._update_score(float(row.mastery_score), outcome=1.0, evidence_count=row.attempt_count)
             row.stability = min(30.0, float(row.stability) + 0.8)
             row.correct_count += 1
         else:
-            row.mastery_score = max(0.0, float(row.mastery_score) - self.LEARN_RATE * 0.75)
+            row.mastery_score = self._update_score(float(row.mastery_score), outcome=0.0, evidence_count=row.attempt_count)
             row.stability = max(0.5, float(row.stability) * 0.85)
 
         row.attempt_count += 1
@@ -117,6 +115,8 @@ class MasteryService:
             ),
             "attempt_count": row.attempt_count,
             "correct_count": row.correct_count,
+            "confidence": self._confidence(row.attempt_count),
+            "effective_evidence_count": row.attempt_count,
         }
         await self.repo.save(row)
         return {"knowledge_id": str(knowledge_id), "mastery_score": float(row.mastery_score)}
@@ -140,14 +140,14 @@ class MasteryService:
         row.last_asked_at = now
 
         if understood:
-            row.mastery_score = min(1.0, float(row.mastery_score) + self.ASK_REVIEW_BONUS)
-        elif row.ask_count >= 2:
-            row.mastery_score = max(0.0, float(row.mastery_score) - self.ASK_WEAK_PENALTY)
+            row.mastery_score = self._update_score(float(row.mastery_score), outcome=1.0, evidence_count=row.attempt_count + row.ask_count, weight=0.35)
 
         row.evidence_json = {
             "source": "dialogue",
             "summary": f"对话提及 {row.ask_count} 次，掌握度 {row.mastery_score:.0%}",
             "ask_count": row.ask_count,
+            "confidence": self._confidence(row.attempt_count + row.ask_count * 0.2),
+            "effective_evidence_count": row.attempt_count,
         }
         await self.repo.save(row)
         return {"knowledge_id": str(knowledge_id), "mastery_score": float(row.mastery_score)}
@@ -193,15 +193,23 @@ class MasteryService:
         if ref.tzinfo is None:
             ref = ref.replace(tzinfo=UTC)
         days = max(0.0, (now - ref).total_seconds() / 86400.0)
-        if days <= 0:
+        if days <= self.DECAY_GRACE_DAYS:
             return row
         stability = max(0.5, float(row.stability))
-        retention = math.exp(-days / stability)
-        decayed = float(row.mastery_score) * retention
-        row.mastery_score = max(0.05, decayed - self.FORGET_BASE * days)
+        elapsed = days - self.DECAY_GRACE_DAYS
+        retention = math.exp(-elapsed / stability)
+        row.mastery_score = max(self.MASTERY_FLOOR, self.MASTERY_FLOOR + (float(row.mastery_score) - self.MASTERY_FLOOR) * retention)
         row.evidence_json = {
             **(row.evidence_json or {}),
             "decay_days": round(days, 1),
             "retention": round(retention, 3),
         }
         return row
+
+    def _update_score(self, score: float, *, outcome: float, evidence_count: int, weight: float = 1.0) -> float:
+        rate = self.BASE_LEARN_RATE / math.sqrt(1 + max(0, evidence_count) / 3)
+        return round(min(1.0, max(0.0, score + rate * weight * (outcome - score))), 4)
+
+    @staticmethod
+    def _confidence(evidence_count: float) -> float:
+        return round(min(0.95, 0.2 + 0.15 * math.log1p(max(0.0, evidence_count))), 3)

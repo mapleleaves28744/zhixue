@@ -36,6 +36,19 @@ def _resolve_speech_text(state: dict[str, Any], goal: str, text: str | None = No
     return f"你好，下面为你讲解{topic}。{topic}是数据结构中的核心知识点，遵循先进先出的原则。常见操作包括入队、出队、取队头和判空，在任务调度与广度优先搜索中应用广泛。"[:4000]
 
 
+def _resource_type_for_goal(goal: str) -> str:
+    lowered = goal.lower()
+    if any(marker in goal for marker in ("复习卡", "闪卡")) or "flashcard" in lowered:
+        return "flashcard"
+    if any(marker in goal for marker in ("复习摘要", "复习总结", "考前摘要", "总结资源")):
+        return "summary"
+    if "错题解析" in goal:
+        return "review"
+    if any(marker in goal for marker in ("例题资源", "生成例题", "配套例题")):
+        return "example"
+    return "explanation"
+
+
 def safe_arguments(
     tool_name: str,
     arguments: dict[str, Any],
@@ -49,10 +62,10 @@ def safe_arguments(
         "search_course_knowledge": {"query": topic or goal, "top_k": 10},
         "search_web": {"query": topic or goal, "max_results": 5},
         "answer_course_question": {"question": goal, "top_k": 5},
-        "generate_learning_path": {"goal": topic or goal}, "generate_explanation": {"topic": topic, "requirement": goal},
+        "generate_learning_path": {"goal": topic or goal}, "generate_explanation": {"topic": topic, "resource_type": _resource_type_for_goal(goal), "requirement": goal},
         "generate_quiz": {"topic": topic}, "parse_uploaded_document": {},
         "generate_mindmap": {"topic": topic, "scope": "course", "depth": 3},
-        "generate_diagram": {"concept": topic, "diagram_type": "flowchart"},
+        "generate_diagram": {"concept": topic, "diagram_type": "flowchart", "requirement": goal},
         "generate_educational_image": {"topic": topic, "image_type": "concept_illustration", "style": "clean educational illustration", "size": "1280x720", "requirement": goal},
         "generate_lesson_video": {"topic": topic, "duration_seconds": 90, "visual_mode": "storyboard", "target_level": "undergraduate"},
         "generate_immersive_classroom": {"topic": topic, "learning_goal": topic or goal, "generate_video_export": True, "enable_images": True, "enable_video_clips": False, "enable_tts": True},
@@ -64,6 +77,14 @@ def safe_arguments(
     for key, value in defaults.get(tool_name, {}).items():
         if not normalized.get(key):
             normalized[key] = value
+    if tool_name in {"generate_lesson_video", "generate_storyboard_html"}:
+        duration_match = re.search(r"(?<!\d)(\d{1,3})\s*秒", goal)
+        if duration_match:
+            normalized["duration_seconds"] = min(240, max(30, int(duration_match.group(1))))
+    if tool_name == "generate_quiz":
+        count_match = re.search(r"(?<!\d)(\d{1,2})\s*道", goal)
+        if count_match:
+            normalized["count"] = min(20, max(1, int(count_match.group(1))))
     if tool_name == "review_multimodal_asset" and not normalized.get("asset_id"):
         match = re.search(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", goal, flags=re.IGNORECASE)
         if match:

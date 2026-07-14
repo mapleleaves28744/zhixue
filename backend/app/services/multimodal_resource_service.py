@@ -334,6 +334,8 @@ class MultimodalResourceService:
         requirement: str | None,
         brief: dict[str, Any],
     ) -> str:
+        if getattr(self.provider, "prefers_natural_prompt", False):
+            return requirement.strip() if requirement and requirement.strip() else f"生成一张讲解{topic}知识的课程插图。"
         return (
             f"为大学课程生成教学插图。主题：{topic}\n"
             f"图片类型：{image_type}\n"

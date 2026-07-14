@@ -57,6 +57,7 @@ class DiagramService:
         course_id: UUID,
         concept: str,
         diagram_type: str = "flowchart",
+        requirement: str | None = None,
     ) -> dict[str, Any]:
         concept = concept.strip() or "数据结构概念"
         diagram_type = diagram_type if diagram_type in DIAGRAM_PROMPTS else "flowchart"
@@ -72,7 +73,7 @@ class DiagramService:
             user_id=current_user.id,
             course_id=course_id,
         ).chat(
-            [ChatMessage(role="user", content=self._build_prompt(concept, diagram_type, knowledge_items))],
+            [ChatMessage(role="user", content=self._build_prompt(concept, diagram_type, knowledge_items, requirement=requirement))],
             temperature=0.5,
             max_tokens=4096,
         )
@@ -108,6 +109,7 @@ class DiagramService:
         concept: str,
         diagram_type: str,
         knowledge_items: list[dict[str, Any]],
+        requirement: str | None = None,
     ) -> str:
         context = "\n".join(
             f"- {item.get('source_title') or '课程资料'}: {str(item.get('content') or '')[:200]}"
@@ -117,6 +119,7 @@ class DiagramService:
         return (
             f"{instruction}\n\n"
             f"参考知识片段：\n{context or '暂无检索片段'}\n\n"
+            f"用户指定步骤：{str(requirement or '无').strip() or '无'}\n\n"
             f"要求：只输出 Mermaid 代码；{CONCISE_MERMAID_RULES} "
             "无法从资料确认的内容标注为 AI 推断内容。"
         )

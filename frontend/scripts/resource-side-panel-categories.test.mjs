@@ -34,6 +34,7 @@ assert.match(resourceTypeHelpers, /label:\s*"图片"/)
 assert.match(sidePanel, /resourceType:\s*targetType/)
 assert.match(sidePanel, /highlightResourceType/)
 assert.match(sidePanel, /已放入「\$\{getResourceTypeLabel\(nextType\)\}」分类|后台生成中/)
+assert.doesNotMatch(sidePanel, /focusResourceId/)
 assert.match(assistant, /resourceTypeFromEvent/)
 assert.match(assistant, /highlightResourceType=\{resourceRevealType\}/)
 

@@ -56,3 +56,17 @@ def test_diagram_service_rejects_unknown_type_in_prompt_path_by_fallbacking_to_f
     from app.services.diagram_service import DIAGRAM_PROMPTS
 
     assert set(DIAGRAM_PROMPTS) == {"flowchart", "sequence", "class", "er"}
+
+
+def test_diagram_prompt_keeps_user_required_bfs_queue_steps() -> None:
+    from app.services.diagram_service import DiagramService
+
+    prompt = DiagramService.__new__(DiagramService)._build_prompt(
+        "广度优先搜索",
+        "flowchart",
+        [],
+        requirement="必须展示起点入队、队首出队、未访问邻接点入队、队列为空结束。",
+    )
+
+    assert "起点入队" in prompt
+    assert "队列为空结束" in prompt

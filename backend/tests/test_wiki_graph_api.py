@@ -104,3 +104,28 @@ async def test_wiki_graph_service_get_graph_personal_filters_nodes(monkeypatch) 
     assert len(graph["nodes"]) == 1
     assert graph["nodes"][0]["title"] == "我的 Wiki"
     assert graph["nodes"][0]["mastery_score"] == 0.6
+
+
+@pytest.mark.asyncio
+async def test_wiki_graph_marks_missing_mastery_as_unverified(monkeypatch) -> None:
+    user_id, course_id, knowledge_id = uuid4(), uuid4(), uuid4()
+    page = SimpleNamespace(id=uuid4(), owner_id=user_id, title="队列", summary="s", knowledge_id=knowledge_id, current_version=1)
+
+    class FakeWikiRepo:
+        async def list_links(self, page_id): return []
+    class FakeWiki:
+        repo = FakeWikiRepo()
+        async def list_visible_pages(self, **kwargs): return [page], 1
+    class FakeMastery:
+        async def get_mastery_map(self, **kwargs): return {}
+    class FakeCourse:
+        async def get_readable_course(self, *args): return None
+        async def get_course(self, *args): return SimpleNamespace(owner_id=user_id, visibility="private")
+
+    svc = WikiGraphService.__new__(WikiGraphService)
+    svc.db, svc.wiki, svc.mastery, svc.knowledge, svc.relations = MagicMock(), FakeWiki(), FakeMastery(), None, None
+    from app.services import wiki_graph_service as module
+    monkeypatch.setattr(module, "CourseService", lambda db: FakeCourse())
+    graph = await svc.get_graph(current_user=SimpleNamespace(id=user_id), course_id=course_id, view="personal")
+    assert graph["nodes"][0]["mastery_score"] == 0.5
+    assert graph["nodes"][0]["mastery_confidence"] == 0.2

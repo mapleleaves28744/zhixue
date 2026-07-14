@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
 from app.core.config import settings
@@ -14,12 +16,41 @@ from app.services.media_storage_service import MediaStorageService
 from app.services.video_render_service import build_storyboard
 
 
+@dataclass(frozen=True)
+class MediaJobReference:
+    """Stable job identifiers retained across rendering and database commits."""
+
+    id: UUID
+    user_id: UUID
+    course_id: UUID
+    resource_id: UUID | None
+    agent_task_id: UUID | None
+    conversation_id: UUID | None
+    tool_call_id: str | None
+    provider: str
+
+    @classmethod
+    def from_job(cls, job: Any) -> "MediaJobReference":
+        return cls(
+            id=job.id,
+            user_id=job.user_id,
+            course_id=job.course_id,
+            resource_id=job.resource_id,
+            agent_task_id=job.agent_task_id,
+            conversation_id=job.conversation_id,
+            tool_call_id=job.tool_call_id,
+            provider=job.provider,
+        )
+
+
 async def run_multimodal_video_job(ctx: dict, job_id: str) -> dict:
     async with AsyncSessionLocal() as db:
         repo = MediaRepository(db)
         job = await repo.get_job(UUID(job_id))
         if job is None:
             return {"status": "not_found"}
+        reference = MediaJobReference.from_job(job)
+        payload = dict(job.input_payload or {})
         if job.cancel_requested:
             await repo.update_job(job, status="cancelled", stage="cancelled", finished_at=datetime.now(UTC))
             await db.commit()
@@ -28,16 +59,15 @@ async def run_multimodal_video_job(ctx: dict, job_id: str) -> dict:
         try:
             await repo.update_job(job, status="running", stage="storyboard", progress=10)
             await db.commit()
-            await _publish_progress(db, job, "storyboard", 10, "正在生成视频脚本与分镜")
+            await _publish_progress(db, reference, "storyboard", 10, "正在生成视频脚本与分镜")
 
-            payload = job.input_payload or {}
             topic = str(payload.get("topic") or "课程讲解")
             brief = dict(payload.get("brief") or {})
             storyboard = build_storyboard(topic, brief, int(payload.get("duration_seconds") or 90))
 
             await repo.update_job(job, stage="rendering", progress=45, output_payload={"storyboard": storyboard})
             await db.commit()
-            await _publish_progress(db, job, "rendering", 45, "正在渲染视频画面")
+            await _publish_progress(db, reference, "rendering", 45, "正在渲染视频画面")
 
             provider = build_multimodal_provider()
             asset_path = None
@@ -80,22 +110,22 @@ async def run_multimodal_video_job(ctx: dict, job_id: str) -> dict:
 
             await repo.update_job(job, stage="saving", progress=85)
             await db.commit()
-            await _publish_progress(db, job, "saving", 85, "正在保存视频产物")
+            await _publish_progress(db, reference, "saving", 85, "正在保存视频产物")
 
             asset = await repo.create_asset(
-                user_id=job.user_id,
-                course_id=job.course_id,
-                resource_id=job.resource_id,
-                agent_task_id=job.agent_task_id,
-                conversation_id=job.conversation_id,
-                tool_call_id=job.tool_call_id,
+                user_id=reference.user_id,
+                course_id=reference.course_id,
+                resource_id=reference.resource_id,
+                agent_task_id=reference.agent_task_id,
+                conversation_id=reference.conversation_id,
+                tool_call_id=reference.tool_call_id,
                 asset_type="video" if mime == "video/mp4" else "html",
                 title=f"{topic} 个性化讲解视频",
                 description="由课程依据、中文讲解画面、MiMo 配音和烧录字幕合成的讲解视频。",
                 storage_path=asset_path,
                 mime_type=mime,
                 file_size=size,
-                provider="mimo_narrated_storyboard" if render_meta.get("mode") == "narrated_storyboard" else job.provider,
+                provider="mimo_narrated_storyboard" if render_meta.get("mode") == "narrated_storyboard" else reference.provider,
                 model_name=(
                     "storyboard-mimo-tts-moviepy"
                     if render_meta.get("mode") == "narrated_storyboard"
@@ -111,21 +141,21 @@ async def run_multimodal_video_job(ctx: dict, job_id: str) -> dict:
                 },
                 render_meta={**render_meta, "storyboard": storyboard},
             )
-            if job.resource_id:
-                resource = await ResourceRepository(db).get_by_id(job.resource_id)
+            if reference.resource_id:
+                resource = await ResourceRepository(db).get_by_id(reference.resource_id)
                 if resource is not None:
                     resource.content = "讲解视频已生成，可在学习资源区直接播放。"
                     resource.model_name = asset.model_name
                     await db.flush()
             artifact_refs = build_video_completion_refs(
-                resource_id=str(job.resource_id) if job.resource_id else None,
+                resource_id=str(reference.resource_id) if reference.resource_id else None,
                 asset_id=str(asset.id),
                 title=asset.title,
                 mime_type=mime,
             )
             output_payload = {
                 "asset_id": str(asset.id),
-                "resource_id": str(job.resource_id) if job.resource_id else None,
+                "resource_id": str(reference.resource_id) if reference.resource_id else None,
                 "artifact_refs": artifact_refs,
                 "render_meta": render_meta,
             }
@@ -134,38 +164,40 @@ async def run_multimodal_video_job(ctx: dict, job_id: str) -> dict:
             from app.services.pet_service import PetService
 
             await PetService(db).safely_create_media_completion(
-                user_id=job.user_id,
-                course_id=job.course_id,
-                job_id=job.id,
+                user_id=reference.user_id,
+                course_id=reference.course_id,
+                job_id=reference.id,
                 title=asset.title,
-                conversation_id=job.conversation_id,
-                agent_task_id=job.agent_task_id,
+                conversation_id=reference.conversation_id,
+                agent_task_id=reference.agent_task_id,
                 resource_type="video",
             )
             await _publish_progress(
                 db,
-                job,
+                reference,
                 "completed",
                 100,
                 "视频生成完成，已放入学习资源区",
                 asset_id=str(asset.id),
-                resource_id=str(job.resource_id) if job.resource_id else None,
+                resource_id=str(reference.resource_id) if reference.resource_id else None,
                 artifact_refs=artifact_refs,
             )
             return {
                 "status": "succeeded",
                 "asset_id": str(asset.id),
-                "resource_id": str(job.resource_id) if job.resource_id else None,
+                "resource_id": str(reference.resource_id) if reference.resource_id else None,
             }
         except Exception as exc:
-            await repo.mark_job_failed(job, str(exc))
+            current_job = await repo.get_job(reference.id)
+            if current_job is not None:
+                await repo.mark_job_failed(current_job, str(exc))
             await db.commit()
-            await _publish_progress(db, job, "failed", job.progress or 0, str(exc))
-            await _notify_agent_media_job_failed(db, job, str(exc))
+            await _publish_progress(db, reference, "failed", 85, str(exc))
+            await _notify_agent_media_job_failed(db, reference, str(exc))
             raise
 
 
-async def _notify_agent_media_job_failed(db, job, message: str) -> None:
+async def _notify_agent_media_job_failed(db, job: MediaJobReference, message: str) -> None:
     if not job.agent_task_id:
         return
     try:
@@ -203,7 +235,14 @@ async def _notify_agent_media_job_failed(db, job, message: str) -> None:
         await db.rollback()
 
 
-async def _publish_progress(db, job, stage: str, progress: int, message: str, **extra) -> None:
+async def _publish_progress(
+    db,
+    job: MediaJobReference,
+    stage: str,
+    progress: int,
+    message: str,
+    **extra,
+) -> None:
     if not job.agent_task_id:
         return
     try:
@@ -249,6 +288,13 @@ def build_storyboard_manifest(topic: str, storyboard: list[dict]) -> OpenMAICMan
             {
                 "id": f"storyboard_scene_{index}",
                 "title": title,
+                "duration_seconds": int(item.get("duration_seconds") or 0),
+                "visual_focus": str(item.get("visual_focus") or "核心概念").strip()[:24],
+                "key_points": [
+                    str(point).strip()[:24]
+                    for point in list(item.get("key_points") or [])[:3]
+                    if str(point).strip()
+                ],
                 "actions": [{"type": "speech", "text": narration}],
             }
         )
