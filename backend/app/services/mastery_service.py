@@ -163,16 +163,7 @@ class MasteryService:
         from app.models.profile import StudentCourseProfile
 
         items = await self.list_mastery_items(user_id=user_id, course_id=course_id)
-        flat: dict[str, Any] = {}
-        for item in items:
-            flat[item["knowledge_id"]] = item["mastery_score"]
-            flat[item["knowledge_name"]] = item["mastery_score"]
-        flat["_course_id"] = str(course_id)
-        flat["_overall"] = (
-            round(sum(item["mastery_score"] for item in items) / len(items), 2) if items else 0.0
-        )
-        flat["_overall_percent"] = round(float(flat["_overall"]) * 100, 1) if items else None
-        flat["_items"] = items
+        flat = self._build_profile_snapshot(course_id=course_id, items=items)
 
         result = await self.db.execute(select(StudentCourseProfile).where(
             StudentCourseProfile.user_id == user_id, StudentCourseProfile.course_id == course_id
@@ -184,6 +175,50 @@ class MasteryService:
         profile.mastery_snapshot = flat
         profile.version_no += 1
         await self.db.flush()
+        return flat
+
+    def _build_profile_snapshot(
+        self,
+        *,
+        course_id: UUID,
+        items: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Build a versioned snapshot so profile UI can reject legacy score semantics."""
+        flat: dict[str, Any] = {}
+        effective_evidence_count = 0.0
+        for item in items:
+            flat[item["knowledge_id"]] = item["mastery_score"]
+            flat[item["knowledge_name"]] = item["mastery_score"]
+            evidence = item.get("evidence") or {}
+            effective_evidence_count += max(
+                0.0,
+                float(evidence.get("effective_evidence_count", item.get("attempt_count", 0)) or 0),
+            )
+
+        overall = (
+            round(sum(float(item["mastery_score"]) for item in items) / len(items), 2)
+            if items
+            else self.INITIAL_MASTERY
+        )
+        if effective_evidence_count <= 0:
+            status = "pending_validation"
+        elif effective_evidence_count < 10:
+            status = "building_evidence"
+        else:
+            status = "evidence_established"
+
+        flat.update(
+            {
+                "_course_id": str(course_id),
+                "_algorithm_version": "evidence_weighted_v2",
+                "_overall": overall,
+                "_overall_percent": round(overall * 100, 1),
+                "_evidence_count": round(effective_evidence_count, 1),
+                "_confidence": self._confidence(effective_evidence_count),
+                "_status": status,
+                "_items": items,
+            }
+        )
         return flat
 
     def _apply_decay(self, row: Any, now: datetime) -> Any:

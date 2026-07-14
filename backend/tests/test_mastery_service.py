@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from types import SimpleNamespace
+from uuid import uuid4
 
 from app.services.mastery_service import MasteryService
 
@@ -28,6 +29,19 @@ def test_mastery_starts_neutral_and_changes_gradually_with_evidence() -> None:
     assert svc._update_score(0.5, outcome=1.0, evidence_count=0) == 0.59
     assert svc._update_score(0.5, outcome=0.0, evidence_count=0) == 0.41
     assert svc._update_score(0.5, outcome=1.0, evidence_count=8) < 0.59
+
+
+def test_profile_snapshot_marks_no_evidence_as_neutral_pending() -> None:
+    svc = MasteryService.__new__(MasteryService)
+
+    snapshot = svc._build_profile_snapshot(course_id=uuid4(), items=[])
+
+    assert snapshot["_algorithm_version"] == "evidence_weighted_v2"
+    assert snapshot["_overall"] == 0.5
+    assert snapshot["_overall_percent"] == 50.0
+    assert snapshot["_evidence_count"] == 0
+    assert snapshot["_confidence"] == 0.2
+    assert snapshot["_status"] == "pending_validation"
 
 
 def test_graph_expansion_context_to_dict() -> None:
