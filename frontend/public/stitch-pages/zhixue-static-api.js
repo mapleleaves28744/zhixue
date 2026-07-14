@@ -413,6 +413,14 @@
     return request(`/diagnosis/mastery?${query}`);
   }
 
+  async function getCourseQualityReport(courseId) {
+    const query = new URLSearchParams();
+    if (courseId) {
+      query.set("course_id", courseId);
+    }
+    return request(`/knowledge/seed-quality-report?${query}`);
+  }
+
   async function getDiagnosisLiveSummary(courseId) {
     const query = new URLSearchParams({ course_id: courseId });
     return request(`/diagnosis/live-summary?${query}`);
@@ -922,6 +930,7 @@
     getMe,
     ingestProfileDialogue,
     getMastery,
+    getCourseQualityReport,
     getDiagnosisLiveSummary,
     getCourseIdFromUrl,
     getParentSearchParams,
