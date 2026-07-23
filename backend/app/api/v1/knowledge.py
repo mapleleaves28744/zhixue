@@ -15,7 +15,7 @@ from app.services.course_service import CourseService
 from app.services.knowledge_service import KnowledgeService
 from app.services.knowledge_search_service import KnowledgeSearchService
 from app.services.material_service import MaterialService
-from app.services.seed_knowledge_service import load_seed_quality_report
+from app.services.seed_knowledge_service import load_course_quality_report, load_seed_quality_report
 from app.services.wiki_graph_service import WikiGraphService
 
 router = APIRouter()
@@ -24,10 +24,17 @@ router = APIRouter()
 @router.get("/seed-quality-report")
 async def get_seed_quality_report(
     request: Request,
+    course_id: UUID | None = Query(default=None),
     current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    _ = current_user
-    return success_response(load_seed_quality_report(), request=request)
+    if course_id is None:
+        return success_response(load_seed_quality_report(), request=request)
+    await CourseService(db).get_readable_course(course_id, current_user)
+    return success_response(
+        await load_course_quality_report(db, course_id=course_id),
+        request=request,
+    )
 
 
 @router.post("/search")

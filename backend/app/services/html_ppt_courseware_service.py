@@ -3,6 +3,7 @@ from __future__ import annotations
 import html
 import json
 import re
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
@@ -68,7 +69,11 @@ class HtmlPptCoursewareService:
             '"boxes":[{"title":"...","body":"..."}], "callout":"...", "code":"...", '
             '"tasks":["..."], "options":[{"label":"A","text":"...","correct":true,"explain":"..."}], '
             '"takeaways":[{"title":"...","body":"..."}], "next_hint":"..."}]}\n'
-            "要求：6-8 页；objectives 3-5 条；concept 页用 boxes；quiz 页 3 个选项且仅 1 个 correct。"
+            "要求：严格输出 7 页，顺序固定为 cover、objectives、concept、example、exercise、quiz、summary，"
+            "不得重复或跳过页型。每页只讲一个教学动作：概念页只保留 2 个要点；例子页只演示一个最小过程；"
+            "练习页最多 3 个任务；自测页 3 个选项且仅 1 个 correct。不要输出“课程无关”“忽略定义”等凑数内容。"
+            "封面 title 不超过 18 个中文字符，subtitle 不超过 52 个中文字符；标题必须是课程概念，"
+            "不能把整段学生要求、生成指令或题目原样塞进标题。"
         )
         response = await llm.chat(
             [
@@ -85,18 +90,19 @@ class HtmlPptCoursewareService:
         return parsed
 
     def render(self, spec: dict[str, Any]) -> HtmlPptRenderResult:
-        safety = self.validate_spec(spec)
+        normalized_spec = self._normalize_spec(spec)
+        safety = self.validate_spec(normalized_spec)
         if not safety["passed"]:
             raise RuntimeError("课件 spec 未通过安全校验：" + ";".join(safety["issues"]))
-        title = str(spec.get("title") or "互动课件")[:120]
-        html_doc = self._render_course_module_deck(spec)
+        title = str(normalized_spec.get("title") or "互动课件")[:48]
+        html_doc = self._render_course_module_deck(normalized_spec)
         html_safety = self.validate_html(html_doc)
         if not html_safety["passed"]:
             raise RuntimeError("课件 HTML 未通过安全校验：" + ";".join(html_safety["issues"]))
         return HtmlPptRenderResult(
             title=title,
             html=html_doc,
-            spec=spec,
+            spec=normalized_spec,
             safety_result={**safety, "html": html_safety},
         )
 
@@ -142,7 +148,13 @@ class HtmlPptCoursewareService:
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:;" />
   <title>{deck_title}</title>
-  <style>{styles}</style>
+  <style>{styles}
+  .slide .h1,.slide .h2,.slide .lede,.slide .concept-box,.slide .callout{{overflow-wrap:anywhere;word-break:break-word;}}
+  .slide .h1{{font-size:clamp(2.25rem,5.2vw,5rem);line-height:1.12;max-width:18ch;}}
+  .slide .h2{{font-size:clamp(1.7rem,3vw,3rem);line-height:1.22;max-width:24ch;}}
+  .slide .lede{{max-width:58ch;line-height:1.65;}}
+  .slide.full{{overflow:hidden;}}
+  </style>
 </head>
 <body class="tpl-course-module">
 <div class="deck">
@@ -330,10 +342,85 @@ class HtmlPptCoursewareService:
                 data["objectives"] = [
                     self._clean_text(str(x)) for x in (data.get("objectives") or [])[:6]
                 ]
-                return data
+                return self._normalize_spec(data)
         except json.JSONDecodeError:
             pass
         return self._fallback_spec(topic, brief)
+
+    def _normalize_spec(self, spec: dict[str, Any]) -> dict[str, Any]:
+        normalized = deepcopy(spec)
+        topic = self._limit(self._clean_text(str(normalized.get("topic") or "课程")), 24) or "课程"
+        normalized["topic"] = topic
+        normalized["title"] = self._compact_title(normalized.get("title"), topic, limit=24)
+        normalized["module_label"] = self._limit(
+            self._clean_text(str(normalized.get("module_label") or f"智学工坊 · {topic}")),
+            30,
+        )
+        normalized["duration_hint"] = self._limit(self._clean_text(str(normalized.get("duration_hint") or "")), 16)
+        normalized["prereq"] = self._limit(self._clean_text(str(normalized.get("prereq") or "")), 40)
+        normalized["objectives"] = [
+            self._limit(self._clean_text(str(value)), 40)
+            for value in list(normalized.get("objectives") or [])[:5]
+            if self._clean_text(str(value))
+        ]
+        fallback_spec = self._fallback_spec(topic, normalized)
+        raw_slides = [slide for slide in list(normalized.get("slides") or []) if isinstance(slide, dict)]
+        fallback_by_type = {str(slide.get("type")): slide for slide in fallback_spec["slides"]}
+        supplied_by_type: dict[str, dict[str, Any]] = {}
+        for slide in raw_slides:
+            slide_type = str(slide.get("type") or "concept")
+            supplied_by_type.setdefault(slide_type, slide)
+        teaching_flow = ("cover", "objectives", "concept", "example", "exercise", "quiz", "summary")
+        normalized["slides"] = [
+            self._normalize_slide(supplied_by_type.get(slide_type) or fallback_by_type[slide_type], topic)
+            for slide_type in teaching_flow
+        ]
+        return normalized
+
+    def _normalize_slide(self, slide: dict[str, Any], topic: str) -> dict[str, Any]:
+        item = deepcopy(slide)
+        slide_type = str(item.get("type") or "concept")
+        item["type"] = slide_type
+        item["kicker"] = self._limit(self._clean_text(str(item.get("kicker") or self._default_kicker(slide_type))), 24)
+        item["title"] = self._compact_title(item.get("title"), topic, limit=24 if slide_type in {"cover", "summary"} else 30)
+        for field, limit in (("subtitle", 58), ("lede", 90), ("callout", 72), ("next_hint", 64), ("sidebar_hint", 50)):
+            item[field] = self._limit(self._clean_text(str(item.get(field) or "")), limit)
+        item["pills"] = [self._limit(self._clean_text(str(value)), 16) for value in list(item.get("pills") or [])[:3]]
+        item["tasks"] = [self._limit(self._clean_text(str(value)), 46) for value in list(item.get("tasks") or [])[:3]]
+        item["code"] = self._limit(self._clean_text(str(item.get("code") or "")), 420)
+        box_limit = 3 if slide_type == "objectives" else 2
+        item["boxes"] = [
+            {"title": self._limit(self._clean_text(str(box.get("title") or "")), 20), "body": self._limit(self._clean_text(str(box.get("body") or "")), 56)}
+            for box in list(item.get("boxes") or [])[:box_limit]
+            if isinstance(box, dict)
+        ]
+        item["takeaways"] = [
+            {"title": self._limit(self._clean_text(str(box.get("title") or "")), 24), "body": self._limit(self._clean_text(str(box.get("body") or "")), 60)}
+            for box in list(item.get("takeaways") or [])[:4]
+            if isinstance(box, dict)
+        ]
+        item["options"] = [
+            {
+                "label": self._limit(self._clean_text(str(option.get("label") or "?")), 3),
+                "text": self._limit(self._clean_text(str(option.get("text") or "")), 48),
+                "correct": bool(option.get("correct")),
+                "explain": self._limit(self._clean_text(str(option.get("explain") or "")), 48),
+            }
+            for option in list(item.get("options") or [])[:4]
+            if isinstance(option, dict)
+        ]
+        return item
+
+    def _compact_title(self, value: Any, topic: str, *, limit: int) -> str:
+        title = self._clean_text(str(value or ""))
+        instruction_markers = ("：", ":", "；", ";", "，", ",", "请", "先", "最后", "面向")
+        if not title or len(title) > limit or any(marker in title for marker in instruction_markers):
+            title = topic
+        return self._limit(title, limit)
+
+    @staticmethod
+    def _limit(value: str, limit: int) -> str:
+        return value[:limit].rstrip("，。；：、 ")
 
     def _fallback_spec(self, topic: str, brief: dict[str, Any]) -> dict[str, Any]:
         citations = brief.get("citations") or []

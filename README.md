@@ -20,29 +20,36 @@
 判断当前项目实际能力时，优先阅读：
 
 - `docs/当前实现基线.md`
-- `docs/11_API接口设计/16_当前实现API清单.md`
-- `docs/10_数据库设计/15_当前实现数据库清单.md`
+- `docs/当前实现API清单.md`
+- `docs/当前实现数据库清单.md`
+- `docs/19_测试方案/26_全面代码评估问题修复计划.md`
 
-早期 PRD 和设计方案用于表达目标与约束，不代表其中所有接口、页面或增强能力均已实现。
+早期 PRD、`docs/superpowers/` 方案和 `docs/_archive/` 设计稿用于表达目标、约束或历史过程，不代表其中所有接口、页面或增强能力均已实现。AI 编程助手不得仅依据规划文档判断功能已完成。
 
 ## 当前状态
 
 - 学生端主链路已用真实本地数据库、后端、前端跑通过。
 - 前端构建路由只保留：`/`、`/home`、`/courses`、`/knowledge`、`/assistant`、`/practice`、`/dashboard`、`/path-profile`、`/evolution`、`/login`、`/register`。
 - 不再建设 `/teacher/*`、`/admin/*` 或旧 React `/student/*` 页面。
-- 无真实 LLM Key 时可用 Mock Provider；配置 OpenAI-compatible Provider 后可调用真实模型。
+- 无真实 LLM Key 时，普通 Tutor、Wiki、资源、练习、诊断等链路可使用 Mock Provider；**当前 `/assistant` LangGraph Agent Runtime 明确要求真实 Provider，不允许 Mock fallback**，无 Key 时不能宣称智能体模式完整可演示。
 - 2026-06-06 已使用真实 `xiaomi_mimo / mimo-v2.5` 完成资料上传到 Agent 日志的 23 步主链路验收，未回退 Mock。
 - `/assistant` 已 React 化（快速 Tutor SSE + LangGraph 智能体）；Supervisor 采用 LLM 主导、规则安全网决策模型。
 - `/assistant` 支持一句话生成基于课程 RAG、画像和薄弱点的 OpenMAIC 个性化沉浸课堂，并异步导出带配音、烧录字幕的 MP4 知识点讲解视频。
-- 前端已从存在高危公告的 Next.js 14.2.35 升级至 Next.js 16.2.7，`npm audit` 为 0 vulnerabilities。
+- 前端已从存在高危公告的 Next.js 14.2.35 升级至 Next.js 16.2.7；最近有证据的 `npm audit` 结果为 2026-07-13 的 0 vulnerabilities，本轮因环境无 Node/npm 未重新执行。
+- 2026-07-24 `change_8` 活动快照：147 个 HTTP 操作、44 张 ORM 表、25 个 migration、69 个 Service Python 文件（含 `__init__.py`）、68 个后端测试文件，503 项 pytest 通过。
 
-最近一次本地验收：
+最近一次后端代码回归（2026-07-24，`change_8`）：
 
 ```powershell
 cd backend
 python -m pytest -q --maxfail=1
-# 323 passed；DEF-012～015 修复后全量回归
+# 503 passed，6 warnings
+```
 
+本轮文档同步环境没有可用 Node/npm，也没有连接本地数据库，因此没有重新执行前端构建和 Alembic。以下结果仍是 2026-07-13 的历史验收证据，不应描述为本轮结果：
+
+```powershell
+cd backend
 python -m alembic upgrade head
 # OK
 
@@ -62,7 +69,7 @@ python scripts/export_implementation_docs.py
 ```
 
 真实 LLM 主链路专项记录见 `docs/19_测试方案/13_真实LLM主链路与Next安全专项验收记录.md`。
-本轮全量扫描、浏览器验收和缺陷闭环见 `docs/19_测试方案/20_全量功能扫描与浏览器验收报告.md` 与 `21_缺陷清单与修复闭环记录.md`。
+最近存档的全量浏览器扫描和缺陷闭环分别形成于 2026-06-13，见 `docs/19_测试方案/20_全量功能扫描与浏览器验收报告.md` 与 `21_缺陷清单与修复闭环记录.md`；它们是历史验收证据，不代表 2026-07-24 已重新执行全站浏览器 E2E。
 
 ## 比赛材料
 
@@ -96,7 +103,7 @@ DATABASE_URL=postgresql+asyncpg://zhixue:zhixue_password@localhost:5432/zhixue
 REDIS_URL=redis://localhost:6379/0
 JWT_SECRET=change-me
 
-# 无 Key 可用 mock；有 OpenAI-compatible 服务时可改成 openai-compatible
+# 普通生成链路无 Key 可用 mock；当前 LangGraph Agent 模式仍需要真实 Provider
 LLM_PROVIDER=mock
 LLM_API_KEY=
 LLM_BASE_URL=
@@ -109,13 +116,13 @@ LLM_MODEL_NAME=
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1
 ```
 
-如果本机 `8000` 被旧进程占用，可以把后端开在 `8010`，并通过页面 URL 的 `api_base` 参数覆盖：
+如果本机 `8000` 被旧进程占用，可以把后端开在 `8010`。当前代码仍支持通过页面 URL 的 `api_base` 参数覆盖：
 
 ```text
 http://127.0.0.1:3000/register?api_base=http%3A%2F%2F127.0.0.1%3A8010%2Fapi%2Fv1
 ```
 
-登录/注册页会把该 API 地址写入浏览器本地存储，后续 Stitch 页面会沿用同一个后端地址。
+登录/注册页会把该 API 地址写入浏览器本地存储，后续 Stitch 页面会沿用同一个后端地址。**该能力当前没有生产环境白名单限制，只应在受信本地地址中使用，不得打开来源不明的 `api_base` 链接；修复计划见 T02。**
 
 ## 启动步骤
 

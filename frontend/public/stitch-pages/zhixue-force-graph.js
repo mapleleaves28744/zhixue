@@ -3,8 +3,11 @@
  * 依赖：window.d3（v7+）
  */
 (function () {
-  function masteryTier(score) {
+  function masteryTier(score, confidence) {
     const s = Math.max(0, Math.min(1, Number(score) || 0));
+    if (Number(confidence) < 0.4) {
+      return { label: "待验证", color: "#64748b", min: 0 };
+    }
     if (s >= 0.75) {
       return { label: "已掌握", color: "#16a34a", min: 0.75 };
     }
@@ -64,7 +67,8 @@
       id: String(n.id),
       title: n.title || n.name || "未命名",
       summary: n.summary || "",
-      mastery_score: Number(n.mastery_score || 0),
+      mastery_score: Number(n.mastery_score || 0.5),
+      mastery_confidence: Number(n.mastery_confidence || 0.2),
       scope: n.scope || "personal",
       page_type: n.page_type || "wiki",
       knowledge_id: n.knowledge_id || null,
@@ -194,7 +198,7 @@
 
     function showTooltip(event, node) {
       const masteryPct = Math.round((Number(node.mastery_score) || 0) * 100);
-      const tier = masteryTier(node.mastery_score);
+      const tier = masteryTier(node.mastery_score, node.mastery_confidence);
       tooltip.innerHTML = `
         <p class="font-bold text-on-surface leading-snug">${escapeHtml(node.title)}</p>
         <p class="text-on-surface-variant mt-1">

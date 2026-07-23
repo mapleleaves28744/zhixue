@@ -5,7 +5,8 @@ RUN if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
       sed -i 's|deb.debian.org|mirrors.tencent.com|g; s|security.debian.org|mirrors.tencent.com|g' /etc/apt/sources.list.d/debian.sources; \
     fi \
     && apt-get update -qq \
-    && apt-get install -y -qq --no-install-recommends libgomp1 fonts-noto-cjk \
+    && apt-get install -y -qq --no-install-recommends libgomp1 fontconfig fonts-noto-cjk \
+    && fc-cache -f \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

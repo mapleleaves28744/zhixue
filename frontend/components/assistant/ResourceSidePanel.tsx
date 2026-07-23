@@ -242,10 +242,10 @@ export function ResourceSidePanel({
                     ? "volume_up"
                     : item.preview_mode === "video"
                       ? "movie"
-                      : item.preview_mode === "image" || ["image", "mindmap", "diagram"].includes(String(item.resource_type))
-                        ? "image"
-                        : item.preview_mode === "mermaid" || ["mindmap", "diagram"].includes(String(item.resource_type))
+                      : item.preview_mode === "mermaid" || ["mindmap", "diagram"].includes(String(item.resource_type))
                           ? "account_tree"
+                          : item.preview_mode === "image" || item.resource_type === "image"
+                            ? "image"
                           : item.resource_type === "interactive_courseware" || item.resource_type === "immersive_classroom"
                             ? "view_in_ar"
                             : item.resource_type === "code_project"

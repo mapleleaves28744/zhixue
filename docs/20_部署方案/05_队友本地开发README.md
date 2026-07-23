@@ -97,12 +97,14 @@ CREATE DATABASE zhixue OWNER zhixue;
 
 编辑项目根目录 `.env`：
 
-**无 API Key（可跑通主链路，Mock 模式）：**
+**无 API Key（可跑普通生成主链路，Mock 模式）：**
 
 ```env
 LLM_PROVIDER=mock
 EMBEDDING_PROVIDER=mock
 ```
+
+> 当前 `/assistant` LangGraph Agent Runtime 不允许 Mock fallback。以上配置可用于普通 Tutor、Wiki、资源、练习和诊断等 Mock 链路，但智能体模式仍需真实 Provider。
 
 **使用 OpenAI-compatible 大模型（示例）：**
 

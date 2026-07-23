@@ -75,7 +75,7 @@ export function clearAuthSession(): void {
 }
 
 export function getDefaultRouteByRole(role?: UserRole | null): string {
-  return "/courses"
+  return "/home"
 }
 
 export function isAllowedRole(userRole: UserRole | null | undefined, requiredRole: "student" | "admin"): boolean {

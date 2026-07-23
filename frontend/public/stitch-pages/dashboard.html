@@ -420,8 +420,13 @@
         compact: true,
         height: 260,
         legend: false,
-        onNodeClick() {
-          api.navigate(`/knowledge?course_id=${courseId}`);
+        onNodeClick(node) {
+          const nodeId = encodeURIComponent(node?.id || "");
+          if (node?.page_type === "wiki" && !String(node.id || "").startsWith("kp:")) {
+            api.navigate(`/knowledge?course_id=${courseId}&tab=wiki&page_id=${nodeId}`);
+            return;
+          }
+          api.navigate(`/knowledge?course_id=${courseId}&tab=graph&knowledge_id=${nodeId}`);
         },
         onNodeHover(node) {
           if (!meta) return;

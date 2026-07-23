@@ -24,6 +24,9 @@ class NarrationSegment:
     title: str
     text: str
     audio_url: str | None
+    target_duration_ms: int | None = None
+    visual_focus: str = "核心概念"
+    key_points: tuple[str, ...] = ()
 
 
 def extract_narration_segments(
@@ -33,10 +36,21 @@ def extract_narration_segments(
 ) -> list[NarrationSegment]:
     segments: list[NarrationSegment] = []
     for index, scene in enumerate(scenes, start=1):
+        raw_target_seconds = scene.get("duration_seconds")
+        try:
+            target_duration_ms = max(0, int(float(raw_target_seconds) * 1000))
+        except (TypeError, ValueError):
+            target_duration_ms = None
         title = str(
             scene.get("title")
             or (scene.get("content") or {}).get("title")
             or f"{fallback_topic} · 场景 {index}"
+        )
+        visual_focus = str(scene.get("visual_focus") or "核心概念").strip()[:24]
+        key_points = tuple(
+            str(point).strip()[:24]
+            for point in list(scene.get("key_points") or [])[:3]
+            if str(point).strip()
         )
         speech_actions = [
             action
@@ -51,6 +65,9 @@ def extract_narration_segments(
                         title=title[:120],
                         text=str(action.get("text") or "").strip()[:1200],
                         audio_url=str(action.get("audioUrl")) if action.get("audioUrl") else None,
+                        target_duration_ms=target_duration_ms,
+                        visual_focus=visual_focus,
+                        key_points=key_points,
                     )
                 )
             continue
@@ -60,6 +77,9 @@ def extract_narration_segments(
                 title=title[:120],
                 text=f"本节课堂场景：{title}。请结合画面理解这一知识点。",
                 audio_url=None,
+                target_duration_ms=target_duration_ms,
+                visual_focus=visual_focus,
+                key_points=key_points,
             )
         )
     return segments[:40] or [
@@ -70,6 +90,15 @@ def extract_narration_segments(
             audio_url=None,
         )
     ]
+
+
+def align_narration_durations(audio_durations_ms: list[int], *, target_duration_ms: int) -> list[int]:
+    """保留全部配音，并在目标总时长更长时把剩余时间均匀留给画面和字幕。"""
+    durations = [max(1, int(value)) for value in audio_durations_ms]
+    if not durations or target_duration_ms <= sum(durations):
+        return durations
+    padding, remainder = divmod(target_duration_ms - sum(durations), len(durations))
+    return [duration + padding + (1 if index < remainder else 0) for index, duration in enumerate(durations)]
 
 
 def build_subtitle_timeline(
@@ -130,7 +159,12 @@ class ClassroomVideoExportService:
                 *(self._prepare_audio(segment, temp, index) for index, segment in enumerate(segments))
             )
             audio_paths = [item[0] for item in prepared_audio]
-            durations_ms = [item[1] for item in prepared_audio]
+            audio_durations_ms = [item[1] for item in prepared_audio]
+            requested_duration_ms = sum(segment.target_duration_ms or 0 for segment in segments)
+            durations_ms = align_narration_durations(
+                audio_durations_ms,
+                target_duration_ms=requested_duration_ms,
+            )
             audio_sources = [item[2] for item in prepared_audio]
             timeline = build_subtitle_timeline(segments, durations_ms)
             output = temp / "classroom_lesson.mp4"
@@ -211,10 +245,11 @@ class ClassroomVideoExportService:
         durations_ms: list[int],
         output: Path,
     ) -> None:
-        from moviepy import AudioFileClip, ImageClip, concatenate_videoclips
+        from moviepy import AudioFileClip, CompositeAudioClip, ImageClip, concatenate_videoclips
 
         clips = []
         audio_clips = []
+        scene_audio_tracks = []
         for index, (segment, audio_path, duration_ms) in enumerate(
             zip(segments, audio_paths, durations_ms, strict=True),
             start=1,
@@ -224,7 +259,9 @@ class ClassroomVideoExportService:
             audio_clip = AudioFileClip(str(audio_path))
             audio_clips.append(audio_clip)
             duration = max(audio_clip.duration, duration_ms / 1000)
-            clips.append(ImageClip(str(frame_path)).with_duration(duration).with_audio(audio_clip))
+            audio_track = CompositeAudioClip([audio_clip]).with_duration(duration)
+            scene_audio_tracks.append(audio_track)
+            clips.append(ImageClip(str(frame_path)).with_audio(audio_track).with_duration(duration))
         # All generated frames are 1280x720; chain preserves the exact cut order
         # and timing without re-compositing an identical canvas for every frame.
         final = concatenate_videoclips(clips, method="chain")
@@ -242,6 +279,8 @@ class ClassroomVideoExportService:
             final.close()
             for clip in clips:
                 clip.close()
+            for track in scene_audio_tracks:
+                track.close()
             for audio_clip in audio_clips:
                 audio_clip.close()
 
@@ -256,28 +295,50 @@ class ClassroomVideoExportService:
         from PIL import Image, ImageDraw, ImageFont
 
         width, height = 1280, 720
-        image = Image.new("RGB", (width, height), color=(242, 247, 255))
+        image = Image.new("RGB", (width, height), color=(255, 250, 244))
         draw = ImageDraw.Draw(image)
         draw.rounded_rectangle(
             (48, 48, width - 48, height - 48),
             radius=36,
             fill=(255, 255, 255),
-            outline=(199, 210, 254),
+            outline=(245, 213, 170),
             width=3,
         )
-        title_font = self._font(ImageFont, 48)
-        body_font = self._font(ImageFont, 31)
+        title_font = self._font(ImageFont, 46)
+        body_font = self._font(ImageFont, 29)
         small_font = self._font(ImageFont, 24)
-        draw.text((88, 82), topic[:36], fill=(49, 46, 129), font=small_font)
-        draw.text((88, 130), segment.title[:34], fill=(15, 23, 42), font=title_font)
-        y = 225
-        for line in _wrap_text(segment.text, 31)[:8]:
-            draw.text((88, y), line, fill=(51, 65, 85), font=body_font)
+        draw.rounded_rectangle((78, 72, 274, 112), radius=20, fill=(255, 237, 207))
+        draw.text((98, 80), f"第 {index} / {total} 段", fill=(152, 92, 12), font=small_font)
+        draw.text((78, 142), segment.title[:28], fill=(45, 35, 24), font=title_font)
+        focus = segment.visual_focus or topic
+        pill_width = min(width - 156, 40 + len(focus) * 26)
+        draw.rounded_rectangle((78, 212, 78 + pill_width, 252), radius=18, fill=(237, 245, 255))
+        draw.text((96, 220), focus, fill=(48, 96, 148), font=small_font)
+
+        y = 292
+        for line in _wrap_text(segment.text, 29)[:4]:
+            draw.text((82, y), line, fill=(72, 55, 38), font=body_font)
             y += 48
-        draw.rounded_rectangle((80, height - 108, width - 80, height - 66), radius=20, fill=(238, 242, 255))
+
+        points = segment.key_points or ("抓住规则", "联系例子", "主动回忆")
+        for point_index, point in enumerate(points[:3]):
+            x = 78 + point_index * 370
+            draw.rounded_rectangle(
+                (x, 508, x + 334, 578),
+                radius=18,
+                fill=(255, 248, 238),
+                outline=(248, 220, 181),
+                width=2,
+            )
+            draw.text((x + 20, 529), point, fill=(105, 68, 23), font=small_font)
+
+        progress = index / max(total, 1)
+        draw.rounded_rectangle((78, 610, width - 78, 624), radius=7, fill=(245, 233, 216))
+        draw.rounded_rectangle((78, 610, 78 + int((width - 156) * progress), 624), radius=7, fill=(202, 132, 44))
+        draw.rounded_rectangle((80, height - 88, width - 80, height - 46), radius=20, fill=(238, 242, 255))
         subtitle = (_wrap_text(segment.text, 28) or [""])[0][:36]
         draw.text(
-            (104, height - 100),
+            (104, height - 80),
             subtitle,
             fill=(67, 56, 202),
             font=small_font,

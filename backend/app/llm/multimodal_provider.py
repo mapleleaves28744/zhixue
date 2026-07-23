@@ -216,8 +216,147 @@ class AgnesSapiensMultimodalProvider(BaseMultimodalProvider):
         }
 
 
+class CloudBaseImageProvider(BaseMultimodalProvider):
+    """CloudBase 教育智能体的 OpenAI 兼容文生图适配器。"""
+
+    provider_name = "cloudbase_image"
+
+    async def generate_image(self, *, prompt: str, size: str, style: str | None = None) -> ImageGenerationResult:
+        full_prompt = f"{prompt}\n\n视觉风格：{style}" if style else prompt
+        payload = {
+            "model": settings.cloudbase_image_model,
+            "prompt": full_prompt,
+            "size": self._normalize_size(size),
+            "revise": {"value": True},
+            "enable_thinking": {"value": False},
+        }
+        endpoint = f"{settings.cloudbase_image_base_url.rstrip('/')}/images/generations"
+        async with httpx.AsyncClient(timeout=settings.cloudbase_image_timeout_seconds) as client:
+            response = await client.post(
+                endpoint,
+                headers={"Authorization": f"Bearer {settings.cloudbase_image_api_key}", "Content-Type": "application/json"},
+                json=payload,
+            )
+            if response.is_error:
+                raise RuntimeError(f"CloudBase image API failed ({response.status_code}): {response.text[:1000]}")
+            data = response.json()
+
+            b64_value = _json_path(data, "data.0.b64_json")
+            if isinstance(b64_value, str) and b64_value.strip():
+                return ImageGenerationResult(
+                    image_bytes=base64.b64decode(_strip_data_url_prefix(b64_value)),
+                    provider=self.provider_name,
+                    model=settings.cloudbase_image_model,
+                    prompt=prompt,
+                    raw=data,
+                )
+
+            url_value = _json_path(data, "data.0.url")
+            if isinstance(url_value, str) and url_value.strip():
+                image_response = await client.get(url_value)
+                image_response.raise_for_status()
+                return ImageGenerationResult(
+                    image_bytes=image_response.content,
+                    mime_type=image_response.headers.get("content-type", "image/png").split(";", 1)[0],
+                    provider=self.provider_name,
+                    model=settings.cloudbase_image_model,
+                    prompt=prompt,
+                    raw=data,
+                )
+        raise RuntimeError("CloudBase image response missing image url/base64")
+
+    async def create_video_job(self, *, prompt: str, duration_seconds: int, size: str = "1280x720") -> VideoJobResult:
+        raise RuntimeError("当前 CloudBase Provider 仅用于生图，视频仍由本地课堂渲染器生成。")
+
+    async def get_video_job(self, provider_job_id: str) -> VideoJobResult:
+        raise RuntimeError("当前 CloudBase Provider 不支持远程视频任务。")
+
+    @staticmethod
+    def _normalize_size(size: str) -> str:
+        width, height = _parse_size(size)
+        if width > height:
+            return "1280x720"
+        if height > width:
+            return "720x1280"
+        return "1024x1024"
+
+
+class QwenImageProvider(BaseMultimodalProvider):
+    """阿里云百炼 Qwen Image 同步文生图适配器。"""
+
+    provider_name = "qwen_image"
+    prefers_natural_prompt = True
+
+    async def generate_image(self, *, prompt: str, size: str, style: str | None = None) -> ImageGenerationResult:
+        # Qwen 的官方 prompt_extend 负责扩写；这里有意不再拼接 style 或课程资料摘要。
+        # 这样用户输入的自然语言需求可以原样进入模型，避免过度约束导致教学图失真。
+        payload = {
+            "model": settings.qwen_image_model,
+            "input": {
+                "messages": [
+                    {"role": "user", "content": [{"text": prompt}]},
+                ],
+            },
+            "parameters": {
+                "prompt_extend": settings.qwen_image_prompt_extend,
+                "watermark": False,
+                "size": self._normalize_size(size),
+            },
+        }
+        async with httpx.AsyncClient(timeout=settings.qwen_image_timeout_seconds) as client:
+            response = await client.post(
+                settings.qwen_image_base_url,
+                headers={
+                    "Authorization": f"Bearer {settings.qwen_image_api_key}",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                json=payload,
+            )
+            if response.is_error:
+                raise RuntimeError(f"Qwen image API failed ({response.status_code}): {response.text[:1000]}")
+            data = response.json()
+            error_code = data.get("code") if isinstance(data, dict) else None
+            if error_code:
+                message = data.get("message", "unknown error")
+                raise RuntimeError(f"Qwen image API failed ({error_code}): {message}")
+
+            url_value = _json_path(data, "output.choices.0.message.content.0.image")
+            if isinstance(url_value, str) and url_value.strip():
+                image_response = await client.get(url_value)
+                image_response.raise_for_status()
+                return ImageGenerationResult(
+                    image_bytes=image_response.content,
+                    mime_type=image_response.headers.get("content-type", "image/png").split(";", 1)[0],
+                    provider=self.provider_name,
+                    model=settings.qwen_image_model,
+                    prompt=prompt,
+                    raw=data,
+                )
+        raise RuntimeError("Qwen image response missing image url")
+
+    async def create_video_job(self, *, prompt: str, duration_seconds: int, size: str = "1280x720") -> VideoJobResult:
+        raise RuntimeError("当前 Qwen Provider 仅用于生图，视频仍由本地课堂渲染器生成。")
+
+    async def get_video_job(self, provider_job_id: str) -> VideoJobResult:
+        raise RuntimeError("当前 Qwen Provider 不支持远程视频任务。")
+
+    @staticmethod
+    def _normalize_size(size: str) -> str:
+        width, height = _parse_size(size)
+        return f"{width}*{height}"
+
+
 def build_multimodal_provider() -> BaseMultimodalProvider:
     provider = settings.multimodal_provider.lower().replace("-", "_")
+    if provider in {"qwen", "qwen_image", "dashscope", "alibaba"}:
+        if not settings.qwen_image_api_key or not settings.qwen_image_base_url:
+            return MockMultimodalProvider()
+        return QwenImageProvider()
+    if provider in {"cloudbase", "cloudbase_image", "tcloudbase"}:
+        if not settings.cloudbase_image_api_key or not settings.cloudbase_image_base_url:
+            return MockMultimodalProvider()
+        return CloudBaseImageProvider()
     if provider in {"agnes", "sapiens", "agnes_sapiens"}:
         if not settings.agnes_api_key:
             return MockMultimodalProvider()

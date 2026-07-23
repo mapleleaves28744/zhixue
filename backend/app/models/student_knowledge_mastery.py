@@ -44,7 +44,7 @@ class StudentKnowledgeMastery(Base):
         ForeignKey("knowledge_points.id", ondelete="CASCADE"),
         nullable=False,
     )
-    mastery_score: Mapped[float] = mapped_column(Float, nullable=False, server_default=text("0.0"))
+    mastery_score: Mapped[float] = mapped_column(Float, nullable=False, server_default=text("0.5"))
     stability: Mapped[float] = mapped_column(Float, nullable=False, server_default=text("1.0"))
     attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
     correct_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))

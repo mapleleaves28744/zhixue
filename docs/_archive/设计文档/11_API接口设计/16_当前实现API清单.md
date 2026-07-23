@@ -2,6 +2,8 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
+> 生成日期：2026-07-24
+>
 > HTTP 操作数：**147**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
@@ -66,7 +68,7 @@
 | `POST` | `/api/v1/knowledge/extract-from-material` | JWT | - | application/json: `ExtractKnowledgeRequest` |
 | `GET` | `/api/v1/knowledge/graph/subgraph` | JWT | course_id*, center_id*, depth | - |
 | `POST` | `/api/v1/knowledge/search` | JWT | - | application/json: `KnowledgeSearchRequest` |
-| `GET` | `/api/v1/knowledge/seed-quality-report` | JWT | - | - |
+| `GET` | `/api/v1/knowledge/seed-quality-report` | JWT | course_id | - |
 | `POST` | `/api/v1/learning-analytics/sessions/heartbeat` | JWT | - | application/json: `SessionHeartbeatRequest` |
 | `POST` | `/api/v1/learning-analytics/sessions/{session_id}/end` | JWT | session_id* | - |
 | `GET` | `/api/v1/learning-analytics/summary` | JWT | course_id, period | - |

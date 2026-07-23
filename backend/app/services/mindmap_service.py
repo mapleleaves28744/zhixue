@@ -11,7 +11,6 @@ from app.models.user import User
 from app.repositories.resource_repository import ResourceRepository
 from app.services.diagram_service import CONCISE_MERMAID_RULES
 from app.services.knowledge_search_service import KnowledgeSearchService
-from app.services.resource_media_service import ResourceMediaService
 from app.services.visual_search_context import search_items
 from app.utils.mermaid_util import extract_mermaid_code, repair_mermaid_content
 
@@ -67,15 +66,9 @@ class MindmapService:
             model_name=response.model,
             prompt_version_id=None,
         )
-        await ResourceMediaService(self.db).enrich_after_generate(
-            resource=resource,
-            current_user=current_user,
-            resource_type="mindmap",
-        )
         await self.db.commit()
         await self.db.refresh(resource)
-        asset = await ResourceMediaService(self.db).media.get_asset_for_resource(resource.id, current_user.id)
-        payload: dict[str, Any] = {
+        return {
             "resource_id": str(resource.id),
             "title": resource.title,
             "mermaid_code": resource.content,
@@ -84,12 +77,6 @@ class MindmapService:
             "topic": topic,
             "preview_mode": "mermaid",
         }
-        if asset is not None:
-            payload["media_asset_id"] = str(asset.id)
-            payload["media_mime_type"] = asset.mime_type
-            payload["media_file_url"] = f"/api/v1/media-assets/{asset.id}/file"
-            payload["preview_mode"] = "image"
-        return payload
 
     def _build_prompt(self, topic: str, knowledge_items: list[dict[str, Any]], depth: int) -> str:
         context = "\n".join(

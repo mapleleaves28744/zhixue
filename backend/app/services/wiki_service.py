@@ -15,6 +15,27 @@ from app.services.course_service import CourseService
 logger = logging.getLogger(__name__)
 
 
+def describe_wiki_page_quality(page: WikiPage) -> dict[str, int | str]:
+    """Return an honest display quality signal without inventing missing course evidence."""
+    content = str(page.content or "").strip()
+    source_count = len(getattr(page, "sources", []) or [])
+    section_count = sum(1 for line in content.splitlines() if line.strip().startswith("##"))
+    content_length = len(content)
+    if source_count > 0 and content_length >= 300 and section_count >= 2:
+        status, label = "verified", "已核验"
+    elif source_count > 0 and content_length >= 180:
+        status, label = "partial", "待补充"
+    else:
+        status, label = "needs_enrichment", "待补强"
+    return {
+        "status": status,
+        "label": label,
+        "source_count": source_count,
+        "content_length": content_length,
+        "section_count": section_count,
+    }
+
+
 class WikiService:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db

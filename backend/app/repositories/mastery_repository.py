@@ -57,6 +57,8 @@ class MasteryRepository:
             user_id=user_id,
             course_id=course_id,
             knowledge_id=knowledge_id,
+            mastery_score=0.5,
+            evidence_json={"confidence": 0.2, "effective_evidence_count": 0, "source": "initial_prior"},
         )
         self.db.add(row)
         await self.db.flush()

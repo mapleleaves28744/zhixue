@@ -17,6 +17,7 @@ from app.schemas.wiki import (
 )
 from app.services.wiki_generate_service import WikiGenerateService
 from app.services.wiki_service import WikiService
+from app.services.wiki_service import describe_wiki_page_quality
 from app.services.wiki_update_service import WikiUpdateService
 from app.services.course_service import CourseService
 from app.services.material_service import MaterialService
@@ -55,6 +56,7 @@ async def list_wiki_pages(
                 "current_version": p.current_version,
                 "created_at": p.created_at.isoformat(),
                 "updated_at": p.updated_at.isoformat(),
+                "content_quality": describe_wiki_page_quality(p),
             }
             for p in items
         ],
@@ -88,6 +90,7 @@ async def get_wiki_page(
             "extra_meta": page.extra_meta,
             "created_at": page.created_at.isoformat(),
             "updated_at": page.updated_at.isoformat(),
+            "content_quality": describe_wiki_page_quality(page),
             "sources": [
                 {
                     "id": str(s.id),

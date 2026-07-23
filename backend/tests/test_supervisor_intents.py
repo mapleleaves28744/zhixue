@@ -37,6 +37,38 @@ def test_safe_arguments_compatibility_for_courseware_ppt_goal() -> None:
     assert actual["interaction_type"] == "stepper"
 
 
+def test_extract_topic_stops_before_courseware_instruction_details() -> None:
+    topic = supervisor_intents.extract_topic_from_segment(
+        "请生成一份二叉树遍历互动课件。使用逐步演示：先展示一棵小型二叉树，再分别高亮访问顺序。"
+    )
+
+    assert topic == "二叉树遍历"
+
+
+def test_safe_arguments_sets_flashcard_type_for_review_card_goal() -> None:
+    arguments = safe_arguments(
+        "generate_explanation",
+        {},
+        "请生成一份二叉树遍历复习卡资源，共 12 张，包含正面问题、背面答案和记忆提示。",
+    )
+
+    assert arguments["resource_type"] == "flashcard"
+
+
+@pytest.mark.parametrize(
+    ("goal", "resource_type"),
+    [
+        ("请生成一份二叉树遍历考前复习摘要。", "summary"),
+        ("请生成一份二叉树遍历错题解析资源。", "review"),
+        ("请生成一份队列的例题资源。", "example"),
+    ],
+)
+def test_safe_arguments_maps_structured_resource_type(goal: str, resource_type: str) -> None:
+    arguments = safe_arguments("generate_explanation", {}, goal)
+
+    assert arguments["resource_type"] == resource_type
+
+
 @pytest.mark.asyncio
 async def test_profile_only_decision_keeps_original_plan_text() -> None:
     decision = await MiMoSupervisor(provider=object()).decide(
@@ -98,6 +130,18 @@ def test_plan_required_tools_avoids_common_collisions(
 )
 def test_required_deliverables(goal: str, deliverable: str) -> None:
     assert deliverable in supervisor_intents.required_deliverables(goal)
+
+
+def test_video_request_excluding_ppt_keeps_video_intent() -> None:
+    goal = "请生成 60 秒中文讲解视频，主题是 BFS 为什么使用队列。输出 MP4 视频；不需要任何 PPT 或互动课件。"
+
+    assert supervisor_intents.video_intent(goal) is True
+    assert "generate_lesson_video" in supervisor_intents.plan_required_tools(
+        goal, is_profile_update_only=False
+    )
+    assert "generate_interactive_courseware" not in supervisor_intents.plan_required_tools(
+        goal, is_profile_update_only=False
+    )
 
 
 @pytest.mark.asyncio

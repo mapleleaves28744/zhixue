@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -9,11 +10,23 @@ from app.llm.audio_provider import MockAudioProvider
 from app.services.classroom_video_export_service import (
     ClassroomVideoExportService,
     NarrationSegment,
+    align_narration_durations,
     build_subtitle_timeline,
     extract_narration_segments,
     resolve_local_openmaic_media_path,
 )
-from app.workers.multimodal_worker import build_storyboard_manifest, build_video_completion_refs
+
+
+def test_align_narration_durations_preserves_audio_and_fills_the_requested_runtime() -> None:
+    durations = align_narration_durations([7_840, 9_760, 8_000], target_duration_ms=30_000)
+
+    assert sum(durations) == 30_000
+    assert all(actual >= source for actual, source in zip(durations, [7_840, 9_760, 8_000], strict=True))
+from app.workers.multimodal_worker import (
+    MediaJobReference,
+    build_storyboard_manifest,
+    build_video_completion_refs,
+)
 
 
 def test_extract_narration_segments_prefers_speech_actions() -> None:
@@ -105,6 +118,25 @@ def test_build_storyboard_manifest_keeps_chinese_narration_as_speech() -> None:
     ]
 
 
+def test_build_storyboard_manifest_preserves_visual_teaching_cues() -> None:
+    manifest = build_storyboard_manifest(
+        "队列",
+        [
+            {
+                "title": "操作怎么发生",
+                "narration": "入队发生在队尾，出队发生在队头。",
+                "visual_focus": "步骤拆解",
+                "key_points": ["输入", "规则", "结果"],
+                "duration_seconds": 10,
+            }
+        ],
+    )
+
+    assert manifest.scenes[0]["visual_focus"] == "步骤拆解"
+    assert manifest.scenes[0]["key_points"] == ["输入", "规则", "结果"]
+    assert manifest.scenes[0]["duration_seconds"] == 10
+
+
 def test_build_video_completion_refs_links_asset_to_learning_resource() -> None:
     refs = build_video_completion_refs(
         resource_id="resource-1",
@@ -131,6 +163,26 @@ def test_build_video_completion_refs_links_asset_to_learning_resource() -> None:
             "mime_type": "video/mp4",
         },
     ]
+
+
+def test_media_job_reference_snapshots_identifiers_before_async_rendering() -> None:
+    job = SimpleNamespace(
+        id="job-1",
+        user_id="user-1",
+        course_id="course-1",
+        resource_id="resource-1",
+        agent_task_id="task-1",
+        conversation_id="conversation-1",
+        tool_call_id="call-1",
+        provider="local-storyboard",
+    )
+
+    reference = MediaJobReference.from_job(job)
+
+    assert reference.user_id == "user-1"
+    assert reference.course_id == "course-1"
+    assert reference.resource_id == "resource-1"
+    assert reference.agent_task_id == "task-1"
 
 
 @pytest.mark.asyncio

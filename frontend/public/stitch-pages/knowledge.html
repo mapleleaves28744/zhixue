@@ -260,6 +260,10 @@
   let stopPipelineProgress = null;
   let selectedWikiPageId = null;
   let seedQualityReport = null;
+  const routeParams = api.getParentSearchParams?.() || new URLSearchParams(window.location.search);
+  let pendingWikiPageId = routeParams.get("page_id");
+  let pendingGraphKnowledgeId = routeParams.get("knowledge_id");
+  const pendingKnowledgeTab = routeParams.get("tab");
   const knowledgeTabs = Array.from(document.querySelectorAll("[data-knowledge-tab]"));
   const courseSelect = document.getElementById("knowledge-course-select");
   const courseLabel = document.getElementById("knowledge-course-label");
@@ -310,6 +314,31 @@
       return "可阅读";
     }
     return page.owner_id === currentUser.id ? "我的 Wiki" : "公共 Wiki";
+  }
+
+  function wikiQuality(page) {
+    const quality = page?.content_quality || {};
+    const status = quality.status || "needs_enrichment";
+    const sourceCount = Number(quality.source_count ?? page?.sources?.length ?? 0);
+    return {
+      status,
+      label: quality.label || ({ verified: "已核验", partial: "待补充", needs_enrichment: "待补强" }[status] || "待补强"),
+      sourceCount,
+      contentLength: Number(quality.content_length || String(page?.content || "").length),
+      sectionCount: Number(quality.section_count || 0),
+    };
+  }
+
+  function wikiQualityClass(status) {
+    return {
+      verified: "bg-primary/10 text-primary border-primary/20",
+      partial: "bg-tertiary-container/30 text-tertiary border-tertiary/20",
+      needs_enrichment: "bg-error-container text-on-error-container border-error/20",
+    }[status] || "bg-surface-container-high text-on-surface-variant border-white/90";
+  }
+
+  function wikiQualityRank(page) {
+    return { verified: 0, partial: 1, needs_enrichment: 2 }[wikiQuality(page).status] ?? 3;
   }
 
   function updateCourseLabel() {
@@ -393,25 +422,35 @@
       });
       return;
     }
+    const orderedPages = [...wikiPages].sort((left, right) => wikiQualityRank(left) - wikiQualityRank(right)
+      || String(right.updated_at || "").localeCompare(String(left.updated_at || "")));
+    const verifiedCount = orderedPages.filter((page) => wikiQuality(page).status === "verified").length;
     sliceGrid.innerHTML = `
       <div class="bg-white/80 backdrop-blur-md rounded-xl p-5 border border-primary/15 shadow-sm col-span-2">
         <div class="flex items-center justify-between mb-4">
           <div>
             <span class="font-label-sm text-label-sm text-outline bg-surface-container-low/60 px-2 py-1 rounded border border-white/50">LLM Wiki</span>
-            <h3 class="font-headline-sm text-headline-sm text-on-surface mt-3">真实 Wiki 页面列表</h3>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mt-3">课程 Wiki 页面</h3>
+            <p class="text-xs text-on-surface-variant mt-1">已按内容质量排序：有来源、结构完整的页面优先展示；待补强旧页面保留，但不会冒充已核验内容。</p>
           </div>
-          <span class="text-[12px] font-bold text-primary">${wikiPages.length} 个页面</span>
+          <span class="text-[12px] font-bold text-primary">${verifiedCount}/${wikiPages.length} 已核验</span>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          ${wikiPages.map((page) => `
+          ${orderedPages.map((page) => {
+            const quality = wikiQuality(page);
+            return `
             <button type="button" class="text-left rounded-xl bg-white/70 border ${selectedWikiPageId === page.id ? "border-primary/50 ring-4 ring-primary/10" : "border-white/90"} p-4 hover:border-primary/40 transition-all" data-wiki-page-id="${page.id}">
               <div class="flex items-center justify-between gap-2">
                 <span class="font-bold text-on-surface line-clamp-1">${escapeHtml(page.title)}</span>
-                <span class="text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">v${page.current_version || 1}</span>
+                <span class="text-[11px] px-2 py-0.5 rounded-full border font-bold ${wikiQualityClass(quality.status)}">${escapeHtml(quality.label)}</span>
               </div>
               <p class="text-[12px] text-on-surface-variant mt-2 line-clamp-2">${escapeHtml(page.summary || "暂无摘要，点击查看正文。")}</p>
+              <div class="flex flex-wrap gap-2 mt-3 text-[11px] text-outline">
+                <span>v${page.current_version || 1}</span><span>${quality.sourceCount} 条来源</span><span>${quality.sectionCount} 个章节</span>
+              </div>
             </button>
-          `).join("")}
+          `;
+          }).join("")}
         </div>
       </div>`;
     bindWikiPageButtons();
@@ -423,10 +462,13 @@
     if (detailTitle) {
       detailTitle.textContent = page.title || "Wiki 页面";
     }
+    const quality = wikiQuality(page);
+    const needsEnrichment = quality.status === "needs_enrichment";
     if (detailMeta) {
       detailMeta.innerHTML = `
         <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">history</span>当前版本 v${page.current_version || 1}</span>
-        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">source</span>${(page.sources || []).length} 条来源</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">source</span>${quality.sourceCount} 条来源</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">fact_check</span>${escapeHtml(quality.label)}</span>
         <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">person</span>${wikiOwnerLabel(page)}</span>
         <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span>${api.formatDate(page.updated_at)}</span>`;
     }
@@ -440,7 +482,7 @@
       <article class="bg-white/80 backdrop-blur-md rounded-xl p-5 border border-primary/15 shadow-sm col-span-2">
         <div class="flex items-start justify-between gap-4 mb-4">
           <div>
-            <span class="font-label-sm text-label-sm text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">GET /wiki/pages/${escapeHtml(page.id)}</span>
+            <span class="font-label-sm text-label-sm px-2 py-1 rounded border ${wikiQualityClass(quality.status)}">课程 Wiki · ${escapeHtml(quality.label)}</span>
             <h3 class="font-headline-md text-headline-md text-on-surface mt-3">${escapeHtml(page.title)}</h3>
             <p class="text-sm text-on-surface-variant mt-2">${escapeHtml(page.summary || "暂无摘要。")}</p>
           </div>
@@ -448,9 +490,13 @@
             <span class="material-symbols-outlined text-[18px]">arrow_back</span> 返回 Wiki 列表
           </button>
         </div>
-        <div class="zhixue-source-disclaimer mb-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          ${[["来源引用", `${quality.sourceCount} 条`], ["正文长度", `${quality.contentLength} 字`], ["内容章节", `${quality.sectionCount} 个`], ["页面状态", quality.label]].map(([label, value]) => `
+            <div class="rounded-xl bg-surface-container-low/60 border border-white/90 p-3"><p class="text-[11px] text-outline font-bold">${label}</p><strong class="block text-sm text-on-surface mt-1">${value}</strong></div>`).join("")}
+        </div>
+        <div class="zhixue-source-disclaimer mb-4 ${needsEnrichment ? "border border-error/20" : ""}">
           <span class="material-symbols-outlined text-base">info</span>
-          <span>AI 生成或整理内容已尽量绑定来源；无直接来源的段落请按课程资料核对。</span>
+          <span>${needsEnrichment ? "此页面是历史待补强内容：来源或正文结构不足，已保留供追溯，但不作为默认优先学习材料。请优先查看已核验页面或基于课程资料重新生成。" : "该页面已具备来源和基础内容结构；仍建议结合课程资料核对关键结论。"}</span>
         </div>
         <div class="rounded-xl bg-white/70 border border-white/90 p-5 text-sm leading-7 text-on-surface-variant">
           ${renderWikiText(page.content)}
@@ -523,6 +569,22 @@
   }
 
   let wikiGraphInstance = null;
+
+  function renderWikiGraphNodeDetail(node, detailPanel) {
+    if (!detailPanel || !node) return;
+    const masteryPct = Math.round((Number(node.mastery_score) || 0) * 100);
+    const tier = window.ZhixueForceGraph?.masteryTier?.(node.mastery_score) || { label: "掌握度", color: "#64748b" };
+    detailPanel.innerHTML = `
+      <p class="text-xs font-bold text-primary mb-2">节点详情</p>
+      <h4 class="font-headline-sm text-on-surface mb-1">${escapeHtml(node.title)}</h4>
+      <p class="text-xs mb-2">${escapeHtml(node.summary || "暂无摘要")}</p>
+      <div class="flex flex-wrap gap-2 text-[11px] mb-3">
+        <span class="px-2 py-0.5 rounded-full font-bold" style="background:${tier.color}22;color:${tier.color}">${tier.label} ${masteryPct}%</span>
+        <span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">${escapeHtml(node.scope || "personal")}</span>
+      </div>
+      ${node.page_type === "wiki" && !String(node.id).startsWith("kp:") ? `<button type="button" data-wiki-page-id="${node.id}" class="text-xs font-bold text-primary hover:underline">打开 Wiki 详情 →</button>` : `<p class="text-[11px]">这是课程知识点节点，可结合图谱关系与练习记录继续学习。</p>`}`;
+    bindWikiPageButtons();
+  }
 
   async function renderWikiGraph() {
     if (!sliceGrid) return;
@@ -605,21 +667,17 @@
         graph: { nodes, links },
         height: 480,
         onNodeClick(node) {
-          if (!detailPanel) return;
-          const masteryPct = Math.round((Number(node.mastery_score) || 0) * 100);
-          const tier = window.ZhixueForceGraph?.masteryTier?.(node.mastery_score) || { label: "掌握度", color: "#64748b" };
-          detailPanel.innerHTML = `
-            <p class="text-xs font-bold text-primary mb-2">节点详情</p>
-            <h4 class="font-headline-sm text-on-surface mb-1">${escapeHtml(node.title)}</h4>
-            <p class="text-xs mb-2">${escapeHtml(node.summary || "暂无摘要")}</p>
-            <div class="flex flex-wrap gap-2 text-[11px] mb-3">
-              <span class="px-2 py-0.5 rounded-full font-bold" style="background:${tier.color}22;color:${tier.color}">${tier.label} ${masteryPct}%</span>
-              <span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">${escapeHtml(node.scope || "personal")}</span>
-            </div>
-            ${node.page_type === "wiki" && !String(node.id).startsWith("kp:") ? `<button type="button" data-wiki-page-id="${node.id}" class="text-xs font-bold text-primary hover:underline">打开 Wiki 详情 →</button>` : `<p class="text-[11px]">公有知识邻居，可在对话/练习中逐步掌握。</p>`}`;
-          bindWikiPageButtons();
+          renderWikiGraphNodeDetail(node, detailPanel);
         },
       });
+      if (pendingGraphKnowledgeId) {
+        const selectedNode = nodes.find((node) => String(node.id) === String(pendingGraphKnowledgeId)
+          || String(node.knowledge_id || "") === String(pendingGraphKnowledgeId).replace(/^kp:/, ""));
+        if (selectedNode) {
+          renderWikiGraphNodeDetail(selectedNode, detailPanel);
+        }
+        pendingGraphKnowledgeId = null;
+      }
     } catch (error) {
       api.toast(error.message || "知识图谱加载失败", "error");
       sliceGrid.innerHTML = "";
@@ -668,54 +726,70 @@
   async function renderSeedQualityReport() {
     if (!sliceGrid) return;
     setKnowledgeTab("质量报告");
-    if (detailTitle) detailTitle.textContent = "数据结构 GraphRAG-ready 质量报告";
+    if (detailTitle) detailTitle.textContent = "当前课程知识库质量报告";
     if (detailMeta) {
       detailMeta.innerHTML = `
         <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">fact_check</span>来自 /api/v1/knowledge/seed-quality-report</span>
-        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">verified_user</span>展示资料源风险、章节覆盖与图谱 v0 指标</span>`;
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">verified_user</span>基于当前课程资料、切片、Wiki 与图谱关系实时统计</span>`;
     }
     if (detailChunkBadge) detailChunkBadge.textContent = "加载中";
     sliceGrid.innerHTML = `
       <div class="col-span-2 bg-white/80 rounded-xl border border-primary/15 p-6">
         <div class="ai-thinking-indicator">
           <img src="${window.ZhixueUI?.stickerUrl?.("zhizhi", "searching") || "/stickers/zhizhi/08_searching.png"}" alt="读取质量报告"/>
-          <span class="text-sm text-on-surface-variant font-label-md">正在读取 Phase 1 知识库质量报告…</span>
+          <span class="text-sm text-on-surface-variant font-label-md">正在汇总当前课程的知识库质量指标…</span>
         </div>
       </div>`;
     try {
-      seedQualityReport = seedQualityReport || await api.request("/knowledge/seed-quality-report");
+      currentCourseId = currentCourseId || await api.resolveCourseId();
+      seedQualityReport = await api.getCourseQualityReport(currentCourseId);
       const report = seedQualityReport.report || {};
       const graph = report.graph || {};
       const sources = seedQualityReport.sources || [];
       const pipelineStages = report.pipeline_stages || [];
+      const isRuntimeReport = report.report_scope === "course_runtime";
+      const wiki = report.wiki || {};
       if (detailChunkBadge) {
-        detailChunkBadge.textContent = report.graphrag_ready ? "GraphRAG-ready" : "待补强";
+        detailChunkBadge.textContent = report.graphrag_ready ? "可用于学习" : "待补强";
       }
-      const percent = Math.round(Number(report.chapter_coverage_rate || 0) * 100);
+      if (detailTitle) detailTitle.textContent = isRuntimeReport ? `${currentCourse?.title || "当前课程"}知识库质量报告` : "数据结构 GraphRAG-ready 质量报告";
+      const runtimeCards = [
+        ["课程资料", `${report.raw_document_count || 0}`, "份"],
+        ["已解析资料", `${report.normalized_document_count || 0}`, "份"],
+        ["检索切片", `${report.chunk_count || 0}`, "条"],
+        ["知识点", `${report.knowledge_point_count || 0}`, "个"],
+        ["Wiki 页面", `${wiki.page_count || 0}`, "个"],
+        ["已核验 Wiki", `${wiki.qualified_page_count || 0}`, "个"],
+        ["来源覆盖", `${Math.round(Number(wiki.source_coverage_rate || 0) * 100)}%`, "有来源页面"],
+        ["来源引用", `${wiki.source_count || 0}`, "条"],
+        ["页面关系", `${wiki.link_count || 0}`, "条"],
+      ];
+      const seedCards = [
+        ["章节覆盖", `${report.covered_chapter_count || 0}/${report.chapter_count || 0}`, `${Math.round(Number(report.chapter_coverage_rate || 0) * 100)}%`],
+        ["原始文档", `${report.raw_document_count || 0}`, "raw"],
+        ["资料源", `${report.approved_source_count || 0}`, "已审核"],
+        ["normalized", `${report.normalized_document_count || 0}`, "文档"],
+        ["标准问题", `${report.standard_question_count || 0}`, "道"],
+        ["实体", `${graph.entity_count || 0}`, "Graph v0"],
+        ["关系", `${graph.relation_count || 0}`, "Graph v0"],
+        ["声明", `${graph.claim_count || 0}`, "Claims"],
+        ["可追溯率", `${Math.round(Number(report.source_traceability_rate || 0) * 100)}%`, "source_id"],
+      ];
+      const metricCards = isRuntimeReport ? runtimeCards : seedCards;
       sliceGrid.innerHTML = `
         <section class="col-span-2 bg-white/75 rounded-xl border border-primary/15 p-5">
           <div class="flex items-center justify-between gap-4 mb-5">
             <div>
-              <span class="font-label-sm text-label-sm text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">Phase 1 Quality</span>
-              <h3 class="font-headline-sm text-on-surface mt-3">《数据结构》GraphRAG-ready v0</h3>
-              <p class="text-xs text-on-surface-variant mt-1">资料治理、normalized corpus、图谱实体/关系/声明和标准问题评估。</p>
+              <span class="font-label-sm text-label-sm text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">${isRuntimeReport ? "Course Runtime Quality" : "Phase 1 Quality"}</span>
+              <h3 class="font-headline-sm text-on-surface mt-3">${isRuntimeReport ? escapeHtml(currentCourse?.title || "当前课程") : "《数据结构》GraphRAG-ready v0"}</h3>
+              <p class="text-xs text-on-surface-variant mt-1">${isRuntimeReport ? "统计当前课程真实的资料解析、检索切片、Wiki 来源质量和页面关系；不会依赖容器内可选的种子文件。" : "资料治理、normalized corpus、图谱实体/关系/声明和标准问题评估。"}</p>
             </div>
             <span class="text-xs font-bold px-3 py-1 rounded-full ${report.graphrag_ready ? "bg-primary/10 text-primary" : "bg-tertiary-container/30 text-tertiary"}">
-              ${report.graphrag_ready ? "ready" : "needs more data"}
+              ${report.graphrag_ready ? "学习链路可用" : "仍需补强"}
             </span>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-            ${[
-              ["章节覆盖", `${report.covered_chapter_count || 0}/${report.chapter_count || 0}`, `${percent}%`],
-              ["原始文档", `${report.raw_document_count || 0}`, "raw"],
-              ["资料源", `${report.approved_source_count || 0}`, "已审核"],
-              ["normalized", `${report.normalized_document_count || 0}`, "文档"],
-              ["标准问题", `${report.standard_question_count || 0}`, "道"],
-              ["实体", `${graph.entity_count || 0}`, "Graph v0"],
-              ["关系", `${graph.relation_count || 0}`, "Graph v0"],
-              ["声明", `${graph.claim_count || 0}`, "Claims"],
-              ["可追溯率", `${Math.round(Number(report.source_traceability_rate || 0) * 100)}%`, "source_id"],
-            ].map(([label, value, hint]) => `
+            ${metricCards.map(([label, value, hint]) => `
               <div class="rounded-xl bg-white/80 border border-white/90 p-3">
                 <p class="text-[11px] text-on-surface-variant font-bold">${label}</p>
                 <strong class="block text-xl text-on-surface mt-1">${value}</strong>
@@ -725,7 +799,7 @@
           <div class="rounded-xl bg-surface-container-low/60 border border-white/90 p-4 mb-4">
             <div class="flex items-center justify-between mb-3">
               <h4 class="font-bold text-on-surface text-sm">知识库构建流水线</h4>
-              <span class="text-[11px] text-outline">从原始资料到反馈优化的 Phase 1 状态</span>
+              <span class="text-[11px] text-outline">${isRuntimeReport ? "当前课程实时构建状态" : "从原始资料到反馈优化的 Phase 1 状态"}</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               ${pipelineStages.map((stage, index) => `
@@ -744,11 +818,11 @@
           </div>
           <div class="rounded-xl bg-surface-container-low/60 border border-white/90 p-4">
             <div class="flex items-center justify-between mb-3">
-              <h4 class="font-bold text-on-surface text-sm">资料源与许可证风险</h4>
-              <span class="text-[11px] text-outline">approved_importable 会进入 raw/normalized，link-only 不复制全文</span>
+              <h4 class="font-bold text-on-surface text-sm">${isRuntimeReport ? "质量说明" : "资料源与许可证风险"}</h4>
+              <span class="text-[11px] text-outline">${isRuntimeReport ? "来源数来自 WikiSource 记录；内容未凭空补齐" : "approved_importable 会进入 raw/normalized，link-only 不复制全文"}</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              ${sources.map((source) => `
+              ${sources.length ? sources.map((source) => `
                 <div class="rounded-xl bg-white/75 border border-white/90 p-3">
                   <div class="flex items-center justify-between gap-2">
                     <strong class="text-xs text-on-surface line-clamp-1">${escapeHtml(source.name || source.source_id)}</strong>
@@ -756,7 +830,11 @@
                   </div>
                   <p class="text-[11px] text-on-surface-variant mt-2">${escapeHtml(source.source_id)} · ${escapeHtml(source.license || "")}</p>
                   <p class="text-[11px] text-outline mt-1">${escapeHtml(source.import_status || "")} / ${escapeHtml(source.review_status || "")}</p>
-                </div>`).join("")}
+                </div>`).join("") : `
+                <div class="rounded-xl bg-white/75 border border-white/90 p-3 md:col-span-2">
+                  <p class="text-xs font-bold text-on-surface">当前课程采用运行时统计</p>
+                  <p class="text-[11px] text-on-surface-variant mt-1">资料解析状态由课程资料记录提供；Wiki 内容质量由正文结构和已绑定来源共同判定。无来源或正文过短的历史页面会标记为“待补强”，不会被算作已核验页面。</p>
+                </div>`}
             </div>
           </div>
         </section>`;
@@ -1619,7 +1697,28 @@
   });
 
   ensurePipelineButtons();
-  loadMaterials().catch((error) => {
+  async function initializeKnowledgePage() {
+    await loadMaterials();
+    if (pendingWikiPageId) {
+      const pageId = pendingWikiPageId;
+      pendingWikiPageId = null;
+      await openWikiPage(pageId);
+      return;
+    }
+    if (pendingKnowledgeTab === "graph" || pendingGraphKnowledgeId) {
+      await renderWikiGraph();
+      return;
+    }
+    if (pendingKnowledgeTab === "quality") {
+      await renderSeedQualityReport();
+      return;
+    }
+    if (pendingKnowledgeTab === "wiki") {
+      renderWikiPageList();
+    }
+  }
+
+  initializeKnowledgePage().catch((error) => {
     api.toast(error.message || "资料加载失败", "error");
   });
 })();

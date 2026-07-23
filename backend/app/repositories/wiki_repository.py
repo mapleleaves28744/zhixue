@@ -98,7 +98,7 @@ class WikiRepository:
         total = (await self.db.execute(count_q)).scalar() or 0
 
         items_q = (
-            query.order_by(WikiPage.updated_at.desc())
+            query.options(selectinload(WikiPage.sources)).order_by(WikiPage.updated_at.desc())
             .offset((page - 1) * page_size)
             .limit(page_size)
         )
@@ -124,7 +124,7 @@ class WikiRepository:
         total = (await self.db.execute(count_q)).scalar() or 0
 
         items_q = (
-            query.order_by(WikiPage.updated_at.desc())
+            query.options(selectinload(WikiPage.sources)).order_by(WikiPage.updated_at.desc())
             .offset((page - 1) * page_size)
             .limit(page_size)
         )
@@ -146,7 +146,7 @@ class WikiRepository:
         total = (await self.db.execute(count_q)).scalar() or 0
 
         items_q = (
-            query.order_by(WikiPage.updated_at.desc())
+            query.options(selectinload(WikiPage.sources)).order_by(WikiPage.updated_at.desc())
             .offset((page - 1) * page_size)
             .limit(page_size)
         )

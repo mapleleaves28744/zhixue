@@ -82,6 +82,12 @@ export function getResourcePreviewMode(resource: {
   media_asset_type?: string | null
 }): "image" | "audio" | "video" | "mermaid" | "html" | "immersive_classroom" | "text" {
   if (
+    (resource.resource_type === "mindmap" || resource.resource_type === "diagram") &&
+    isMermaidContent(resource.content)
+  ) {
+    return "mermaid"
+  }
+  if (
     resource.preview_mode === "image" ||
     resource.preview_mode === "audio" ||
     resource.preview_mode === "video" ||
@@ -100,8 +106,6 @@ export function getResourcePreviewMode(resource: {
     if (mime.includes("openmaic-classroom")) return "immersive_classroom"
   }
   if (
-    resource.resource_type === "mindmap" ||
-    resource.resource_type === "diagram" ||
     resource.resource_type === "image" ||
     isMermaidContent(resource.content)
   ) {

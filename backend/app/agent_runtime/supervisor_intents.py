@@ -6,6 +6,21 @@ import re
 from dataclasses import dataclass
 
 
+def _has_non_negated_marker(goal: str, markers: tuple[str, ...]) -> bool:
+    """Match an intent marker unless the user explicitly excludes that output."""
+    lowered = goal.lower()
+    negations = ("不要", "不生成", "不用", "无需", "不需要", "别")
+    for marker in markers:
+        start = 0
+        normalized_marker = marker.lower()
+        while (index := lowered.find(normalized_marker, start)) >= 0:
+            prefix = goal[max(0, index - 24):index].replace(" ", "")
+            if not any(negation in prefix for negation in negations):
+                return True
+            start = index + len(normalized_marker)
+    return False
+
+
 def transcribe_intent(goal: str) -> bool:
     if any(k in goal for k in ("语音识别", "识别语音", "音频转文字", "语音转文字")):
         return True
@@ -87,10 +102,10 @@ def courseware_intent(goal: str) -> bool:
         "演示文稿",
         "课件",
     )
-    if any(k in goal for k in explicit_keys):
+    if _has_non_negated_marker(goal, explicit_keys):
         return True
     latin_keys = ("ppt", "slides", "slide", "deck", "keynote")
-    return any(k in lowered for k in latin_keys)
+    return _has_non_negated_marker(lowered, latin_keys)
 
 
 def presentation_intent(goal: str) -> bool:
@@ -396,6 +411,8 @@ def extract_topic_from_segment(segment: str) -> str:
         cleaned = re.sub(r"\s+", " ", cleaned).strip()
         lowered = re.sub(r"\s+", " ", lowered).strip()
     cleaned = cleaned.strip("，。、；： ")
+    # 资源主题通常位于首句，后续句子是展示方式、受众或练习要求，不能作为主题传给生成器。
+    cleaned = re.split(r"[。；;]", cleaned, maxsplit=1)[0].strip("，、： ")
     # 去掉残留前缀助词
     cleaned = re.sub(r"^(再|又|还|先|帮|给|做|画|来)\s*", "", cleaned).strip()
     if cleaned:

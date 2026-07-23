@@ -72,7 +72,7 @@ flowchart LR
 
 **讲稿要点**：
 
-1. **统一 LLM Provider**：Mock + OpenAI-compatible，无 Key 可演示
+1. **统一 LLM Provider**：普通生成链路支持 Mock + OpenAI-compatible；当前 LangGraph Agent 模式需要真实 Provider
 2. **Hybrid RAG**：向量 + 关键词 + metadata + rerank
 3. **LangGraph Agent**：MiMo Supervisor 动态选工具、重规划
 4. **受控自进化**：策略版本化，不改代码
@@ -85,11 +85,11 @@ flowchart LR
 
 ## 第 5 页：多智能体设计
 
-**讲稿要点**：14 个职责明确的 Agent，Supervisor 从 Tool Registry 选工具；高风险操作 interrupt 等待确认；全程日志可追溯。
+**讲稿要点**：15 个职责明确的 Agent，Supervisor 从 Tool Registry 选工具；高风险操作 interrupt 等待确认；全程日志可追溯。
 
 **配图**：Agent 时序图 + Agent 名单
 
-`IntentRouterAgent`、`OrchestratorAgent`、`ProfileAgent`、`MemoryAgent`、`WikiAgent`、`KnowledgeAgent`、`PlannerAgent`、`ResourceAgent`、`QuizAgent`、`TutorAgent`、`DiagnosisAgent`、`RecommendAgent`、`EvolutionAgent`、`ReviewAgent`
+`IntentRouterAgent`、`OrchestratorAgent`、`ProfileAgent`、`MemoryAgent`、`WikiAgent`、`KnowledgeAgent`、`KnowledgeGraphAgent`、`PlannerAgent`、`ResourceAgent`、`QuizAgent`、`TutorAgent`、`DiagnosisAgent`、`RecommendAgent`、`EvolutionAgent`、`ReviewAgent`
 
 **数据来源**：比赛材料合集 §5
 
@@ -147,13 +147,13 @@ flowchart LR
 
 ## 第 10 页：工程与测试
 
-**讲稿要点**：322 pytest、23 步真实 LLM 主链路、权限隔离、Next.js 16 安全升级。
+**讲稿要点**：503 项 pytest、23 步真实 LLM 主链路、权限隔离、Next.js 16 安全升级。
 
 **配图**：测试数字表格
 
 | 验收项 | 结果 |
 |---|---|
-| 后端全量测试 | 361 passed（2026-06-14） |
+| 后端全量测试 | 503 passed（2026-07-24） |
 | Agent 场景 | 20/20，完成率 95% |
 | 真实 LLM | 23 步，mimo-v2.5 |
 | 前端 audit | 0 vulnerabilities |

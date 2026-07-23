@@ -31,7 +31,7 @@ export function LandingPage() {
 
   const handleStart = useCallback(() => {
     if (getToken()) {
-      router.push("/courses")
+      router.push("/home")
       return
     }
     openAuth("login")
