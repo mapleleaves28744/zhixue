@@ -13,7 +13,7 @@
 # 1. 刷新事实源（改 API/Model 后）
 python3 scripts/export_implementation_docs.py
 
-# 2. 全量测试（2026-07-13：466 passed）
+# 2. 全量测试（2026-07-24：503 passed）
 cd backend && .venv/bin/python -m pytest tests -q
 
 # 3. 校验文档数字

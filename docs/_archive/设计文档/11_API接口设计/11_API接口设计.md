@@ -14,7 +14,7 @@
 > 生成方式：`python scripts/export_implementation_docs.py`
 >
 > 生成依据：FastAPI `app.openapi()`，共 **147** 个 HTTP 操作。
-> 最后同步：2026-06-06
+> 最后同步：2026-07-24
 
 ## 使用规则
 

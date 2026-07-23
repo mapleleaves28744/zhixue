@@ -90,7 +90,7 @@ $env:DEBUG='false'
 python -m pytest tests/test_openmaic_client.py tests/test_immersive_classroom.py tests/test_classroom_video_export.py tests/test_supervisor_intents.py -q
 ```
 
-无真实 MiMo Key 时，智学工坊其他主链路仍可使用 Mock；OpenMAIC 完整真实课堂生成不得用假结果冒充。
+无真实 MiMo Key 时，智学工坊普通 Tutor、Wiki、资源、练习和诊断等链路仍可使用 Mock；当前 LangGraph Agent Runtime 不允许 Mock fallback。OpenMAIC 完整真实课堂生成不得用假结果冒充。
 
 ## 服务器 Compose 对应关系
 

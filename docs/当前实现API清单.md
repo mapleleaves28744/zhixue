@@ -2,6 +2,8 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
+> 生成日期：2026-07-24
+>
 > HTTP 操作数：**147**
 > 生成命令：`python scripts/export_implementation_docs.py`
 

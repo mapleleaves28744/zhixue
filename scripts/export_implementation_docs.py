@@ -4,6 +4,7 @@ import json
 import importlib
 import sys
 from collections import defaultdict
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +23,7 @@ importlib.import_module("app.models")
 
 
 HTTP_METHODS = {"get", "post", "put", "patch", "delete"}
+GENERATED_ON = date.today().isoformat()
 PUBLIC_PATHS = {
     ("GET", "/"),
     ("GET", "/health"),
@@ -156,7 +158,7 @@ def write_api_docs(spec: dict[str, Any], rows: list[dict[str, Any]]) -> None:
 > 生成方式：`python scripts/export_implementation_docs.py`
 >
 > 生成依据：FastAPI `app.openapi()`，共 **{len(rows)}** 个 HTTP 操作。
-> 最后同步：2026-06-06
+> 最后同步：{GENERATED_ON}
 
 ## 使用规则
 
@@ -194,6 +196,8 @@ def write_api_docs(spec: dict[str, Any], rows: list[dict[str, Any]]) -> None:
     full = f"""# 当前实现 API 清单
 
 > 文档状态：**自动生成的当前实现事实源**
+>
+> 生成日期：{GENERATED_ON}
 >
 > HTTP 操作数：**{len(rows)}**
 > 生成命令：`python scripts/export_implementation_docs.py`
@@ -235,6 +239,8 @@ def write_api_docs(spec: dict[str, Any], rows: list[dict[str, Any]]) -> None:
         content = f"""# {filename.removesuffix('.md')}
 
 > 文档状态：**当前实现事实源**
+>
+> 生成日期：{GENERATED_ON}
 >
 > 模块：{title}
 >
@@ -292,6 +298,7 @@ def write_database_docs() -> None:
         "# 当前实现数据库清单",
         "",
         "> 文档状态：**自动生成的当前实现事实源**  ",
+        f"> 生成日期：{GENERATED_ON}  ",
         "> 生成依据：SQLAlchemy `Base.metadata`  ",
         f"> 当前 ORM 表数量：**{len(tables)}**",
         "",

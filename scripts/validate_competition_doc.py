@@ -20,6 +20,15 @@ DEFENSE = DOCS / "22_比赛材料规划" / "答辩稿.md"
 STALE_PATTERNS = [
     (re.compile(r"\b143\b\s*API"), "143 API (stale; expected 147)"),
     (re.compile(r"323\s*passed"), "323 passed (stale; check baseline for current pytest)"),
+    (re.compile(r"\b466(?:/466)?\b"), "466 pytest count (stale; check baseline)"),
+    (
+        re.compile(r"\b24\b\s*(?:个数据库\s*|个\s*)?migration", re.IGNORECASE),
+        "24 migration count (stale; check baseline)",
+    ),
+    (
+        re.compile(r"(?:\b61\b\s*(?:个\s*)?(?:后端\s*)?测试文件|\|\s*测试文件\s*\|\s*61\s*\|)"),
+        "61 test files (stale; check baseline)",
+    ),
 ]
 
 

@@ -72,7 +72,7 @@ flowchart LR
 
 **讲稿要点**：
 
-1. **统一 LLM Provider**：Mock + OpenAI-compatible，无 Key 可演示
+1. **统一 LLM Provider**：普通生成链路支持 Mock + OpenAI-compatible；当前 LangGraph Agent 模式需要真实 Provider
 2. **Hybrid RAG**：向量 + 关键词 + metadata + rerank
 3. **LangGraph Agent**：MiMo Supervisor 动态选工具、重规划
 4. **受控自进化**：策略版本化，不改代码
@@ -147,13 +147,13 @@ flowchart LR
 
 ## 第 10 页：工程与测试
 
-**讲稿要点**：466 项 pytest、23 步真实 LLM 主链路、权限隔离、Next.js 16 安全升级。
+**讲稿要点**：503 项 pytest、23 步真实 LLM 主链路、权限隔离、Next.js 16 安全升级。
 
 **配图**：测试数字表格
 
 | 验收项 | 结果 |
 |---|---|
-| 后端全量测试 | 466 passed（2026-07-13） |
+| 后端全量测试 | 503 passed（2026-07-24） |
 | Agent 场景 | 20/20，完成率 95% |
 | 真实 LLM | 23 步，mimo-v2.5 |
 | 前端 audit | 0 vulnerabilities |
