@@ -1,424 +1,250 @@
-# 智学工坊
+# 智学工坊 Zhixue Workshop
 
-智学工坊是面向中国软件杯 A3 赛题的个性化学习空间项目，围绕高校课程资料构建完整学生端学习闭环：
+> 从课程资料出发，构建可追溯、会适应学习者的 AI 学习空间。
+
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs)](frontend/package.json)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi)](backend/requirements.txt)
+[![LangGraph](https://img.shields.io/badge/LangGraph-1.x-1C3C3C)](backend/requirements.txt)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-4169E1?logo=postgresql)](docs/当前实现数据库清单.md)
+[![Tests](https://img.shields.io/badge/pytest-503%20passed-2E8B57?logo=pytest)](docs/当前实现基线.md)
+
+智学工坊是一套面向高校课程的个性化学习系统。它将学生上传的 PDF、Word、Markdown 等课程资料处理为可检索的知识库与 LLM Wiki，再把答疑、资源生成、练习、诊断、学习路径和长期画像连接成一个持续反馈的学习闭环。
+
+项目关注的不是“再做一个聊天框”，而是解决三个更具体的工程问题：
+
+- **回答如何可信**：Tutor 的关键结论绑定真实资料切片与 Wiki 来源，以 `[S1]` 等引用标记返回，并对无依据回答进行校验。
+- **个性化如何持续**：系统从问答、练习和诊断中沉淀有证据的课程画像与长期记忆，让后续解释风格、难度和推荐随学习过程变化。
+- **智能体如何可控**：LangGraph 运行时只允许调用集中注册的业务工具，完整记录计划、工具调用、观察、重规划和 Review；策略更新可版本化、可审核、可回滚。
+
+## 产品界面
+
+| AI Tutor 与 Agent 过程 | 课程知识库与资料处理 |
+|---|---|
+| ![AI Tutor](frontend/public/stitch-screenshots/assistant.png) | ![课程知识库](frontend/public/stitch-screenshots/knowledge.png) |
+
+![学习仪表盘](frontend/public/stitch-screenshots/dashboard.png)
+
+## 核心学习闭环
 
 ```text
-注册登录
-  → 创建课程
-  → 上传资料
-  → 解析、切片、向量化
-  → 知识点抽取与 LLM Wiki 生成
-  → RAG 检索与 AI Tutor 答疑
-  → 个性化学习资源生成
-  → 练习生成、答题与批改
-  → 学习诊断与推荐
-  → 学习路径、长期记忆与自进化策略
+上传课程资料
+  → 解析、切片与向量化
+  → 知识点抽取、知识图谱与 LLM Wiki
+  → 基于来源的 AI Tutor / 个性化资源
+  → 练习、批改、错题与学习诊断
+  → 学生画像、长期记忆与掌握度更新
+  → 学习路径、推荐与自进化策略
 ```
 
-当前版本聚焦**学生端可演示主链路**。教师端、管理员端和 AI 重新美化前端阶段已冻结/跳过；前端保留 Stitch 静态视觉原型，并通过真实后端 API 接入数据。
+### 1. 可追溯的课程知识空间
 
-判断当前项目实际能力时，优先阅读：
+- 支持 PDF、DOCX、TXT、Markdown 资料上传、解析、切片和 Embedding。
+- 使用 pgvector 实现课程范围内的向量检索，并结合关键词、元数据过滤、轻量重排和来源多样性组成 Hybrid RAG。
+- 从资料中抽取细粒度知识点，组织为知识图谱和 LLM Wiki。
+- Wiki 页面保留来源、版本和关系；编辑、AI 补全与回滚不会覆盖历史内容。
 
-- `docs/当前实现基线.md`
-- `docs/当前实现API清单.md`
-- `docs/当前实现数据库清单.md`
-- `docs/19_测试方案/26_全面代码评估问题修复计划.md`
+### 2. Grounded AI Tutor
 
-早期 PRD、`docs/superpowers/` 方案和 `docs/_archive/` 设计稿用于表达目标、约束或历史过程，不代表其中所有接口、页面或增强能力均已实现。AI 编程助手不得仅依据规划文档判断功能已完成。
+- 快速模式通过 SSE 流式返回基于课程资料的回答、引用、相关知识点和追问建议。
+- 资料与 Wiki 证据保留真实来源 ID，回答中的引用会经过规则校验。
+- 支持反馈、保存回答到 Wiki、会话恢复、停止生成和多会话切换。
+- 可从自然语言中提取专业、年级、学习目标、薄弱点和解释偏好，并以证据形式更新画像。
 
-## 当前状态
+### 3. 动态多智能体运行时
 
-- 学生端主链路已用真实本地数据库、后端、前端跑通过。
-- 前端构建路由只保留：`/`、`/home`、`/courses`、`/knowledge`、`/assistant`、`/practice`、`/dashboard`、`/path-profile`、`/evolution`、`/login`、`/register`。
-- 不再建设 `/teacher/*`、`/admin/*` 或旧 React `/student/*` 页面。
-- 无真实 LLM Key 时，普通 Tutor、Wiki、资源、练习、诊断等链路可使用 Mock Provider；**当前 `/assistant` LangGraph Agent Runtime 明确要求真实 Provider，不允许 Mock fallback**，无 Key 时不能宣称智能体模式完整可演示。
-- 2026-06-06 已使用真实 `xiaomi_mimo / mimo-v2.5` 完成资料上传到 Agent 日志的 23 步主链路验收，未回退 Mock。
-- `/assistant` 已 React 化（快速 Tutor SSE + LangGraph 智能体）；Supervisor 采用 LLM 主导、规则安全网决策模型。
-- `/assistant` 支持一句话生成基于课程 RAG、画像和薄弱点的 OpenMAIC 个性化沉浸课堂，并异步导出带配音、烧录字幕的 MP4 知识点讲解视频。
-- 前端已从存在高危公告的 Next.js 14.2.35 升级至 Next.js 16.2.7；最近有证据的 `npm audit` 结果为 2026-07-13 的 0 vulnerabilities，本轮因环境无 Node/npm 未重新执行。
-- 2026-07-24 `change_8` 活动快照：147 个 HTTP 操作、44 张 ORM 表、25 个 migration、69 个 Service Python 文件（含 `__init__.py`）、68 个后端测试文件，503 项 pytest 通过。
+- 基于 LangGraph 构建 `load_context → supervisor → execute_tool → observe → replan/review → memory_reflect → finalize` 状态图。
+- Supervisor 根据用户目标动态选择候选工具；Tool Registry 统一控制工具权限、参数和调用边界。
+- Agent 任务、步骤、事件、对话与 checkpoint 持久化，支持后台执行、SSE 进度、取消、确认和恢复。
+- 15 个领域 Agent 覆盖知识、Wiki、Tutor、资源、练习、诊断、推荐、画像、记忆和策略演化等职责。
 
-最近一次后端代码回归（2026-07-24，`change_8`）：
+### 4. 有证据的个性化与受控自进化
 
-```powershell
-cd backend
-python -m pytest -q --maxfail=1
-# 503 passed，6 warnings
+- 全局画像与课程画像分离，避免不同课程的掌握度和薄弱点互相覆盖。
+- 练习结果驱动知识点掌握度更新；无有效证据时使用中性先验并明确标记“待验证”。
+- 长期记忆带来源、置信度、显著性和强化次数，可查看、归档、恢复或删除。
+- 自进化只调整问答风格、资源、难度、推荐和学习路径策略，不修改代码、权限或数据库结构。
+- 每次策略变更记录前后快照、证据、风险等级和版本链；低风险变更可受控生效，中高风险需要确认，已应用策略可回滚。
+
+### 5. 从文字回答到学习产物
+
+- 可生成总结、例题、闪卡、思维导图、播客脚本和交互式 HTML 课件。
+- 支持语音合成、语音识别、知识卡片和带字幕的讲解视频。
+- 可基于课程 RAG、画像与薄弱点生成个性化沉浸课堂，并异步导出 MP4。
+- 无真实模型 Key 时，普通 Wiki、Tutor、资源、练习和诊断链路可使用结构化 Mock Provider，便于本地开发与自动化测试。
+
+## 系统架构
+
+```mermaid
+flowchart LR
+    UI[Next.js 学生端] --> API[FastAPI /api/v1]
+    API --> SVC[Service 业务层]
+    SVC --> RAG[解析 / Embedding / Hybrid RAG]
+    SVC --> RT[LangGraph Agent Runtime]
+    RT --> REG[Tool Registry]
+    REG --> DOMAIN[Wiki / Tutor / Quiz / Diagnosis / Profile]
+    RT --> QUEUE[arq Worker]
+    QUEUE <--> REDIS[(Redis)]
+    SVC --> PG[(PostgreSQL + pgvector)]
+    DOMAIN --> PG
+    RAG --> PG
+    SVC --> LLM[统一 LLM Provider]
+    LLM --> MOCK[Mock Provider]
+    LLM --> COMPAT[OpenAI-compatible Provider]
+    DOMAIN --> MEDIA[OpenMAIC / 本地媒体渲染]
 ```
 
-本轮文档同步环境没有可用 Node/npm，也没有连接本地数据库，因此没有重新执行前端构建和 Alembic。以下结果仍是 2026-07-13 的历史验收证据，不应描述为本轮结果：
+后端采用模块化单体，主调用链保持为：
 
-```powershell
-cd backend
-python -m alembic upgrade head
-# OK
-
-cd ..\frontend
-npm run typecheck
-# OK
-
-npm run build
-# OK
-
-npm audit --audit-level=moderate
-# 0 vulnerabilities
-
-cd ..
-python scripts/export_implementation_docs.py
-# 同步当前 API 与数据库文档
+```text
+Router → Service → Repository → SQLAlchemy Model → PostgreSQL
+Router → Service → Agent Runtime → Tool / Service → Repository
 ```
 
-真实 LLM 主链路专项记录见 `docs/19_测试方案/13_真实LLM主链路与Next安全专项验收记录.md`。
-最近存档的全量浏览器扫描和缺陷闭环分别形成于 2026-06-13，见 `docs/19_测试方案/20_全量功能扫描与浏览器验收报告.md` 与 `21_缺陷清单与修复闭环记录.md`；它们是历史验收证据，不代表 2026-07-24 已重新执行全站浏览器 E2E。
-
-## 比赛材料
-
-队友准备 PPT、视频、Word 文档请从以下入口开始：
-
-- [**智学工坊比赛材料合集**](docs/22_比赛材料规划/智学工坊比赛材料合集.md) — 需求/架构/功能/测试/用户/AI Coding 全文（**AI 一键阅读**）
-- [比赛提交总览](docs/22_比赛材料规划/00_比赛提交总览.md) — 赛题映射、分工、检查清单
-- [文档索引](docs/README.md) — 比赛 / 事实源 / 设计参考分区
-
-Markdown 为源文件，转 Word 时从合集按章复制；维护源材料见 `docs/_archive/competition_sources/`。
+这种结构让鉴权、事务、模型调用和智能体决策保持在明确边界内，也便于为每层编写独立测试。
 
 ## 技术栈
 
-- Frontend：Next.js App Router、TypeScript、Tailwind CSS、Stitch 静态页面承载
-- Backend：FastAPI、SQLAlchemy、Alembic、Pydantic
-- Database：PostgreSQL、pgvector
-- Cache：Redis
-- AI：统一 LLM Provider、OpenAI-compatible Adapter、Mock Provider、Embedding Provider
-- Deployment：Docker Compose 预留，当前开发和演示优先本地运行
+| 层级 | 主要技术 |
+|---|---|
+| Web | Next.js 16、React 18、TypeScript、Tailwind CSS、Framer Motion |
+| API | FastAPI、Pydantic、SQLAlchemy 2、Alembic |
+| Agent | LangGraph 1.x、集中式 Tool Registry、arq 后台任务 |
+| Data | PostgreSQL、pgvector、Redis、PostgreSQL Checkpoint |
+| AI | 统一 LLM Provider、OpenAI-compatible Adapter、Mock Provider、Sentence Transformers |
+| Content | 文档解析、Hybrid RAG、LLM Wiki、知识图谱、OpenMAIC |
+| Quality | pytest、类型检查、Next.js Build、自动生成 OpenAPI/ORM 事实清单 |
 
-## 本地环境
+## 工程规模与验证
 
-推荐使用本机 PostgreSQL / Redis，不要在日常开发中依赖 Docker 内的数据库。
+以下数字来自当前实现清单与最近一次完整回归基线：
 
-**队友首次上手**请直接阅读：[队友本地开发 README](docs/20_部署方案/05_队友本地开发README.md)（含从演示服务器同步数据库的一键步骤）。
+| 指标 | 当前记录 |
+|---|---:|
+| FastAPI HTTP 操作 | 147 |
+| SQLAlchemy ORM 表 | 44 |
+| Alembic migrations | 25 |
+| Agent 类 / 注册工具 | 15 / 24 |
+| 后端测试 | 503 passed |
+| 真实 LLM 主链路 | 23 步通过 |
+| 真实 MiMo Agent 场景 | 20 个场景，工具选择准确率 100%，任务完成率 95% |
 
-`.env` 关键配置：
+完整口径、日期与限制以[当前实现基线](docs/当前实现基线.md)和[测试记录](docs/19_测试方案/13_真实LLM主链路与Next安全专项验收记录.md)为准。仓库同时维护由 OpenAPI 和 SQLAlchemy metadata 自动导出的 [API 清单](docs/当前实现API清单.md)与[数据库清单](docs/当前实现数据库清单.md)，避免设计文档与代码事实漂移。
+
+## 快速开始
+
+### 环境要求
+
+- Python 3.11+
+- Node.js 20+
+- PostgreSQL 14+（需启用 pgvector）
+- Redis 5+（旧版本可降级为 Pub/Sub 兼容模式）
+
+推荐先在本机运行 PostgreSQL 和 Redis。复制配置模板并按本机环境修改：
+
+```bash
+cp .env.example .env
+```
+
+默认连接配置：
 
 ```env
 DATABASE_URL=postgresql+asyncpg://zhixue:zhixue_password@localhost:5432/zhixue
 REDIS_URL=redis://localhost:6379/0
-JWT_SECRET=change-me
-
-# 普通生成链路无 Key 可用 mock；当前 LangGraph Agent 模式仍需要真实 Provider
 LLM_PROVIDER=mock
-LLM_API_KEY=
-LLM_BASE_URL=
-LLM_MODEL_NAME=
+EMBEDDING_PROVIDER=mock
 ```
 
-前端 `.env.local` 默认可指向：
+### 启动后端
 
-```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1
-```
-
-如果本机 `8000` 被旧进程占用，可以把后端开在 `8010`。当前代码仍支持通过页面 URL 的 `api_base` 参数覆盖：
-
-```text
-http://127.0.0.1:3000/register?api_base=http%3A%2F%2F127.0.0.1%3A8010%2Fapi%2Fv1
-```
-
-登录/注册页会把该 API 地址写入浏览器本地存储，后续 Stitch 页面会沿用同一个后端地址。**该能力当前没有生产环境白名单限制，只应在受信本地地址中使用，不得打开来源不明的 `api_base` 链接；修复计划见 T02。**
-
-## 启动步骤
-
-### 0. Phase 3.1 Agent 稳定演示快速启动
-
-推荐比赛演示前使用脚本统一启动后端、Agent Worker 和前端，避免页面连到旧后端或旧 Worker：
-
-```powershell
-scripts/start_phase31_demo.ps1
-```
-
-脚本默认使用：
-
-```text
-Backend:  http://127.0.0.1:8000
-Frontend: http://127.0.0.1:3000
-OpenMAIC: http://127.0.0.1:3001
-Agent:    arq Worker
-```
-
-如果端口被占用，脚本会提示 PID，不会自动杀进程。可以改端口：
-
-```powershell
-scripts/start_phase31_demo.ps1 -BackendPort 8002 -FrontendPort 3002 -OpenMAICPort 3001
-```
-
-如果检测到已有 `arq app.workers.agent_worker.WorkerSettings` 进程，脚本默认会拒绝继续启动。原因是新旧 Worker 会共享同一个 Redis 队列，旧代码 Worker 可能抢走新任务，导致 `/assistant` 页面或 `agent_demo_check.py` 长时间等待。确认已有 Worker 就是当前分支版本时，才使用：
-
-```powershell
-scripts/start_phase31_demo.ps1 -AllowExistingWorker
-```
-
-稳定性冒烟验收：
-
-```powershell
-python scripts/agent_demo_check.py --base-url http://127.0.0.1:8000/api/v1
-```
-
-启动脚本会在本次进程内生成 OpenMAIC 内部令牌和播放签名密钥，并把根 `.env` 的 `LLM_API_KEY`、`LLM_BASE_URL`、`LLM_MODEL_NAME` 映射到 Xiaomi MiMo、TTS 和 ASR 配置；不会写回或打印密钥。服务器部署应显式配置稳定的 `OPENMAIC_INTERNAL_TOKEN` 与 `OPENMAIC_SIGNING_SECRET`。
-
-### 1. 启动后端
-
-```powershell
+```bash
 cd backend
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+source .venv/bin/activate
 pip install -r requirements.txt
 python -m alembic upgrade head
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Phase 3.1 的 `/assistant` 统一 Agent 入口还需要单独启动后台 worker：
+在另一个终端启动 Agent Worker：
 
-```powershell
+```bash
 cd backend
+source .venv/bin/activate
 python -m arq app.workers.agent_worker.WorkerSettings
 ```
 
-若 `8000` 被占用：
+Windows PowerShell 可将激活命令替换为 `.\.venv\Scripts\Activate.ps1`。
 
-```powershell
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8010 --reload
-```
+### 启动前端
 
-检查：
-
-```text
-http://127.0.0.1:8000/health
-http://127.0.0.1:8000/docs
-```
-
-或把端口替换为 `8010`。
-
-### 2. 启动前端
-
-```powershell
+```bash
 cd frontend
 npm install
 npm run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
-访问：
+打开 [http://127.0.0.1:3000](http://127.0.0.1:3000)，从注册、创建课程和上传资料开始体验。API 文档位于 [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)。
 
-```text
-http://127.0.0.1:3000
-```
+更完整的 Windows 环境配置、数据同步和演示启动方式见[队友本地开发指南](docs/20_部署方案/05_队友本地开发README.md)。
 
-## 学生端演示流程
+## 典型体验路径
 
-推荐从注册页开始：
+1. 注册账号并创建课程。
+2. 上传一份课程资料，依次完成解析、切片、向量化和知识点抽取。
+3. 生成带来源和版本记录的课程 Wiki，使用 RAG 检索验证资料召回。
+4. 在 AI Tutor 中围绕资料提问，查看引用、相关知识点与 Agent 执行过程。
+5. 生成个性化资源或练习，提交答案后查看批改、错题与诊断。
+6. 查看课程画像、长期记忆、掌握度、学习路径和下一步推荐。
+7. 触发自进化分析，检查策略证据、风险等级、物化结果和回滚链。
 
-```text
-http://127.0.0.1:3000/register
-```
-
-如果后端使用 `8010`：
-
-```text
-http://127.0.0.1:3000/register?api_base=http%3A%2F%2F127.0.0.1%3A8010%2Fapi%2Fv1
-```
-
-完整演示路径：
-
-1. `/register`：注册学生账号，进入课程空间。
-2. `/courses`：创建课程，例如“数据结构演示课”。
-3. `/knowledge`：上传 `.txt` / `.md` / `.pdf` / `.docx` 资料。
-4. `/knowledge`：依次执行解析、切片、向量化、抽取知识点、生成 Wiki。
-5. `/knowledge`：使用“检索资料”验证 RAG 检索结果。
-6. `/assistant`：围绕课程资料提问，例如“请解释栈和队列的区别，并引用课程资料。”
-7. `/assistant`：用自然语言更新画像，例如“我是软件工程大二学生，递归薄弱，喜欢 Python 代码示例和分步骤讲解，请记住我的学习偏好。”
-8. `/path-profile`：查看对话式画像证据。
-9. `/assistant`：生成学习资源，例如例题、总结或复习卡。
-10. `/assistant`：输入“为广度优先搜索一键生成个性化沉浸课堂和讲解视频”，观察 Agent 进度，进入 OpenMAIC 课堂并等待配音字幕 MP4 产物。
-11. `/practice`：生成练习题，选择答案并提交，查看自动批改。
-12. `/practice`：打开诊断报告，生成学习诊断并刷新推荐。
-13. `/dashboard`：查看课程数、Wiki 数、Agent 运行数、今日任务和推荐。
-14. `/path-profile`：生成学习路径，触发长期记忆反思，触发自进化策略分析。
-
-演示建议资料内容可用一份简单的《数据结构》文本，例如：
-
-```text
-第一章 线性表
-线性表是由零个或多个数据元素组成的有限序列。顺序表适合随机访问，链表适合频繁插入删除。
-
-第二章 栈与队列
-栈是只允许在一端进行插入和删除的线性表，遵循后进先出。队列在队尾插入、队头删除，遵循先进先出。
-
-第三章 树与二叉树
-二叉树每个结点最多有两个孩子。遍历方式包括前序、中序、后序和层序。
-
-第四章 图
-图由顶点和边组成，常见遍历方法有深度优先搜索和广度优先搜索。Dijkstra 算法用于求单源最短路径。
-```
-
-## 本地验收命令
-
-可以单独运行：
-
-```powershell
-cd backend
-python -m pytest -q --maxfail=1
-python -m alembic upgrade head
-
-cd ..\frontend
-npm run typecheck
-npm run build
-```
-
-也可以使用项目脚本：
-
-```powershell
-scripts/local_check.ps1 -Database
-scripts/local_check.ps1 -Backend
-scripts/local_check.ps1 -Frontend
-scripts/local_check.ps1 -OpenMAIC
-scripts/local_check.ps1 -MainChain
-scripts/local_check.ps1 -AgentDemo
-```
-
-说明：
-
-- `-Backend` 会运行后端 pytest 和 FastAPI import check。
-- `-Database` 会运行 Alembic migration。
-- `-Frontend` 会运行 TypeScript 检查和 Next.js build。
-- `-OpenMAIC` 会运行内部鉴权测试和 OpenMAIC 生产构建。
-- `-MainChain` 要求后端已启动且配置真实 LLM Provider；会创建隔离测试账号并执行完整真实生成链路，回退 Mock 时直接失败。
-- `-AgentDemo` 要求后端和 arq Worker 已启动；会验证 `/assistant` 统一 Agent 入口、工具事件、对话式画像和学习路径生成。
-- `-All` 不包含真实 LLM 主链路，避免日常检查意外消耗 API 配额。
-- Docker 只作为第21阶段或部署专项验收，不作为当前学生端功能开发的前置条件。
-
-## 常见问题
-
-### 1. 前端连到了错误后端
-
-如果 `.env.local` 指向 `8000`，但当前真实后端在 `8010`，请用：
-
-```text
-http://127.0.0.1:3000/register?api_base=http%3A%2F%2F127.0.0.1%3A8010%2Fapi%2Fv1
-```
-
-或者在浏览器控制台清理旧地址：
-
-```js
-localStorage.removeItem("zhixue_api_base")
-```
-
-### 2. 端口被旧进程占用
-
-PowerShell 查看端口：
-
-```powershell
-Get-NetTCPConnection -LocalPort 3000,8000,8010 -ErrorAction SilentlyContinue |
-  Select-Object LocalPort,State,OwningProcess
-```
-
-停止指定进程：
-
-```powershell
-Stop-Process -Id <PID> -Force
-```
-
-### 3. 没有真实 LLM Key
-
-把 `LLM_PROVIDER=mock`，系统仍应能演示 Wiki、Tutor、资源、练习、诊断、自进化等主流程。Mock 输出不是最终效果，但用于保证主链路不因 Key 缺失中断。
-
-### 4. 资料页切片或向量数为 0
-
-确认已经按顺序执行：
-
-```text
-上传资料 → 解析资料 → 切片 → 向量化 → 抽取知识点 → 生成 Wiki
-```
-
-刷新 `/knowledge` 后，资料详情应显示真实 `Chunks` 和 `Embeddings` 计数。
-
-## Docker 说明
-
-Docker Compose 仍保留为后续部署目标。进入部署专项时，容器内环境应使用：
-
-```env
-DATABASE_URL=postgresql+asyncpg://zhixue:zhixue_password@postgres:5432/zhixue
-REDIS_URL=redis://redis:6379/0
-OPENMAIC_ENABLED=true
-OPENMAIC_BASE_URL=http://openmaic:3000
-OPENMAIC_PUBLIC_BASE_URL=https://your-domain.example:3001
-OPENMAIC_INTERNAL_TOKEN=replace-with-a-long-random-service-token
-OPENMAIC_SIGNING_SECRET=replace-with-a-different-long-random-signing-secret
-XIAOMI_API_KEY=...
-XIAOMI_BASE_URL=...
-XIAOMI_MODELS=mimo-v2.5
-DEFAULT_MODEL=xiaomi:mimo-v2.5
-TTS_XIAOMI_MIMO_API_KEY=...
-TTS_XIAOMI_MIMO_BASE_URL=...
-ASR_XIAOMI_MIMO_API_KEY=...
-ASR_XIAOMI_MIMO_BASE_URL=...
-```
-
-启动：
-
-```powershell
-docker compose -f docker-compose.prod.yml up -d --build
-```
-
-当前 `docker-compose.prod.yml` 会同时启动 `postgres`、`redis`、`openmaic`、`backend`、`worker`、`frontend` 和 `nginx`。其中 OpenMAIC 默认映射宿主机 `3001`，便于像本地一样直接访问：
-
-```text
-http://server-ip:3001/api/health
-```
-
-当前阶段若 Docker 与本地运行结果冲突，优先保证本地学生端主链路可用。更完整的服务器变量与启动说明见 [20_部署方案.md](docs/20_部署方案/20_部署方案.md) 和 [06_OpenMAIC沉浸课堂本地运行指南.md](docs/20_部署方案/06_OpenMAIC沉浸课堂本地运行指南.md)。
-
-## 目录结构
+## 项目结构
 
 ```text
 zhixue/
-├── backend/                          # FastAPI 后端
-│   ├── app/
-│   │   ├── api/v1/                   # 学生端业务 API
-│   │   ├── agents/                   # 多智能体编排
-│   │   ├── core/                     # 配置、异常、响应、鉴权依赖
-│   │   ├── db/                       # 数据库会话
-│   │   ├── llm/                      # LLM Provider 与日志
-│   │   ├── models/                   # SQLAlchemy Model
-│   │   ├── repositories/             # Repository 层
-│   │   ├── schemas/                  # Pydantic Schema
-│   │   ├── services/                 # Service 层
-│   │   └── rag/                      # 切片、Embedding、检索
-│   ├── alembic/                      # 数据库迁移
-│   └── tests/                        # 后端测试
-├── frontend/                         # Next.js 前端
-│   ├── app/                          # StitchFrame 页面入口
-│   ├── components/                   # 通用组件
-│   ├── lib/                          # API URL、鉴权、请求工具
-│   ├── public/stitch-pages/          # 当前学生端主界面
-│   ├── services/                     # 当前保留的 React 登录/课程等服务
-│   └── types/                        # TypeScript 类型
-├── data/                             # 演示资料和种子知识库预留
-├── docs/                             # 设计、测试、演示与答辩文档
-├── scripts/                          # 本地检查与后续数据脚本
-├── docker-compose.yml
-├── .env.example
-└── README.md
+├── frontend/                 # Next.js 学生端与 Stitch 页面
+├── backend/
+│   ├── app/api/v1/          # FastAPI 路由
+│   ├── app/agent_runtime/    # LangGraph 状态图与运行时
+│   ├── app/agents/           # 领域 Agent
+│   ├── app/services/         # 业务流程
+│   ├── app/repositories/     # 数据访问
+│   ├── app/rag/              # 文档处理与检索
+│   ├── app/llm/              # LLM Provider 抽象
+│   ├── alembic/              # 数据库迁移
+│   └── tests/                # 后端测试
+├── third_party/openmaic/     # 二次开发的沉浸课堂引擎
+├── data/                     # 数据结构课程知识库与示例资料
+├── docs/                     # 设计、事实源、测试与运行文档
+├── scripts/                  # 检查、验收和数据维护脚本
+└── .env.example
 ```
 
-## 当前展示重点
+## 实现边界
 
-- LLM Wiki：资料生成知识点页面，保留来源、版本和关系。
-- AI Tutor：基于课程资料与 Wiki 回答，展示引用和相关知识点。
-- 资源生成：Resource Agent 生成讲解、总结、例题、复习卡，并经过 Review Agent 校验。
-- 练习诊断：生成题目、提交答案、自动批改、形成诊断报告。
-- 推荐与学习路径：基于诊断、路径、Wiki 和行为日志生成下一步任务。
-- 长期记忆与自进化：Memory Agent 生成学习记忆，Evolution Agent 生成可确认、可追溯的策略建议。
-- 个性化沉浸课堂：智学工坊负责 RAG/画像/权限/任务编排，仓库内二次开发的 OpenMAIC 负责场景与播放，完成后继续生成带配音字幕的 MP4。
+为了让仓库描述与代码保持一致，以下能力仍处于待完善状态：
 
-## OpenMAIC 来源与比赛表述
+- 当前聚焦学生端，未建设教师端和管理员后台。
+- LangGraph 智能体模式要求真实 LLM Provider；普通生成链路可以使用 Mock。
+- Docker 全栈、全站浏览器 E2E 和真实 Provider 全模态矩阵仍需继续补齐正式验收。
+- Grounded QA 的检索召回表现稳定，但严格引用精度与覆盖率仍有提升空间。
+- 部分学生端页面仍由 Next.js `StitchFrame` 承载静态视觉页，并非全站 React 组件化。
 
-本项目没有把 OpenMAIC 描述为自研原始项目。仓库在 `third_party/openmaic` 保留其 AGPL-3.0 许可证、上游仓库、基线 commit 和本项目改动说明。推荐答辩表述：
+更多已知风险与未完成项见[当前实现基线](docs/当前实现基线.md#当前明确未实现或未完成)。
 
-> 智学工坊参考并二次开发了开源 OpenMAIC 的沉浸课堂生成能力，将其封装为受控课堂引擎；我们的核心工作是把课程 RAG 引用、学生画像与薄弱点、多智能体任务编排、用户权限隔离、课堂产物管理，以及 MiMo 配音字幕 MP4 导出整合成可追溯的个性化学习闭环。
+## 文档导航
+
+- [当前实现基线](docs/当前实现基线.md)：项目实际能力、规模、验收证据和已知限制
+- [系统架构设计](docs/_archive/设计文档/06_系统架构设计/06_系统架构设计.md)：模块边界与数据流（历史设计参考）
+- [多智能体架构](docs/_archive/设计文档/07_多智能体架构设计/07_多智能体架构设计.md)：Agent、工具和运行时设计（历史设计参考）
+- [自进化学习智能体](docs/_archive/设计文档/08_自进化学习智能体设计/08_自进化学习智能体设计.md)：证据、风险、版本与回滚机制（历史设计参考）
+- [LLM Wiki 学习空间](docs/_archive/设计文档/09_LLM_Wiki学习空间设计/09_LLM_Wiki学习空间设计.md)：页面、来源、版本和关系模型（历史设计参考）
+- [测试方案](docs/19_测试方案/19_测试方案.md)：测试策略与验收记录入口
+- [完整文档索引](docs/README.md)
+
+## 开源组件说明
+
+沉浸课堂能力基于开源项目 OpenMAIC 进行二次开发。`third_party/openmaic` 保留了 AGPL-3.0 许可证、上游仓库、基线 commit 和本项目改动说明。智学工坊负责用户与课程权限、RAG 引用、学生画像、任务编排、产物管理和媒体导出；OpenMAIC 负责课堂场景生成与播放。
+
+## 项目背景
+
+项目最初源于中国软件杯 A3 赛题，后续按可运行的 AI 学习产品持续工程化：从单次生成扩展为带知识库、持久状态、可观测 Agent 过程和个性化反馈闭环的完整系统。
