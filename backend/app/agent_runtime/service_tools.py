@@ -27,7 +27,8 @@ def _register_toolsets(
     register_profile_tools(registry, db, current_user, tool_names=("update_profile_from_dialogue", "rebuild_profile", "reflect_learning_memory"))
     register_review_tools(registry, db, current_user)
     register_profile_tools(registry, db, current_user, tool_names=("apply_evolution_strategy",))
-    register_media_tools(registry, db, current_user, tool_names=("generate_educational_image", "generate_immersive_classroom", "generate_lesson_video", "generate_storyboard_html", "generate_interactive_courseware"))
+    register_media_tools(registry, db, current_user, tool_names=("generate_educational_image", "generate_storyboard_html", "generate_interactive_courseware"))
+    register_knowledge_tools(registry, db, current_user, tool_names=("search_conversation_history",))
 
 
 def build_learning_tool_registry(

@@ -13,6 +13,7 @@ from app.core.exceptions import BusinessException
 from app.schemas.resource import (
     RESOURCE_TYPE_ALIASES,
     VALID_RESOURCE_TYPES,
+    GeneratedResourceListItemRead,
     GeneratedResourceRead,
     ResourceGenerateRequest,
     ResourceGenerateResponse,
@@ -82,6 +83,28 @@ class TestResourceSchemas:
         assert read.title == "栈讲解"
         assert read.resource_type == "explanation"
         assert len(read.citations) == 1
+
+    def test_resource_list_item_excludes_large_detail_fields(self) -> None:
+        obj = SimpleNamespace(
+            id=uuid4(),
+            user_id=uuid4(),
+            course_id=uuid4(),
+            knowledge_id=None,
+            wiki_page_id=None,
+            resource_type="explanation",
+            title="栈讲解",
+            personalized_reason=None,
+            status="active",
+            created_at=datetime.now(UTC),
+            content_format="markdown",
+            preview_mode="text",
+            media_job_id=None,
+            job_status=None,
+        )
+        result = GeneratedResourceListItemRead.model_validate(obj).model_dump(mode="json")
+        assert result["title"] == "栈讲解"
+        assert "content" not in result
+        assert "citations" not in result
 
     def test_resource_generate_response(self) -> None:
         resource_id = uuid4()
@@ -458,3 +481,72 @@ class TestResourceServiceHelpers:
         formatted = svc._format_resource_for_wiki(resource, "标题")
         assert "AI 推断内容" in formatted
         assert "暂无个性化证据" in formatted
+
+
+@pytest.mark.asyncio
+async def test_resource_revision_creates_a_new_lineage_entry(monkeypatch) -> None:
+    from unittest.mock import AsyncMock
+
+    from app.services.prompt_service import RenderedPrompt
+    from app.services.resource_service import ResourceService
+
+    user_id, course_id, resource_id = uuid4(), uuid4(), uuid4()
+    original = SimpleNamespace(
+        id=resource_id, user_id=user_id, course_id=course_id, status="active",
+        resource_type="summary", title="栈总结", content="栈是后进先出结构。",
+        citations=[{"source_type": "document", "title": "栈讲义"}],
+        knowledge_id=None, wiki_page_id=None, revision_no=1,
+    )
+    created = SimpleNamespace(
+        id=uuid4(), previous_resource_id=resource_id, revision_no=2,
+        title="栈总结（修订）", resource_type="summary", citations=original.citations,
+    )
+    service = ResourceService.__new__(ResourceService)
+    service.db = SimpleNamespace(commit=AsyncMock(), refresh=AsyncMock())
+    service._get_accessible_course = AsyncMock(return_value=SimpleNamespace(id=course_id))
+    service._get_owned_resource = AsyncMock(return_value=original)
+    service._review_generated_content = AsyncMock(return_value={"pass": True})
+    service.resources = SimpleNamespace(create=AsyncMock(return_value=created))
+    render = AsyncMock(return_value=RenderedPrompt("按要求修订旧资源", None))
+    monkeypatch.setattr("app.services.prompt_service.PromptService.render_prompt", render)
+    provider = SimpleNamespace(chat=AsyncMock(return_value=SimpleNamespace(
+        content="修订后的完整总结", model="test-model", provider="test-provider",
+    )))
+    monkeypatch.setattr("app.llm.provider.get_llm_provider", lambda **kwargs: provider)
+
+    result, review_result = await service.revise_resource_from_conversation(
+        resource_id=resource_id, course_id=course_id,
+        requirement="加一个例子", current_user=SimpleNamespace(id=user_id),
+    )
+
+    assert result is created
+    assert review_result == {"pass": True}
+    service.resources.create.assert_awaited_once()
+    create_args = service.resources.create.await_args.kwargs
+    assert create_args["previous_resource_id"] == resource_id
+    assert create_args["revision_no"] == 2
+    assert create_args["content"] == "修订后的完整总结"
+    service.db.commit.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_resource_revision_rejects_media_resources() -> None:
+    from unittest.mock import AsyncMock
+
+    from app.services.resource_service import ResourceService
+
+    course_id, resource_id = uuid4(), uuid4()
+    service = ResourceService.__new__(ResourceService)
+    service._get_accessible_course = AsyncMock(return_value=SimpleNamespace(id=course_id))
+    service._get_owned_resource = AsyncMock(return_value=SimpleNamespace(
+        id=resource_id, course_id=course_id, status="active", resource_type="interactive_courseware",
+    ))
+    service.resources = SimpleNamespace(create=AsyncMock())
+
+    with pytest.raises(BusinessException) as exc_info:
+        await service.revise_resource_from_conversation(
+            resource_id=resource_id, course_id=course_id,
+            requirement="把上个课件改一下", current_user=SimpleNamespace(id=uuid4()),
+        )
+    assert exc_info.value.status_code == 400
+    service.resources.create.assert_not_awaited()

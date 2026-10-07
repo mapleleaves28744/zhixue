@@ -72,7 +72,7 @@ def build_search_results_answer(state: dict[str, Any], goal: str) -> str | None:
 
 def build_completion_answer(state: dict[str, Any]) -> str:
     search_answer = build_search_results_answer(state, str(state.get("goal") or ""))
-    if search_answer:
+    if search_answer and not state.get("artifacts"):
         return search_answer
 
     lines = ["所需学习内容已生成，请查看下方产物卡片或资源侧栏。"]
@@ -97,6 +97,19 @@ def build_completion_answer(state: dict[str, Any]) -> str:
 
 
 def normalize_completion_answer(state: dict[str, Any], goal: str, answer: str) -> str:
+    if state.get("artifacts"):
+        delivery = build_completion_answer(state)
+        if any(obs.get("success") is True and obs.get("tool_name") == "answer_course_question"
+               for obs in state.get("observations") or []):
+            grounded = build_search_results_answer(state, goal)
+            if grounded:
+                delivery += "\n\n" + grounded
+        return delivery
+    if any(obs.get("success") is True and obs.get("tool_name") == "answer_course_question"
+           for obs in state.get("observations") or []):
+        grounded_answer = build_search_results_answer(state, goal)
+        if grounded_answer:
+            return grounded_answer
     for obs in reversed(state.get("observations") or []):
         if obs.get("success") is not True:
             continue

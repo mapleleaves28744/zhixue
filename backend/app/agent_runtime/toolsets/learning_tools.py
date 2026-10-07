@@ -69,8 +69,10 @@ def register_learning_tools(
         result = await ResourceService(db).generate_resource(
             payload=ResourceGenerateRequest(
                 course_id=context.course_id,
+                topic=topic,
                 resource_type=str(arguments.get("resource_type") or "explanation"),
-                requirement=str(arguments.get("requirement") or f"围绕{topic}生成分步骤讲解并引用课程资料。"),
+                requirement=(f"本资源的唯一主题是「{topic}」，独立交付该主题的内容；其他主题由其他子任务负责。\n"
+                             + str(arguments.get("requirement") or "生成分步骤讲解并引用课程资料。"))[:1000],
                 use_profile=True,
             ),
             current_user=current_user,
@@ -143,11 +145,11 @@ def register_learning_tools(
     if include("answer_course_question"):
         register_tool(registry, "answer_course_question", "基于课程知识库、Wiki 和学生画像回答学习问题。", "TutorAgent", {"question": {"type": "string"}, "top_k": {"type": "integer", "minimum": 1, "maximum": 20}}, ["question"], answer_question, writes_db=True)
     if include("generate_learning_path"):
-        register_tool(registry, "generate_learning_path", "根据学习目标、薄弱点和课程知识点生成个性化学习路径。", "PlannerAgent", {"goal": {"type": "string"}}, ["goal"], generate_path, writes_db=True)
+        register_tool(registry, "generate_learning_path", "根据学习目标、薄弱点和课程知识点生成个性化学习路径。", "PlannerAgent", {"goal": {"type": "string"}}, ["goal"], generate_path, writes_db=True, timeout_seconds=240)
     if include("generate_explanation"):
-        register_tool(registry, "generate_explanation", "围绕知识主题生成带来源和个性化理由的学习资源。", "ResourceAgent", {"topic": {"type": "string"}, "resource_type": {"type": "string", "enum": ["explanation", "summary", "example", "flashcard", "review"]}, "requirement": {"type": "string"}}, ["topic"], generate_explanation, writes_db=True)
+        register_tool(registry, "generate_explanation", "围绕知识主题生成带来源和个性化理由的学习资源。", "ResourceAgent", {"topic": {"type": "string"}, "resource_type": {"type": "string", "enum": ["explanation", "summary", "example", "flashcard", "review"]}, "requirement": {"type": "string"}}, ["topic"], generate_explanation, writes_db=True, timeout_seconds=240)
     if include("generate_quiz"):
-        register_tool(registry, "generate_quiz", "围绕主题生成结构化练习题。", "QuizAgent", {"topic": {"type": "string"}, "count": {"type": "integer", "minimum": 1, "maximum": 20}, "difficulty": {"type": "string", "enum": ["easy", "medium", "hard"]}, "question_types": {"type": "array", "items": {"type": "string"}}}, ["topic"], generate_quiz, writes_db=True)
+        register_tool(registry, "generate_quiz", "围绕主题生成结构化练习题。", "QuizAgent", {"topic": {"type": "string"}, "count": {"type": "integer", "minimum": 1, "maximum": 20}, "difficulty": {"type": "string", "enum": ["easy", "medium", "hard"]}, "question_types": {"type": "array", "items": {"type": "string"}}}, ["topic"], generate_quiz, writes_db=True, timeout_seconds=240)
     if include("analyze_learning_diagnosis"):
         register_tool(registry, "analyze_learning_diagnosis", "基于练习和错题生成学习诊断。", "DiagnosisAgent", {}, [], analyze_diagnosis, writes_db=True)
     if include("refresh_recommendations"):

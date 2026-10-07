@@ -1,0 +1,60 @@
+{
+  "generated_at": "2026-09-27T05:16:31.386012+00:00",
+  "provider": "compatible",
+  "model": "mimo-v2.6-flash",
+  "scenario_file": "C:\\Users\\28744\\Desktop\\zhixue\\data\\seed_knowledge\\data_structure\\eval\\agent_runtime_scenarios.yml",
+  "provider_policy": "OpenAI-compatible real provider; Agent Runtime disables Mock fallback",
+  "summary": {
+    "scenario_count": 1,
+    "passed_count": 1,
+    "task_completion_rate": 1.0,
+    "scenario_pass_rate": 1.0,
+    "tool_selection_accuracy": 1.0,
+    "high_risk_interception_rate": null,
+    "replan_success_rate": null,
+    "duplicate_write_count": null,
+    "cross_user_leak_count": null,
+    "unmeasured_metrics": [
+      "duplicate_write_count",
+      "cross_user_leak_count"
+    ]
+  },
+  "results": [
+    {
+      "id": "agent-018",
+      "category": "review",
+      "goal": "对当前已有学习产物做一次来源、幻觉和风险审查。",
+      "task_id": "e2974c38-9e34-4768-a3cc-f4b74135992b",
+      "status": "succeeded",
+      "passed": true,
+      "planned_tools": [],
+      "attempted_tools": [
+        "review_artifacts"
+      ],
+      "actual_tools": [
+        "review_artifacts"
+      ],
+      "expected_any_tools": [
+        "review_artifacts"
+      ],
+      "expected_tool_groups": [],
+      "tool_match": true,
+      "forbidden_tools": [],
+      "citation_count": 0,
+      "iteration_count": 2,
+      "tool_call_count": 1,
+      "replan_count": 0,
+      "event_types": [
+        "queued",
+        "planning",
+        "plan_created",
+        "tool_started",
+        "tool_completed",
+        "observation",
+        "plan_created",
+        "completed"
+      ],
+      "error_message": null
+    }
+  ]
+}

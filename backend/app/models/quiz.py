@@ -5,7 +5,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Numeric, String, Text, func, text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, Numeric, String, Text, UniqueConstraint, CheckConstraint, func, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -65,6 +65,7 @@ class Quiz(Base):
         "Question",
         back_populates="quiz",
         cascade="all, delete-orphan",
+        order_by="Question.position, Question.created_at, Question.id",
     )
     answer_records: Mapped[list["AnswerRecord"]] = relationship(
         "AnswerRecord",
@@ -81,6 +82,8 @@ class Question(Base):
         Index("idx_questions_course_id", "course_id"),
         Index("idx_questions_knowledge_id", "knowledge_id"),
         Index("idx_questions_type", "question_type"),
+        UniqueConstraint("quiz_id", "position", name="uq_questions_quiz_position"),
+        CheckConstraint("position IS NULL OR position >= 1", name="ck_questions_position_positive"),
     )
 
     id: Mapped[UUID] = mapped_column(
@@ -88,6 +91,7 @@ class Question(Base):
         primary_key=True,
         server_default=text("gen_random_uuid()"),
     )
+    position: Mapped[int | None] = mapped_column(Integer, nullable=True)
     quiz_id: Mapped[UUID | None] = mapped_column(
         PgUUID(as_uuid=True),
         ForeignKey("quizzes.id", ondelete="CASCADE"),

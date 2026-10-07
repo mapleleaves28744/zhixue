@@ -118,6 +118,7 @@ class AgentTaskStep(Base):
             name="ck_agent_task_steps_status",
         ),
         UniqueConstraint("task_id", "step_index", name="uq_agent_task_steps_task_index"),
+        UniqueConstraint("task_id", "operation_key", name="uq_agent_task_steps_operation"),
         Index("idx_agent_task_steps_task_id", "task_id"),
         Index("idx_agent_task_steps_task_status", "task_id", "status"),
         Index("idx_agent_task_steps_tool_call_id", "tool_call_id"),
@@ -153,6 +154,7 @@ class AgentTaskStep(Base):
         PgUUID(as_uuid=True), ForeignKey("agent_runs.id", ondelete="SET NULL")
     )
     tool_call_id: Mapped[str | None] = mapped_column(String(128))
+    operation_key: Mapped[str | None] = mapped_column(String(255))
     parent_step_id: Mapped[UUID | None] = mapped_column(
         PgUUID(as_uuid=True), ForeignKey("agent_task_steps.id", ondelete="SET NULL")
     )

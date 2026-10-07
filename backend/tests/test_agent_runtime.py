@@ -32,6 +32,127 @@ class QueryInput(SimpleNamespace):
     pass
 
 
+def test_supervisor_replan_reenters_planning() -> None:
+    graph = LearningAgentGraph(registry=ToolRegistry(), supervisor=object())
+
+    assert graph._route_supervisor({"status": "replan", "pending_tool_calls": []}) == "supervisor"
+
+
+@pytest.mark.asyncio
+async def test_graph_rejects_completion_without_contract_artifact() -> None:
+    class Completes:
+        async def decide(self, state, schemas):  # noqa: ARG002
+            return AgentDecision(status="complete", summary="完成", final_answer="已生成练习")
+
+    graph = LearningAgentGraph(registry=ToolRegistry(), supervisor=Completes())
+    result = await graph._supervise({
+        "goal": "给栈出练习题",
+        "intent_frame_v1": {"tasks": [{"id": "s1", "topic": "栈", "tools": ["generate_quiz"]}]},
+        "observations": [], "tool_calls": [], "tool_call_count": 0,
+    })
+
+    assert result["status"] == "failed"
+    assert "s1" in result["final_answer"]
+
+
+def test_observation_with_final_answer_waits_for_pending_recommendation() -> None:
+    graph = LearningAgentGraph(registry=ToolRegistry(), supervisor=object())
+    state = {
+        "goal": "检索二叉树资料，解释核心概念，并推荐下一步学习内容。",
+        "pending_tool_calls": [],
+        "last_tool_result": {"success": True, "final_answer": "二叉树概念说明"},
+        "observations": [
+            {"success": True, "tool_name": "search_course_knowledge"},
+            {"success": True, "tool_name": "answer_course_question"},
+        ],
+    }
+
+    assert graph._route_observation(state) == "supervisor"
+    state["observations"].append({"success": True, "tool_name": "refresh_recommendations"})
+    assert graph._route_observation(state) == "finalize"
+
+
+def test_completed_review_task_does_not_run_second_review() -> None:
+    graph = LearningAgentGraph(registry=ToolRegistry(), supervisor=object())
+    state = {
+        "goal": "对当前已有学习产物做一次来源、幻觉和风险审查。",
+        "status": "complete",
+        "observations": [{"success": True, "tool_name": "review_artifacts"}],
+    }
+
+    assert graph._route_supervisor(state) == "finalize"
+
+
+def test_disabled_video_goal_finishes_without_review_call() -> None:
+    graph = LearningAgentGraph(registry=ToolRegistry(), supervisor=object())
+
+    assert graph._route_supervisor({"goal": "生成二叉树讲解视频", "status": "complete"}) == "finalize"
+
+
+@pytest.mark.asyncio
+async def test_mark_failed_looks_up_task_by_stable_id_after_rollback() -> None:
+    service = AgentRuntimeService(AsyncMock())
+    task_id = uuid4()
+    service._get_task_optional = AsyncMock(return_value=None)
+
+    await service._mark_failed(task_id, RuntimeError("original failure"))
+
+    service._get_task_optional.assert_awaited_once_with(task_id)
+
+
+@pytest.mark.asyncio
+async def test_failed_write_tool_is_not_implicitly_retried() -> None:
+    calls = 0
+
+    async def handler(context, arguments):
+        nonlocal calls
+        calls += 1
+        raise RuntimeError("write failed")
+
+    registry = ToolRegistry()
+    registry.register(AgentTool(
+        name="write_once",
+        description="write",
+        agent_name="ResourceAgent",
+        input_schema={"type": "object", "properties": {}},
+        handler=handler,
+        writes_db=True,
+        max_retries=2,
+    ))
+
+    result = await registry.execute(
+        "write_once", {},
+        ToolContext(task_id=uuid4(), tool_call_id="write-once", user_id=uuid4(), course_id=uuid4()),
+    )
+
+    assert calls == result.attempts == 1
+    assert result.success is False
+    assert result.error_message == "write failed"
+
+
+@pytest.mark.asyncio
+async def test_video_generation_services_reject_new_jobs_by_default(monkeypatch) -> None:
+    from app.core.config import settings
+    from app.core.exceptions import BusinessException
+    from app.services.immersive_classroom_service import ImmersiveClassroomService
+    from app.services.multimodal_resource_service import MultimodalResourceService
+
+    monkeypatch.setattr(settings, "learning_video_enabled", False)
+    user = SimpleNamespace(id=uuid4())
+    course_id = uuid4()
+    with pytest.raises(BusinessException) as video_error:
+        await MultimodalResourceService.__new__(MultimodalResourceService).create_video_job(
+            current_user=user, course_id=course_id, topic="二叉树"
+        )
+    with pytest.raises(BusinessException) as classroom_error:
+        await ImmersiveClassroomService.__new__(ImmersiveClassroomService).create_job(
+            current_user=user, course_id=course_id, topic="二叉树"
+        )
+
+    assert video_error.value.status_code == 410
+    assert classroom_error.value.status_code == 410
+
+
 def test_dynamic_agent_task_uses_a_unique_checkpoint_thread() -> None:
     """同一对话的不同消息不能复用 LangGraph checkpoint 状态。"""
     conversation_thread = "agent-conversation-123"
@@ -72,6 +193,7 @@ def schema(name: str) -> dict[str, object]:
 
 
 EXPECTED_LEARNING_TOOL_NAMES = {
+    "search_conversation_history",
     "search_course_knowledge",
     "search_web",
     "answer_course_question",
@@ -92,26 +214,23 @@ EXPECTED_LEARNING_TOOL_NAMES = {
     "review_multimodal_asset",
     "apply_evolution_strategy",
     "generate_educational_image",
-    "generate_immersive_classroom",
-    "generate_lesson_video",
     "generate_storyboard_html",
     "generate_interactive_courseware",
 }
 
 
 EXPECTED_LEARNING_TOOL_CONTRACTS = {
+    "search_conversation_history": ("KnowledgeAgent", False, "low", False, 120, {"type": "object", "properties": {"query": {"type": "string", "minLength": 1, "maxLength": 120}}, "required": ["query"], "additionalProperties": False}),
     "analyze_learning_diagnosis": ("DiagnosisAgent", True, "low", False, 120, {"type": "object", "properties": {}, "required": [], "additionalProperties": False}),
     "answer_course_question": ("TutorAgent", True, "low", False, 120, {"type": "object", "properties": {"question": {"type": "string"}, "top_k": {"type": "integer", "minimum": 1, "maximum": 20}}, "required": ["question"], "additionalProperties": False}),
     "apply_evolution_strategy": ("EvolutionAgent", True, "high", True, 120, {"type": "object", "properties": {"strategy_id": {"type": "string"}}, "required": [], "additionalProperties": False}),
     "generate_diagram": ("KnowledgeAgent", True, "low", False, 120, {"type": "object", "properties": {"concept": {"type": "string", "description": "需要图解的概念"}, "diagram_type": {"type": "string", "enum": ["flowchart", "sequence", "class", "er"]}, "requirement": {"type": "string", "description": "必须在图中表达的步骤或重点"}}, "required": ["concept"], "additionalProperties": False}),
     "generate_educational_image": ("VisualResourceAgent", True, "low", False, 180, {"type": "object", "properties": {"topic": {"type": "string", "minLength": 1}, "image_type": {"type": "string", "enum": ["concept_illustration", "process_visual", "analogy", "cover", "summary_card"]}, "style": {"type": "string"}, "size": {"type": "string", "enum": ["1024x1024", "1280x720", "720x1280", "1024x768"]}, "requirement": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
-    "generate_explanation": ("ResourceAgent", True, "low", False, 120, {"type": "object", "properties": {"topic": {"type": "string"}, "resource_type": {"type": "string", "enum": ["explanation", "summary", "example", "flashcard", "review"]}, "requirement": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
-    "generate_immersive_classroom": ("ImmersiveClassroomAgent", True, "low", False, 30, {"type": "object", "properties": {"topic": {"type": "string", "minLength": 1}, "learning_goal": {"type": "string"}, "generate_video_export": {"type": "boolean"}, "enable_images": {"type": "boolean"}, "enable_video_clips": {"type": "boolean"}, "enable_tts": {"type": "boolean"}}, "required": ["topic"], "additionalProperties": False}),
+    "generate_explanation": ("ResourceAgent", True, "low", False, 240, {"type": "object", "properties": {"topic": {"type": "string"}, "resource_type": {"type": "string", "enum": ["explanation", "summary", "example", "flashcard", "review"]}, "requirement": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
     "generate_interactive_courseware": ("CoursewareAgent", True, "low", False, 180, {"type": "object", "properties": {"topic": {"type": "string", "minLength": 1}, "interaction_type": {"type": "string", "enum": ["stepper", "drag_sort", "quiz_simulation", "graph_traversal", "timeline"]}, "target_level": {"type": "string"}, "requirement": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
-    "generate_learning_path": ("PlannerAgent", True, "low", False, 120, {"type": "object", "properties": {"goal": {"type": "string"}}, "required": ["goal"], "additionalProperties": False}),
-    "generate_lesson_video": ("VideoResourceAgent", True, "low", False, 30, {"type": "object", "properties": {"topic": {"type": "string", "minLength": 1}, "duration_seconds": {"type": "integer", "minimum": 30, "maximum": 240}, "visual_mode": {"type": "string", "enum": ["storyboard", "animated_diagram", "t2v_broll", "mixed"]}, "voice": {"type": "string"}, "target_level": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
+    "generate_learning_path": ("PlannerAgent", True, "low", False, 240, {"type": "object", "properties": {"goal": {"type": "string"}}, "required": ["goal"], "additionalProperties": False}),
     "generate_mindmap": ("KnowledgeAgent", True, "low", False, 120, {"type": "object", "properties": {"topic": {"type": "string", "description": "知识主题"}, "scope": {"type": "string", "enum": ["course", "chapter", "custom"]}, "depth": {"type": "integer", "minimum": 2, "maximum": 5}}, "required": ["topic"], "additionalProperties": False}),
-    "generate_quiz": ("QuizAgent", True, "low", False, 120, {"type": "object", "properties": {"topic": {"type": "string"}, "count": {"type": "integer", "minimum": 1, "maximum": 20}, "difficulty": {"type": "string", "enum": ["easy", "medium", "hard"]}, "question_types": {"type": "array", "items": {"type": "string"}}}, "required": ["topic"], "additionalProperties": False}),
+    "generate_quiz": ("QuizAgent", True, "low", False, 240, {"type": "object", "properties": {"topic": {"type": "string"}, "count": {"type": "integer", "minimum": 1, "maximum": 20}, "difficulty": {"type": "string", "enum": ["easy", "medium", "hard"]}, "question_types": {"type": "array", "items": {"type": "string"}}}, "required": ["topic"], "additionalProperties": False}),
     "generate_storyboard_html": ("VideoResourceAgent", True, "low", False, 120, {"type": "object", "properties": {"topic": {"type": "string", "minLength": 1}, "duration_seconds": {"type": "integer", "minimum": 30, "maximum": 240}, "requirement": {"type": "string"}}, "required": ["topic"], "additionalProperties": False}),
     "parse_uploaded_document": ("KnowledgeAgent", True, "low", False, 120, {"type": "object", "properties": {"material_id": {"type": "string", "description": "课程资料 UUID"}}, "required": ["material_id"], "additionalProperties": False}),
     "rebuild_profile": ("ProfileAgent", True, "low", False, 120, {"type": "object", "properties": {}, "required": [], "additionalProperties": False}),
@@ -143,6 +262,7 @@ def test_learning_registry_keeps_public_tool_contracts() -> None:
         tool = registry.get(name)
         assert tool.agent_name == agent_name
         assert tool.writes_db is writes_db
+        assert tool.max_retries == (0 if writes_db else 2)
         assert tool.risk_level == risk_level
         assert tool.requires_confirmation is requires_confirmation
         assert tool.timeout_seconds == timeout_seconds
@@ -226,6 +346,16 @@ def test_fallback_excludes_skipped_tools() -> None:
     )
 
     assert [item["function"]["name"] for item in selected] == ["search_web"]  # type: ignore[index]
+
+
+def test_unknown_goal_only_exposes_read_only_exploration_tools() -> None:
+    tools = [schema(name) for name in (
+        "generate_quiz", "update_profile_from_dialogue", "search_course_knowledge",
+    )]
+
+    selected = select_tool_schemas({"goal": "随便聊聊", "tool_hints": [], "skip_tools": []}, tools)
+
+    assert [item["function"]["name"] for item in selected] == ["search_course_knowledge"]
 
 
 @pytest.mark.asyncio

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import asyncio
 import logging
 from collections.abc import AsyncIterator
 
@@ -60,11 +61,20 @@ class OpenAICompatibleLLMProvider(BaseLLMProvider):
                 payload[key] = value
         try:
             async with httpx.AsyncClient(timeout=cfg.timeout_seconds or self._timeout) as client:
-                resp = await client.post(
-                    f"{self._base_url}/chat/completions",
-                    headers=self._headers(),
-                    json=payload,
-                )
+                attempts = int(kwargs.get("transport_attempts", 3))
+                if not 1 <= attempts <= 3:
+                    raise ValueError("transport_attempts must be between 1 and 3")
+                for attempt in range(attempts):
+                    try:
+                        resp = await client.post(
+                            f"{self._base_url}/chat/completions",
+                            headers=self._headers(), json=payload,
+                        )
+                        break
+                    except (httpx.ConnectError, httpx.ConnectTimeout):
+                        if attempt == attempts - 1:
+                            raise
+                        await asyncio.sleep(0.3 * (attempt + 1))
                 resp.raise_for_status()
                 data = resp.json()
         except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError) as exc:

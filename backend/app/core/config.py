@@ -41,6 +41,8 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("LLM_BASE_URL", "OPENAI_BASE_URL", "OPENAI_API_BASE"),
     )
     llm_timeout_seconds: int = Field(default=60, alias="LLM_TIMEOUT_SECONDS")
+    llm_context_window_tokens: int = Field(default=32768, ge=4096, alias="LLM_CONTEXT_WINDOW_TOKENS")
+    llm_tokenizer_path: str = Field(default="", alias="LLM_TOKENIZER_PATH")
     llm_structured_max_retries: int = Field(default=2, alias="LLM_STRUCTURED_MAX_RETRIES")
 
     # ── 自适应难度配置 ──
@@ -103,6 +105,7 @@ class Settings(BaseSettings):
 
     # ── OpenMAIC 沉浸课堂引擎 ──
     openmaic_enabled: bool = Field(default=False, alias="OPENMAIC_ENABLED")
+    learning_video_enabled: bool = Field(default=False, alias="LEARNING_VIDEO_ENABLED")
     openmaic_base_url: str = Field(default="http://127.0.0.1:3001", alias="OPENMAIC_BASE_URL")
     openmaic_public_base_url: str = Field(default="http://127.0.0.1:3001", alias="OPENMAIC_PUBLIC_BASE_URL")
     openmaic_internal_token: str = Field(default="", alias="OPENMAIC_INTERNAL_TOKEN")

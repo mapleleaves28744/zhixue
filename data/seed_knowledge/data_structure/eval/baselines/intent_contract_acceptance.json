@@ -1,0 +1,736 @@
+{
+  "finished_at": "2026-09-30T09:40:04.218385+00:00",
+  "type": "development fixtures; no held-out/semantic quality accuracy claim",
+  "rule_passed": 120,
+  "rule_total": 120,
+  "rules": [
+    {
+      "id": "single_1",
+      "passed": true
+    },
+    {
+      "id": "combination_1",
+      "passed": true
+    },
+    {
+      "id": "exclude_1",
+      "passed": true
+    },
+    {
+      "id": "followup_1",
+      "passed": true
+    },
+    {
+      "id": "clarify_1",
+      "passed": true
+    },
+    {
+      "id": "revision_source_1",
+      "passed": true
+    },
+    {
+      "id": "single_2",
+      "passed": true
+    },
+    {
+      "id": "combination_2",
+      "passed": true
+    },
+    {
+      "id": "exclude_2",
+      "passed": true
+    },
+    {
+      "id": "followup_2",
+      "passed": true
+    },
+    {
+      "id": "clarify_2",
+      "passed": true
+    },
+    {
+      "id": "revision_source_2",
+      "passed": true
+    },
+    {
+      "id": "single_3",
+      "passed": true
+    },
+    {
+      "id": "combination_3",
+      "passed": true
+    },
+    {
+      "id": "exclude_3",
+      "passed": true
+    },
+    {
+      "id": "followup_3",
+      "passed": true
+    },
+    {
+      "id": "clarify_3",
+      "passed": true
+    },
+    {
+      "id": "revision_source_3",
+      "passed": true
+    },
+    {
+      "id": "single_4",
+      "passed": true
+    },
+    {
+      "id": "combination_4",
+      "passed": true
+    },
+    {
+      "id": "exclude_4",
+      "passed": true
+    },
+    {
+      "id": "followup_4",
+      "passed": true
+    },
+    {
+      "id": "clarify_4",
+      "passed": true
+    },
+    {
+      "id": "revision_source_4",
+      "passed": true
+    },
+    {
+      "id": "single_5",
+      "passed": true
+    },
+    {
+      "id": "combination_5",
+      "passed": true
+    },
+    {
+      "id": "exclude_5",
+      "passed": true
+    },
+    {
+      "id": "followup_5",
+      "passed": true
+    },
+    {
+      "id": "clarify_5",
+      "passed": true
+    },
+    {
+      "id": "revision_source_5",
+      "passed": true
+    },
+    {
+      "id": "single_6",
+      "passed": true
+    },
+    {
+      "id": "combination_6",
+      "passed": true
+    },
+    {
+      "id": "exclude_6",
+      "passed": true
+    },
+    {
+      "id": "followup_6",
+      "passed": true
+    },
+    {
+      "id": "clarify_6",
+      "passed": true
+    },
+    {
+      "id": "revision_source_6",
+      "passed": true
+    },
+    {
+      "id": "single_7",
+      "passed": true
+    },
+    {
+      "id": "combination_7",
+      "passed": true
+    },
+    {
+      "id": "exclude_7",
+      "passed": true
+    },
+    {
+      "id": "followup_7",
+      "passed": true
+    },
+    {
+      "id": "clarify_7",
+      "passed": true
+    },
+    {
+      "id": "revision_source_7",
+      "passed": true
+    },
+    {
+      "id": "single_8",
+      "passed": true
+    },
+    {
+      "id": "combination_8",
+      "passed": true
+    },
+    {
+      "id": "exclude_8",
+      "passed": true
+    },
+    {
+      "id": "followup_8",
+      "passed": true
+    },
+    {
+      "id": "clarify_8",
+      "passed": true
+    },
+    {
+      "id": "revision_source_8",
+      "passed": true
+    },
+    {
+      "id": "single_9",
+      "passed": true
+    },
+    {
+      "id": "combination_9",
+      "passed": true
+    },
+    {
+      "id": "exclude_9",
+      "passed": true
+    },
+    {
+      "id": "followup_9",
+      "passed": true
+    },
+    {
+      "id": "clarify_9",
+      "passed": true
+    },
+    {
+      "id": "revision_source_9",
+      "passed": true
+    },
+    {
+      "id": "single_10",
+      "passed": true
+    },
+    {
+      "id": "combination_10",
+      "passed": true
+    },
+    {
+      "id": "exclude_10",
+      "passed": true
+    },
+    {
+      "id": "followup_10",
+      "passed": true
+    },
+    {
+      "id": "clarify_10",
+      "passed": true
+    },
+    {
+      "id": "revision_source_10",
+      "passed": true
+    },
+    {
+      "id": "single_11",
+      "passed": true
+    },
+    {
+      "id": "combination_11",
+      "passed": true
+    },
+    {
+      "id": "exclude_11",
+      "passed": true
+    },
+    {
+      "id": "followup_11",
+      "passed": true
+    },
+    {
+      "id": "clarify_11",
+      "passed": true
+    },
+    {
+      "id": "revision_source_11",
+      "passed": true
+    },
+    {
+      "id": "single_12",
+      "passed": true
+    },
+    {
+      "id": "combination_12",
+      "passed": true
+    },
+    {
+      "id": "exclude_12",
+      "passed": true
+    },
+    {
+      "id": "followup_12",
+      "passed": true
+    },
+    {
+      "id": "clarify_12",
+      "passed": true
+    },
+    {
+      "id": "revision_source_12",
+      "passed": true
+    },
+    {
+      "id": "single_13",
+      "passed": true
+    },
+    {
+      "id": "combination_13",
+      "passed": true
+    },
+    {
+      "id": "exclude_13",
+      "passed": true
+    },
+    {
+      "id": "followup_13",
+      "passed": true
+    },
+    {
+      "id": "clarify_13",
+      "passed": true
+    },
+    {
+      "id": "revision_source_13",
+      "passed": true
+    },
+    {
+      "id": "single_14",
+      "passed": true
+    },
+    {
+      "id": "combination_14",
+      "passed": true
+    },
+    {
+      "id": "exclude_14",
+      "passed": true
+    },
+    {
+      "id": "followup_14",
+      "passed": true
+    },
+    {
+      "id": "clarify_14",
+      "passed": true
+    },
+    {
+      "id": "revision_source_14",
+      "passed": true
+    },
+    {
+      "id": "single_15",
+      "passed": true
+    },
+    {
+      "id": "combination_15",
+      "passed": true
+    },
+    {
+      "id": "exclude_15",
+      "passed": true
+    },
+    {
+      "id": "followup_15",
+      "passed": true
+    },
+    {
+      "id": "clarify_15",
+      "passed": true
+    },
+    {
+      "id": "revision_source_15",
+      "passed": true
+    },
+    {
+      "id": "single_16",
+      "passed": true
+    },
+    {
+      "id": "combination_16",
+      "passed": true
+    },
+    {
+      "id": "exclude_16",
+      "passed": true
+    },
+    {
+      "id": "followup_16",
+      "passed": true
+    },
+    {
+      "id": "clarify_16",
+      "passed": true
+    },
+    {
+      "id": "revision_source_16",
+      "passed": true
+    },
+    {
+      "id": "single_17",
+      "passed": true
+    },
+    {
+      "id": "combination_17",
+      "passed": true
+    },
+    {
+      "id": "exclude_17",
+      "passed": true
+    },
+    {
+      "id": "followup_17",
+      "passed": true
+    },
+    {
+      "id": "clarify_17",
+      "passed": true
+    },
+    {
+      "id": "revision_source_17",
+      "passed": true
+    },
+    {
+      "id": "single_18",
+      "passed": true
+    },
+    {
+      "id": "combination_18",
+      "passed": true
+    },
+    {
+      "id": "exclude_18",
+      "passed": true
+    },
+    {
+      "id": "followup_18",
+      "passed": true
+    },
+    {
+      "id": "clarify_18",
+      "passed": true
+    },
+    {
+      "id": "revision_source_18",
+      "passed": true
+    },
+    {
+      "id": "single_19",
+      "passed": true
+    },
+    {
+      "id": "combination_19",
+      "passed": true
+    },
+    {
+      "id": "exclude_19",
+      "passed": true
+    },
+    {
+      "id": "followup_19",
+      "passed": true
+    },
+    {
+      "id": "clarify_19",
+      "passed": true
+    },
+    {
+      "id": "revision_source_19",
+      "passed": true
+    },
+    {
+      "id": "single_20",
+      "passed": true
+    },
+    {
+      "id": "combination_20",
+      "passed": true
+    },
+    {
+      "id": "exclude_20",
+      "passed": true
+    },
+    {
+      "id": "followup_20",
+      "passed": true
+    },
+    {
+      "id": "clarify_20",
+      "passed": true
+    },
+    {
+      "id": "revision_source_20",
+      "passed": true
+    }
+  ],
+  "semantic_passed": 0,
+  "semantic_total": 6,
+  "semantic": [
+    {
+      "goal": "栈和队列各出练习题",
+      "passed": false,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "c2757bd3-4537-4104-9629-c60967d11913",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "rule_candidates_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "队列各出练习题",
+            "topic": "队列各",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "c2757bd3-4537-4104-9629-c60967d11913",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "队列各"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [
+          "规则候选需由执行器核验",
+          "semantic_understanding_unavailable"
+        ],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": null
+      },
+      "error": "AssertionError: Model understanding was unavailable"
+    },
+    {
+      "goal": "二叉树和哈希表分别生成讲解资源",
+      "passed": false,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "cae27d05-34e1-4181-a42c-f511d57ddc25",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "rule_candidates_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "二叉树和哈希表分别生成讲解资源",
+            "topic": "二叉树和哈希表分别 资源",
+            "tools": [
+              "generate_explanation"
+            ],
+            "source_message_id": "cae27d05-34e1-4181-a42c-f511d57ddc25",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "二叉树和哈希表分别 资源"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [
+          "规则候选需由执行器核验",
+          "semantic_understanding_unavailable"
+        ],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": null
+      },
+      "error": "AssertionError: Model understanding was unavailable"
+    },
+    {
+      "goal": "给栈出练习题，给链表出练习题",
+      "passed": false,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "bd2f46d4-3609-4907-971b-e0fae376457d",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "rule_candidates_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "给栈出练习题",
+            "topic": "栈",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "bd2f46d4-3609-4907-971b-e0fae376457d",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "栈"
+            }
+          },
+          {
+            "id": "s2",
+            "segment": "给链表出练习题",
+            "topic": "链表",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "bd2f46d4-3609-4907-971b-e0fae376457d",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "链表"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [
+          "规则候选需由执行器核验",
+          "semantic_understanding_unavailable"
+        ],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": null
+      },
+      "error": "AssertionError: Model understanding was unavailable"
+    },
+    {
+      "goal": "给归并排序出练习题，给快速排序出练习题",
+      "passed": false,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "6fda68ba-a31a-4d54-83d2-6890e8f3dc6d",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "rule_candidates_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "给归并排序出练习题",
+            "topic": "归并排序",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "6fda68ba-a31a-4d54-83d2-6890e8f3dc6d",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "归并排序"
+            }
+          },
+          {
+            "id": "s2",
+            "segment": "给快速排序出练习题",
+            "topic": "快速排序",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "6fda68ba-a31a-4d54-83d2-6890e8f3dc6d",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "快速排序"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [
+          "规则候选需由执行器核验",
+          "semantic_understanding_unavailable"
+        ],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": null
+      },
+      "error": "AssertionError: Model understanding was unavailable"
+    },
+    {
+      "goal": "栈和队列各生成讲解，不要练习题",
+      "passed": false,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "ae74b210-db08-41ec-b22d-b46ada4f9484",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "rule_candidates_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "队列各生成讲解",
+            "topic": "队列各",
+            "tools": [
+              "generate_explanation"
+            ],
+            "source_message_id": "ae74b210-db08-41ec-b22d-b46ada4f9484",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "队列各"
+            }
+          }
+        ],
+        "exclusions": [
+          "generate_quiz"
+        ],
+        "uncertainty": [
+          "规则候选需由执行器核验",
+          "semantic_understanding_unavailable"
+        ],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": null
+      },
+      "error": "AssertionError: Model understanding was unavailable"
+    },
+    {
+      "goal": "给二叉树出练习题\n学生最新修订（优先于之前要求）：改成队列的练习题",
+      "passed": false,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "00b77a53-de74-4745-a8c4-fc75d314a92b",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "rule_candidates_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "给二叉树出练习题\n学生最新修订（优先于之前要求）：改成队列的练习题",
+            "topic": "二叉树 学生最新修订（优先于之前要求）：改成队列",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "00b77a53-de74-4745-a8c4-fc75d314a92b",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "二叉树 学生最新修订（优先于之前要求）：改成队列"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [
+          "规则候选需由执行器核验",
+          "semantic_understanding_unavailable"
+        ],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": null
+      },
+      "error": "AssertionError: Model understanding was unavailable"
+    }
+  ]
+}

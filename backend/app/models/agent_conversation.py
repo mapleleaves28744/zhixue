@@ -33,6 +33,7 @@ class AgentConversation(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False, server_default=text("'新对话'"))
     status: Mapped[str] = mapped_column(String(32), nullable=False, server_default=text("'active'"))
     summary: Mapped[str | None] = mapped_column(Text)
+    next_message_sequence: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
     extra_meta: Mapped[dict[str, Any]] = mapped_column(
         JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
@@ -51,6 +52,9 @@ class AgentMessage(Base):
         Index("idx_agent_messages_conversation_created", "conversation_id", "created_at"),
         Index("idx_agent_messages_user_id", "user_id"),
         Index("idx_agent_messages_task_id", "task_id"),
+        Index("uq_agent_messages_conversation_request", "conversation_id", "client_request_id", unique=True,
+              postgresql_where=text("client_request_id IS NOT NULL")),
+        UniqueConstraint("conversation_id", "sequence_no", name="uq_agent_messages_conversation_sequence"),
     )
 
     id: Mapped[UUID] = mapped_column(
@@ -67,6 +71,8 @@ class AgentMessage(Base):
     task_id: Mapped[UUID | None] = mapped_column(
         PgUUID(as_uuid=True), ForeignKey("agent_tasks.id", ondelete="SET NULL")
     )
+    client_request_id: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True))
+    sequence_no: Mapped[int] = mapped_column(Integer, nullable=False)
     role: Mapped[str] = mapped_column(String(32), nullable=False)
     message_type: Mapped[str] = mapped_column(
         String(64), nullable=False, server_default=text("'text'")

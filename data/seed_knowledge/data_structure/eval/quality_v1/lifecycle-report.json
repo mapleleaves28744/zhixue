@@ -1,0 +1,249 @@
+{
+  "finished_at": "2026-10-01T05:33:32.271657+00:00",
+  "type": "deterministic PostgreSQL service integration, not blind/model evaluation",
+  "evaluation_user_id": "64cfad35-b7ef-43ad-814b-b3c8a5c2b619",
+  "passed": 60,
+  "total": 60,
+  "results": [
+    {
+      "id": "forget_synonym_1",
+      "passed": true
+    },
+    {
+      "id": "forget_synonym_2",
+      "passed": true
+    },
+    {
+      "id": "forget_synonym_3",
+      "passed": true
+    },
+    {
+      "id": "forget_synonym_4",
+      "passed": true
+    },
+    {
+      "id": "forget_synonym_5",
+      "passed": true
+    },
+    {
+      "id": "forget_synonym_6",
+      "passed": true
+    },
+    {
+      "id": "source_dedup_1",
+      "passed": true
+    },
+    {
+      "id": "source_dedup_2",
+      "passed": true
+    },
+    {
+      "id": "source_dedup_3",
+      "passed": true
+    },
+    {
+      "id": "source_dedup_4",
+      "passed": true
+    },
+    {
+      "id": "source_dedup_5",
+      "passed": true
+    },
+    {
+      "id": "source_dedup_6",
+      "passed": true
+    },
+    {
+      "id": "confirm_conflict_1",
+      "passed": true
+    },
+    {
+      "id": "confirm_conflict_2",
+      "passed": true
+    },
+    {
+      "id": "confirm_conflict_3",
+      "passed": true
+    },
+    {
+      "id": "confirm_conflict_4",
+      "passed": true
+    },
+    {
+      "id": "confirm_conflict_5",
+      "passed": true
+    },
+    {
+      "id": "confirm_conflict_6",
+      "passed": true
+    },
+    {
+      "id": "archive_1",
+      "passed": true
+    },
+    {
+      "id": "archive_2",
+      "passed": true
+    },
+    {
+      "id": "archive_3",
+      "passed": true
+    },
+    {
+      "id": "archive_4",
+      "passed": true
+    },
+    {
+      "id": "archive_5",
+      "passed": true
+    },
+    {
+      "id": "archive_6",
+      "passed": true
+    },
+    {
+      "id": "correct_1",
+      "passed": true
+    },
+    {
+      "id": "correct_2",
+      "passed": true
+    },
+    {
+      "id": "correct_3",
+      "passed": true
+    },
+    {
+      "id": "correct_4",
+      "passed": true
+    },
+    {
+      "id": "correct_5",
+      "passed": true
+    },
+    {
+      "id": "correct_6",
+      "passed": true
+    },
+    {
+      "id": "expired_1",
+      "passed": true
+    },
+    {
+      "id": "expired_2",
+      "passed": true
+    },
+    {
+      "id": "expired_3",
+      "passed": true
+    },
+    {
+      "id": "expired_4",
+      "passed": true
+    },
+    {
+      "id": "expired_5",
+      "passed": true
+    },
+    {
+      "id": "expired_6",
+      "passed": true
+    },
+    {
+      "id": "course_overrides_global_1",
+      "passed": true
+    },
+    {
+      "id": "course_overrides_global_2",
+      "passed": true
+    },
+    {
+      "id": "course_overrides_global_3",
+      "passed": true
+    },
+    {
+      "id": "course_overrides_global_4",
+      "passed": true
+    },
+    {
+      "id": "course_overrides_global_5",
+      "passed": true
+    },
+    {
+      "id": "course_overrides_global_6",
+      "passed": true
+    },
+    {
+      "id": "foreign_related_1",
+      "passed": true
+    },
+    {
+      "id": "foreign_related_2",
+      "passed": true
+    },
+    {
+      "id": "foreign_related_3",
+      "passed": true
+    },
+    {
+      "id": "foreign_related_4",
+      "passed": true
+    },
+    {
+      "id": "foreign_related_5",
+      "passed": true
+    },
+    {
+      "id": "foreign_related_6",
+      "passed": true
+    },
+    {
+      "id": "scope_isolation_1",
+      "passed": true
+    },
+    {
+      "id": "scope_isolation_2",
+      "passed": true
+    },
+    {
+      "id": "scope_isolation_3",
+      "passed": true
+    },
+    {
+      "id": "scope_isolation_4",
+      "passed": true
+    },
+    {
+      "id": "scope_isolation_5",
+      "passed": true
+    },
+    {
+      "id": "scope_isolation_6",
+      "passed": true
+    },
+    {
+      "id": "evidence_1",
+      "passed": true
+    },
+    {
+      "id": "evidence_2",
+      "passed": true
+    },
+    {
+      "id": "evidence_3",
+      "passed": true
+    },
+    {
+      "id": "evidence_4",
+      "passed": true
+    },
+    {
+      "id": "evidence_5",
+      "passed": true
+    },
+    {
+      "id": "evidence_6",
+      "passed": true
+    }
+  ]
+}

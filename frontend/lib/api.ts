@@ -1,7 +1,7 @@
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000"
 const API_BASE_OVERRIDE_KEY = "zhixue_api_base"
 
-function getRuntimeApiBaseUrl(): string {
+export function getRuntimeApiBaseUrl(): string {
   if (typeof window === "undefined") {
     return API_BASE_URL
   }

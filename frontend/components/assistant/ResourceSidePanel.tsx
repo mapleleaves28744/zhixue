@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { getResourceTypeLabel, normalizeResourceType, RESOURCE_CATEGORY_OPTIONS } from "@/lib/resourceTypes"
 import { generateResource, getResource, listResources } from "@/services/resourceService"
-import type { GeneratedResource, ResourceType } from "@/types/resource"
+import type { GeneratedResource, GeneratedResourceListItem, ResourceType } from "@/types/resource"
 import { cn } from "@/lib/utils"
 
 const LAST_RESOURCE_KEY = "zhixue_last_resource_id"
@@ -32,7 +32,7 @@ export function ResourceSidePanel({
   const [resourceType, setResourceType] = useState<ResourceType>("explanation")
   const [requirement, setRequirement] = useState("")
   const [generating, setGenerating] = useState(false)
-  const [history, setHistory] = useState<GeneratedResource[]>([])
+  const [history, setHistory] = useState<GeneratedResourceListItem[]>([])
   const [selected, setSelected] = useState<GeneratedResource | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [page, setPage] = useState(1)
@@ -41,7 +41,7 @@ export function ResourceSidePanel({
   const [activeMediaJobId, setActiveMediaJobId] = useState<string | null>(null)
 
   const fetchPage = useCallback(
-    async (targetPage: number, restoreLast = false, targetType: ResourceType = resourceType) => {
+    async (targetPage: number, targetType: ResourceType = resourceType) => {
       if (!courseId) return
       try {
         let data = await listResources({
@@ -70,21 +70,6 @@ export function ResourceSidePanel({
         setHistory(data.items)
         setTotal(data.total)
 
-        const lastId = localStorage.getItem(`${LAST_RESOURCE_KEY}_${courseId}`)
-        if (restoreLast && lastId) {
-          try {
-            const resource = await getResource(lastId)
-            if ((normalizeResourceType(resource.resource_type) ?? resourceType) === targetType) {
-              setSelected(resource)
-            } else if (data.items[0]) {
-              setSelected(data.items[0])
-            }
-          } catch {
-            if (data.items[0]) setSelected(data.items[0])
-          }
-        } else if (restoreLast && data.items[0]) {
-          setSelected(data.items[0])
-        }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "加载资源历史失败")
       }
@@ -94,12 +79,12 @@ export function ResourceSidePanel({
 
   useEffect(() => {
     setPage(1)
-    void fetchPage(1, true, resourceType)
+    void fetchPage(1, resourceType)
   }, [fetchPage, resourceType])
 
   useEffect(() => {
     if (page === 1) return
-    void fetchPage(page, false, resourceType)
+    void fetchPage(page, resourceType)
   }, [page, fetchPage, resourceType])
 
   useEffect(() => {
@@ -113,11 +98,11 @@ export function ResourceSidePanel({
     if (nextType && nextType !== resourceType) {
       setResourceType(nextType)
       setPage(1)
-      void fetchPage(1, false, nextType)
+      void fetchPage(1, nextType)
       return
     }
     setPage(1)
-    void fetchPage(1, false, resourceType)
+    void fetchPage(1, resourceType)
   }, [refreshSignal, highlightResourceType, fetchPage, resourceType])
 
   const handleGenerate = async () => {
@@ -165,7 +150,7 @@ export function ResourceSidePanel({
       } else {
         toast.success(`资源生成成功，已放入「${getResourceTypeLabel(nextType)}」分类`)
       }
-      await fetchPage(1, false, nextType)
+      await fetchPage(1, nextType)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "生成失败")
     } finally {
@@ -173,7 +158,7 @@ export function ResourceSidePanel({
     }
   }
 
-  const openResource = async (resource: GeneratedResource) => {
+  const openResource = async (resource: GeneratedResourceListItem) => {
     try {
       const detail = await getResource(resource.id)
       setSelected(detail)

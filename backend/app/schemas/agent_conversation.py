@@ -32,6 +32,8 @@ class AgentConversationRead(BaseModel):
 
 class AgentMessageCreateRequest(BaseModel):
     content: str = Field(min_length=1, max_length=5000)
+    client_request_id: UUID | None = None
+    revises_task_id: UUID | None = None
     tool_hints: list[str] = Field(default_factory=list, max_length=10)
     skip_tools: list[str] = Field(default_factory=list, max_length=10)
 
@@ -43,6 +45,8 @@ class AgentMessageRead(BaseModel):
     conversation_id: UUID
     user_id: UUID
     task_id: UUID | None = None
+    client_request_id: UUID | None = None
+    sequence_no: int = 0
     role: str
     message_type: str
     content: str

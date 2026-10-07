@@ -21,13 +21,14 @@ class AgentTaskRepository:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
-    async def list_orphaned_queued_tasks(self, *, limit: int = 20) -> list[AgentTask]:
+    async def list_orphaned_queued_tasks(self, *, limit: int = 20, user_id: UUID | None = None) -> list[AgentTask]:
         result = await self.db.execute(
             select(AgentTask)
             .where(
                 AgentTask.status == "queued",
                 AgentTask.started_at.is_(None),
                 AgentTask.runtime_mode == "langgraph",
+                *([AgentTask.user_id == user_id] if user_id is not None else []),
             )
             .order_by(AgentTask.created_at.asc())
             .limit(limit)
@@ -46,11 +47,12 @@ class AgentTaskRepository:
         )
         return result.rowcount == 1
 
-    async def list_stale_running_tasks(self, *, older_than: datetime, limit: int = 20) -> list[AgentTask]:
+    async def list_stale_running_tasks(self, *, older_than: datetime, limit: int = 20, user_id: UUID | None = None) -> list[AgentTask]:
         result = await self.db.execute(
             select(AgentTask)
             .where(
                 AgentTask.status == "running",
+                *([AgentTask.user_id == user_id] if user_id is not None else []),
                 AgentTask.runtime_mode == "langgraph",
                 or_(
                     AgentTask.last_event_at.is_(None),
@@ -158,6 +160,11 @@ class AgentTaskRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_step_by_operation(self, task_id: UUID, key: str) -> AgentTaskStep | None:
+        return (await self.db.execute(select(AgentTaskStep).where(
+            AgentTaskStep.task_id == task_id, AgentTaskStep.operation_key == key,
+        ))).scalar_one_or_none()
+
     async def create_dynamic_step(
         self,
         *,
@@ -175,6 +182,7 @@ class AgentTaskRepository:
         error_message: str | None,
         retry_count: int,
         decision_summary: str | None = None,
+        operation_key: str | None = None,
     ) -> AgentTaskStep:
         step = AgentTaskStep(
             task_id=task_id,
@@ -182,6 +190,7 @@ class AgentTaskRepository:
             agent_name=agent_name,
             action=action,
             tool_call_id=tool_call_id,
+            operation_key=operation_key,
             iteration_no=iteration_no,
             node_name="execute_tool",
             status=status,

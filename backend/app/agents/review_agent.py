@@ -48,6 +48,7 @@ class ReviewAgent(BaseAgent):
             ReviewOutput,
             temperature=0.3,
             max_tokens=2048,
+            max_retries=0,
         )
         if structured is not None:
             review = structured.to_dict()
@@ -118,8 +119,8 @@ class ReviewAgent(BaseAgent):
             risk_level = "low"
 
         return {
-            "pass": True,
+            "pass": False,
             "risk_level": risk_level,
-            "issues": [],
+            "issues": ["审查结果无法解析，请人工复核。"],
             "revision_suggestions": content[:300],
         }

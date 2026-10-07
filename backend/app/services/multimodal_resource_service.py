@@ -10,6 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agent_runtime.tools import ToolContext
 from app.core.config import settings
+from app.core.error_codes import ErrorCode
+from app.core.exceptions import BusinessException
 from app.llm.multimodal_provider import build_multimodal_provider, uses_real_image_generation
 from app.models.user import User
 from app.repositories.media_repository import MediaRepository
@@ -178,6 +180,12 @@ class MultimodalResourceService:
         resource_type: str = "video",
         tool_context: ToolContext | None = None,
     ) -> dict[str, Any]:
+        if not settings.learning_video_enabled:
+            raise BusinessException(
+                code=ErrorCode.PARAM_ERROR,
+                detail="讲解视频和动画生成功能已下线。",
+                status_code=410,
+            )
         await CourseService(self.db).get_readable_course(course_id, current_user)
         brief = await MultimodalBriefService(self.db).build_brief(
             current_user=current_user,

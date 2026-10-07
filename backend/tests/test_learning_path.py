@@ -117,6 +117,23 @@ class TestLearningPathSchemas:
 # ---------------------------------------------------------------------------
 
 class TestPlannerAgentRules:
+    def test_build_rule_items_accepts_string_weak_points(self) -> None:
+        from app.agents.planner_agent import PlannerAgent
+
+        agent = PlannerAgent.__new__(PlannerAgent)
+        items = agent._build_rule_items(
+            knowledge_points=[
+                {"id": "kp-1", "name": "排序", "sort_order": 1},
+                {"id": "kp-2", "name": "图", "sort_order": 2},
+            ],
+            weak_points=["图"],
+            mastery_snapshot={},
+            target_knowledge_ids=set(),
+            learning_goal="复习图",
+        )
+
+        assert items[0]["knowledge_id"] == "kp-2"
+
     def test_build_rule_items_selects_weak_points_first(self) -> None:
         from app.agents.planner_agent import PlannerAgent
 
@@ -263,6 +280,24 @@ async def _test_planner_agent_missing_goal_returns_error() -> None:
 # ---------------------------------------------------------------------------
 
 class TestLearningPathServiceHelpers:
+    def test_rule_plan_items_accepts_string_weak_points(self) -> None:
+        from app.services.learning_path_service import LearningPathService
+
+        svc = LearningPathService.__new__(LearningPathService)
+        points = [
+            SimpleNamespace(id=uuid4(), name="排序", sort_order=1),
+            SimpleNamespace(id=uuid4(), name="图", sort_order=2),
+        ]
+        items = svc._rule_plan_items(
+            goal="复习图",
+            target_knowledge_ids=[],
+            weak_points=["图"],
+            mastery_snapshot={},
+            knowledge_points=points,
+        )
+
+        assert items[0]["knowledge_id"] == str(points[1].id)
+
     def test_mastery_for_normalizes_percentage(self) -> None:
         from app.services.learning_path_service import LearningPathService
 

@@ -23,6 +23,15 @@ def register_knowledge_tools(
     def include(name: str) -> bool:
         return not selected or name in selected
 
+    async def search_history(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
+        from app.services.conversation_history_service import ConversationHistoryService
+
+        items = await ConversationHistoryService(db).search(
+            user_id=current_user.id, course_id=context.course_id, query=str(arguments["query"]),
+            conversation_id=context.conversation_id, task_id=context.task_id,
+        )
+        return ToolExecutionResult(output={"items": items}, evidence=items)
+
     async def search_knowledge(context: ToolContext, arguments: dict[str, Any]) -> ToolExecutionResult:
         from app.services.knowledge_search_service import KnowledgeSearchService
 
@@ -130,6 +139,8 @@ def register_knowledge_tools(
 
     if include("search_course_knowledge"):
         register_tool(registry, "search_course_knowledge", "使用向量、关键词、metadata 和 rerank 混合检索课程资料，返回可引用片段。", "KnowledgeAgent", {"query": {"type": "string"}, "top_k": {"type": "integer", "minimum": 1, "maximum": 20}}, ["query"], search_knowledge)
+    if include("search_conversation_history"):
+        register_tool(registry, "search_conversation_history", "搜索本人当前课程的历史对话原文，返回有界摘录与消息来源；仅在近期上下文不足时读取。", "KnowledgeAgent", {"query": {"type": "string", "minLength": 1, "maxLength": 120}}, ["query"], search_history)
     if include("search_web"):
         register_tool(registry, "search_web", "通过 AnySearch 联网搜索互联网实时信息，返回可引用的网页标题、URL 与摘要。适用于最新资讯、公开资料、技术文档等课程库未覆盖的问题。", "KnowledgeAgent", {"query": {"type": "string", "description": "搜索关键词或完整问题"}, "max_results": {"type": "integer", "minimum": 1, "maximum": 10}, "domain": {"type": "string", "description": "可选垂直领域，如 general/academic/code/finance"}}, ["query"], search_web, timeout_seconds=45)
     if include("parse_uploaded_document"):

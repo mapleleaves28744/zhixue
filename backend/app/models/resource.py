@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
-from sqlalchemy import DateTime, ForeignKey, Index, String, Text, func, text
+from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, Text, func, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -27,6 +27,7 @@ class GeneratedResource(Base):
         Index("idx_generated_resources_user_course", "user_id", "course_id"),
         Index("idx_generated_resources_knowledge_id", "knowledge_id"),
         Index("idx_generated_resources_type", "resource_type"),
+        Index("idx_generated_resources_previous", "previous_resource_id"),
     )
 
     id: Mapped[UUID] = mapped_column(
@@ -66,6 +67,12 @@ class GeneratedResource(Base):
         PgUUID(as_uuid=True),
         ForeignKey("prompt_versions.id", ondelete="SET NULL"),
     )
+    previous_resource_id: Mapped[UUID | None] = mapped_column(
+        PgUUID(as_uuid=True),
+        ForeignKey("generated_resources.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    revision_no: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("1"))
     status: Mapped[str] = mapped_column(
         String(32),
         nullable=False,
@@ -82,3 +89,6 @@ class GeneratedResource(Base):
     knowledge: Mapped[KnowledgePoint | None] = relationship("KnowledgePoint")
     wiki_page: Mapped[WikiPage | None] = relationship("WikiPage")
     prompt_version: Mapped[PromptVersion | None] = relationship("PromptVersion")
+    previous_resource: Mapped["GeneratedResource | None"] = relationship(
+        "GeneratedResource", remote_side="GeneratedResource.id", foreign_keys=[previous_resource_id],
+    )

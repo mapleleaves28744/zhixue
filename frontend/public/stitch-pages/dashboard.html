@@ -689,11 +689,15 @@
       ]);
       const courses = coursePage.items || [];
       const courseId = courses[0]?.id || await api.resolveCourseId().catch(() => null);
-      const wikiPage = courseId ? await api.listWikiPages(courseId, { pageSize: 20 }).catch(() => ({ items: [] })) : { items: [] };
-      const analytics = courseId && api.learningAnalyticsSummary
-        ? await api.learningAnalyticsSummary(courseId, "week").catch(() => null)
-        : null;
-      const recommendationPage = courseId && api.listRecommendations ? await api.listRecommendations(courseId, { pageSize: 5 }).catch(() => ({ items: [] })) : { items: [] };
+      const [wikiPage, analytics, recommendationPage] = await Promise.all([
+        courseId ? api.listWikiPages(courseId, { pageSize: 20 }).catch(() => ({ items: [] })) : Promise.resolve({ items: [] }),
+        courseId && api.learningAnalyticsSummary
+          ? api.learningAnalyticsSummary(courseId, "week").catch(() => null)
+          : Promise.resolve(null),
+        courseId && api.listRecommendations
+          ? api.listRecommendations(courseId, { pageSize: 5 }).catch(() => ({ items: [] }))
+          : Promise.resolve({ items: [] }),
+      ]);
       const wikiPages = wikiPage.items || [];
       const recommendations = recommendationPage.items || [];
       if (courseId && recommendations.length) {
@@ -708,7 +712,7 @@
       const runs = runsPage.items || [];
       setStatCards({ courses: courses.length, mastery, wiki: wikiPages.length, agents: runs.length });
       setKnowledgeCards(profile, wikiPages);
-      await renderDashboardKnowledgeGraph(courseId);
+      void renderDashboardKnowledgeGraph(courseId);
       renderDashboardTrendChart(analytics);
       setProfileCard(profile, preferences);
       setTasksAndReminders(courses, wikiPages, runs, recommendations, courseId);

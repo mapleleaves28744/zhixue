@@ -34,6 +34,15 @@ class ChunkRepository:
         )
         return list(result.scalars().all())
 
+    async def list_preview_by_material(self, material_id: UUID, *, limit: int = 5) -> list[DocumentChunk]:
+        result = await self.db.execute(
+            select(DocumentChunk)
+            .where(DocumentChunk.material_id == material_id)
+            .order_by(DocumentChunk.chunk_index)
+            .limit(min(max(limit, 1), 10))
+        )
+        return list(result.scalars().all())
+
     async def list_by_course(self, course_id: UUID) -> list[DocumentChunk]:
         result = await self.db.execute(
             select(DocumentChunk)

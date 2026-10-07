@@ -31,10 +31,12 @@ from app.services.agent_log_service import AgentLogService
 from app.services.citation_validator import CitationValidator
 from app.services.conversation_intent import is_simple_greeting, simple_greeting_answer
 from app.services.course_service import CourseService
+from app.services.conversation_context_service import ConversationContext, ConversationContextService
 from app.services.evidence_retrieval_service import EvidenceRetrievalService
 from app.services.learning_record_service import LearningRecordService
 from app.services.personalization_context_service import PersonalizationContextService
 from app.services.prompt_service import PromptService
+from app.services.tutor_request_service import TutorClaim, TutorRequestService
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +58,7 @@ class StreamProviderMetadata:
 
 
 class GroundedQaPipeline:
-    def __init__(self, db: AsyncSession) -> None:
+    def __init__(self, db: AsyncSession, *, request_claim: TutorClaim | None = None) -> None:
         self.db = db
         self.retrieval = EvidenceRetrievalService(db)
         self.validator = CitationValidator()
@@ -64,6 +66,7 @@ class GroundedQaPipeline:
         self.conversations = AgentConversationRepository(db)
         self.logs = AgentLogService(db)
         self._agent_run_id: UUID | None = None
+        self.request_claim = request_claim
 
     async def answer(
         self,
@@ -99,6 +102,11 @@ class GroundedQaPipeline:
             "data": {"stage": "retrieve_context", "message": "正在检索课程依据"},
         }
         course = await self._authorize(payload, current_user)
+        context = await ConversationContextService(self.db).load(
+            conversation_id=payload.conversation_id,
+            user_id=current_user.id,
+            course_id=course.id,
+        ) if payload.conversation_id else ConversationContext()
         if is_simple_greeting(payload.question):
             yield {
                 "event": "progress",
@@ -133,7 +141,8 @@ class GroundedQaPipeline:
         self._agent_run_id = run.id if run is not None else None
         try:
             retrieval_started = perf_counter()
-            bundle = await self._retrieve(payload, current_user)
+            retrieval_payload = payload.model_copy(update={"question": context.resolve_query(payload.question)})
+            bundle = await self._retrieve(retrieval_payload, current_user)
             retrieval_ms = int((perf_counter() - retrieval_started) * 1000)
             yield {"event": "evidence", "data": self._evidence_event(bundle)}
             yield {
@@ -144,13 +153,13 @@ class GroundedQaPipeline:
                 },
             }
             provider, prompt, prompt_version_id = await self._build_generation(
-                bundle, payload, current_user
+                bundle, payload, current_user, context=context
             )
             chunks: list[str] = []
             first_token_ms: int | None = None
             generation_started = perf_counter()
             async for chunk in provider.stream_chat(
-                [ChatMessage(role="user", content=prompt)],
+                context.messages_for(prompt),
                 temperature=0.2,
                 max_tokens=1200,
                 thinking={"type": "disabled"},
@@ -209,6 +218,11 @@ class GroundedQaPipeline:
     ) -> tuple[TutorChatResponse, Course]:
         started = perf_counter()
         course = await self._authorize(payload, current_user)
+        context = await ConversationContextService(self.db).load(
+            conversation_id=payload.conversation_id,
+            user_id=current_user.id,
+            course_id=course.id,
+        ) if payload.conversation_id else ConversationContext()
         if is_simple_greeting(payload.question):
             return self._greeting_response(started, agent_run_id), course
 
@@ -225,14 +239,15 @@ class GroundedQaPipeline:
         self._agent_run_id = agent_run_id
         try:
             retrieval_started = perf_counter()
-            bundle = await self._retrieve(payload, current_user)
+            retrieval_payload = payload.model_copy(update={"question": context.resolve_query(payload.question)})
+            bundle = await self._retrieve(retrieval_payload, current_user)
             retrieval_ms = int((perf_counter() - retrieval_started) * 1000)
             provider, prompt, prompt_version_id = await self._build_generation(
-                bundle, payload, current_user
+                bundle, payload, current_user, context=context
             )
             generation_started = perf_counter()
             llm_response = await provider.chat(
-                [ChatMessage(role="user", content=prompt)],
+                context.messages_for(prompt),
                 temperature=0.2,
                 max_tokens=1200,
                 thinking={"type": "disabled"},
@@ -521,6 +536,8 @@ class GroundedQaPipeline:
             rollback = getattr(self.db, "rollback", None)
             if rollback is not None:
                 await rollback()
+            if payload.client_request_id is not None:
+                raise
             return PersistedChatWrite(None, payload.conversation_id)
 
     async def _publish_postprocess(
@@ -593,10 +610,12 @@ class GroundedQaPipeline:
         bundle: EvidenceBundle,
         payload: TutorChatRequest,
         current_user: User,
+        *,
+        context: ConversationContext | None = None,
     ) -> tuple[object, str, UUID | None]:
         if payload.use_profile:
             personalization = await PersonalizationContextService(self.db).get_context(
-                current_user.id, payload.course_id
+                current_user.id, payload.course_id, question=payload.question,
             )
             student_profile = PersonalizationContextService.format_profile_for_prompt(
                 personalization
@@ -681,7 +700,8 @@ class GroundedQaPipeline:
         conversation = None
         if persist_conversation_messages:
             if payload.conversation_id is not None:
-                conversation = await self.conversations.get_for_user(
+                getter = self.conversations.get_for_user_locked if self.request_claim else self.conversations.get_for_user
+                conversation = await getter(
                     payload.conversation_id, current_user.id
                 )
                 if conversation is None:
@@ -694,13 +714,17 @@ class GroundedQaPipeline:
                     course_id=course.id,
                     title=payload.question[:80],
                 )
+            await TutorRequestService(self.db).assert_owner(self.request_claim)
             await self.conversations.add_message(
                 conversation=conversation,
                 user_id=current_user.id,
                 role="user",
                 content=payload.question,
                 message_type="text",
-                payload={"course_id": str(course.id)},
+                payload={
+                    "course_id": str(course.id),
+                    "client_request_id": str(payload.client_request_id) if payload.client_request_id else None,
+                },
             )
 
         response_payload = response.model_dump(mode="json")
@@ -727,6 +751,7 @@ class GroundedQaPipeline:
                 role="assistant",
                 content=response.answer,
                 message_type="tutor",
+                client_request_id=payload.client_request_id,
                 payload=assistant_payload,
             )
 

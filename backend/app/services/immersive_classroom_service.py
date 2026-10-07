@@ -42,6 +42,12 @@ class ImmersiveClassroomService:
         enable_tts: bool = True,
         tool_context: ToolContext | None = None,
     ) -> dict[str, Any]:
+        if not settings.learning_video_enabled:
+            raise BusinessException(
+                code=ErrorCode.PARAM_ERROR,
+                detail="OpenMAIC 沉浸课堂生成功能已下线。",
+                status_code=410,
+            )
         if not settings.openmaic_enabled:
             raise BusinessException(
                 code=ErrorCode.PARAM_ERROR,

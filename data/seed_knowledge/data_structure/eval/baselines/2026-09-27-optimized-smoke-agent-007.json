@@ -1,0 +1,64 @@
+{
+  "generated_at": "2026-09-27T05:20:24.910180+00:00",
+  "provider": "compatible",
+  "model": "mimo-v2.6-flash",
+  "scenario_file": "C:\\Users\\28744\\Desktop\\zhixue\\data\\seed_knowledge\\data_structure\\eval\\agent_runtime_scenarios.yml",
+  "provider_policy": "OpenAI-compatible real provider; Agent Runtime disables Mock fallback",
+  "summary": {
+    "scenario_count": 1,
+    "passed_count": 0,
+    "task_completion_rate": 0.0,
+    "scenario_pass_rate": 0.0,
+    "tool_selection_accuracy": 0.0,
+    "high_risk_interception_rate": null,
+    "replan_success_rate": null,
+    "duplicate_write_count": null,
+    "cross_user_leak_count": null,
+    "unmeasured_metrics": [
+      "duplicate_write_count",
+      "cross_user_leak_count"
+    ]
+  },
+  "results": [
+    {
+      "id": "agent-007",
+      "category": "resource",
+      "goal": "为初学者生成一份链表删除操作的讲解资料。",
+      "task_id": "2ad5821d-69db-4621-8ac6-e91a93be7c76",
+      "status": "failed",
+      "passed": false,
+      "planned_tools": [
+        "search_course_knowledge",
+        "generate_explanation"
+      ],
+      "attempted_tools": [
+        "search_course_knowledge",
+        "generate_explanation"
+      ],
+      "actual_tools": [
+        "search_course_knowledge"
+      ],
+      "expected_any_tools": [
+        "generate_explanation"
+      ],
+      "expected_tool_groups": [],
+      "tool_match": false,
+      "forbidden_tools": [],
+      "citation_count": 0,
+      "iteration_count": 1,
+      "tool_call_count": 1,
+      "replan_count": 0,
+      "event_types": [
+        "queued",
+        "planning",
+        "plan_created",
+        "tool_started",
+        "tool_completed",
+        "observation",
+        "tool_started",
+        "failed"
+      ],
+      "error_message": "greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)"
+    }
+  ]
+}

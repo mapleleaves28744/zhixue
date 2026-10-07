@@ -1,0 +1,54 @@
+{
+  "started_at": "2026-10-01T05:08:46.153227+00:00",
+  "scope": "PostgreSQL Service calls; no HTTP/LLM throughput or whole-system chaos claim",
+  "checks": [
+    {
+      "name": "ten_simultaneous_duplicates_one_owner",
+      "passed": true
+    },
+    {
+      "name": "process_exit_lease_reclaim_stale_owner_fenced",
+      "passed": true
+    },
+    {
+      "name": "response_committed_then_process_exit_recovered",
+      "passed": false,
+      "error_type": "RuntimeError",
+      "detail": "Evaluation subprocess failed: 1: ^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\28744\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\base_events.py\", line 664, in run_until_complete\r\n    return future.result()\r\n           ^^^^^^^^^^^^^^^\r\n  Fi"
+    },
+    {
+      "name": "failed_request_can_retry",
+      "passed": true
+    },
+    {
+      "name": "new_process_runs_scoped_worker_startup_recovery",
+      "passed": true
+    }
+  ],
+  "load": [
+    {
+      "concurrency": 1,
+      "requests": 100,
+      "passed": 100,
+      "seconds": 0.938,
+      "errors": []
+    },
+    {
+      "concurrency": 5,
+      "requests": 100,
+      "passed": 100,
+      "seconds": 0.625,
+      "errors": []
+    },
+    {
+      "concurrency": 10,
+      "requests": 100,
+      "passed": 100,
+      "seconds": 0.656,
+      "errors": []
+    }
+  ],
+  "owner_id": "3a5fc9a1-fead-4d26-ae1d-080049da32c0",
+  "passed": false,
+  "finished_at": "2026-10-01T05:08:54.507547+00:00"
+}

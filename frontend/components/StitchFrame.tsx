@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react"
 import { useEffect, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
+import { getRuntimeApiBaseUrl } from "@/lib/api"
 
 type StitchFrameProps = {
   title: string
@@ -30,9 +31,7 @@ function buildFrameSrc(src: string): string {
   if (typeof window === "undefined") {
     return src
   }
-  const apiBase =
-    process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
-    `${window.location.origin}/api/v1`
+  const apiBase = getRuntimeApiBaseUrl().replace(/\/$/, "")
   const separator = src.includes("?") ? "&" : "?"
   return `${src}${separator}api_base=${encodeURIComponent(apiBase)}`
 }

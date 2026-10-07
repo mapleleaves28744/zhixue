@@ -38,6 +38,8 @@ export interface GeneratedResource {
   personalized_reason?: string | null
   model_name?: string | null
   prompt_version_id?: string | null
+  previous_resource_id?: string | null
+  revision_no?: number
   status: string
   created_at: string
   media_asset_id?: string | null
@@ -52,8 +54,29 @@ export interface GeneratedResource {
   preview_video_mime_type?: string | null
 }
 
+export type GeneratedResourceListItem = Pick<
+  GeneratedResource,
+  | "id"
+  | "user_id"
+  | "course_id"
+  | "knowledge_id"
+  | "wiki_page_id"
+  | "resource_type"
+  | "title"
+  | "personalized_reason"
+  | "previous_resource_id"
+  | "revision_no"
+  | "status"
+  | "created_at"
+  | "content_format"
+  | "preview_mode"
+  | "media_job_id"
+  | "job_status"
+>
+
 export interface ResourceGeneratePayload {
   course_id: string
+  topic?: string | null
   knowledge_id?: string | null
   wiki_page_id?: string | null
   resource_type: ResourceType
@@ -69,6 +92,8 @@ export interface ResourceGenerateResult {
   title: string
   content: string
   citations: ResourceCitation[]
+  previous_resource_id?: string | null
+  revision_no?: number
   personalized_reason?: string | null
   agent_run_id?: string | null
   review_result: Record<string, unknown>

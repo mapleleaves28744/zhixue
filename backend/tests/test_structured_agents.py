@@ -67,6 +67,15 @@ def test_review_output_to_dict_uses_pass_alias() -> None:
     assert "缺少引用" in data["issues"]
 
 
+def test_unparseable_review_is_marked_for_manual_check() -> None:
+    from app.agents.review_agent import ReviewAgent
+
+    result = ReviewAgent.__new__(ReviewAgent)._parse_review("审查结果不完整")
+
+    assert result["pass"] is False
+    assert result["issues"] == ["审查结果无法解析，请人工复核。"]
+
+
 def test_evolution_analysis_rejects_empty_strategy_list() -> None:
     with pytest.raises(ValidationError):
         EvolutionAnalysisOutput.model_validate({"strategies": []})

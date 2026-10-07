@@ -8,6 +8,8 @@ from app.agent_runtime import supervisor_intents
 from app.agent_runtime.supervisor_completion import format_search_output_answer
 from app.agent_runtime.supervisor_policy import safe_arguments
 from app.agent_runtime.supervisor import MiMoSupervisor
+from app.agent_runtime.supervisor_prompt import build_messages
+from app.agent_runtime.state import AgentDecision, PlannedToolCall
 from app.llm.schemas import ChatResponse, ToolCall
 
 
@@ -16,6 +18,122 @@ class DirectCompleteProvider:
         return ChatResponse(
             content='{"status":"complete","summary":"直接完成","final_answer":"这是文字回答。"}'
         )
+
+
+def test_unknown_intent_does_not_choose_first_available_tool() -> None:
+    decision = AgentDecision(
+        status="continue", summary="模型请求未知工具",
+        tool_calls=[PlannedToolCall(id="wrong", name="unknown_tool", arguments={})],
+    )
+    state = {"goal": "随便看看", "observations": [], "tool_hints": [], "skip_tools": []}
+    schemas = [{"function": {"name": "generate_quiz"}}]
+
+    result = MiMoSupervisor(provider=object())._apply_safety_net(state, schemas, decision)
+
+    assert result.status == "replan"
+    assert result.tool_calls == []
+
+
+def test_supervisor_prompt_bounds_old_tool_output_and_keeps_artifact_id() -> None:
+    state = {
+        "goal": "继续生成练习", "messages": [], "tool_calls": [],
+        "observations": [{
+            "tool_name": "generate_quiz", "tool_call_id": "call-1", "success": True,
+            "output": {"content": "大量题目" * 10000},
+            "artifact_refs": [{"type": "quiz", "id": "quiz-42", "title": "标题" * 1000}],
+        }],
+        "artifacts": [{"type": "quiz", "id": "quiz-42", "title": "标题" * 1000}],
+    }
+
+    rendered = build_messages(state)[-1].content
+
+    assert len(rendered) < 4500
+    assert "quiz-42" in rendered
+    assert "大量题目" not in rendered
+
+
+def test_supervisor_tool_result_view_keeps_pair_without_full_output() -> None:
+    state = {
+        "goal": "继续生成练习", "messages": [],
+        "tool_calls": [{"id": "call-1", "name": "generate_quiz", "arguments": {"topic": "栈"}}],
+        "observations": [{
+            "tool_name": "generate_quiz", "tool_call_id": "call-1", "success": True,
+            "output": {"content": "大量题目" * 10000},
+            "artifact_refs": [{"type": "quiz", "id": "quiz-42"}],
+        }],
+    }
+
+    messages = build_messages(state)
+
+    assert messages[-3].role == "assistant"
+    assert messages[-2].role == "tool"
+    assert messages[-2].tool_call_id == "call-1"
+    assert "quiz-42" in messages[-2].content
+    assert "大量题目" not in messages[-2].content
+
+
+@pytest.mark.asyncio
+async def test_clarification_contract_asks_without_calling_provider() -> None:
+    decision = await MiMoSupervisor(provider=object()).decide(
+        {
+            "goal": "再给我五道同类题",
+            "intent_frame_v1": {
+                "mode": "clarify",
+                "clarification_question": "请告诉我要练习哪个知识点。",
+            },
+        },
+        [{"function": {"name": "generate_quiz"}}],
+    )
+
+    assert decision.status == "complete"
+    assert decision.final_answer == "请告诉我要练习哪个知识点。"
+    assert decision.tool_calls == []
+
+
+def test_quiz_count_accepts_chinese_number() -> None:
+    assert safe_arguments("generate_quiz", {}, "给栈出十道练习题")["count"] == 10
+    assert safe_arguments("generate_quiz", {}, "给队列出十二道题")["count"] == 12
+
+
+@pytest.mark.asyncio
+async def test_contract_generation_requires_real_artifact_reference() -> None:
+    state = {
+        "goal": "给栈出练习题", "tool_call_count": 1,
+        "intent_frame_v1": {"tasks": [{"id": "s1", "tools": ["generate_quiz"], "topic": "栈"}]},
+        "observations": [{
+            "tool_call_id": "call-1", "tool_name": "generate_quiz",
+            "success": True, "artifact_refs": [],
+        }],
+    }
+
+    result = await MiMoSupervisor(provider=object()).decide(
+        state, [{"function": {"name": "generate_quiz"}}],
+    )
+
+    assert result.status == "failed"
+    assert result.tool_calls == []
+
+
+@pytest.mark.asyncio
+async def test_repeated_tool_requires_each_topic_artifact() -> None:
+    state = {
+        "goal": "分别生成二叉树和队列的练习题",
+        "tool_call_count": 1,
+        "parsed_intents": [
+            {"topic": "二叉树", "tools": ["generate_quiz"]},
+            {"topic": "队列", "tools": ["generate_quiz"]},
+        ],
+        "tool_calls": [{"id": "call_tree", "name": "generate_quiz", "arguments": {"topic": "二叉树"}}],
+        "observations": [{"tool_call_id": "call_tree", "tool_name": "generate_quiz", "success": True}],
+    }
+    schemas = [{"function": {"name": "generate_quiz"}}]
+
+    decision = await MiMoSupervisor(provider=object()).decide(state, schemas)
+
+    assert decision.status == "continue"
+    assert len(decision.tool_calls) == 1
+    assert decision.tool_calls[0].name == "generate_quiz"
+    assert decision.tool_calls[0].arguments["topic"] == "队列"
 
 
 def test_completion_formats_empty_course_search() -> None:
@@ -85,10 +203,10 @@ async def test_profile_only_decision_keeps_original_plan_text() -> None:
     ("goal", "must_include", "must_exclude"),
     [
         ("生成讲解队列的语音", ["generate_explanation", "synthesize_speech"], []),
-        ("生成队列讲解视频", ["generate_lesson_video"], ["synthesize_speech"]),
-        ("为 BFS 生成沉浸课堂", ["generate_immersive_classroom"], ["generate_lesson_video"]),
-        ("一键生成数据结构课程", ["generate_immersive_classroom"], ["generate_lesson_video"]),
-        ("生成知识点讲解视频和沉浸课堂", ["generate_immersive_classroom"], ["generate_lesson_video"]),
+        ("生成队列讲解视频", [], ["generate_lesson_video", "synthesize_speech"]),
+        ("为 BFS 生成沉浸课堂", [], ["generate_immersive_classroom", "generate_lesson_video"]),
+        ("一键生成数据结构课程", [], ["generate_immersive_classroom", "generate_lesson_video"]),
+        ("生成知识点讲解视频和沉浸课堂", [], ["generate_immersive_classroom", "generate_lesson_video"]),
         ("生成一份练习题", ["generate_quiz"], ["generate_explanation"]),
         ("制定学习计划并生成练习题", ["generate_learning_path", "generate_quiz"], []),
         ("讲解一下队列是什么", ["answer_course_question"], ["generate_explanation"]),
@@ -120,8 +238,6 @@ def test_plan_required_tools_avoids_common_collisions(
     ("goal", "deliverable"),
     [
         ("生成讲解队列的语音", "synthesize_speech"),
-        ("生成队列讲解视频", "generate_lesson_video"),
-        ("为 BFS 生成沉浸课堂", "generate_immersive_classroom"),
         ("生成一份练习题", "generate_quiz"),
         ("生成讲解资料", "generate_explanation"),
         ("应用最新的一条自进化策略", "apply_evolution_strategy"),
@@ -132,11 +248,30 @@ def test_required_deliverables(goal: str, deliverable: str) -> None:
     assert deliverable in supervisor_intents.required_deliverables(goal)
 
 
+def test_retrieval_explanation_and_recommendation_keep_all_required_steps() -> None:
+    goal = "检索二叉树资料，解释核心概念，并推荐下一步学习内容。"
+
+    assert supervisor_intents.plan_required_tools(goal, is_profile_update_only=False) == [
+        "search_course_knowledge", "answer_course_question", "refresh_recommendations"
+    ]
+    assert supervisor_intents.required_deliverables(goal) == [
+        "answer_course_question", "refresh_recommendations"
+    ]
+
+
+def test_artifact_review_does_not_schedule_an_unrequested_search() -> None:
+    goal = "对当前已有学习产物做一次来源、幻觉和风险审查。"
+
+    assert supervisor_intents.plan_required_tools(goal, is_profile_update_only=False) == ["review_artifacts"]
+    assert supervisor_intents.required_deliverables(goal) == ["review_artifacts"]
+    assert supervisor_intents.should_intent_first_route(goal)
+
+
 def test_video_request_excluding_ppt_keeps_video_intent() -> None:
     goal = "请生成 60 秒中文讲解视频，主题是 BFS 为什么使用队列。输出 MP4 视频；不需要任何 PPT 或互动课件。"
 
     assert supervisor_intents.video_intent(goal) is True
-    assert "generate_lesson_video" in supervisor_intents.plan_required_tools(
+    assert "generate_lesson_video" not in supervisor_intents.plan_required_tools(
         goal, is_profile_update_only=False
     )
     assert "generate_interactive_courseware" not in supervisor_intents.plan_required_tools(
@@ -216,7 +351,7 @@ async def test_supervisor_corrects_wrong_video_tool_for_ppt_goal() -> None:
 
 
 @pytest.mark.asyncio
-async def test_supervisor_blocks_text_only_completion_for_video_goal() -> None:
+async def test_supervisor_reports_video_generation_unavailable() -> None:
     supervisor = MiMoSupervisor(provider=DirectCompleteProvider())
     tools = [
         {
@@ -235,8 +370,9 @@ async def test_supervisor_blocks_text_only_completion_for_video_goal() -> None:
         },
         tools,
     )
-    assert decision.status == "continue"
-    assert decision.tool_calls[0].name == "generate_lesson_video"
+    assert decision.status == "complete"
+    assert decision.tool_calls == []
+    assert "已下线" in decision.final_answer
 
 
 @pytest.mark.asyncio

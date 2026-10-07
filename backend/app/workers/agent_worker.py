@@ -4,6 +4,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from arq.connections import RedisSettings
+from arq import cron
 
 from app.core.config import settings
 from app.db.session import AsyncSessionLocal
@@ -16,6 +17,7 @@ from app.workers.immersive_classroom_worker import run_immersive_classroom_job
 from app.workers.classroom_video_export_worker import run_classroom_video_export_job
 from app.services.practice_prepush_service import run_prepush_practice_quiz_job
 from app.services.external_resource_prepush_service import run_prepush_external_feed_job
+from app.services.memory_reflection_service import MemoryReflectionService
 
 
 async def recover_orphaned_agent_tasks(ctx: dict) -> None:
@@ -23,7 +25,11 @@ async def recover_orphaned_agent_tasks(ctx: dict) -> None:
         task_repo = AgentTaskRepository(db)
         conversation_repo = AgentConversationRepository(db)
         stale_cutoff = datetime.now(UTC) - timedelta(minutes=30)
-        stale_tasks = await task_repo.list_stale_running_tasks(older_than=stale_cutoff, limit=50)
+        # Acceptance subprocesses can scope recovery to their isolated owner.
+        # The regular worker retains its existing global recovery behavior.
+        recovery_owner = ctx.get("recovery_user_id")
+        scope = {"user_id": UUID(str(recovery_owner))} if recovery_owner else {}
+        stale_tasks = await task_repo.list_stale_running_tasks(older_than=stale_cutoff, limit=50, **scope)
         for task in stale_tasks:
             message = "Agent 任务长时间无进展，Worker 启动时已自动结束。请重新发起或查看已生成产物。"
             await task_repo.update_task(
@@ -42,7 +48,7 @@ async def recover_orphaned_agent_tasks(ctx: dict) -> None:
             await db.commit()
             print(f"Marked {len(stale_tasks)} stale running agent task(s) as failed")
 
-        tasks = await task_repo.list_orphaned_queued_tasks(limit=50)
+        tasks = await task_repo.list_orphaned_queued_tasks(limit=50, **scope)
         if not tasks:
             return
         recovered = await AgentQueueService().recover_orphaned_tasks([task.id for task in tasks])
@@ -60,6 +66,23 @@ async def resume_agent_task_job(ctx: dict, task_id: str, approved: bool) -> dict
         return await AgentRuntimeService(db).execute(UUID(task_id), approved=approved)
 
 
+async def process_pending_memory_reflections(ctx: dict) -> None:
+    async with AsyncSessionLocal() as db:
+        service = MemoryReflectionService(db)
+        await service.discover_missing(all_scopes=True)
+        for _ in range(5):
+            result = await service.process_next_batch(all_scopes=True)
+            if not result["jobs"]:
+                break
+
+
+async def process_pending_context_summaries(ctx: dict) -> None:
+    from app.services.semantic_summary_service import SemanticSummaryService
+
+    async with AsyncSessionLocal() as db:
+        await SemanticSummaryService(db).process_pending()
+
+
 class WorkerSettings:
     functions = [
         run_agent_task_job,
@@ -71,6 +94,8 @@ class WorkerSettings:
         run_prepush_external_feed_job,
     ]
     on_startup = recover_orphaned_agent_tasks
+    cron_jobs = [cron(process_pending_memory_reflections, second=0),
+                 cron(process_pending_context_summaries, second=30)]
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     max_jobs = settings.agent_worker_concurrency
     job_timeout = 1800

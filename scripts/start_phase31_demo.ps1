@@ -209,7 +209,7 @@ if (-not $SkipMigration) {
 Start-DemoProcess `
     -Name "FastAPI Backend" `
     -WorkingDirectory (Join-Path $Root "backend") `
-    -Command "python -m uvicorn app.main:app --host $HostAddress --port $BackendPort" `
+    -Command "python -m app --host $HostAddress --port $BackendPort" `
     -LogName "phase31-backend"
 
 if (-not $SkipWorker) {

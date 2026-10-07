@@ -1,0 +1,47 @@
+{
+  "scope": "network recovery; observed synthetic cases, not a new blind evaluation",
+  "original_transport_failures": 36,
+  "recovery_attempts": 36,
+  "recovery_transport_failures": 0,
+  "groups": {
+    "no_history": {
+      "total": 16,
+      "passed": 0,
+      "prompt_tokens": 848,
+      "transport_failures": 0
+    },
+    "recent_only": {
+      "total": 16,
+      "passed": 0,
+      "prompt_tokens": 16224,
+      "transport_failures": 0
+    },
+    "raw_history": {
+      "total": 16,
+      "passed": 16,
+      "prompt_tokens": 149612,
+      "transport_failures": 0
+    },
+    "compacted": {
+      "total": 16,
+      "passed": 16,
+      "prompt_tokens": 11740,
+      "transport_failures": 0
+    }
+  },
+  "budget": {
+    "cap": 3000000,
+    "charged_tokens": 1109893,
+    "calls": {
+      "failed": {
+        "count": 36,
+        "charged_tokens": 588807
+      },
+      "succeeded": {
+        "count": 290,
+        "charged_tokens": 521086
+      }
+    },
+    "unknown_usage_policy": "failed/pending/missing usage charged full reservation"
+  }
+}

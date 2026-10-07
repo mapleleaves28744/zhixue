@@ -57,6 +57,7 @@ VALID_RESOURCE_TYPES = {
 
 class ResourceGenerateRequest(BaseModel):
     course_id: UUID
+    topic: str | None = Field(default=None, min_length=1, max_length=240)
     knowledge_id: UUID | None = None
     wiki_page_id: UUID | None = None
     resource_type: str = Field(min_length=1, max_length=64)
@@ -85,6 +86,8 @@ class GeneratedResourceRead(BaseModel):
     personalized_reason: str | None = None
     model_name: str | None = None
     prompt_version_id: UUID | None = None
+    previous_resource_id: UUID | None = None
+    revision_no: int = 1
     status: str
     created_at: datetime
     media_asset_id: UUID | None = None
@@ -97,6 +100,29 @@ class GeneratedResourceRead(BaseModel):
     job_status: str | None = None
     preview_video_asset_id: UUID | None = None
     preview_video_mime_type: str | None = None
+
+
+class GeneratedResourceListItemRead(BaseModel):
+    """Metadata returned by resource collection endpoints; content is fetched on demand."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    user_id: UUID
+    course_id: UUID
+    knowledge_id: UUID | None = None
+    wiki_page_id: UUID | None = None
+    resource_type: str
+    title: str
+    personalized_reason: str | None = None
+    previous_resource_id: UUID | None = None
+    revision_no: int = 1
+    status: str
+    created_at: datetime
+    content_format: str | None = None
+    preview_mode: str | None = None
+    media_job_id: UUID | None = None
+    job_status: str | None = None
 
 
 class ExternalResourceItemRead(BaseModel):
@@ -127,6 +153,8 @@ class ResourceGenerateResponse(BaseModel):
     title: str
     content: str
     citations: list[Any] = Field(default_factory=list)
+    previous_resource_id: UUID | None = None
+    revision_no: int = 1
     personalized_reason: str | None = None
     agent_run_id: UUID | None = None
     review_result: dict[str, Any] = Field(default_factory=dict)

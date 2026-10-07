@@ -1,0 +1,756 @@
+{
+  "finished_at": "2026-09-30T11:21:30.513161+00:00",
+  "type": "development fixtures; no held-out/semantic quality accuracy claim",
+  "rule_passed": 120,
+  "rule_total": 120,
+  "rules": [
+    {
+      "id": "single_1",
+      "passed": true
+    },
+    {
+      "id": "combination_1",
+      "passed": true
+    },
+    {
+      "id": "exclude_1",
+      "passed": true
+    },
+    {
+      "id": "followup_1",
+      "passed": true
+    },
+    {
+      "id": "clarify_1",
+      "passed": true
+    },
+    {
+      "id": "revision_source_1",
+      "passed": true
+    },
+    {
+      "id": "single_2",
+      "passed": true
+    },
+    {
+      "id": "combination_2",
+      "passed": true
+    },
+    {
+      "id": "exclude_2",
+      "passed": true
+    },
+    {
+      "id": "followup_2",
+      "passed": true
+    },
+    {
+      "id": "clarify_2",
+      "passed": true
+    },
+    {
+      "id": "revision_source_2",
+      "passed": true
+    },
+    {
+      "id": "single_3",
+      "passed": true
+    },
+    {
+      "id": "combination_3",
+      "passed": true
+    },
+    {
+      "id": "exclude_3",
+      "passed": true
+    },
+    {
+      "id": "followup_3",
+      "passed": true
+    },
+    {
+      "id": "clarify_3",
+      "passed": true
+    },
+    {
+      "id": "revision_source_3",
+      "passed": true
+    },
+    {
+      "id": "single_4",
+      "passed": true
+    },
+    {
+      "id": "combination_4",
+      "passed": true
+    },
+    {
+      "id": "exclude_4",
+      "passed": true
+    },
+    {
+      "id": "followup_4",
+      "passed": true
+    },
+    {
+      "id": "clarify_4",
+      "passed": true
+    },
+    {
+      "id": "revision_source_4",
+      "passed": true
+    },
+    {
+      "id": "single_5",
+      "passed": true
+    },
+    {
+      "id": "combination_5",
+      "passed": true
+    },
+    {
+      "id": "exclude_5",
+      "passed": true
+    },
+    {
+      "id": "followup_5",
+      "passed": true
+    },
+    {
+      "id": "clarify_5",
+      "passed": true
+    },
+    {
+      "id": "revision_source_5",
+      "passed": true
+    },
+    {
+      "id": "single_6",
+      "passed": true
+    },
+    {
+      "id": "combination_6",
+      "passed": true
+    },
+    {
+      "id": "exclude_6",
+      "passed": true
+    },
+    {
+      "id": "followup_6",
+      "passed": true
+    },
+    {
+      "id": "clarify_6",
+      "passed": true
+    },
+    {
+      "id": "revision_source_6",
+      "passed": true
+    },
+    {
+      "id": "single_7",
+      "passed": true
+    },
+    {
+      "id": "combination_7",
+      "passed": true
+    },
+    {
+      "id": "exclude_7",
+      "passed": true
+    },
+    {
+      "id": "followup_7",
+      "passed": true
+    },
+    {
+      "id": "clarify_7",
+      "passed": true
+    },
+    {
+      "id": "revision_source_7",
+      "passed": true
+    },
+    {
+      "id": "single_8",
+      "passed": true
+    },
+    {
+      "id": "combination_8",
+      "passed": true
+    },
+    {
+      "id": "exclude_8",
+      "passed": true
+    },
+    {
+      "id": "followup_8",
+      "passed": true
+    },
+    {
+      "id": "clarify_8",
+      "passed": true
+    },
+    {
+      "id": "revision_source_8",
+      "passed": true
+    },
+    {
+      "id": "single_9",
+      "passed": true
+    },
+    {
+      "id": "combination_9",
+      "passed": true
+    },
+    {
+      "id": "exclude_9",
+      "passed": true
+    },
+    {
+      "id": "followup_9",
+      "passed": true
+    },
+    {
+      "id": "clarify_9",
+      "passed": true
+    },
+    {
+      "id": "revision_source_9",
+      "passed": true
+    },
+    {
+      "id": "single_10",
+      "passed": true
+    },
+    {
+      "id": "combination_10",
+      "passed": true
+    },
+    {
+      "id": "exclude_10",
+      "passed": true
+    },
+    {
+      "id": "followup_10",
+      "passed": true
+    },
+    {
+      "id": "clarify_10",
+      "passed": true
+    },
+    {
+      "id": "revision_source_10",
+      "passed": true
+    },
+    {
+      "id": "single_11",
+      "passed": true
+    },
+    {
+      "id": "combination_11",
+      "passed": true
+    },
+    {
+      "id": "exclude_11",
+      "passed": true
+    },
+    {
+      "id": "followup_11",
+      "passed": true
+    },
+    {
+      "id": "clarify_11",
+      "passed": true
+    },
+    {
+      "id": "revision_source_11",
+      "passed": true
+    },
+    {
+      "id": "single_12",
+      "passed": true
+    },
+    {
+      "id": "combination_12",
+      "passed": true
+    },
+    {
+      "id": "exclude_12",
+      "passed": true
+    },
+    {
+      "id": "followup_12",
+      "passed": true
+    },
+    {
+      "id": "clarify_12",
+      "passed": true
+    },
+    {
+      "id": "revision_source_12",
+      "passed": true
+    },
+    {
+      "id": "single_13",
+      "passed": true
+    },
+    {
+      "id": "combination_13",
+      "passed": true
+    },
+    {
+      "id": "exclude_13",
+      "passed": true
+    },
+    {
+      "id": "followup_13",
+      "passed": true
+    },
+    {
+      "id": "clarify_13",
+      "passed": true
+    },
+    {
+      "id": "revision_source_13",
+      "passed": true
+    },
+    {
+      "id": "single_14",
+      "passed": true
+    },
+    {
+      "id": "combination_14",
+      "passed": true
+    },
+    {
+      "id": "exclude_14",
+      "passed": true
+    },
+    {
+      "id": "followup_14",
+      "passed": true
+    },
+    {
+      "id": "clarify_14",
+      "passed": true
+    },
+    {
+      "id": "revision_source_14",
+      "passed": true
+    },
+    {
+      "id": "single_15",
+      "passed": true
+    },
+    {
+      "id": "combination_15",
+      "passed": true
+    },
+    {
+      "id": "exclude_15",
+      "passed": true
+    },
+    {
+      "id": "followup_15",
+      "passed": true
+    },
+    {
+      "id": "clarify_15",
+      "passed": true
+    },
+    {
+      "id": "revision_source_15",
+      "passed": true
+    },
+    {
+      "id": "single_16",
+      "passed": true
+    },
+    {
+      "id": "combination_16",
+      "passed": true
+    },
+    {
+      "id": "exclude_16",
+      "passed": true
+    },
+    {
+      "id": "followup_16",
+      "passed": true
+    },
+    {
+      "id": "clarify_16",
+      "passed": true
+    },
+    {
+      "id": "revision_source_16",
+      "passed": true
+    },
+    {
+      "id": "single_17",
+      "passed": true
+    },
+    {
+      "id": "combination_17",
+      "passed": true
+    },
+    {
+      "id": "exclude_17",
+      "passed": true
+    },
+    {
+      "id": "followup_17",
+      "passed": true
+    },
+    {
+      "id": "clarify_17",
+      "passed": true
+    },
+    {
+      "id": "revision_source_17",
+      "passed": true
+    },
+    {
+      "id": "single_18",
+      "passed": true
+    },
+    {
+      "id": "combination_18",
+      "passed": true
+    },
+    {
+      "id": "exclude_18",
+      "passed": true
+    },
+    {
+      "id": "followup_18",
+      "passed": true
+    },
+    {
+      "id": "clarify_18",
+      "passed": true
+    },
+    {
+      "id": "revision_source_18",
+      "passed": true
+    },
+    {
+      "id": "single_19",
+      "passed": true
+    },
+    {
+      "id": "combination_19",
+      "passed": true
+    },
+    {
+      "id": "exclude_19",
+      "passed": true
+    },
+    {
+      "id": "followup_19",
+      "passed": true
+    },
+    {
+      "id": "clarify_19",
+      "passed": true
+    },
+    {
+      "id": "revision_source_19",
+      "passed": true
+    },
+    {
+      "id": "single_20",
+      "passed": true
+    },
+    {
+      "id": "combination_20",
+      "passed": true
+    },
+    {
+      "id": "exclude_20",
+      "passed": true
+    },
+    {
+      "id": "followup_20",
+      "passed": true
+    },
+    {
+      "id": "clarify_20",
+      "passed": true
+    },
+    {
+      "id": "revision_source_20",
+      "passed": true
+    }
+  ],
+  "semantic_passed": 1,
+  "semantic_total": 6,
+  "semantic": [
+    {
+      "goal": "栈和队列各出练习题",
+      "passed": false,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "8350720b-b0c9-4279-a5ae-496f3c288b3d",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "semantic_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "生成栈相关的练习题，覆盖栈的基本概念、入栈出栈操作、应用场景或常见错误。",
+            "topic": "栈练习题",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "8350720b-b0c9-4279-a5ae-496f3c288b3d",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "栈练习题"
+            }
+          },
+          {
+            "id": "s2",
+            "segment": "生成队列相关的练习题，覆盖队列的基本概念、入队出队操作、应用场景或常见错误。",
+            "topic": "队列练习题",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "8350720b-b0c9-4279-a5ae-496f3c288b3d",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "队列练习题"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": "为栈和队列分别生成练习题。"
+      },
+      "error": "AssertionError: "
+    },
+    {
+      "goal": "二叉树和哈希表分别生成讲解资源",
+      "passed": true,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "35b17bdd-3c10-4c34-af1d-4cc9d7a9a057",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "semantic_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "生成二叉树主题的讲解资源",
+            "topic": "二叉树",
+            "tools": [
+              "generate_explanation"
+            ],
+            "source_message_id": "35b17bdd-3c10-4c34-af1d-4cc9d7a9a057",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "二叉树"
+            }
+          },
+          {
+            "id": "s2",
+            "segment": "生成哈希表主题的讲解资源",
+            "topic": "哈希表",
+            "tools": [
+              "generate_explanation"
+            ],
+            "source_message_id": "35b17bdd-3c10-4c34-af1d-4cc9d7a9a057",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "哈希表"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": "为二叉树和哈希表分别生成讲解资源"
+      }
+    },
+    {
+      "goal": "给栈出练习题，给链表出练习题",
+      "passed": false,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "3602fd90-d596-4c44-8508-d670df4b6a9f",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "semantic_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "为栈生成练习题，覆盖栈的基本操作、特性、应用场景与常见易错点。",
+            "topic": "栈练习题",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "3602fd90-d596-4c44-8508-d670df4b6a9f",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "栈练习题"
+            }
+          },
+          {
+            "id": "s2",
+            "segment": "为链表生成练习题，覆盖单链表、双链表、插入删除、遍历与常见算法。",
+            "topic": "链表练习题",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "3602fd90-d596-4c44-8508-d670df4b6a9f",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "链表练习题"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": "为栈和链表分别生成练习题。"
+      },
+      "error": "AssertionError: "
+    },
+    {
+      "goal": "给归并排序出练习题，给快速排序出练习题",
+      "passed": false,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "0e518241-0eea-482b-a2f8-d67a8ebfe26c",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "semantic_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "为归并排序生成练习题，覆盖概念理解、排序过程、时间复杂度和应用分析。",
+            "topic": "归并排序练习题",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "0e518241-0eea-482b-a2f8-d67a8ebfe26c",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "归并排序练习题"
+            }
+          },
+          {
+            "id": "s2",
+            "segment": "为快速排序生成练习题，覆盖概念理解、分区过程、时间复杂度和应用分析。",
+            "topic": "快速排序练习题",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "0e518241-0eea-482b-a2f8-d67a8ebfe26c",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "快速排序练习题"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": "为归并排序和快速排序分别生成练习题。"
+      },
+      "error": "AssertionError: "
+    },
+    {
+      "goal": "栈和队列各生成讲解，不要练习题",
+      "passed": false,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "424f08f0-5882-431a-8e6a-073df1c7fd9c",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "semantic_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "为栈生成讲解内容，不要练习题",
+            "topic": "栈的讲解",
+            "tools": [
+              "generate_explanation"
+            ],
+            "source_message_id": "424f08f0-5882-431a-8e6a-073df1c7fd9c",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "栈的讲解"
+            }
+          },
+          {
+            "id": "s2",
+            "segment": "为队列生成讲解内容，不要练习题",
+            "topic": "队列的讲解",
+            "tools": [
+              "generate_explanation"
+            ],
+            "source_message_id": "424f08f0-5882-431a-8e6a-073df1c7fd9c",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "队列的讲解"
+            }
+          }
+        ],
+        "exclusions": [
+          "generate_quiz"
+        ],
+        "uncertainty": [],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": "为栈和队列分别生成讲解内容，不要练习题"
+      },
+      "error": "AssertionError: "
+    },
+    {
+      "goal": "给二叉树出练习题\n学生最新修订（优先于之前要求）：改成队列的练习题",
+      "passed": false,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "a1858b04-cbdc-42c5-8c0e-50f8d1c1a790",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "semantic_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "根据队列的数据结构特性生成适合学生练习的题目。",
+            "topic": "队列练习题",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "a1858b04-cbdc-42c5-8c0e-50f8d1c1a790",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "队列练习题"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": "为队列主题生成练习题。"
+      },
+      "error": "AssertionError: "
+    }
+  ]
+}

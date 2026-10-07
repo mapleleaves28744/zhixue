@@ -1,0 +1,752 @@
+{
+  "finished_at": "2026-09-30T11:23:55.366218+00:00",
+  "configured_model": "qwen3.8-flash",
+  "type": "development fixtures; no held-out/semantic quality accuracy claim",
+  "rule_passed": 120,
+  "rule_total": 120,
+  "rules": [
+    {
+      "id": "single_1",
+      "passed": true
+    },
+    {
+      "id": "combination_1",
+      "passed": true
+    },
+    {
+      "id": "exclude_1",
+      "passed": true
+    },
+    {
+      "id": "followup_1",
+      "passed": true
+    },
+    {
+      "id": "clarify_1",
+      "passed": true
+    },
+    {
+      "id": "revision_source_1",
+      "passed": true
+    },
+    {
+      "id": "single_2",
+      "passed": true
+    },
+    {
+      "id": "combination_2",
+      "passed": true
+    },
+    {
+      "id": "exclude_2",
+      "passed": true
+    },
+    {
+      "id": "followup_2",
+      "passed": true
+    },
+    {
+      "id": "clarify_2",
+      "passed": true
+    },
+    {
+      "id": "revision_source_2",
+      "passed": true
+    },
+    {
+      "id": "single_3",
+      "passed": true
+    },
+    {
+      "id": "combination_3",
+      "passed": true
+    },
+    {
+      "id": "exclude_3",
+      "passed": true
+    },
+    {
+      "id": "followup_3",
+      "passed": true
+    },
+    {
+      "id": "clarify_3",
+      "passed": true
+    },
+    {
+      "id": "revision_source_3",
+      "passed": true
+    },
+    {
+      "id": "single_4",
+      "passed": true
+    },
+    {
+      "id": "combination_4",
+      "passed": true
+    },
+    {
+      "id": "exclude_4",
+      "passed": true
+    },
+    {
+      "id": "followup_4",
+      "passed": true
+    },
+    {
+      "id": "clarify_4",
+      "passed": true
+    },
+    {
+      "id": "revision_source_4",
+      "passed": true
+    },
+    {
+      "id": "single_5",
+      "passed": true
+    },
+    {
+      "id": "combination_5",
+      "passed": true
+    },
+    {
+      "id": "exclude_5",
+      "passed": true
+    },
+    {
+      "id": "followup_5",
+      "passed": true
+    },
+    {
+      "id": "clarify_5",
+      "passed": true
+    },
+    {
+      "id": "revision_source_5",
+      "passed": true
+    },
+    {
+      "id": "single_6",
+      "passed": true
+    },
+    {
+      "id": "combination_6",
+      "passed": true
+    },
+    {
+      "id": "exclude_6",
+      "passed": true
+    },
+    {
+      "id": "followup_6",
+      "passed": true
+    },
+    {
+      "id": "clarify_6",
+      "passed": true
+    },
+    {
+      "id": "revision_source_6",
+      "passed": true
+    },
+    {
+      "id": "single_7",
+      "passed": true
+    },
+    {
+      "id": "combination_7",
+      "passed": true
+    },
+    {
+      "id": "exclude_7",
+      "passed": true
+    },
+    {
+      "id": "followup_7",
+      "passed": true
+    },
+    {
+      "id": "clarify_7",
+      "passed": true
+    },
+    {
+      "id": "revision_source_7",
+      "passed": true
+    },
+    {
+      "id": "single_8",
+      "passed": true
+    },
+    {
+      "id": "combination_8",
+      "passed": true
+    },
+    {
+      "id": "exclude_8",
+      "passed": true
+    },
+    {
+      "id": "followup_8",
+      "passed": true
+    },
+    {
+      "id": "clarify_8",
+      "passed": true
+    },
+    {
+      "id": "revision_source_8",
+      "passed": true
+    },
+    {
+      "id": "single_9",
+      "passed": true
+    },
+    {
+      "id": "combination_9",
+      "passed": true
+    },
+    {
+      "id": "exclude_9",
+      "passed": true
+    },
+    {
+      "id": "followup_9",
+      "passed": true
+    },
+    {
+      "id": "clarify_9",
+      "passed": true
+    },
+    {
+      "id": "revision_source_9",
+      "passed": true
+    },
+    {
+      "id": "single_10",
+      "passed": true
+    },
+    {
+      "id": "combination_10",
+      "passed": true
+    },
+    {
+      "id": "exclude_10",
+      "passed": true
+    },
+    {
+      "id": "followup_10",
+      "passed": true
+    },
+    {
+      "id": "clarify_10",
+      "passed": true
+    },
+    {
+      "id": "revision_source_10",
+      "passed": true
+    },
+    {
+      "id": "single_11",
+      "passed": true
+    },
+    {
+      "id": "combination_11",
+      "passed": true
+    },
+    {
+      "id": "exclude_11",
+      "passed": true
+    },
+    {
+      "id": "followup_11",
+      "passed": true
+    },
+    {
+      "id": "clarify_11",
+      "passed": true
+    },
+    {
+      "id": "revision_source_11",
+      "passed": true
+    },
+    {
+      "id": "single_12",
+      "passed": true
+    },
+    {
+      "id": "combination_12",
+      "passed": true
+    },
+    {
+      "id": "exclude_12",
+      "passed": true
+    },
+    {
+      "id": "followup_12",
+      "passed": true
+    },
+    {
+      "id": "clarify_12",
+      "passed": true
+    },
+    {
+      "id": "revision_source_12",
+      "passed": true
+    },
+    {
+      "id": "single_13",
+      "passed": true
+    },
+    {
+      "id": "combination_13",
+      "passed": true
+    },
+    {
+      "id": "exclude_13",
+      "passed": true
+    },
+    {
+      "id": "followup_13",
+      "passed": true
+    },
+    {
+      "id": "clarify_13",
+      "passed": true
+    },
+    {
+      "id": "revision_source_13",
+      "passed": true
+    },
+    {
+      "id": "single_14",
+      "passed": true
+    },
+    {
+      "id": "combination_14",
+      "passed": true
+    },
+    {
+      "id": "exclude_14",
+      "passed": true
+    },
+    {
+      "id": "followup_14",
+      "passed": true
+    },
+    {
+      "id": "clarify_14",
+      "passed": true
+    },
+    {
+      "id": "revision_source_14",
+      "passed": true
+    },
+    {
+      "id": "single_15",
+      "passed": true
+    },
+    {
+      "id": "combination_15",
+      "passed": true
+    },
+    {
+      "id": "exclude_15",
+      "passed": true
+    },
+    {
+      "id": "followup_15",
+      "passed": true
+    },
+    {
+      "id": "clarify_15",
+      "passed": true
+    },
+    {
+      "id": "revision_source_15",
+      "passed": true
+    },
+    {
+      "id": "single_16",
+      "passed": true
+    },
+    {
+      "id": "combination_16",
+      "passed": true
+    },
+    {
+      "id": "exclude_16",
+      "passed": true
+    },
+    {
+      "id": "followup_16",
+      "passed": true
+    },
+    {
+      "id": "clarify_16",
+      "passed": true
+    },
+    {
+      "id": "revision_source_16",
+      "passed": true
+    },
+    {
+      "id": "single_17",
+      "passed": true
+    },
+    {
+      "id": "combination_17",
+      "passed": true
+    },
+    {
+      "id": "exclude_17",
+      "passed": true
+    },
+    {
+      "id": "followup_17",
+      "passed": true
+    },
+    {
+      "id": "clarify_17",
+      "passed": true
+    },
+    {
+      "id": "revision_source_17",
+      "passed": true
+    },
+    {
+      "id": "single_18",
+      "passed": true
+    },
+    {
+      "id": "combination_18",
+      "passed": true
+    },
+    {
+      "id": "exclude_18",
+      "passed": true
+    },
+    {
+      "id": "followup_18",
+      "passed": true
+    },
+    {
+      "id": "clarify_18",
+      "passed": true
+    },
+    {
+      "id": "revision_source_18",
+      "passed": true
+    },
+    {
+      "id": "single_19",
+      "passed": true
+    },
+    {
+      "id": "combination_19",
+      "passed": true
+    },
+    {
+      "id": "exclude_19",
+      "passed": true
+    },
+    {
+      "id": "followup_19",
+      "passed": true
+    },
+    {
+      "id": "clarify_19",
+      "passed": true
+    },
+    {
+      "id": "revision_source_19",
+      "passed": true
+    },
+    {
+      "id": "single_20",
+      "passed": true
+    },
+    {
+      "id": "combination_20",
+      "passed": true
+    },
+    {
+      "id": "exclude_20",
+      "passed": true
+    },
+    {
+      "id": "followup_20",
+      "passed": true
+    },
+    {
+      "id": "clarify_20",
+      "passed": true
+    },
+    {
+      "id": "revision_source_20",
+      "passed": true
+    }
+  ],
+  "semantic_passed": 6,
+  "semantic_total": 6,
+  "semantic": [
+    {
+      "goal": "栈和队列各出练习题",
+      "passed": true,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "4b6d8f78-c790-4825-a221-8a698d81cc69",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "semantic_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "为栈主题生成练习题",
+            "topic": "栈",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "4b6d8f78-c790-4825-a221-8a698d81cc69",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "栈"
+            }
+          },
+          {
+            "id": "s2",
+            "segment": "为队列主题生成练习题",
+            "topic": "队列",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "4b6d8f78-c790-4825-a221-8a698d81cc69",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "队列"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": "为栈和队列分别生成练习题。"
+      }
+    },
+    {
+      "goal": "二叉树和哈希表分别生成讲解资源",
+      "passed": true,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "e1b91dca-1c95-45ed-95c3-f7f5f9097fe7",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "semantic_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "生成二叉树的讲解资源",
+            "topic": "二叉树",
+            "tools": [
+              "generate_explanation"
+            ],
+            "source_message_id": "e1b91dca-1c95-45ed-95c3-f7f5f9097fe7",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "二叉树"
+            }
+          },
+          {
+            "id": "s2",
+            "segment": "生成哈希表的讲解资源",
+            "topic": "哈希表",
+            "tools": [
+              "generate_explanation"
+            ],
+            "source_message_id": "e1b91dca-1c95-45ed-95c3-f7f5f9097fe7",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "哈希表"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": "为二叉树和哈希表分别生成讲解资源"
+      }
+    },
+    {
+      "goal": "给栈出练习题，给链表出练习题",
+      "passed": true,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "373644f2-b6e7-4aa1-9d64-bab41e4444d9",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "semantic_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "生成栈相关的练习题",
+            "topic": "栈",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "373644f2-b6e7-4aa1-9d64-bab41e4444d9",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "栈"
+            }
+          },
+          {
+            "id": "s2",
+            "segment": "生成链表相关的练习题",
+            "topic": "链表",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "373644f2-b6e7-4aa1-9d64-bab41e4444d9",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "链表"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": "为栈和链表分别生成练习题"
+      }
+    },
+    {
+      "goal": "给归并排序出练习题，给快速排序出练习题",
+      "passed": true,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "ac17b0d5-17c1-4550-b297-3da5b084400c",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "semantic_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "给归并排序出练习题",
+            "topic": "归并排序",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "ac17b0d5-17c1-4550-b297-3da5b084400c",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "归并排序"
+            }
+          },
+          {
+            "id": "s2",
+            "segment": "给快速排序出练习题",
+            "topic": "快速排序",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "ac17b0d5-17c1-4550-b297-3da5b084400c",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "快速排序"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": "给归并排序和快速排序分别出练习题"
+      }
+    },
+    {
+      "goal": "栈和队列各生成讲解，不要练习题",
+      "passed": true,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "dcc1de73-64de-4cb9-b6fe-1615d9954383",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "semantic_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "生成讲解；不要练习题",
+            "topic": "栈",
+            "tools": [
+              "generate_explanation"
+            ],
+            "source_message_id": "dcc1de73-64de-4cb9-b6fe-1615d9954383",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "栈"
+            }
+          },
+          {
+            "id": "s2",
+            "segment": "生成讲解；不要练习题",
+            "topic": "队列",
+            "tools": [
+              "generate_explanation"
+            ],
+            "source_message_id": "dcc1de73-64de-4cb9-b6fe-1615d9954383",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "队列"
+            }
+          }
+        ],
+        "exclusions": [
+          "generate_quiz"
+        ],
+        "uncertainty": [],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": "为栈和队列分别生成讲解，不要练习题"
+      }
+    },
+    {
+      "goal": "给二叉树出练习题\n学生最新修订（优先于之前要求）：改成队列的练习题",
+      "passed": true,
+      "resolved": {
+        "schema_version": "v1",
+        "request_message_id": "9bcbdb70-ce92-43a7-9657-1dab4bc28b0d",
+        "original_request_message_id": null,
+        "revision": 1,
+        "mode": "execute",
+        "parser": "semantic_v1",
+        "tasks": [
+          {
+            "id": "s1",
+            "segment": "生成队列相关练习题",
+            "topic": "队列",
+            "tools": [
+              "generate_quiz"
+            ],
+            "source_message_id": "9bcbdb70-ce92-43a7-9657-1dab4bc28b0d",
+            "acceptance": {
+              "kind": "tool_result_and_artifact",
+              "topic": "队列"
+            }
+          }
+        ],
+        "exclusions": [],
+        "uncertainty": [],
+        "unresolved_slots": [],
+        "clarification_question": null,
+        "resolved_goal": "给队列出练习题"
+      }
+    }
+  ]
+}

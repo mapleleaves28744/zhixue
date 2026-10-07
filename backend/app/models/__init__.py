@@ -21,7 +21,7 @@ from app.models.learning_record import LearningRecord
 from app.models.material import CourseMaterial
 from app.models.llm_log import LLMCallLog
 from app.models.media import MediaAsset, MediaJob
-from app.models.memory import MemoryReflectionState, StudentMemory
+from app.models.memory import MemoryReflectionJob, MemoryReflectionState, StudentMemory, StudentMemoryEvent, StudentMemoryEvidence
 from app.models.learning_session import LearningSession
 from app.models.pet import PetNotification, PetPreference
 from app.models.profile import LearningPreference, StudentCourseProfile, StudentProfile
@@ -30,6 +30,7 @@ from app.models.quiz import AnswerRecord, MistakeBook, Question, Quiz
 from app.models.recommendation import Recommendation
 from app.models.resource import GeneratedResource
 from app.models.user import User
+from app.models.tutor_request import TutorRequest
 from app.models.wiki import WikiLink, WikiPage, WikiPageVersion, WikiSource
 
 __all__ = [
@@ -69,10 +70,14 @@ __all__ = [
     "Recommendation",
     "StudentMemory",
     "MemoryReflectionState",
+    "MemoryReflectionJob",
+    "StudentMemoryEvent",
+    "StudentMemoryEvidence",
     "StudentCourseProfile",
     "StudentProfile",
     "UserFeedback",
     "User",
+    "TutorRequest",
     "WikiLink",
     "WikiPage",
     "WikiPageVersion",

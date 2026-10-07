@@ -1,12 +1,12 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.course_kb_common import read_yaml
-from scripts.evaluate_public_kb import calculate_metrics
+from scripts.evaluate_public_kb import _is_refusal, calculate_metrics
 
 
 def test_metrics_do_not_infer_answer_correctness_from_retrieval_hit() -> None:
@@ -28,6 +28,7 @@ def test_metrics_do_not_infer_answer_correctness_from_retrieval_hit() -> None:
                 "cited_source_ids": [],
                 "answer_correct": True,
                 "refused": True,
+                "refusal_reviewed": True,
                 "llm_evaluated": True,
             },
         ]
@@ -65,7 +66,7 @@ def test_citation_precision_requires_expected_source_and_evidence_term() -> None
     assert metrics["manually_scored_answers"] == 0
 
 
-def test_citation_requires_every_evidence_term_group() -> None:
+def test_citation_coverage_uses_evidence_across_valid_quotes() -> None:
     metrics = calculate_metrics(
         [
             {
@@ -82,8 +83,44 @@ def test_citation_requires_every_evidence_term_group() -> None:
         ]
     )
 
-    assert metrics["citation_precision"] == 0.5
+    assert metrics["citation_precision"] == 1.0
     assert metrics["citation_coverage"] == 1.0
+
+
+def test_citation_coverage_fails_when_one_required_term_is_missing() -> None:
+    metrics = calculate_metrics(
+        [{
+            "answerable": True,
+            "expected_sources": ["source-a"],
+            "expected_evidence_terms": ["B 树", "外存"],
+            "retrieved_source_ids": ["source-a"],
+            "cited_source_ids": ["source-a"],
+            "cited_quotes": ["B 树适合索引。"],
+            "llm_evaluated": True,
+        }]
+    )
+
+    assert metrics["citation_precision"] == 1.0
+    assert metrics["citation_coverage"] == 0.0
+
+
+def test_refusal_requires_answer_text_not_only_insufficient_grounding() -> None:
+    assert _is_refusal("当前课程资料未提供相关内容，无法确认这一结论。") is True
+    assert _is_refusal("该算法的时间复杂度是 O(n)。") is False
+
+
+def test_unreviewed_refusal_has_no_rate() -> None:
+    metrics = calculate_metrics([{
+        "answerable": False,
+        "expected_sources": [],
+        "retrieved_source_ids": [],
+        "llm_evaluated": True,
+        "grounding_status": "insufficient",
+        "refused": True,
+        "refusal_reviewed": False,
+    }])
+    assert metrics["unanswerable_refusal_rate"] is None
+    assert metrics["unanswerable_insufficient_rate"] == 1.0
 
 
 def test_standard_questions_include_evidence_terms_and_interference_cases() -> None:

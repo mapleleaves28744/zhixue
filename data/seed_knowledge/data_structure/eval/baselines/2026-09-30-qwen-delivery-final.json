@@ -1,0 +1,53 @@
+{
+  "model": "qwen3.8-flash",
+  "started_at": "2026-09-30T13:10:46.679728+00:00",
+  "passed": true,
+  "original_task_id": "84510076-a48e-4e49-adf9-4d47925bb68e",
+  "revised_task_id": "6f0f43f4-a333-4cd0-ba85-518c0bc07d0f",
+  "checks": [
+    "request replay",
+    "two distinct persisted resources",
+    "revision has one new topic",
+    "original source retained",
+    "all subtask deliveries complete",
+    "displayed contract matches execution",
+    "final answer lists resources"
+  ],
+  "original_titles": [
+    "队列（Queue）简短讲解",
+    "栈（Stack）简短讲解"
+  ],
+  "revised_titles": [
+    "归并排序（Merge Sort）"
+  ],
+  "finished_at": "2026-09-30T13:15:31.195898+00:00",
+  "persisted_deliverables": [
+    {
+      "task_id": "84510076-a48e-4e49-adf9-4d47925bb68e",
+      "resource_id": "f0613166-b32c-421b-a4f8-6c49b83948f7",
+      "title": "队列（Queue）简短讲解",
+      "model": "qwen3.8-flash",
+      "content_characters": 1111,
+      "first_heading": "# 队列（Queue）简短讲解",
+      "revision": 1
+    },
+    {
+      "task_id": "84510076-a48e-4e49-adf9-4d47925bb68e",
+      "resource_id": "1f39a6f0-0770-4cb4-a74e-6824f8ca2333",
+      "title": "栈（Stack）简短讲解",
+      "model": "qwen3.8-flash",
+      "content_characters": 1265,
+      "first_heading": "# 栈（Stack）简短讲解",
+      "revision": 1
+    },
+    {
+      "task_id": "6f0f43f4-a333-4cd0-ba85-518c0bc07d0f",
+      "resource_id": "24a345a0-d9ef-4f96-a5d3-91419591e6cf",
+      "title": "归并排序（Merge Sort）",
+      "model": "qwen3.8-flash",
+      "content_characters": 1869,
+      "first_heading": "# 归并排序（Merge Sort）",
+      "revision": 2
+    }
+  ]
+}

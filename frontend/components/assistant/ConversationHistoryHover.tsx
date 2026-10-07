@@ -3,8 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import type { AgentConversation, AgentMessage } from "@/types/agent"
-import type { GeneratedResource } from "@/types/resource"
-import type { ResourceType } from "@/types/resource"
+import type { GeneratedResourceListItem, ResourceType } from "@/types/resource"
 import {
   createAgentConversation,
   listAgentConversationMessages,
@@ -30,7 +29,7 @@ export function ConversationHistoryHover({
 }: ConversationHistoryHoverProps) {
   const [open, setOpen] = useState(false)
   const [conversations, setConversations] = useState<AgentConversation[]>([])
-  const [resources, setResources] = useState<GeneratedResource[]>([])
+  const [resources, setResources] = useState<GeneratedResourceListItem[]>([])
   const [activeTab, setActiveTab] = useState<"conversations" | "resources">("conversations")
   const [query, setQuery] = useState("")
   const [loading, setLoading] = useState(false)

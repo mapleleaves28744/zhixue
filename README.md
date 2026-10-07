@@ -326,7 +326,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python -m alembic upgrade head
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+python -m app --host 127.0.0.1 --port 8000 --reload
 ```
 
 在另一个终端启动 Agent Worker：

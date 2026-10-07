@@ -27,6 +27,7 @@ import {
   cancelAgentTask,
   createAgentConversation,
   getAgentTask,
+  prepareAgentTaskRevision,
   listAgentConversationMessages,
   listAgentConversations,
   listAgentTaskEvents,
@@ -36,7 +37,7 @@ import {
   streamAgentTaskEvents,
 } from "@/services/agentService"
 import { resolveCourseIdFromList, resolveCourseIdSyncFallback } from "@/lib/resolveCourse"
-import { getToken } from "@/lib/auth"
+import { getStoredUser, getToken } from "@/lib/auth"
 import { getResourceTypeLabel, normalizeResourceType } from "@/lib/resourceTypes"
 import { listCourses } from "@/services/courseService"
 import { listWikiPages } from "@/services/wikiService"
@@ -51,6 +52,11 @@ import { endLearningSession, heartbeatLearningSession } from "@/services/learnin
 
 const COURSE_KEY = "zhixue_current_course_id"
 const CONVERSATION_KEY = "zhixue_agent_conversation_id"
+
+function conversationStorageKey(courseId: string): string | null {
+  const userId = getStoredUser()?.id
+  return userId && courseId ? `${CONVERSATION_KEY}_${userId}_${courseId}` : null
+}
 
 type ChatItem =
   | { id: string; kind: "user"; content: string }
@@ -322,6 +328,13 @@ export function AssistantPageClient() {
   const initialHistoryScrollRef = useRef(false)
   const watchingTasksRef = useRef<Set<string>>(new Set())
   const agentStreamControllersRef = useRef<Map<string, AbortController>>(new Map())
+  const revisionControllerRef = useRef<AbortController | null>(null)
+  const historyFenceRef = useRef(0)
+  const sendingRef = useRef(false)
+  const messagesRef = useRef(messages)
+  messagesRef.current = messages
+  const courseIdRef = useRef(courseId)
+  courseIdRef.current = courseId
   const resourceSyncedTasksRef = useRef<Set<string>>(new Set())
 
   const handleTutorSnapshot = useCallback((snapshot: TutorStreamSnapshot) => {
@@ -344,7 +357,8 @@ export function AssistantPageClient() {
     if (snapshot.status === "completed" && snapshot.result?.conversation_id) {
       const nextConversationId = snapshot.result.conversation_id
       setConversationId(nextConversationId)
-      localStorage.setItem(`${CONVERSATION_KEY}_${courseId}`, nextConversationId)
+      const key = conversationStorageKey(courseId)
+      if (key) localStorage.setItem(key, nextConversationId)
     }
   }, [courseId])
   const {
@@ -460,13 +474,26 @@ export function AssistantPageClient() {
   const ensureConversation = useCallback(async () => {
     if (conversationId) return conversationId
     if (!courseId) throw new Error("请先选择课程")
-    const saved = localStorage.getItem(`${CONVERSATION_KEY}_${courseId}`)
+    const fence = historyFenceRef.current
+    const assertCurrent = () => {
+      if (courseIdRef.current !== courseId || historyFenceRef.current !== fence) {
+        throw new DOMException("会话已切换", "AbortError")
+      }
+    }
+    const key = conversationStorageKey(courseId)
+    const saved = key ? localStorage.getItem(key) : null
     if (saved) {
-      setConversationId(saved)
-      return saved
+      const { items } = await listAgentConversations()
+      assertCurrent()
+      if (items.some((item) => item.id === saved && item.course_id === courseId)) {
+        setConversationId(saved)
+        return saved
+      }
+      if (key) localStorage.removeItem(key)
     }
     const conv = await createAgentConversation({ course_id: courseId })
-    localStorage.setItem(`${CONVERSATION_KEY}_${courseId}`, conv.id)
+    assertCurrent()
+    if (key) localStorage.setItem(key, conv.id)
     setConversationId(conv.id)
     return conv.id
   }, [conversationId, courseId])
@@ -474,11 +501,19 @@ export function AssistantPageClient() {
   const watchAgentTaskRef = useRef<(taskId: string) => void>(() => {})
   const stopVisibleStreamsRef = useRef<() => void>(() => {})
 
-  const hydrateHistoryMessages = useCallback(async (items: AgentMessage[]) => {
+  const hydrateHistoryMessages = useCallback(async (items: AgentMessage[], isCurrent: () => boolean = () => true) => {
     const base = messagesFromHistory(items)
-    const hydrated = await Promise.all(
-      base.map(async (item) => (item.kind === "agent" ? hydrateAgentMessage(item) : item)),
-    )
+    const recentAgentIndices = base
+      .map((item, index) => (item.kind === "agent" ? index : -1))
+      .filter((index) => index >= 0)
+      .slice(-3)
+    const recentAgentIndexSet = new Set(recentAgentIndices)
+    const hydrated = await Promise.all(base.map(async (item, index) => (
+      item.kind === "agent" && recentAgentIndexSet.has(index)
+        ? hydrateAgentMessage(item)
+        : item
+    )))
+    if (!isCurrent()) return
     setMessages(hydrated)
     if (!initialHistoryScrollRef.current) {
       requestScrollToBottom(false)
@@ -494,22 +529,38 @@ export function AssistantPageClient() {
     }
   }, [requestScrollToBottom])
 
+  const openAgentDetail = useCallback((item: Extract<ChatItem, { kind: "agent" }>) => {
+    setDetailTarget({ kind: "agent", taskId: item.taskId })
+    if (item.task && item.events.length > 0) return
+    void hydrateAgentMessage(item).then((hydrated) => {
+      setMessages((current) => current.map((message) => (
+        message.kind === "agent" && message.taskId === item.taskId ? hydrated : message
+      )))
+      if (hydrated.streaming || hasPendingMediaJobs(hydrated.events)) {
+        watchAgentTaskRef.current(item.taskId)
+      }
+    })
+  }, [])
+
   const applyConversation = useCallback(
     async (id: string, items: AgentMessage[]) => {
+      const fence = ++historyFenceRef.current
       stopVisibleStreamsRef.current()
       setDetailTarget(null)
       setConversationId(id)
-      localStorage.setItem(`${CONVERSATION_KEY}_${courseId}`, id)
-      await hydrateHistoryMessages(items)
+      const key = conversationStorageKey(courseId)
+      if (key) localStorage.setItem(key, id)
+      await hydrateHistoryMessages(items, () => historyFenceRef.current === fence)
     },
     [courseId, hydrateHistoryMessages],
   )
 
   const loadHistory = useCallback(async () => {
-    if (!conversationId) return
+    if (!conversationId || sendingRef.current || messagesRef.current.some((item) => item.kind !== "user" && item.streaming)) return
+    const fence = historyFenceRef.current
     try {
       const { items } = await listAgentConversationMessages(conversationId)
-      await hydrateHistoryMessages(items)
+      await hydrateHistoryMessages(items, () => historyFenceRef.current === fence && !sendingRef.current)
     } catch {
       /* ignore */
     }
@@ -517,29 +568,26 @@ export function AssistantPageClient() {
 
   useEffect(() => {
     if (!courseId) return
+    let cancelled = false
+    setConversationId(null)
     const initConversation = async () => {
-      let saved = searchParams.get("conversation_id") || localStorage.getItem(`${CONVERSATION_KEY}_${courseId}`)
-      if (!saved) {
-        try {
-          const { items } = await listAgentConversations()
-          const latest = items
-            .filter((c) => c.course_id === courseId)
-            .sort((a, b) => {
-              const ta = new Date(a.last_message_at || a.updated_at).getTime()
-              const tb = new Date(b.last_message_at || b.updated_at).getTime()
-              return tb - ta
-            })[0]
-          if (latest) {
-            saved = latest.id
-            localStorage.setItem(`${CONVERSATION_KEY}_${courseId}`, saved)
-          }
-        } catch {
-          /* ignore */
+      const key = conversationStorageKey(courseId)
+      const requested = searchParams.get("conversation_id") || (key ? localStorage.getItem(key) : null)
+      try {
+        const { items } = await listAgentConversations()
+        const matching = items.filter((item) => item.course_id === courseId)
+        const selected = matching.find((item) => item.id === requested) || matching.sort((a, b) => (
+          new Date(b.last_message_at || b.updated_at).getTime() - new Date(a.last_message_at || a.updated_at).getTime()
+        ))[0]
+        if (!cancelled) {
+          setConversationId((current) => current || selected?.id || null)
         }
+      } catch {
+        if (!cancelled) setConversationId((current) => current || null)
       }
-      setConversationId(saved)
     }
     void initConversation()
+    return () => { cancelled = true }
   }, [courseId])
 
   useEffect(() => {
@@ -569,6 +617,7 @@ export function AssistantPageClient() {
 
   const stopVisibleStreams = useCallback(
     (markAgentPaused = true) => {
+      revisionControllerRef.current?.abort()
       stopAllTutorStreams()
       for (const taskId of agentStreamControllersRef.current.keys()) {
         stopAgentStream(taskId, { markPaused: markAgentPaused })
@@ -788,8 +837,11 @@ export function AssistantPageClient() {
 
   const sendMessage = async (questionOverride?: string) => {
     const question = (questionOverride ?? input).trim()
-    if (!question || sending) return
-    if (messages.some((message) => message.kind !== "user" && Boolean(message.streaming))) {
+    if (!question || sendingRef.current) return
+    const lastAgent = [...messages].reverse().find((message) => message.kind === "agent")
+    const revisionTarget = /^(改成|改为|调整为|把.{0,30}改成)/.test(question) && lastAgent?.kind === "agent" ? lastAgent : null
+    if (messages.some((message) => message.kind !== "user" && Boolean(message.streaming)
+      && !(revisionTarget && message.kind === "agent" && message.taskId === revisionTarget.taskId))) {
       toast.info("请先停止或等待当前回答完成")
       return
     }
@@ -798,16 +850,29 @@ export function AssistantPageClient() {
       return
     }
 
+    const sendFence = ++historyFenceRef.current
+    sendingRef.current = true
     setSending(true)
     setInput("")
     requestScrollToBottom(true)
     setMessages((prev) => [...prev.slice(-49), { id: `u-${Date.now()}`, kind: "user", content: question }])
 
     try {
+      if (revisionTarget) {
+        const controller = new AbortController()
+        revisionControllerRef.current = controller
+        toast.info("正在等待原任务停止，再应用新的要求")
+        const previous = await prepareAgentTaskRevision(revisionTarget.taskId, controller.signal)
+        controller.signal.throwIfAborted()
+        stopAgentStream(revisionTarget.taskId, { markPaused: false })
+        patchAgentMessage(revisionTarget.taskId, { task: previous, streaming: false, paused: false })
+      }
       const useAgentPath =
-        mode === "agent" || toolHints.some((toolId) => AGENT_ONLY_TOOLS.has(toolId))
+        Boolean(revisionTarget) || mode === "agent" || toolHints.some((toolId) => AGENT_ONLY_TOOLS.has(toolId))
 
       if (!useAgentPath) {
+        const convId = await ensureConversation()
+        if (historyFenceRef.current !== sendFence) return
         const tutorId = `t-${Date.now()}`
         setMessages((prev) => [
           ...prev,
@@ -824,12 +889,13 @@ export function AssistantPageClient() {
           tutorId,
           {
             course_id: courseId,
-            conversation_id: conversationId,
+            conversation_id: convId,
+            client_request_id: crypto.randomUUID(),
             question,
             wiki_page_id: wikiPageId || null,
             use_rag: useRag,
             use_wiki: useWiki,
-            use_profile: false,
+            use_profile: true,
             stream: true,
           },
         )
@@ -839,12 +905,17 @@ export function AssistantPageClient() {
           toast.info("已选择工具能力，将使用智能体模式并展示实时执行轨迹")
         }
         const convId = await ensureConversation()
+        revisionControllerRef.current?.signal.throwIfAborted()
+        if (historyFenceRef.current !== sendFence) return
         const accepted = await sendAgentConversationMessage(convId, {
           content: question,
+          client_request_id: crypto.randomUUID(),
+          ...(revisionTarget ? { revises_task_id: revisionTarget.taskId } : {}),
           tool_hints: toolHints,
           skip_tools: useRag ? [] : ["search_course_knowledge", "answer_course_question"],
         })
         const taskId = accepted.task.id
+        if (historyFenceRef.current !== sendFence) return
         setMessages((prev) => [
           ...prev,
           {
@@ -862,8 +933,11 @@ export function AssistantPageClient() {
         void watchAgentTask(taskId)
       }
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return
       toast.error(err instanceof Error ? err.message : "发送失败")
     } finally {
+      revisionControllerRef.current = null
+      sendingRef.current = false
       setSending(false)
     }
   }
@@ -889,10 +963,12 @@ export function AssistantPageClient() {
               conversationId={conversationId}
               onSelectConversation={applyConversation}
               onNewConversation={(id) => {
+                historyFenceRef.current += 1
                 stopVisibleStreams(true)
                 setDetailTarget(null)
                 setConversationId(id)
-                localStorage.setItem(`${CONVERSATION_KEY}_${courseId}`, id)
+                const key = conversationStorageKey(courseId)
+                if (key) localStorage.setItem(key, id)
                 setMessages([])
               }}
               onOpenResources={(resourceType) => {
@@ -903,6 +979,7 @@ export function AssistantPageClient() {
             <select
               value={courseId}
               onChange={(e) => {
+                historyFenceRef.current += 1
                 stopVisibleStreams(true)
                 setDetailTarget(null)
                 setConversationId(null)
@@ -1060,7 +1137,7 @@ export function AssistantPageClient() {
                     pendingMediaJobs={pendingMediaJobs}
                     onResume={msg.paused ? () => resumeAgentTaskView(msg.taskId) : undefined}
                     onCancel={canCancelAgentTask ? () => void cancelAgentTaskView(msg.taskId) : undefined}
-                    onOpenDetail={() => setDetailTarget({ kind: "agent", taskId: msg.taskId })}
+                    onOpenDetail={() => openAgentDetail(msg)}
                   />
                 </div>
               )

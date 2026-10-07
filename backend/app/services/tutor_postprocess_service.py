@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.event_bus import Event
 from app.services.agent_service import AgentService
-from app.services.memory_service import MemoryService
+from app.services.memory_reflection_service import MemoryReflectionService
 
 
 class TutorPostprocessService:
@@ -26,5 +26,5 @@ class TutorPostprocessService:
             course_id=course_id,
             params={"content": str({"answer": answer, "citations": citations})[:4000]},
         )
-        await MemoryService(self.db).reflect(user_id, course_id)
+        await MemoryReflectionService(self.db).discover_missing(user_id=user_id, course_id=course_id)
         await self.db.commit()

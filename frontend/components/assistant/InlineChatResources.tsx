@@ -9,7 +9,7 @@ import {
 } from "@/components/assistant/ResourcePreviewBody"
 import { getLearningPath } from "@/services/learningPathService"
 import { getQuiz } from "@/services/quizService"
-import { getResource } from "@/services/resourceService"
+import { getInlineResource } from "@/services/resourceService"
 import type { ChatArtifactRef } from "@/components/assistant/extractChatArtifacts"
 import type { LearningPathDetail } from "@/types/learningPath"
 import type { QuizDetail } from "@/types/quiz"
@@ -57,17 +57,18 @@ export function InlineChatResources({ refs }: InlineChatResourcesProps) {
     }
     let cancelled = false
     setLoading(true)
+    const uniqueRefs = [...new Map(refs.map((ref) => [`${ref.type}:${ref.id}`, ref])).values()]
     Promise.all([
       Promise.all(
-        refs
+        uniqueRefs
           .filter((ref) => ref.type === "resource")
-          .map((ref) => getResource(ref.id).catch(() => null)),
+          .map((ref) => getInlineResource(ref.id).catch(() => null)),
       ),
       Promise.all(
-        refs.filter((ref) => ref.type === "quiz").map((ref) => getQuiz(ref.id).catch(() => null)),
+        uniqueRefs.filter((ref) => ref.type === "quiz").map((ref) => getQuiz(ref.id).catch(() => null)),
       ),
       Promise.all(
-        refs
+        uniqueRefs
           .filter((ref) => ref.type === "learning_path")
           .map((ref) => getLearningPath(ref.id).catch(() => null)),
       ),

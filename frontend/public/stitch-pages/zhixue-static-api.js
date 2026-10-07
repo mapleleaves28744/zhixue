@@ -5,18 +5,23 @@
   const AUTH_USER_KEY = "auth_user";
   const AUTH_ROLE_KEY = "auth_role";
 
+  function normalizeApiBase(value) {
+    const base = value.replace(/\/$/, "");
+    return base.endsWith("/api/v1") ? base : `${base}/api/v1`;
+  }
+
   function getApiBaseUrl() {
     const queryBase = getParentSearchParams().get("api_base") || new URLSearchParams(window.location.search).get("api_base");
     if (queryBase) {
       window.localStorage.setItem("zhixue_api_base", queryBase);
-      return queryBase;
+      return normalizeApiBase(queryBase);
     }
     const stored = window.localStorage.getItem("zhixue_api_base");
     const host = window.location.hostname;
     if (stored) {
       const pointsToLocal = stored.includes("localhost") || stored.includes("127.0.0.1");
       if (!(host !== "localhost" && host !== "127.0.0.1" && pointsToLocal)) {
-        return stored;
+        return normalizeApiBase(stored);
       }
       window.localStorage.removeItem("zhixue_api_base");
     }
@@ -870,6 +875,14 @@
     return request(`/student/memory/${memoryId}/restore`, { method: "POST" });
   }
 
+  function updateMemory(memoryId, values) {
+    return request(`/student/memory/${memoryId}`, { method: "PATCH", body: values });
+  }
+
+  function memoryEvidence(memoryId) {
+    return request(`/student/memory/${memoryId}/evidence`);
+  }
+
   function memoryHealth(courseId) {
     return request(`/student/memory/health${courseId ? `?course_id=${courseId}` : ""}`);
   }
@@ -923,6 +936,8 @@
     learningAnalyticsSummary,
     memoryHealth,
     restoreMemory,
+    updateMemory,
+    memoryEvidence,
     getWikiPage,
     getWikiGraph,
     mediaAssetFileUrl,

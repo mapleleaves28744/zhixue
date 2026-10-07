@@ -17,6 +17,7 @@ from app.repositories.wiki_repository import WikiRepository
 
 
 class EvidenceRetrievalService:
+    QUERY_ALIASES = {"二叉搜索树": "二叉排序树"}
     VECTOR_STRONG = 0.55
     VECTOR_WITH_TITLE = 0.45
     KEYWORD_STRONG = 1.0
@@ -47,11 +48,12 @@ class EvidenceRetrievalService:
         use_wiki: bool,
         is_admin: bool = False,
     ) -> EvidenceBundle:
+        retrieval_query = self._normalize_query(question)
         graph_payload: dict[str, Any] = {"items": [], "graph_context": {}}
         if use_rag:
             graph_payload = await self.graph.search(
                 course_id=course_id,
-                query=question,
+                query=retrieval_query,
                 user_id=user_id,
                 top_k=max(top_k * 2, 10),
                 expand_hops=1,
@@ -62,7 +64,7 @@ class EvidenceRetrievalService:
             wiki_pages = await self._load_wiki_pages(
                 course_id=course_id,
                 user_id=user_id,
-                question=question,
+                question=retrieval_query,
                 knowledge_id=knowledge_id,
                 wiki_page_id=wiki_page_id,
                 is_admin=is_admin,
@@ -70,7 +72,7 @@ class EvidenceRetrievalService:
 
         document_items = list(graph_payload.get("items") or [])
         candidate_count = len(document_items) + len(wiki_pages)
-        terms = self._meaningful_question_terms(question)
+        terms = self._meaningful_question_terms(retrieval_query)
         document_evidence: list[EvidenceItem] = []
         source_counts: dict[UUID, int] = defaultdict(int)
         for item in document_items:
@@ -125,6 +127,13 @@ class EvidenceRetrievalService:
             graph_context=self._graph_context(graph_payload.get("graph_context")),
             candidate_count=candidate_count,
         )
+
+    @classmethod
+    def _normalize_query(cls, question: str) -> str:
+        normalized = question
+        for alias, canonical in cls.QUERY_ALIASES.items():
+            normalized = normalized.replace(alias, canonical)
+        return normalized
 
     async def _load_wiki_pages(
         self,

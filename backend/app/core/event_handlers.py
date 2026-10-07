@@ -52,7 +52,7 @@ async def on_quiz_submit(event: Event) -> None:
 
         from app.db.session import AsyncSessionLocal
         from app.services.mastery_service import MasteryService
-        from app.services.memory_service import MemoryService
+        from app.services.memory_reflection_service import MemoryReflectionService
 
         async with AsyncSessionLocal() as db:
             mastery = MasteryService(db)
@@ -72,9 +72,9 @@ async def on_quiz_submit(event: Event) -> None:
                     user_id=UUID(str(user_id)),
                     course_id=UUID(str(course_id)),
                 )
-            await MemoryService(db).reflect(
-                user_id=user_id,
-                course_id=course_id,
+            await MemoryReflectionService(db).discover_missing(
+                user_id=UUID(str(user_id)),
+                course_id=UUID(str(course_id)) if course_id else None,
             )
             await db.commit()
     except Exception:

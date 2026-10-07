@@ -1,0 +1,15 @@
+{
+  "cap": 3000000,
+  "charged_tokens": 1493527,
+  "calls": {
+    "failed": {
+      "count": 36,
+      "charged_tokens": 588807
+    },
+    "succeeded": {
+      "count": 662,
+      "charged_tokens": 904720
+    }
+  },
+  "unknown_usage_policy": "failed/pending/missing usage charged full reservation"
+}

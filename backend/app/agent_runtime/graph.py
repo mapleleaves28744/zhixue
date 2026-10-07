@@ -9,10 +9,13 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
 
 from app.agent_runtime.answer_text import extract_final_answer_text
-from app.agent_runtime.state import AgentState
+from app.agent_runtime.intent_contract import subtask_progress
+from app.agent_runtime.state import AgentDecision, AgentState
 from app.agent_runtime.supervisor import Supervisor
+from app.agent_runtime.supervisor_intents import immersive_classroom_intent, required_deliverables, video_intent
 from app.agent_runtime.tool_selector import select_tool_schemas
 from app.agent_runtime.tools import ToolContext, ToolRegistry
+from app.agent_runtime.operation_identity import operation_key
 from app.services.conversation_intent import is_simple_greeting
 
 
@@ -53,6 +56,7 @@ class LearningAgentGraph:
             "supervisor",
             self._route_supervisor,
             {
+                "supervisor": "supervisor",
                 "execute_tool": "execute_tool",
                 "approval": "approval",
                 "review": "review",
@@ -92,6 +96,7 @@ class LearningAgentGraph:
         skip_tools: list[str] | None = None,
         tool_topics: dict[str, str] | None = None,
         parsed_intents: list[dict[str, Any]] | None = None,
+        intent_frame_v1: dict[str, Any] | None = None,
     ) -> AgentState:
         initial: AgentState = {
             "task_id": str(task_id),
@@ -124,6 +129,7 @@ class LearningAgentGraph:
             "skip_tools": skip_tools or [],
             "tool_topics": tool_topics or {},
             "parsed_intents": parsed_intents or [],
+            "intent_frame_v1": intent_frame_v1 or {},
         }
         result = await self.graph.ainvoke(
             initial,
@@ -169,6 +175,19 @@ class LearningAgentGraph:
         candidate_tool_schemas = select_tool_schemas(state, tool_schemas)
         supervisor_started = time.perf_counter()
         decision = await self.supervisor.decide(state, candidate_tool_schemas)
+        contract = state.get("intent_frame_v1") or {}
+        if decision.status == "complete" and contract.get("mode") != "clarify" and contract.get("tasks"):
+            incomplete = [
+                item for item in subtask_progress(contract, state)
+                if item["status"] != "succeeded"
+            ]
+            if incomplete:
+                names = "、".join(str(item["subtask_id"]) for item in incomplete[:8])
+                decision = AgentDecision(
+                    status="failed",
+                    summary=f"子任务 {names} 缺少可验收的工具结果或产物。",
+                    final_answer=f"本轮任务尚未完成：子任务 {names} 没有可验收的结果，请查看执行轨迹。",
+                )
         supervisor_duration_ms = int((time.perf_counter() - supervisor_started) * 1000)
         replans = state.get("replan_count", 0)
         observations = state.get("observations") or []
@@ -205,6 +224,7 @@ class LearningAgentGraph:
             "pending_tool_calls": [item.model_dump(mode="json") for item in decision.tool_calls],
             "risk_level": decision.risk_level,
             "final_answer": decision.final_answer,
+            "answer_generation_metadata": dict(getattr(self.supervisor, "last_answer_metadata", {}) or {}) if decision.status == "complete" else {},
             "protocol_reasoning_content": decision.reasoning_content or "",
             "iteration_count": iteration_count,
             "replan_count": replans,
@@ -213,8 +233,11 @@ class LearningAgentGraph:
     def _route_supervisor(self, state: AgentState) -> str:
         if state.get("status") in {"failed", "waiting_confirmation"}:
             return "finalize"
+        if state.get("status") == "replan":
+            return "supervisor"
         if state.get("status") == "complete":
-            if is_simple_greeting(str(state.get("goal") or "")) or self._is_fast_lookup_task(state):
+            goal = str(state.get("goal") or "")
+            if (state.get("intent_frame_v1") or {}).get("mode") == "clarify" or is_simple_greeting(goal) or video_intent(goal) or immersive_classroom_intent(goal) or self._is_fast_lookup_task(state) or self._is_review_only_task(state):
                 return "finalize"
             return "review"
         if state.get("pending_tool_calls"):
@@ -270,13 +293,16 @@ class LearningAgentGraph:
         pending = list(state.get("pending_tool_calls") or [])
         call = pending.pop(0)
         name = str(call["name"])
+        key = operation_key(state, name, dict(call.get("arguments") or {})) if self.registry.get(name).writes_db else None
         context = ToolContext(
             task_id=UUID(state["task_id"]),
             conversation_id=UUID(state["conversation_id"]),
             tool_call_id=str(call["id"]),
             user_id=UUID(state["user_id"]),
             course_id=UUID(state["course_id"]),
+            idempotency_key_override=f"{state['task_id']}:{key}" if key else None,
         )
+        cached = await self.registry.cached_result(context)
         await self.event_sink(
             "tool_started",
             state,
@@ -284,10 +310,11 @@ class LearningAgentGraph:
                 "tool_call_id": call["id"],
                 "tool_name": name,
                 "arguments": call.get("arguments") or {},
+                "operation_key": key,
             },
         )
         tool_started = time.perf_counter()
-        result = await self.registry.execute(name, dict(call.get("arguments") or {}), context)
+        result = cached or await self.registry.execute(name, dict(call.get("arguments") or {}), context, persisted_lookup_done=True)
         duration_ms = int((time.perf_counter() - tool_started) * 1000)
         result.duration_ms = duration_ms
         await self.event_sink(
@@ -315,6 +342,7 @@ class LearningAgentGraph:
                     "arguments": call.get("arguments") or {},
                     "success": result.success,
                     "attempts": result.attempts,
+                    "operation_key": key,
                 },
             ],
             "last_tool_result": {
@@ -353,7 +381,13 @@ class LearningAgentGraph:
         result = state.get("last_tool_result", {})
         if state.get("pending_tool_calls") and result.get("success"):
             return "execute_tool"
-        if result.get("success") and result.get("final_answer"):
+        completed = {
+            str(item.get("tool_name"))
+            for item in state.get("observations") or []
+            if item.get("success") is True and item.get("tool_name")
+        }
+        required = set(required_deliverables(str(state.get("goal") or "")))
+        if result.get("success") and result.get("final_answer") and required.issubset(completed):
             return "finalize"
         return "supervisor"
 
@@ -431,3 +465,10 @@ class LearningAgentGraph:
             return False
         lookup_tools = {"search_web", "search_course_knowledge", "answer_course_question"}
         return completed.issubset(lookup_tools)
+
+    @staticmethod
+    def _is_review_only_task(state: AgentState) -> bool:
+        return required_deliverables(str(state.get("goal") or "")) == ["review_artifacts"] and any(
+            item.get("success") is True and item.get("tool_name") == "review_artifacts"
+            for item in state.get("observations") or []
+        )

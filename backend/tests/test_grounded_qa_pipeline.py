@@ -277,8 +277,11 @@ def test_personalization_formats_profile_and_memories_separately() -> None:
 
 
 @pytest.mark.asyncio
-async def test_persist_stub_preserves_requested_conversation_id() -> None:
+async def test_persist_stub_preserves_requested_conversation_id(monkeypatch) -> None:
     conversation_id = uuid4()
+    from app.services.conversation_context_service import ConversationContext, ConversationContextService
+
+    monkeypatch.setattr(ConversationContextService, "load", AsyncMock(return_value=ConversationContext()))
     pipeline = GroundedQaPipeline(db=None)  # type: ignore[arg-type]
     pipeline._authorize = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
 

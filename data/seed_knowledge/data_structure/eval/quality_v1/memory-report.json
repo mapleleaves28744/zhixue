@@ -1,0 +1,37 @@
+{
+  "finished_at": "2026-10-01T05:04:36.523979+00:00",
+  "synthetic_evaluation": true,
+  "independent_human_review": false,
+  "scope": "retrieval/injection and isolation; not LLM extraction quality",
+  "budget": {
+    "cap": 3000000,
+    "charged_tokens": 36085,
+    "calls": {
+      "pending": {
+        "count": 1,
+        "charged_tokens": 5133
+      },
+      "succeeded": {
+        "count": 48,
+        "charged_tokens": 30952
+      }
+    },
+    "unknown_usage_policy": "failed/pending/missing usage charged full reservation"
+  },
+  "variants": {
+    "no_memory": {
+      "total": 12,
+      "passed": 10,
+      "active_recall_passed": 0,
+      "isolation_passed": 10,
+      "prompt_tokens": 828
+    },
+    "retrieved_memory": {
+      "total": 12,
+      "passed": 12,
+      "active_recall_passed": 2,
+      "isolation_passed": 10,
+      "prompt_tokens": 859
+    }
+  }
+}

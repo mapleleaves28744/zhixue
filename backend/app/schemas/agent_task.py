@@ -80,6 +80,7 @@ class AgentTaskRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    execution_settled: bool = True
     user_id: UUID
     course_id: UUID
     conversation_id: UUID | None = None

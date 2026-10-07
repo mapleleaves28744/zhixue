@@ -1,0 +1,289 @@
+{
+  "started_at": "2026-09-30T07:35:37.397497+00:00",
+  "checks": "HTTP persistence, source identity, request replay and conservative topic heuristics; not blind semantic grading",
+  "results": [
+    {
+      "id": "fast_1",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释栈的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n栈的核心特点是**后进先出（LIFO）**：最后压入的元素最先弹出。只允许在一端（栈顶）进行插入和删除操作，另一端（栈底）封闭。常见操作包括 push（入栈）、pop（出栈）、peek/top（查看栈顶）。典型应用有函数调用管理、括号匹配、表达式求值、深度优先搜索等。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "9fa40614-3ea7-44aa-8124-9257d0912671",
+          "seconds": 9.94
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n栈的基本操作时间复杂度：\n- **入栈 push**：O(1)\n- **出栈 pop**：O(1)\n- **查看栈顶 peek/top**：O(1)\n- **查找特定元素**：O(n)（需遍历）\n- **判断是否为空 isEmpty**：O(1)\n\n数组实现和链表实现的栈，上述操作复杂度相同；区别在于空间开销和扩容策略。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "78a03ae2-8f52-4c88-b463-94bc241811a5",
+          "seconds": 8.56
+        },
+        {
+          "mode": "fast",
+          "question": "它和队列有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n栈与队列的核心区别在于**操作顺序**：\n- **栈**：后进先出（LIFO），只在一端（栈顶）插入和删除。\n- **队列**：先进先出（FIFO），一端插入（队尾），另一端删除（队头）。\n\n时间复杂度上，两者基本操作（入、出、查看）均为 O(1)。典型应用：栈用于函数调用、括号匹配；队列用于任务调度、广度优先搜索。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "057fcd82-46ef-403c-b5f4-4070152785ea",
+          "seconds": 9.49
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n我们讨论的两个知识点：\n1. **栈**：后进先出（LIFO），仅在一端操作，push/pop/peek 均为 O(1)。\n2. **栈与队列的区别**：栈是 LIFO，队列是 FIFO；两者基本操作复杂度相同，应用场景不同。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "299ea5ca-079f-47c1-b251-7b998b7ee46b",
+          "seconds": 9.78
+        }
+      ],
+      "passed": true,
+      "conversation_id": "bc80d468-4437-49fd-93f4-feae8ccb39da"
+    },
+    {
+      "id": "agent_1",
+      "category": "agent",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "db35e97c-400f-4fcc-94a2-49b6b3e75ffa",
+      "error": "AssertionError: Agent failed: Psycopg cannot use the 'ProactorEventLoop' to run in async mode. Please use a compatible event loop, for instance by setting 'asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())'"
+    },
+    {
+      "id": "fast_3",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释链表的核心特点。",
+          "answer": "链表的核心特点：通过指针将节点串联，插入/删除效率高（O(1)），但随机访问需遍历（O(n)），且额外占用指针空间。\n\n**课程资料未找到可靠依据**，以上为通用知识补充。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "76a03b3b-8e2f-48ff-9375-bb97d1ecbae6",
+          "seconds": 9.73
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "链表时间复杂度：头插/头删 O(1)，按索引访问 O(n)，查找 O(n)，尾插（有尾指针）O(1)。\n\n课程资料未找到可靠依据。\n\n**通用知识补充**：数组对比——随机访问 O(1)，插入/删除 O(n)（需移动元素）。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "1914a64d-42a5-4777-98b9-c36e3c4f13fa",
+          "seconds": 12.36
+        },
+        {
+          "mode": "fast",
+          "question": "它和数组有什么区别？",
+          "answer": "链表与数组的核心区别：链表插入/删除 O(1)（已知位置），访问 O(n)；数组访问 O(1)，插入/删除 O(n)。链表内存不连续、需额外指针空间，数组连续、支持随机访问。\n\n课程资料未找到可靠依据。\n\n**通用知识补充**：链表适合频繁增删场景，数组适合频繁查询场景。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "d8b0dbee-e7c3-4cef-9e01-e5f93eff0af2",
+          "seconds": 9.49
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "两个知识点总结：链表核心特点（指针串联、增删快、访问慢）与链表/数组区别（增删 vs 访问效率、内存连续性）。课程资料未找到可靠依据。\n\n**通用知识补充**：\n1. 链表：插入/删除 O(1)，访问 O(n)，内存不连续。\n2. 数组：访问 O(1)，插入/删除 O(n)，内存连续。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "43c78d0f-fab2-4e9c-a440-e4bc9ffe68e0",
+          "seconds": 14.75
+        }
+      ],
+      "passed": true,
+      "conversation_id": "e820a259-252f-4457-b715-c10525a6b205"
+    },
+    {
+      "id": "fast_5",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释快速排序的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**快速排序的核心特点：**\n\n1. **分治思想**：选取一个基准元素（pivot），将数组划分为\"小于基准\"和\"大于基准\"两部分，再递归处理子数组。\n2. **平均时间复杂度 O(n log n)**，空间复杂度约 O(log n)（递归栈）。\n3. **原地排序**（通常实现），不需要额外数组空间。\n4. **不稳定排序**：相等元素的相对顺序可能改变。\n5. **最坏情况 O(n²)**：当基准选择不当（如已排序数组选首元素）时退化，可通过随机化或三数取中缓解。\n\n**通用知识补充：**\n以上为算法教材中的通用描述，具体课程中的定义、伪代码或示例请以课程资料为准。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "80083c35-868f-41e5-90c9-87687f31a2b3",
+          "seconds": 15.36
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**快速排序的时间复杂度：**\n\n- **平均情况 O(n log n)**：每次划分大致均分，递归深度约 log n，每层处理 n 个元素。\n- **最坏情况 O(n²)**：每次划分极不均匀（如已有序数组），递归深度退化为 n。\n- **最好情况 O(n log n)**：每次恰好均分。\n\n**通用知识补充：**\n以上为算法教材通用结论；课程中若给出特定分析（如随机化快排的期望复杂度），请以课程资料为准。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "d894ce59-a0a0-4c4c-8b3a-255f94f36d15",
+          "seconds": 10.16
+        },
+        {
+          "mode": "fast",
+          "question": "它和归并排序有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**快速排序与归并排序的区别：**\n\n- **划分方式**：快排按基准值划分（不均等），归并按位置对半划分（均等）。\n- **空间**：快排原地 O(log n)，归并需 O(n) 额外空间。\n- **稳定性**：快排不稳定，归并稳定。\n- **时间**：两者平均均 O(n log n)，但快排常数更小、缓存更友好；归并最坏也是 O(n log n)，更稳定。\n\n**通用知识补充：**\n以上为算法教材通用结论；课程中的具体对比请以课程资料为准。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "7d7ca4d3-13bf-45a7-a3dc-0d15f973e925",
+          "seconds": 14.14
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**两个知识点总结：**\n\n1. **快速排序**：分治+基准划分，平均 O(n log n)，最坏 O(n²)，原地、不稳定。\n2. **快排 vs 归并**：划分方式不同（值 vs 位置）、空间（O(log n) vs O(n)）、稳定性（不稳定 vs 稳定），平均时间相同但快排常数更小。\n\n**通用知识补充：**\n以上为算法教材通用结论；课程中的具体表述请以课程资料为准。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "9e53b425-9da9-4ab8-b6d1-ecd394a43463",
+          "seconds": 6.66
+        }
+      ],
+      "passed": true,
+      "conversation_id": "ce0aa6e7-2912-49a6-bf54-f2ef56481e38"
+    },
+    {
+      "id": "fast_4",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释广度优先搜索的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n广度优先搜索（BFS）的核心特点：\n\n1. **逐层扩展**：从起点开始，先访问所有距离为1的节点，再访问距离为2的节点，依此类推。\n2. **使用队列**：先进先出（FIFO）的数据结构保证按层访问顺序。\n3. **最短路径保证**：在无权图中，BFS首次到达某节点时的路径即为最短路径。\n4. **时间复杂度**：O(V+E)，V为顶点数，E为边数。\n5. **空间复杂度**：O(V)，需存储当前层及下一层的节点。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "d05ca4e0-4ebe-4519-9295-bb053bc6dd9b",
+          "seconds": 15.3
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\nBFS时间复杂度为 O(V+E)：\n\n- **V**：顶点数，每个节点入队、出队各一次\n- **E**：边数，每条边被检查一次\n- **邻接表存储**：遍历邻居总代价为 O(E)\n- **总体**：O(V+E)，是图遍历的最优复杂度",
+          "model": "mimo-v2.6-flash",
+          "message_id": "f0078f11-c518-43e2-bc05-10114234c3b9",
+          "seconds": 6.62
+        },
+        {
+          "mode": "fast",
+          "question": "它和深度优先搜索有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\nBFS与DFS的核心区别：\n\n| 方面 | BFS | DFS |\n|------|-----|-----|\n| 数据结构 | 队列（FIFO） | 栈（LIFO）或递归 |\n| 遍历方式 | 逐层扩展 | 深入优先 |\n| 最短路径 | 无权图中保证最短 | 不保证 |\n| 空间复杂度 | O(V) | O(V)（递归时为树高） |\n| 适用场景 | 最短路径、连通性 | 拓扑排序、环检测、回溯 |",
+          "model": "mimo-v2.6-flash",
+          "message_id": "c971ac33-d9e3-4ec3-9d11-aedef6c79d26",
+          "seconds": 15.83
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n**知识点一：广度优先搜索（BFS）**\n- 逐层扩展，使用队列（FIFO）\n- 无权图中保证最短路径\n- 时间复杂度 O(V+E)\n\n**知识点二：BFS与DFS的区别**\n- BFS用队列逐层遍历，DFS用栈/递归深入遍历\n- BFS保证最短路径，DFS不保证\n- BFS适合最短路径问题，DFS适合回溯、环检测",
+          "model": "mimo-v2.6-flash",
+          "message_id": "7177c31b-5330-4bac-bc69-f8e404e5eb43",
+          "seconds": 8.25
+        }
+      ],
+      "passed": true,
+      "conversation_id": "04ca67f2-8e79-45ed-89d7-1fe883d8e7ca"
+    },
+    {
+      "id": "agent_4",
+      "category": "agent",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "a7a5fd28-9925-4f9a-93e8-a603f8b86106",
+      "error": "AssertionError: Agent failed: Psycopg cannot use the 'ProactorEventLoop' to run in async mode. Please use a compatible event loop, for instance by setting 'asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())'"
+    },
+    {
+      "id": "agent_2",
+      "category": "agent",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "201fd756-ef3e-4915-9138-ca7b38104a8b",
+      "error": "AssertionError: Agent failed: Psycopg cannot use the 'ProactorEventLoop' to run in async mode. Please use a compatible event loop, for instance by setting 'asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())'"
+    },
+    {
+      "id": "agent_5",
+      "category": "agent",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "e448c509-0171-4498-8f33-0c8093406f7a",
+      "error": "AssertionError: Agent failed: Psycopg cannot use the 'ProactorEventLoop' to run in async mode. Please use a compatible event loop, for instance by setting 'asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())'"
+    },
+    {
+      "id": "agent_3",
+      "category": "agent",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "627587ff-0ba2-495d-94cd-ea46a7a24dcf",
+      "error": "AssertionError: Agent failed: Psycopg cannot use the 'ProactorEventLoop' to run in async mode. Please use a compatible event loop, for instance by setting 'asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())'"
+    },
+    {
+      "id": "fast_2",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释二叉树的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n二叉树的核心特点：\n- 每个节点最多有两个子节点（左子、右子）\n- 子树有左右之分，顺序不可颠倒\n- 具有递归结构（树由子树构成）\n- 常见形态：满二叉树、完全二叉树、平衡二叉树、二叉搜索树等\n- 遍历方式：前序、中序、后序、层序",
+          "model": "mimo-v2.6-flash",
+          "message_id": "d0978254-4fb9-4442-9e64-2e07a8271901",
+          "seconds": 11.8
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n二叉树常见操作的时间复杂度（设 n 为节点数，h 为树高）：\n\n- 遍历（前/中/后序、层序）：O(n)\n- 查找/插入/删除：\n  - 普通二叉树：最坏 O(n)（退化为链）\n  - 平衡二叉树（AVL/红黑树）：O(log n)\n  - 二叉搜索树（BST）：平均 O(log n)，最坏 O(n)\n- 求树高：O(n)\n- 完全二叉树相关操作（堆）：O(log n)",
+          "model": "mimo-v2.6-flash",
+          "message_id": "f3e99e73-5fdf-4750-82fe-56e76ff775c8",
+          "seconds": 10.12
+        },
+        {
+          "mode": "fast",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n二叉树 vs 二叉搜索树（BST）的区别：\n\n- **定义范围**：二叉树是通用结构（每个节点最多两个子节点）；BST 是二叉树的特化，附加了排序规则\n- **排序规则**：BST 要求左子树所有节点 < 根 < 右子树所有节点，且左右子树本身也是 BST；普通二叉树无此约束\n- **查找效率**：普通二叉树查找需遍历 O(n)；BST 利用有序性可剪枝，平均 O(log n)\n- **中序遍历结果**：BST 中序遍历得到有序序列；普通二叉树无此性质\n- **关系**：BST ⊂ 二叉树（BST 一定是二叉树，反之不成立）",
+          "model": "mimo-v2.6-flash",
+          "message_id": "79a5ec29-f385-4685-822b-e9d4c69dedb0",
+          "seconds": 24.09
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n**知识点一：二叉树的核心特点**\n- 每个节点最多两个子节点（左子、右子）\n- 子树有左右之分，顺序不可颠倒\n- 具有递归结构\n- 常见形态：满二叉树、完全二叉树、平衡二叉树等\n- 遍历方式：前序、中序、后序、层序\n\n**知识点二：二叉树与二叉搜索树（BST）的区别**\n- 定义范围：二叉树是通用结构；BST 是二叉树的特化，附加排序规则\n- 排序规则：BST 要求左 < 根 < 右，且左右子树也是 BST\n- 查找效率：普通二叉树 O(n)；BST 平均 O(log n)\n- 中序遍历：BST 得到有序序列，普通二叉树无此性质\n- 关系：BST ⊂ 二叉树",
+          "model": "mimo-v2.6-flash",
+          "message_id": "fd5d2d89-20b1-4761-a7ba-7c03ceb0a1f9",
+          "seconds": 8.25
+        }
+      ],
+      "passed": true,
+      "conversation_id": "7d9f3cf1-6f14-4a75-9295-042978b223aa"
+    },
+    {
+      "id": "fast_6",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释哈希表的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n哈希表（Hash Table）的核心特点：\n\n1. **平均 O(1) 时间复杂度**：通过哈希函数将键映射到数组下标，理想情况下查找、插入、删除均为常数时间。\n2. **基于哈希函数**：键经哈希函数计算得到存储位置，哈希函数质量直接影响性能。\n3. **冲突处理**：不同键可能映射到同一位置（冲突），常见解决方式有链地址法（拉链法）和开放寻址法。\n4. **空间换时间**：以额外存储空间换取快速访问。\n5. **最坏情况退化**：若冲突严重，时间复杂度可能退化为 O(n)。\n6. **无序性**：通常不保证元素顺序（除非使用有序哈希变体）。\n\n典型应用：字典、缓存、去重、索引等。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "146ac0eb-2906-4a87-a5d3-c78e1035e675",
+          "seconds": 15.31
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n哈希表时间复杂度：\n\n| 操作 | 平均情况 | 最坏情况 |\n|------|---------|---------|\n| 查找 | O(1) | O(n) |\n| 插入 | O(1) | O(n) |\n| 删除 | O(1) | O(n) |\n\n**关键说明：**\n\n1. **平均 O(1)**：哈希函数分布均匀、负载因子适中时，冲突少，直接定位。\n2. **最坏 O(n)**：所有键冲突到同一位置（如哈希函数失效），退化为链表遍历。\n3. **负载因子 α = n/m**（元素数/桶数）：α 越大冲突概率越高，通常超过阈值（如 0.75）会扩容。\n4. **摊还分析**：扩容操作虽单次 O(n)，但均摊到每次插入仍为 O(1)。\n\n实际工程中，良好哈希函数 + 合理扩容策略下，可近似认为稳定 O(1)。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "1ff5fdc3-f8bb-4097-b0ff-e83ac14a274f",
+          "seconds": 16.64
+        },
+        {
+          "mode": "fast",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n哈希表与二叉搜索树（BST）的主要区别：\n\n| 维度 | 哈希表 | 二叉搜索树 |\n|------|--------|-----------|\n| 时间复杂度（平均） | O(1) | O(log n) |\n| 时间复杂度（最坏） | O(n) | O(n)（退化为链表） |\n| 有序性 | 无序 | 有序（中序遍历有序） |\n| 范围查询 | 不支持 | 支持（如查找区间 [a,b]） |\n| 最小/最大值 | 需遍历 | O(log n) 可获取 |\n| 实现复杂度 | 需哈希函数+冲突处理 | 需平衡机制（AVL/红黑树） |\n\n**核心取舍：**\n\n- **选哈希表**：只需精确查找/插入/删除，追求极致速度。\n- **选 BST**：需要有序操作（排序、范围查询、前驱后继）。\n\n**补充说明：**\n\n- 平衡二叉搜索树（如红黑树）最坏也能保证 O(log n)，比哈希表最坏情况更稳定。\n- 哈希表平均更快，但依赖哈希函数质量；BST 性能更可预测。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "a16d834b-21cb-49a7-ba9e-cfc160883451",
+          "seconds": 14.06
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n刚才讨论的两个知识点总结：\n\n**1. 哈希表核心特点**\n- 平均 O(1) 时间复杂度，基于哈希函数定位\n- 通过链地址法或开放寻址法处理冲突\n- 空间换时间，无序存储\n- 最坏情况退化为 O(n)\n\n**2. 哈希表与二叉搜索树的区别**\n- 哈希表平均更快（O(1) vs O(log n)），但无序\n- BST 支持有序操作（范围查询、最值获取）\n- 哈希表最坏 O(n)，平衡 BST 最坏 O(log n)\n- 选择依据：精确查找选哈希表，有序需求选 BST",
+          "model": "mimo-v2.6-flash",
+          "message_id": "805f0f9c-e9c2-4cb8-85cb-1a749bce3ece",
+          "seconds": 13.01
+        }
+      ],
+      "passed": true,
+      "conversation_id": "fc5e626c-4651-4d49-83f2-d3a8113fdc12"
+    }
+  ],
+  "configured_model": "mimo-v2.6-flash",
+  "evaluation_user_id": "62bcd5c2-08e7-4bd0-b92c-277f97432272",
+  "evaluation_course_id": "069f93ee-d4be-44c4-9221-24853e28899b"
+}

@@ -53,6 +53,7 @@ class QuizAgent(BaseAgent):
             QuizGenerationOutput,
             temperature=0.4,
             max_tokens=4096,
+            max_retries=0,
         )
         if structured is not None:
             questions = []

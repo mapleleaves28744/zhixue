@@ -65,6 +65,7 @@ class QuizSubmitRequest(BaseModel):
 
 
 class QuestionRead(BaseModel):
+    position: int | None = Field(default=None, ge=1)
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID

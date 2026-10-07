@@ -49,6 +49,15 @@ async def restore_memory(
     return success_response(memory.model_dump(mode="json"), request=request)
 
 
+@router.get("/{memory_id}/evidence")
+async def memory_evidence(
+    memory_id: UUID, request: Request,
+    current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    records = await MemoryService(db).evidence_records(memory_id, current_user.id)
+    return success_response(records, request=request)
+
+
 @router.post("/reflect")
 async def reflect(
     request: Request,

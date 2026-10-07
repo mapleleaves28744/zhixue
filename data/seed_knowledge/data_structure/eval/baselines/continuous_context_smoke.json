@@ -1,0 +1,92 @@
+{
+  "started_at": "2026-09-30T07:33:49.591779+00:00",
+  "checks": "HTTP persistence, source identity, request replay and conservative topic heuristics; not blind semantic grading",
+  "results": [
+    {
+      "id": "fast_1",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释栈的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n栈的核心特点是**后进先出（LIFO）**：最后压入的元素最先弹出。只允许在一端（栈顶）进行插入（push）和删除（pop）操作，另一端（栈底）封闭。常见应用包括函数调用管理、表达式求值、括号匹配、深度优先搜索等。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "70caf562-a56b-4bfd-a29a-7799a051ce7b",
+          "seconds": 10.34
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n栈的基本操作时间复杂度：\n- **push（入栈）**：O(1)\n- **pop（出栈）**：O(1)\n- **peek/top（查看栈顶）**：O(1)\n- **search（按值查找）**：O(n)，需从栈顶逐个遍历\n\n原因：栈顶指针直接定位操作位置，无需移动元素，故增删查顶均为常数时间。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "34b6b27d-e9e5-47b1-8936-66e8eecd418e",
+          "seconds": 9.7
+        },
+        {
+          "mode": "fast",
+          "question": "它和队列有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n栈与队列的核心区别：\n- **栈**：后进先出（LIFO），只在栈顶操作\n- **队列**：先进先出（FIFO），队尾入、队头出\n\n两者基本操作时间复杂度均为 O(1)。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "5dfb32cd-5405-4cb5-9f47-0d6fba45b1c9",
+          "seconds": 9.44
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n刚才讨论的两个知识点：\n\n1. **栈的核心特点**：后进先出（LIFO），仅在栈顶进行 push/pop 操作，基本操作时间复杂度为 O(1)。\n\n2. **栈与队列的区别**：栈是 LIFO（栈顶操作），队列是 FIFO（队尾入、队头出），两者基本操作均为 O(1)。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "af24e4f7-0a1c-4d94-afca-da38570f1707",
+          "seconds": 13.22
+        }
+      ],
+      "passed": true,
+      "conversation_id": "70d6da6b-0f39-43b3-a544-2632de3e8205"
+    },
+    {
+      "id": "fast_2",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释二叉树的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n二叉树的核心特点：\n\n1. **每个节点最多有两个子节点**——分别称为左子节点和右子节点，这是\"二叉\"的含义。\n2. **具有递归结构**——每个子树本身也是一棵二叉树，便于用递归算法处理。\n3. **有明确的层次关系**——根节点、内部节点、叶子节点等概念清晰，支持层序遍历。\n4. **有序性**——左右子树位置固定，不可互换（与一般树不同）。\n5. **常见变体**：满二叉树、完全二叉树、二叉搜索树（BST）、平衡二叉树（AVL）等，各有额外约束。\n\n这些是数据结构领域的通用知识，非课程资料直接依据。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "6fb9bc44-624b-427c-92c5-31830cd60137",
+          "seconds": 14.72
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n二叉树常见操作的时间复杂度（设 n 为节点数，h 为树高）：\n\n- **遍历（前序/中序/后序/层序）**：O(n)\n- **查找/插入/删除**：O(h)\n  - 普通二叉树：最坏 h = n，即 O(n)\n  - 二叉搜索树（BST）：平均 O(log n)，最坏 O(n)（退化为链）\n  - 平衡二叉树（AVL/红黑树）：O(log n)\n- **求树高**：O(n)\n- **建树（已知 n 个节点）**：O(n)\n\n关键点：树的操作效率取决于**树高 h**，平衡性越好，h 越接近 log n，效率越高。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "3d1b5688-9349-4532-8e4c-3cacb842bf00",
+          "seconds": 11.2
+        },
+        {
+          "mode": "fast",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n二叉树与二叉搜索树（BST）的区别：\n\n- **定义范围**：二叉树是通用结构，每个节点最多两个子节点；BST 是二叉树的特化，附加了排序约束。\n- **节点顺序**：二叉树无序；BST 要求**左子树所有节点 < 根 < 右子树所有节点**，且左右子树本身也满足。\n- **用途**：二叉树多用于表达层次/分支关系（如表达式树、决策树）；BST 专用于高效查找、插入、删除（平均 O(log n)）。\n- **查找效率**：二叉树查找需遍历 O(n)；BST 可利用有序性二分查找。\n\n简言之：**BST ⊂ 二叉树**，BST 是带有序约束的二叉树。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "ebf762f5-c068-409a-8c79-6bb5a879de8c",
+          "seconds": 14.28
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n**知识点一：二叉树的核心特点**\n- 每个节点最多两个子节点（左、右），结构递归、有层次、左右有序。\n- 操作效率取决于树高 h：遍历 O(n)，查找/插入/删除 O(h)；平衡时 h≈log n，效率最优。\n\n**知识点二：二叉树与二叉搜索树（BST）的区别**\n- 二叉树是通用结构；BST 是其特化，附加\"左 < 根 < 右\"的有序约束。\n- 二叉树查找需 O(n)；BST 利用有序性，平均 O(log n)，最坏 O(n)（退化时）。\n- 关系：BST ⊂ 二叉树。",
+          "model": "mimo-v2.6-flash",
+          "message_id": "00b471d2-99be-48af-b338-314f64c21faf",
+          "seconds": 15.77
+        }
+      ],
+      "passed": true,
+      "conversation_id": "cf0d21a7-243b-4456-b45e-4783c5eb497a"
+    }
+  ],
+  "configured_model": "mimo-v2.6-flash",
+  "evaluation_user_id": "36a11d57-6a26-4603-a9de-250c41e001d8",
+  "evaluation_course_id": "79bb915f-b19e-4bcd-a527-c2842a5711c4",
+  "finished_at": "2026-09-30T07:34:51.429070+00:00",
+  "passed": 2,
+  "total": 2
+}
