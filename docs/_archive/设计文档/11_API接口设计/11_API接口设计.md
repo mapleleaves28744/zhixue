@@ -14,7 +14,7 @@
 > 生成方式：`python scripts/export_implementation_docs.py`
 >
 > 生成依据：FastAPI `app.openapi()`，共 **149** 个 HTTP 操作。
-> 最后同步：2026-10-01
+> 最后同步：2026-10-12
 
 ## 使用规则
 
@@ -36,16 +36,16 @@
 | 个性化资源 | `resources` | 7 | `07_资源生成接口.md` |
 | 练习与错题 | `quizzes` | 6 | `08_题库练习接口.md` |
 | 诊断与推荐 | `diagnosis`, `recommendations` | 11 | `09_学习诊断接口.md` |
-| 学习路径与学习记录 | `learning-paths`, `learning-records` | 7 | `10_学习路径推荐接口.md` |
+| 学习路径、学习记录与学习分析 | `learning-paths`, `learning-records`, `learning-analytics` | 10 | `10_学习路径推荐接口.md` |
 | 学生画像与长期记忆 | `student-profile`, `student-memory` | 14 | `11_学生画像接口.md` |
-| Agent 调度与日志 | `agents` | 4 | `12_Agent调度接口.md` |
+| Agent 对话、任务、调度与日志 | `agents`, `agent`, `agent-tasks` | 20 | `12_Agent调度接口.md` |
 | 自进化策略 | `evolution` | 7 | `13_自进化策略接口.md` |
 
 ## 当前明确未实现
 
 - `/api/v1/admin/*` 管理员后台业务接口。
 - `/api/v1/auth/refresh`、`/api/v1/auth/logout`。
-- 独立聊天会话与聊天历史列表接口。
+- 会话重命名、删除和搜索接口；已有 `/api/v1/agent/conversations` 会话列表/创建及消息列表接口。
 - WebSocket 资料处理进度接口。
 - 教师端业务接口。
 

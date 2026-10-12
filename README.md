@@ -6,7 +6,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi)](backend/requirements.txt)
 [![LangGraph](https://img.shields.io/badge/LangGraph-1.x-1C3C3C)](backend/requirements.txt)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-4169E1?logo=postgresql)](docs/当前实现数据库清单.md)
-[![Tests](https://img.shields.io/badge/pytest-503%20passed-2E8B57?logo=pytest)](docs/当前实现基线.md)
+[![Tests](https://img.shields.io/badge/pytest-633%20passed%20%2F%202%20failed-orange?logo=pytest)](docs/当前实现基线.md)
 
 ![智学工坊项目视觉横幅](docs/assets/readme/zhixue-hero-v2.png)
 
@@ -123,7 +123,7 @@ load_context
 
 ![LangGraph 智能体运行状态图](docs/assets/readme/langgraph-runtime.png)
 
-当前实现包含 15 个领域 Agent，覆盖意图路由、编排、知识检索、Wiki、Tutor、资源、练习、诊断、推荐、画像、记忆、学习路径、知识图谱、自进化和 Review；Tool Registry 集中注册 24 个业务工具。
+当前实现包含 15 个领域 Agent，覆盖意图路由、编排、知识检索、Wiki、Tutor、资源、练习、诊断、推荐、画像、记忆、学习路径、知识图谱、自进化和 Review；Tool Registry 集中注册 23 个业务工具（含历史对话检索；视频和课堂工具已移出注册表）。
 
 智能体运行时的重点不是 Agent 数量，而是执行边界：
 
@@ -149,7 +149,7 @@ load_context
 
 画像信号可以来自对话、答题、错题、诊断、学习时长和反馈。自然语言中的“喜欢分步骤讲解”“希望优先给 Python 示例”“递归比较薄弱”等信息会经过提取与校验，并保存来源消息、摘录、时间和置信度。
 
-学生可以查看画像证据，归档、恢复或删除长期记忆。生成回答和资源时只加载当前课程相关度最高的活跃记忆，避免无关历史不断堆进 Prompt。
+学生可以查看记忆来源证据、纠正、归档、遗忘和显式恢复。遗忘会留下抑制记录，并排除对应问答来源，避免自动反思立即重新写入。生成回答和资源时只加载当前课程相关度最高的活跃记忆，避免无关历史不断堆进 Prompt。
 
 ### 7. 练习、诊断、推荐与受控自进化
 
@@ -183,10 +183,17 @@ load_context
 - 教学图解与知识卡片；
 - 多页 HTML 互动课件；
 - TTS 语音与 ASR 转写；
-- 带中文画面、配音和烧录字幕的讲解视频；
-- 基于课程 RAG、薄弱点和解释偏好的 OpenMAIC 沉浸课堂。
+- 结构化 HTML 分镜讲解页。
+
+讲解视频和 OpenMAIC 沉浸课堂保留历史实现与产物读取；默认 `LEARNING_VIDEO_ENABLED=false`，新建请求返回 410，Agent 不再提供对应生成工具。
 
 媒体生成通过后台任务执行，统一记录进度、Provider、产物类型、错误和降级状态。无真实文生图能力时，教学图片请求会降级为 Mermaid 知识卡片；无真实模型 Key 时，普通 Wiki、Tutor、资源、练习和诊断可使用结构化 Mock Provider，且不会把降级结果描述为真实模型效果。
+
+### 连续对话、意图契约与可管理记忆
+
+快速 Tutor 与 Agent 共用持久会话，排队任务固定来源消息边界；长会话采用有版本的原文摘要、来源索引和上下文预算。组合任务按子任务、主题、排除项和修订号形成意图契约，已提交的业务结果可恢复复用。资料与题目追问重新核对课程归属和持久顺序；文本资源修订创建新记录并保留版本链。
+
+长期记忆支持证据、事实键、冲突待确认、热冷分层及遗忘抑制。2026-10-01 的有限合成回归记录了 116/120 条意图契约匹配、60/60 项记忆生命周期、42/42 项故障保护和 300/300 次本地 Service 并发请求。它们不代表真实学生教学正确率或线上 SLA；方法与失败见[合成质量评估记录](docs/19_测试方案/29_合成质量评估与优化收尾.md)。
 
 ## 系统架构
 
@@ -235,8 +242,8 @@ Router → Service → Agent Runtime → Tool / Service → Repository
 - PostgreSQL 保存用户、课程、资料、Wiki、练习、画像、任务和资源等业务事实。
 - pgvector 的 `VECTOR(1024)` 保存文档切片向量，并支持按课程过滤的相似度检索。
 - Redis 用于 arq 队列、实时通知和画像缓存；Redis 不可用时，持久任务事件仍以数据库为准。
-- Alembic 管理所有数据库结构变化，当前包含 25 个 migration。
-- 44 张 ORM 表将核心实体与版本、事件、日志、映射和学习过程记录分离。
+- Alembic 管理所有数据库结构变化，当前包含 33 个 migration，head 为 `f4a5b6c7d8e9`。
+- 48 张 ORM 表将核心实体与版本、事件、日志、映射和学习过程记录分离。
 
 ### 异步任务与流式体验
 
@@ -275,21 +282,24 @@ Router → Service → Agent Runtime → Tool / Service → Repository
 
 ## 工程规模与验证结果
 
-以下数字来自当前实现清单与最近一次完整回归基线，而不是早期设计稿：
+规模数字于 2026-10-12 从当前代码复核；历史真实模型验收保留原日期和范围：
 
 | 指标 | 当前记录 |
 |---|---:|
-| FastAPI HTTP 操作 | 147 |
-| SQLAlchemy ORM 表 | 44 |
-| Alembic migrations | 25 |
-| Agent 类 / 注册工具 | 15 / 24 |
-| Service 文件 | 69 |
-| 后端测试文件 | 68 |
-| 后端全量回归 | 503 passed |
+| FastAPI HTTP 操作 | 149 |
+| SQLAlchemy ORM 表 | 48 |
+| Alembic migrations | 33 |
+| Agent 类 / 注册工具 | 15 / 23 |
+| Service 文件 | 83（含 `__init__.py`） |
+| 后端测试文件 | 78（`test_*.py`） |
+| 本次强制 Mock 全量回归 | 633 passed、2 failed、6 warnings（2026-10-12） |
+| 历史完整回归 | 635 passed（2026-10-01，非本次重跑结果） |
 | 真实 LLM 主链路 | 23 步通过，未回退 Mock |
 | 真实 MiMo Agent 场景 | 20/20 场景通过 |
 | Agent 任务完成率 | 95% |
 | 工具选择 / 重规划 / 高风险拦截 | 100% / 100% / 100% |
+
+本次两项失败位于 `test_agent_cancellation.py`：Runtime 的真实 Provider 前置检查先于测试模拟的 Graph 执行。未修改测试或业务代码。完整复核见[文档同步复核记录](docs/19_测试方案/30_文档同步复核记录.md)。
 
 完整统计日期、测试条件和限制以[当前实现基线](docs/当前实现基线.md)和[真实 LLM 验收记录](docs/19_测试方案/13_真实LLM主链路与Next安全专项验收记录.md)为准。
 
@@ -421,7 +431,9 @@ README 只描述当前代码和已有验收证据。以下事项仍需要继续�
 - Docker 全栈、全站浏览器 E2E 和真实 Provider 全模态矩阵仍需补齐正式验收。
 - Grounded QA 的检索召回较稳定，但严格引用精度与引用覆盖率仍有提升空间。
 - Agent Review 结果目前尚未形成完整的阻断路由分支。
-- 写库工具仍存在“业务已写入、结果未保存”窗口下的重试副作用风险。
+- 写工具已有持久操作身份和恢复结果复用；不明状态的外部写入仍需核对，不能承诺任意外部系统的 exactly-once。
+- 本次 Mock 回归有 2 项 Agent 取消/恢复测试失败，需补齐 Provider 测试隔离后再验收。
+- 默认 Turbopack 构建曾发生字体模块解析错误；2026-10-01 的 Webpack 构建通过，本次未复跑前端。
 - 公有课程资料写权限、媒体 URL Token、SSE 订阅窗口等安全与一致性问题仍在修复计划中。
 - 部分学生端页面仍通过 `StitchFrame` 承载，并非全站 React 组件化。
 
@@ -430,8 +442,8 @@ README 只描述当前代码和已有验收证据。以下事项仍需要继续�
 ## 文档导航
 
 - [当前实现基线](docs/当前实现基线.md)：实际能力、规模、验收证据与已知限制
-- [当前 API 清单](docs/当前实现API清单.md)：从 FastAPI 自动导出的 147 个 HTTP 操作
-- [当前数据库清单](docs/当前实现数据库清单.md)：从 SQLAlchemy metadata 自动导出的 44 张表
+- [当前 API 清单](docs/当前实现API清单.md)：从 FastAPI 自动导出的 149 个 HTTP 操作
+- [当前数据库清单](docs/当前实现数据库清单.md)：从 SQLAlchemy metadata 自动导出的 48 张表
 - [测试方案与验收入口](docs/19_测试方案/19_测试方案.md)
 - [本地与部署说明](docs/20_部署方案/20_部署方案.md)
 - [系统架构设计](docs/_archive/设计文档/06_系统架构设计/06_系统架构设计.md)：历史设计参考
