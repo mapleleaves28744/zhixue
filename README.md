@@ -10,6 +10,16 @@
 
 ![智学工坊项目视觉横幅](docs/assets/readme/zhixue-hero-v2.png)
 
+## 项目演示视频
+
+点击下方播放器即可直接观看完整演示（约 7 分钟，含声音；如无声请开启播放器音量）。
+
+https://github.com/user-attachments/assets/7f86d206-c834-40b5-a7da-aa9a3b1bb8d8
+
+在线播放为压缩版（1280 × 686，约 13 MiB）；[下载原画质视频（2016 × 1080，约 421 MiB）](https://github.com/mapleleaves28744/zhixue/releases/download/project-demo-20261015/zhixue-project-demo.mp4)。[演示素材说明](docs/assets/demo/README.md)
+
+## 项目简介
+
 智学工坊是一套围绕高校课程学习过程构建的 AI 原生学习系统。学生可以为不同课程建立独立空间，上传 PDF、Word、Markdown 等资料；系统会将原始文档转化为课程知识库、知识图谱与 LLM Wiki，并在此基础上提供可信答疑、个性化资源、练习诊断、学习路径和长期画像。
 
 它不是把大模型接到一个聊天框里，而是尝试回答四个更接近真实学习场景的问题：
@@ -20,12 +30,6 @@
 | 通用模型回答看似流畅，却缺少课程依据 | 让回答和资源能够回到原始资料 | 真实 chunk/source ID、`[S1]` 引用、Grounded QA、引用规则校验 |
 | 一次性问答无法理解学生长期变化 | 让系统持续积累有证据的学习状态 | 全局画像、课程画像、长期记忆、掌握度、错题与诊断联动 |
 | 智能体会调用什么工具、做了什么难以控制 | 把智能体约束在可观测的业务边界内 | LangGraph、Tool Registry、任务事件、checkpoint、风险确认与策略回滚 |
-
-## 项目演示视频
-
-**[▶ 下载观看完整项目演示（约 7 分钟）](https://github.com/mapleleaves28744/zhixue/releases/download/project-demo-20261015/zhixue-project-demo.mp4)**
-
-视频为 MP4 格式，分辨率 2016 × 1080，大小约 421 MiB。原始视频托管于本仓库的 [演示视频 Release](https://github.com/mapleleaves28744/zhixue/releases/tag/project-demo-20261015)，可从附件下载后播放；视频说明见[演示素材索引](docs/assets/demo/README.md)。
 
 ## 从资料到个性化学习闭环
 
