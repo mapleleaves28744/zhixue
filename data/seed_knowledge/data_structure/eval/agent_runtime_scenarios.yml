@@ -65,17 +65,28 @@ scenarios:
     category: multi_agent
     goal: 先检索图的课程资料，再生成讲解和一组练习题。
     expected_any_tools: [search_course_knowledge, generate_explanation, generate_quiz]
+    expected_tool_groups:
+      - [search_course_knowledge, answer_course_question]
+      - [generate_explanation]
+      - [generate_quiz]
     expected_min_tool_calls: 2
     requires_citations: true
   - id: agent-016
     category: multi_agent
     goal: 为排序算法制定学习路径，并生成配套讲解资料。
     expected_any_tools: [generate_learning_path, generate_explanation]
+    expected_tool_groups:
+      - [generate_learning_path]
+      - [generate_explanation]
     expected_min_tool_calls: 2
   - id: agent-017
     category: multi_agent
     goal: 检索二叉树资料，解释核心概念，并推荐下一步学习内容。
     expected_any_tools: [search_course_knowledge, generate_explanation, refresh_recommendations]
+    expected_tool_groups:
+      - [search_course_knowledge, answer_course_question]
+      - [generate_explanation, answer_course_question]
+      - [refresh_recommendations]
     expected_min_tool_calls: 2
     requires_citations: true
   - id: agent-018

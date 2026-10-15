@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import json
+import re
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -31,13 +32,11 @@ def calculate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
     cited_count = sum(len(row.get("cited_source_ids") or []) for row in evaluated_rows)
     valid_citations = sum(_valid_citation_count(row) for row in evaluated_rows)
     answerable_evaluated_rows = [row for row in evaluated_rows if row.get("answerable") is True]
-    covered_answers = sum(
-        1 for row in answerable_evaluated_rows if _valid_citation_count(row) > 0
-    )
+    covered_answers = sum(1 for row in answerable_evaluated_rows if _citation_covers_evidence(row))
 
     unanswerable_rows = [row for row in evaluated_rows if row.get("answerable") is False]
-    unanswerable_count = len(unanswerable_rows)
-    refusals = sum(1 for row in unanswerable_rows if row.get("refused") is True)
+    reviewed_refusals = [row for row in unanswerable_rows if row.get("refusal_reviewed") is True]
+    refusals = sum(1 for row in reviewed_refusals if row.get("refused") is True)
 
     scored_rows = [row for row in rows if isinstance(row.get("answer_correct"), bool)]
     scored_count = len(scored_rows)
@@ -58,7 +57,17 @@ def calculate_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
             else None
         ),
         "unanswerable_refusal_rate": (
-            round(refusals / unanswerable_count, 4) if unanswerable_count else None
+            round(refusals / len(reviewed_refusals), 4) if reviewed_refusals else None
+        ),
+        "unanswerable_reviewed_answers": len(reviewed_refusals),
+        "unanswerable_insufficient_rate": (
+            round(
+                sum(row.get("grounding_status") == "insufficient" for row in unanswerable_rows)
+                / len(unanswerable_rows),
+                4,
+            )
+            if unanswerable_rows
+            else None
         ),
         "answer_correctness": round(correct / scored_count, 4) if scored_count else None,
         "llm_evaluated_answers": llm_evaluated_count,
@@ -70,17 +79,30 @@ async def evaluate_public_kb(
     *,
     source_root: Path = DEFAULT_SOURCE_ROOT,
     course_id: UUID | None = None,
+    user_id: UUID | None = None,
     top_k: int = 8,
     run_llm_sample: int = 0,
+    require_real_provider: bool = False,
+    expected_model: str | None = None,
+    output_prefix: Path | None = None,
 ) -> dict[str, Any]:
-    from sqlalchemy import select, text
-
     from app.agents.context import AgentContext
     from app.agents.tutor_agent import TutorAgent
     from app.core.config import settings
     from app.db.session import AsyncSessionLocal
     from app.models.course import Course
+    from app.models.user import User
     from app.rag.hybrid_retriever import HybridRetriever
+    from sqlalchemy import select, text
+
+    if require_real_provider and (
+        settings.llm_provider not in {"compatible", "openai_compatible"}
+        or not settings.llm_api_key
+        or run_llm_sample <= 0
+    ):
+        raise ValueError("真实回答评测要求 OpenAI-compatible Provider、API Key 和正数采样量")
+    if expected_model and settings.llm_model_name != expected_model:
+        raise ValueError(f"模型不匹配：配置为 {settings.llm_model_name}，预期 {expected_model}")
 
     questions = _load_questions(source_root)
     rows: list[dict[str, Any]] = []
@@ -97,6 +119,9 @@ async def evaluate_public_kb(
             ).scalar_one_or_none()
         if course is None:
             raise RuntimeError("Public Data Structure course not found. Run init_public_data_structure_kb.py first.")
+        evaluation_user = await db.get(User, user_id or course.owner_id)
+        if evaluation_user is None:
+            raise ValueError(f"评测用户不存在: {user_id}")
 
         corpus_stats = dict(
             (
@@ -136,7 +161,7 @@ async def evaluate_public_kb(
             results = await retriever.search(
                 course_id=course.id,
                 query=question,
-                user_id=course.owner_id,
+                user_id=evaluation_user.id,
                 top_k=top_k,
             )
             retrieved_source_ids = [
@@ -164,14 +189,16 @@ async def evaluate_public_kb(
                 "cited_source_ids": [],
                 "cited_quotes": [],
                 "refused": False,
+                "refusal_reviewed": False,
                 "answer_correct": None,
             }
             rows.append(row)
 
             if index < run_llm_sample:
+                print(f"[public-kb {index + 1}/{min(run_llm_sample, len(questions))}] answering", flush=True)
                 agent_result = await TutorAgent(db).run(
                     AgentContext(
-                        user_id=course.owner_id,
+                        user_id=evaluation_user.id,
                         course_id=course.id,
                         task_type="course_qa",
                         params={
@@ -184,17 +211,30 @@ async def evaluate_public_kb(
                     )
                 )
                 citations = list(agent_result.data.get("citations") or [])
+                provider = agent_result.data.get("provider")
+                model = agent_result.data.get("model")
+                fallback_used = agent_result.data.get("fallback_used")
+                if require_real_provider and (
+                    not agent_result.success
+                    or fallback_used
+                    or not provider
+                    or str(provider).lower() == "mock"
+                    or model != settings.llm_model_name
+                ):
+                    raise RuntimeError(
+                        f"第 {index + 1} 题未得到预期真实模型结果：provider={provider}, model={model}, fallback={fallback_used}"
+                    )
                 cited_source_ids, cited_quotes = _evaluation_citations(citations, results)
                 grounding_status = str(agent_result.data.get("grounding_status") or "")
-                refused = grounding_status == "insufficient" or not str(
-                    agent_result.data.get("answer") or ""
-                ).strip()
+                refused = _is_refusal(str(agent_result.data.get("answer") or ""))
                 row.update(
                     {
                         "llm_evaluated": True,
                         "cited_source_ids": cited_source_ids,
                         "cited_quotes": cited_quotes,
                         "refused": refused,
+                        "refusal_reviewed": False,
+                        "grounding_status": grounding_status,
                         "answer_correct": None,
                     }
                 )
@@ -207,15 +247,28 @@ async def evaluate_public_kb(
                         "cited_source_ids": cited_source_ids,
                         "cited_quotes": cited_quotes,
                         "refused": refused,
+                        "refusal_reviewed": False,
+                        "grounding_status": grounding_status,
                         "answer_correct": None,
                         "provider": agent_result.data.get("provider"),
+                        "model": model,
                         "fallback_used": agent_result.data.get("fallback_used"),
                     }
+                )
+                print(
+                    f"[public-kb {index + 1}/{min(run_llm_sample, len(questions))}] "
+                    f"provider={provider} model={model} fallback={fallback_used}",
+                    flush=True,
                 )
 
     metrics = calculate_metrics(rows)
     report = {
+        "generated_at": datetime.now(UTC).isoformat(),
+        "llm_provider": settings.llm_provider,
+        "llm_model": settings.llm_model_name,
+        "require_real_provider": require_real_provider,
         "course_id": str(course.id),
+        "evaluation_user_id": str(evaluation_user.id),
         "course_code": course.course_code,
         "course_visibility": course.visibility,
         "top_k": top_k,
@@ -231,9 +284,10 @@ async def evaluate_public_kb(
         "rows": rows,
         "llm_answers": llm_answers,
     }
-    eval_dir = source_root / "eval"
-    write_json(eval_dir / "public_kb_eval_report.json", report)
-    (eval_dir / "public_kb_eval_report.md").write_text(_markdown_report(report), encoding="utf-8")
+    prefix = output_prefix or source_root / "eval" / "public_kb_eval_report"
+    prefix.parent.mkdir(parents=True, exist_ok=True)
+    write_json(Path(f"{prefix}.json"), report)
+    Path(f"{prefix}.md").write_text(_markdown_report(report), encoding="utf-8")
     return report
 
 
@@ -242,6 +296,17 @@ def _source_hit(row: dict[str, Any], *, limit: int | None = None) -> bool:
     if limit is not None:
         retrieved = retrieved[:limit]
     return bool(set(row.get("expected_sources") or []).intersection(retrieved))
+
+
+def _is_refusal(answer: str) -> bool:
+    if not answer.strip():
+        return True
+    return bool(re.search(
+        r"无法(?:根据|从|回答|确认|判断)|不能(?:确定|回答|确认)|资料不足|依据不足|"
+        r"未(?:提供|找到|收录)|没有足够|不包含|insufficient|cannot answer|can't answer",
+        answer,
+        flags=re.IGNORECASE,
+    ))
 
 
 def _reciprocal_rank(row: dict[str, Any], *, limit: int) -> float:
@@ -263,10 +328,23 @@ def _valid_citation_count(row: dict[str, Any]) -> int:
             continue
         if evidence_term_groups:
             quote = str(cited_quotes[index] if index < len(cited_quotes) else "").casefold()
-            if not all(any(term in quote for term in group) for group in evidence_term_groups):
+            if not any(any(term in quote for term in group) for group in evidence_term_groups):
                 continue
         valid += 1
     return valid
+
+
+def _citation_covers_evidence(row: dict[str, Any]) -> bool:
+    expected_sources = set(row.get("expected_sources") or [])
+    groups = _evidence_term_groups(row.get("expected_evidence_terms") or [])
+    valid_quotes = [
+        str(quote).casefold()
+        for source, quote in zip(row.get("cited_source_ids") or [], row.get("cited_quotes") or [])
+        if source in expected_sources
+    ]
+    if not valid_quotes:
+        return False
+    return all(any(term in quote for quote in valid_quotes for term in group) for group in groups)
 
 
 def _evidence_term_groups(raw_terms: list[Any]) -> list[list[str]]:
@@ -293,11 +371,7 @@ def _evaluation_citations(
     for citation in citations:
         chunk_id = citation.get("chunk_id")
         source_id = source_by_chunk.get(str(chunk_id)) if chunk_id else None
-        if source_id is None:
-            source_id = citation.get("source_id")
-        if not source_id:
-            continue
-        source_ids.append(str(source_id))
+        source_ids.append(str(source_id or ""))
         quotes.append(str(citation.get("quote") or ""))
     return source_ids, quotes
 
@@ -342,6 +416,8 @@ def _markdown_report(report: dict[str, Any]) -> str:
 - 引用精确率：{citation_precision}
 - 引用覆盖率：{citation_coverage}
 - 不可回答问题拒答率：{refusal_rate}
+- 人工复核拒答题数：{metrics['unanswerable_reviewed_answers']}
+- 不可回答题依据不足率：{_format_metric(metrics['unanswerable_insufficient_rate'])}
 - 回答正确性：{correctness}
 - 已运行回答评测：{metrics['llm_evaluated_answers']}
 - 已独立评分回答：{metrics['manually_scored_answers']}
@@ -364,16 +440,24 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate the public Data Structure KB.")
     parser.add_argument("--source-root", type=Path, default=DEFAULT_SOURCE_ROOT)
     parser.add_argument("--course-id")
+    parser.add_argument("--user-id")
     parser.add_argument("--top-k", type=int, default=8)
     parser.add_argument("--run-llm-sample", type=int, default=0)
+    parser.add_argument("--require-real-provider", action="store_true")
+    parser.add_argument("--expected-model")
+    parser.add_argument("--output-prefix", type=Path)
     args = parser.parse_args()
 
     report = asyncio.run(
         evaluate_public_kb(
             source_root=args.source_root,
             course_id=UUID(args.course_id) if args.course_id else None,
+            user_id=UUID(args.user_id) if args.user_id else None,
             top_k=args.top_k,
             run_llm_sample=args.run_llm_sample,
+            require_real_provider=args.require_real_provider,
+            expected_model=args.expected_model,
+            output_prefix=args.output_prefix,
         )
     )
     metrics = report["metrics"]

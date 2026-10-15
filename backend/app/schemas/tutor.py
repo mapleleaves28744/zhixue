@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class TutorPerformance(BaseModel):
@@ -20,6 +20,7 @@ class TutorChatRequest(BaseModel):
     course_id: UUID
     question: str = Field(min_length=1, max_length=2000)
     conversation_id: UUID | None = None
+    client_request_id: UUID | None = None
     session_id: UUID | None = None
     knowledge_id: UUID | None = None
     wiki_page_id: UUID | None = None
@@ -29,11 +30,18 @@ class TutorChatRequest(BaseModel):
     use_profile: bool = True
     stream: bool = False
 
+    @model_validator(mode="after")
+    def require_conversation_for_request_id(self) -> "TutorChatRequest":
+        if self.client_request_id is not None and self.conversation_id is None:
+            raise ValueError("client_request_id 需要 conversation_id")
+        return self
+
 
 class TutorCitation(BaseModel):
     citation_key: str | None = None
     source_type: str
     title: str
+    url: str | None = None
     source_id: str | None = None
     chunk_id: str | None = None
     page_id: str | None = None

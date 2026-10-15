@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "url": "http://127.0.0.1:3000/path-profile?course_id=f816b39c-3583-4799-8980-17f0b4b977f0",
+  "title": "智学工坊",
+  "viewports": [
+    "1440x1000",
+    "390x844"
+  ],
+  "checks": [
+    "real answer rendered",
+    "conversation identity persisted",
+    "mode switch retained history",
+    "reload restored answer",
+    "no pageerror",
+    "memory evidence",
+    "memory edit",
+    "archive and restore",
+    "forget and explicit restore"
+  ],
+  "evaluation_user_id": "7e60c742-4e7b-489c-a3d7-a12f57dbfb1a",
+  "evaluation_course_id": "f816b39c-3583-4799-8980-17f0b4b977f0"
+}

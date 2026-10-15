@@ -1,0 +1,68 @@
+{
+  "started_at": "2026-10-01T05:30:13.995153+00:00",
+  "scope": "synthetic PostgreSQL fixtures, real Tutor Service and real Qwen",
+  "checks": [
+    {
+      "name": "full_material_ordinal_and_tail_coverage",
+      "passed": true,
+      "answer": "已读取整份已解析资料的 30 个切片（3 个正文批次）；摘要仍可能遗漏细节，请结合原文核对。\n\n# 合并摘要：完整讲义.txt\n\n**主题**\n线性结构中的栈（Stack）与队列（Queue）。\n\n**定义与重要结论**\n*   **线性结构包含**：栈与队列。\n*   **栈的特性**：遵循“后进先出”（LIFO, Last In First Out）原则。\n*   **队列的特性**：遵循“先进先出”（FIFO, First In First Out）原则。\n\n**限制**\n*   资料内容高度重复，主要围绕上述基本定义及特性进行多次陈述。\n*   未提供具体的代码实现、应用场景、与其他数据结构的对比细节或其他扩展知识。\n\n**测试标记保留**\n根据学生要求保留首段和末尾的两个测试标记，依据各批次来源线索如下：\n*   **首段标记**：**HEAD-729**\n    *   *来源线索*：批次 1 指出该标记位于 [片段 88e10866-a15c-46c2-96a7-0ad5ca059225，页码 1]。\n*   **末尾标记**：**TAIL-853**\n    *   *来源线索*：批次 3 明确指出全文末尾部分保留了标记 **TAIL-853**。\n\n*(注：批次 1 曾报告在页码 15 处未见末尾标记，但批次 3 作为最终批次明确提供了末尾标记 TAIL-853，故以批次 3 的结论为准。)*",
+      "citation_count": 30,
+      "provider": "openai_compatible"
+    },
+    {
+      "name": "persisted_second_question_option",
+      "passed": true,
+      "answer": "你好！我是你的课程 AI Tutor。针对你提出的关于**第二题选项 B（先进先出）**的问题，我将严格依据提供的题干、标准答案及已有解析为你进行讲解。\n\n### 1. 核心结论\n根据题目给出的**标准答案**和**已有解析**，选项 **B：先进先出** 是正确答案。\n\n*   **题干**：队列遵循哪种顺序？\n*   **正确选项**：B\n*   **已有解析原文**：“队列遵循先进先出”\n\n这意味着在本题的语境下，“先进先出”（First-In-First-Out, FIFO）被明确定义为队列所遵循的顺序规则。\n\n### 2. 概念解释（基于已有解析与通用计算机科学知识）\n\n虽然已有解析非常简短，但我们可以结合计算机科学中“队列”这一数据结构的通用定义来理解为什么“先进先出”是其核心特征：\n\n*   **“先进”**：指最早进入队列的元素（即最先被添加或排队的元素）。\n*   **“先出”**：指这些最早进入的元素会最先被移除或处理。\n*   **类比理解**：想象你在银行排队办理业务。第一个到达柜台的人（先进），会在其他人之前得到服务并离开队伍（先出）。后来的人必须等待前面的人处理完毕。这种“先来者先服务”的规则，就是“先进先出”。\n\n因此，选项 B “先进先出”准确描述了队列的基本操作逻辑：**元素从一端进入（队尾），从另一端离开（队头），且进入最早的元素最先离开。**\n\n### 3. 区分“已有解析”与“合理推断”\n\n*   **题目已有解析**：仅陈述了事实——“队列遵循先进先出”。它没有提供额外的例子、图示或与其他数据结构（如栈）的对比。\n*   **合理推断/补充说明**：上述关于“银行排队”的类比以及对“先进”、“先出”具体含义的解释，是基于计算机科学常识对简短解析的合理展开，旨在帮助你更深入地理解该概念。这部分内容并非直接来自原题解析文本，而是为了教学目的进行的补充。\n\n### 4. 资料不足说明\n\n当前提供的材料中：\n*   未给出其他选项（A、C、D）的具体内容，因此无法分析为何其他选项错误。\n*   未提供具体的应用场景或代码示例，因此无法进一步探讨队列在不同编程语言中的实现细节。\n\n如果你希望了解其他选项的错误原因，或者需要更深入的队列应用案例，请提供更多题目信息或提出具体问题。",
+      "provider": "openai_compatible"
+    },
+    {
+      "name": "foreign_course_material_rejected",
+      "passed": true,
+      "answer": "当前课程找不到可访问的这份资料。"
+    }
+  ],
+  "passed": true,
+  "usage": [
+    {
+      "prompt_tokens": 4169,
+      "completion_tokens": 365,
+      "total_tokens": 4534
+    },
+    {
+      "prompt_tokens": 4205,
+      "completion_tokens": 370,
+      "total_tokens": 4575
+    },
+    {
+      "prompt_tokens": 180,
+      "completion_tokens": 230,
+      "total_tokens": 410
+    },
+    {
+      "prompt_tokens": 1074,
+      "completion_tokens": 333,
+      "total_tokens": 1407
+    },
+    {
+      "prompt_tokens": 113,
+      "completion_tokens": 535,
+      "total_tokens": 648
+    }
+  ],
+  "budget": {
+    "cap": 3000000,
+    "charged_tokens": 1121467,
+    "calls": {
+      "failed": {
+        "count": 36,
+        "charged_tokens": 588807
+      },
+      "succeeded": {
+        "count": 295,
+        "charged_tokens": 532660
+      }
+    },
+    "unknown_usage_policy": "failed/pending/missing usage charged full reservation"
+  },
+  "finished_at": "2026-10-01T05:30:52.528463+00:00"
+}

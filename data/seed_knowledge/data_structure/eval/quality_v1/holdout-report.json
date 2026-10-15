@@ -1,0 +1,68 @@
+{
+  "finished_at": "2026-10-01T05:10:43.002625+00:00",
+  "split": "holdout",
+  "configured_model": "qwen3.8-flash",
+  "synthetic_evaluation": true,
+  "independent_human_review": false,
+  "groups": {
+    "intent:production": {
+      "total": 48,
+      "passed": 27,
+      "accuracy": 0.5625,
+      "mode_macro_f1": 0.8923863330642993,
+      "mode_accuracy": 0.8958333333333334
+    },
+    "intent:rules": {
+      "total": 48,
+      "passed": 8,
+      "accuracy": 0.16666666666666666,
+      "mode_macro_f1": 0.35714285714285715,
+      "mode_accuracy": 0.5
+    },
+    "context:compacted": {
+      "total": 16,
+      "passed": 16,
+      "accuracy": 1.0,
+      "prompt_tokens": 31516,
+      "completion_tokens": 278
+    },
+    "context:no_history": {
+      "total": 16,
+      "passed": 0,
+      "accuracy": 0.0,
+      "prompt_tokens": 848,
+      "completion_tokens": 146
+    },
+    "context:raw_history": {
+      "total": 16,
+      "passed": 16,
+      "accuracy": 1.0,
+      "prompt_tokens": 149612,
+      "completion_tokens": 293
+    },
+    "context:recent_only": {
+      "total": 16,
+      "passed": 0,
+      "accuracy": 0.0,
+      "prompt_tokens": 31056,
+      "completion_tokens": 108
+    }
+  },
+  "budget": {
+    "cap": 3000000,
+    "charged_tokens": 266182,
+    "calls": {
+      "succeeded": {
+        "count": 128,
+        "charged_tokens": 266182
+      }
+    },
+    "unknown_usage_policy": "failed/pending/missing usage charged full reservation"
+  },
+  "limits": [
+    "mode F1 is three routing modes, not all business intents",
+    "contract exact match is not delivery success",
+    "context projection is controlled, source-preserving; worker quality separately verified",
+    "no semantic teaching-quality score"
+  ]
+}

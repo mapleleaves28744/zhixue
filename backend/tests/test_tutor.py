@@ -349,16 +349,16 @@ async def test_event_bus_publish_only_enqueues_without_waiting_for_handler() -> 
 
 
 @pytest.mark.asyncio
-async def test_tutor_postprocess_runs_review_and_memory_before_commit(monkeypatch) -> None:
+async def test_tutor_postprocess_reviews_and_schedules_memory(monkeypatch) -> None:
     from app.core.event_bus import Event
     from app.services.agent_service import AgentService
-    from app.services.memory_service import MemoryService
+    from app.services.memory_reflection_service import MemoryReflectionService
     from app.services.tutor_postprocess_service import TutorPostprocessService
 
     review = AsyncMock(return_value=SimpleNamespace(success=True))
-    reflect = AsyncMock(return_value=[])
+    discover = AsyncMock(return_value=1)
     monkeypatch.setattr(AgentService, "run_task", review)
-    monkeypatch.setattr(MemoryService, "reflect", reflect)
+    monkeypatch.setattr(MemoryReflectionService, "discover_missing", discover)
     db = SimpleNamespace(commit=AsyncMock())
     user_id = uuid4()
     course_id = uuid4()
@@ -377,7 +377,7 @@ async def test_tutor_postprocess_runs_review_and_memory_before_commit(monkeypatc
 
     assert review.await_args.kwargs["task_type"] == "review_content"
     assert "S1" in review.await_args.kwargs["params"]["content"]
-    reflect.assert_awaited_once_with(user_id, course_id)
+    discover.assert_awaited_once_with(user_id=user_id, course_id=course_id)
     db.commit.assert_awaited_once()
 
 

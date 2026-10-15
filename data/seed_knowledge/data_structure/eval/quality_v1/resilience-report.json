@@ -1,0 +1,56 @@
+{
+  "started_at": "2026-10-01T05:57:10.876655+00:00",
+  "scope": "PostgreSQL Service calls; no HTTP/LLM throughput or whole-system chaos claim",
+  "checks": [
+    {
+      "name": "ten_simultaneous_duplicates_one_owner",
+      "passed": true
+    },
+    {
+      "name": "process_exit_lease_reclaim_stale_owner_fenced",
+      "passed": true
+    },
+    {
+      "name": "response_committed_then_process_exit_recovered",
+      "passed": true
+    },
+    {
+      "name": "failed_request_can_retry",
+      "passed": true
+    },
+    {
+      "name": "cached_request_cannot_override_new_owner_completed_result",
+      "passed": true
+    },
+    {
+      "name": "new_process_runs_scoped_worker_startup_recovery",
+      "passed": true
+    }
+  ],
+  "load": [
+    {
+      "concurrency": 1,
+      "requests": 100,
+      "passed": 100,
+      "seconds": 0.672,
+      "errors": []
+    },
+    {
+      "concurrency": 5,
+      "requests": 100,
+      "passed": 100,
+      "seconds": 0.531,
+      "errors": []
+    },
+    {
+      "concurrency": 10,
+      "requests": 100,
+      "passed": 100,
+      "seconds": 0.547,
+      "errors": []
+    }
+  ],
+  "owner_id": "7e481436-a4d7-4be6-bf08-9f42a22d669b",
+  "passed": true,
+  "finished_at": "2026-10-01T05:57:18.399754+00:00"
+}

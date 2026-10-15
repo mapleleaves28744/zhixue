@@ -2,6 +2,7 @@ export interface TutorCitation {
   citation_key?: string | null
   source_type: string
   title: string
+  url?: string | null
   source_id?: string | null
   chunk_id?: string | null
   page_id?: string | null
@@ -22,6 +23,7 @@ export interface TutorChatRequest {
   course_id: string
   question: string
   conversation_id?: string | null
+  client_request_id?: string | null
   session_id?: string | null
   knowledge_id?: string | null
   wiki_page_id?: string | null

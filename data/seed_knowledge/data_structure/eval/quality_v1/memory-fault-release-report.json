@@ -1,0 +1,36 @@
+{
+  "scope": "real PostgreSQL faults, deterministic injected extraction; not real LLM quality",
+  "total": 42,
+  "passed": 42,
+  "groups": {
+    "late_commit": {
+      "total": 6,
+      "passed": 6
+    },
+    "same_timestamp_100": {
+      "total": 6,
+      "passed": 6
+    },
+    "two_workers": {
+      "total": 6,
+      "passed": 6
+    },
+    "stale_lease_fence": {
+      "total": 6,
+      "passed": 6
+    },
+    "process_exit_after_claim": {
+      "total": 6,
+      "passed": 6
+    },
+    "empty_fake_evidence": {
+      "total": 6,
+      "passed": 6
+    },
+    "forget_during_extract": {
+      "total": 6,
+      "passed": 6
+    }
+  },
+  "evaluation_status": "post-fix regression"
+}

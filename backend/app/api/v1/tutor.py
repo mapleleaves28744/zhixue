@@ -19,6 +19,7 @@ from app.schemas.tutor import (
     TutorSaveToWikiRequest,
 )
 from app.services.tutor_service import TutorService
+from app.services.tutor_request_service import TutorRequestService
 
 
 router = APIRouter()
@@ -54,6 +55,20 @@ async def ask_tutor_compat(
 ) -> dict[str, object]:
     data = await TutorService(db).chat(payload=body, current_user=current_user)
     return success_response(data.model_dump(mode="json"), request=request)
+
+
+@router.get("/conversations/{conversation_id}/requests/{client_request_id}")
+async def get_tutor_request_status(
+    conversation_id: UUID,
+    client_request_id: UUID,
+    request: Request,
+    current_user: User = Depends(require_student),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    data = await TutorRequestService(db).status(
+        conversation_id=conversation_id, client_request_id=client_request_id, user_id=current_user.id,
+    )
+    return success_response(data, request=request)
 
 
 @router.post("/messages/{message_id}/save-to-wiki")

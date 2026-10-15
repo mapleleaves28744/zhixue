@@ -8,6 +8,13 @@ from uuid import uuid4
 import pytest
 
 
+def test_non_mimo_text_endpoint_is_not_used_for_mimo_audio(monkeypatch):
+    from app.llm import audio_provider as module
+    monkeypatch.setattr(module.settings, "llm_api_key", "test-key")
+    monkeypatch.setattr(module.settings, "llm_base_url", "https://example.test/compatible-mode/v1")
+    assert isinstance(module.build_audio_provider(), module.MockAudioProvider)
+
+
 def test_mock_audio_provider_transcribes_and_synthesizes_without_real_key() -> None:
     asyncio.run(_test_mock_audio_provider_transcribes_and_synthesizes_without_real_key())
 

@@ -1,0 +1,105 @@
+{
+  "started_at": "2026-09-30T11:21:17.638072+00:00",
+  "checks": "HTTP persistence, source identity, request replay and conservative topic heuristics; not blind semantic grading",
+  "results": [
+    {
+      "id": "fast_1",
+      "category": "fast",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "2fef552d-7fa8-4909-8d51-8cf6c56474c9",
+      "error": "AssertionError: Server model differs from evaluation configuration"
+    },
+    {
+      "id": "fast_2",
+      "category": "fast",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "416ca91f-9c59-4309-9b3b-b479221ccee2",
+      "error": "AssertionError: Server model differs from evaluation configuration"
+    },
+    {
+      "id": "fast_3",
+      "category": "fast",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "d1d127de-9e8c-42c9-bcd1-01a50c7d0b80",
+      "error": "AssertionError: Server model differs from evaluation configuration"
+    },
+    {
+      "id": "fast_4",
+      "category": "fast",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "afb7c74f-eca6-4d86-9394-e5345a6cee0f",
+      "error": "AssertionError: Server model differs from evaluation configuration"
+    },
+    {
+      "id": "fast_5",
+      "category": "fast",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "199c8b8f-21e6-47df-967e-de52da3d2e1a",
+      "error": "AssertionError: Server model differs from evaluation configuration"
+    },
+    {
+      "id": "fast_6",
+      "category": "fast",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "54cc5fb0-c3e8-467b-b6bb-d222bc56f6a4",
+      "error": "AssertionError: Server model differs from evaluation configuration"
+    },
+    {
+      "id": "agent_2",
+      "category": "agent",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "412e824a-a475-4c91-92cf-adfc14219c9b",
+      "error": "AssertionError: Agent answer model differs from evaluation configuration"
+    },
+    {
+      "id": "agent_1",
+      "category": "agent",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "a9d9ecf1-3321-4ca9-aab3-31d2a05374fc",
+      "error": "AssertionError: Agent answer model differs from evaluation configuration"
+    },
+    {
+      "id": "agent_3",
+      "category": "agent",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "4a6ccec7-59e3-47c7-b293-e6a3565e93e5",
+      "error": "AssertionError: Agent answer model differs from evaluation configuration"
+    },
+    {
+      "id": "agent_4",
+      "category": "agent",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "21da7260-4fb8-4a97-9012-a74ccb071874",
+      "error": "AssertionError: Agent answer model differs from evaluation configuration"
+    },
+    {
+      "id": "mixed_1",
+      "category": "mixed",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "40fe8055-cf01-4748-a1f8-a9cea85b03aa",
+      "error": "AssertionError: Server model differs from evaluation configuration"
+    },
+    {
+      "id": "agent_6",
+      "category": "agent",
+      "turns": [],
+      "passed": false,
+      "conversation_id": "738e36a1-e370-4d86-b32a-e1997c643ef6",
+      "error": "AssertionError: Agent answer model differs from evaluation configuration"
+    }
+  ],
+  "configured_model": "mimo-v2.6-flash",
+  "evaluation_user_id": "b0da37a1-b71b-4c08-a242-db38018240d4",
+  "evaluation_course_id": "ffb7e123-1fc7-4db9-917f-b49464601bce"
+}

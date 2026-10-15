@@ -90,7 +90,10 @@ class PlannerAgent(BaseAgent):
         difficulty: str,
     ) -> list[dict[str, Any]]:
         """生成多条候选路径，按不同优化目标排序。"""
-        weak_names = {str(item.get("name", item)).lower() for item in weak_points if item}
+        weak_names = {
+            str(item.get("name", item) if isinstance(item, dict) else item).lower()
+            for item in weak_points if item
+        }
 
         def mastery_for(point: dict[str, Any]) -> float:
             value = mastery_snapshot.get(point.get("id"), mastery_snapshot.get(point.get("name"), 0.6))

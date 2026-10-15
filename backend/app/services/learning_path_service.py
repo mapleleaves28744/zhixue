@@ -233,7 +233,10 @@ class LearningPathService:
         knowledge_points: list[KnowledgePoint],
     ) -> list[dict[str, Any]]:
         target_ids = {str(item) for item in target_knowledge_ids}
-        weak_names = {str(item.get("name", item)).lower() for item in weak_points if item}
+        weak_names = {
+            str(item.get("name", item) if isinstance(item, dict) else item).lower()
+            for item in weak_points if item
+        }
 
         def score(point: KnowledgePoint) -> tuple[int, int, int, int, str]:
             mastery = self._mastery_for(point, mastery_snapshot)

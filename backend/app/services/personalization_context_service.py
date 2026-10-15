@@ -9,13 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.evolution import EvolutionStrategy
 from app.models.profile import LearningPreference, StudentCourseProfile, StudentProfile
 from app.services.memory_service import MemoryService
+from app.services.memory_retrieval_service import MemoryRetrievalService
 
 
 class PersonalizationContextService:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
-    async def get_context(self, user_id: UUID, course_id: UUID) -> dict[str, Any]:
+    async def get_context(self, user_id: UUID, course_id: UUID, *, question: str | None = None) -> dict[str, Any]:
         global_profile = (await self.db.execute(select(StudentProfile).where(StudentProfile.user_id == user_id))).scalar_one_or_none()
         course_profile = (await self.db.execute(select(StudentCourseProfile).where(
             StudentCourseProfile.user_id == user_id, StudentCourseProfile.course_id == course_id
@@ -28,7 +29,10 @@ class PersonalizationContextService:
             EvolutionStrategy.course_id == course_id,
             EvolutionStrategy.status == "active",
         ))).scalars().all())
-        memories = await MemoryService(self.db).list_memories(user_id, course_id, status="active", limit=5)
+        recall_query = question or " ".join(str(item) for item in (getattr(course_profile, "weak_points", None) or []))
+        memories = await MemoryRetrievalService(self.db).retrieve(
+            user_id=user_id, course_id=course_id, question=recall_query, limit=5,
+        )
         return {
             "global_profile": global_profile,
             "course_profile": course_profile,

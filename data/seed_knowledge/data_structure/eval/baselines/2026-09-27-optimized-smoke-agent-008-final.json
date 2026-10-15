@@ -1,0 +1,67 @@
+{
+  "generated_at": "2026-09-27T09:31:26.778721+00:00",
+  "provider": "compatible",
+  "model": "mimo-v2.6-flash",
+  "scenario_file": "C:\\Users\\28744\\Desktop\\zhixue\\data\\seed_knowledge\\data_structure\\eval\\agent_runtime_scenarios.yml",
+  "provider_policy": "OpenAI-compatible real provider; Agent Runtime disables Mock fallback",
+  "summary": {
+    "scenario_count": 1,
+    "passed_count": 1,
+    "task_completion_rate": 1.0,
+    "scenario_pass_rate": 1.0,
+    "tool_selection_accuracy": 1.0,
+    "high_risk_interception_rate": null,
+    "replan_success_rate": null,
+    "duplicate_write_count": null,
+    "cross_user_leak_count": null,
+    "unmeasured_metrics": [
+      "duplicate_write_count",
+      "cross_user_leak_count"
+    ]
+  },
+  "results": [
+    {
+      "id": "agent-008",
+      "category": "resource",
+      "goal": "生成一份带例子的哈希冲突解决方法讲解。",
+      "task_id": "372644a9-ed3f-4647-8ecb-dd01c713fea6",
+      "status": "succeeded",
+      "passed": true,
+      "planned_tools": [],
+      "attempted_tools": [
+        "search_course_knowledge",
+        "generate_explanation"
+      ],
+      "actual_tools": [
+        "search_course_knowledge",
+        "generate_explanation"
+      ],
+      "expected_any_tools": [
+        "generate_explanation"
+      ],
+      "expected_tool_groups": [],
+      "tool_match": true,
+      "forbidden_tools": [],
+      "citation_count": 13,
+      "iteration_count": 2,
+      "tool_call_count": 2,
+      "replan_count": 0,
+      "event_types": [
+        "queued",
+        "planning",
+        "plan_created",
+        "tool_started",
+        "tool_completed",
+        "observation",
+        "tool_started",
+        "tool_completed",
+        "observation",
+        "plan_created",
+        "reviewed",
+        "memory_reflected",
+        "completed"
+      ],
+      "error_message": null
+    }
+  ]
+}

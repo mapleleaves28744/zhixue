@@ -278,7 +278,7 @@ class MiMoTokenPlanAudioProvider(BaseAudioProvider):
 
 
 def build_audio_provider() -> BaseAudioProvider:
-    if settings.llm_api_key and settings.llm_base_url:
+    if settings.llm_api_key and "xiaomimimo.com" in settings.llm_base_url.lower():
         return FallbackAudioProvider(
             primary=MiMoTokenPlanAudioProvider(),
             fallback=MockAudioProvider(),

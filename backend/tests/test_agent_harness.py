@@ -129,6 +129,24 @@ class _FakeTasks:
         return task
 
 
+def test_clarification_draft_cleanup_only_removes_matching_revision() -> None:
+    request_id = uuid4()
+    conversation = SimpleNamespace(extra_meta={
+        "intent_draft_v1": {"request_message_id": str(request_id), "revision": 2},
+        "other": "preserved",
+    })
+    old_task = SimpleNamespace(input_payload={"intent_frame_v1": {
+        "mode": "clarify", "request_message_id": str(request_id), "revision": 1,
+    }})
+    AgentConversationService._clear_matching_intent_draft(conversation, old_task)
+    assert conversation.extra_meta["intent_draft_v1"]["revision"] == 2
+
+    current_task = SimpleNamespace(input_payload={"intent_frame_v1": {
+        "mode": "clarify", "request_message_id": str(request_id), "revision": 2,
+    }})
+    AgentConversationService._clear_matching_intent_draft(conversation, current_task)
+    assert conversation.extra_meta == {"other": "preserved"}
+
 class _FakeDb:
     def __init__(self) -> None:
         self.refreshed: list[object] = []

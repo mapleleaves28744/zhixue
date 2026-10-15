@@ -35,5 +35,6 @@ def register_tool(
             risk_level=risk_level,  # type: ignore[arg-type]
             requires_confirmation=requires_confirmation,
             timeout_seconds=timeout_seconds,
+            max_retries=0 if writes_db else 2,
         )
     )

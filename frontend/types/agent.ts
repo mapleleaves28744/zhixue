@@ -26,6 +26,7 @@ export interface AgentMessage {
 
 export interface AgentTask {
   id: string
+  execution_settled?: boolean
   user_id: string
   course_id: string
   conversation_id: string

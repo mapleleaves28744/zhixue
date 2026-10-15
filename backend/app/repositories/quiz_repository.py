@@ -44,8 +44,9 @@ class QuizRepository:
         items: Sequence[dict],
     ) -> list[Question]:
         questions: list[Question] = []
-        for item in items:
+        for position, item in enumerate(items, start=1):
             question = Question(
+                position=position,
                 quiz_id=quiz.id,
                 course_id=quiz.course_id,
                 knowledge_id=quiz.knowledge_id,

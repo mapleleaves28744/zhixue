@@ -1,0 +1,4069 @@
+{
+  "generated_at": "2026-09-27T04:33:50.546589+00:00",
+  "llm_provider": "compatible",
+  "llm_model": "mimo-v2.6-flash",
+  "require_real_provider": true,
+  "course_id": "0b41dca8-3e7d-420b-9769-b4fe623e482f",
+  "course_code": "DS-PUBLIC",
+  "course_visibility": "public_template",
+  "top_k": 8,
+  "corpus_stats": {
+    "materials": 32,
+    "chunks": 1608,
+    "embedded_chunks": 1608,
+    "knowledge_points": 131
+  },
+  "embedding": {
+    "provider": "sentence_transformers",
+    "model": "BAAI/bge-large-zh-v1.5",
+    "dimension": 1024,
+    "allow_mock_fallback": false
+  },
+  "indexes": [
+    "document_chunks_pkey",
+    "idx_document_chunks_chapter_id_expr",
+    "idx_document_chunks_chunk_index",
+    "idx_document_chunks_chunk_type_expr",
+    "idx_document_chunks_content_trgm",
+    "idx_document_chunks_course_id",
+    "idx_document_chunks_embedding_hnsw",
+    "idx_document_chunks_extra_meta_gin",
+    "idx_document_chunks_knowledge_id",
+    "idx_document_chunks_material_id",
+    "idx_document_chunks_source_id_expr"
+  ],
+  "metrics": {
+    "question_count": 33,
+    "answerable_questions": 30,
+    "recall_at_5": 0.9667,
+    "mrr": 0.94,
+    "citation_precision": 0.6957,
+    "citation_coverage": 0.5,
+    "unanswerable_refusal_rate": 0.6667,
+    "unanswerable_reviewed_answers": 3,
+    "unanswerable_insufficient_rate": 1.0,
+    "answer_correctness": null,
+    "llm_evaluated_answers": 33,
+    "manually_scored_answers": 0
+  },
+  "rows": [
+    {
+      "question": "数据结构和算法之间是什么关系？",
+      "answerable": true,
+      "expected_sources": [
+        "self-curated-draft",
+        "mit-ocw-6006"
+      ],
+      "expected_evidence_terms": [
+        "数据结构",
+        "算法"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "cb72f357-fee8-4db7-a284-08337530dcb3",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.6845,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "09f836b8-650c-4b54-882b-4d3156cd71e7",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.6687,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "d460f735-a454-4476-a8c0-9db03a03e12e",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.663,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "d58c13c7-1429-4baf-9621-7a81cbd53427",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.5736,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "a2ac1796-ae2a-4e2b-9df4-8fae34f7787d",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.5662,
+          "mode": "hybrid"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：数据结构研究数据元素之间的逻辑关系、存储表示和基本操作；算法是在特定数据结构上解决问题的有限步骤。二者共同决定程序的可理解性、可维护性和运行效率。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `算法与数据结构关系` 属于 `绪论与复杂度分析`。\n- `算法与数据结构关系` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "什么是抽象数据类型 ADT？",
+      "answerable": true,
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "抽象数据类型",
+        "ADT"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "opendsa",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "25b50d00-6303-4f5a-976e-bdcbafd73fe9",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.6711,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "672a8e8d-f946-476b-ac31-199f716c42de",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.6551,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "234a4705-9bc5-4b7a-bae4-7902fbe308cf",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.622,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "e7a2949f-0690-41c3-88c6-5dd77fb7d964",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.5999,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "7c3515f5-f922-47ff-85b1-ecc5a02acfb7",
+          "source_id": "opendsa",
+          "source_title": "ch12-opendsa-graph-implementations.md",
+          "score": 0.2145,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**：抽象数据类型用数据对象、数据关系和基本操作描述一种逻辑模型，强调“做什么”而不是“如何存储”。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `抽象数据类型ADT` 属于 `绪论与复杂度分析`。\n- `抽象数据类型ADT` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "如何区分逻辑结构和存储结构？",
+      "answerable": true,
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "逻辑结构",
+        "存储结构"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "73f1fb7b-a98e-4acd-80a0-b1e9b1cc193c",
+          "source_id": "self-curated-draft",
+          "source_title": "05_数组、矩阵与广义表.md",
+          "score": 0.4965,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "71518c06-987c-4c2f-8f4b-6c00233ee65c",
+          "source_id": "self-curated-draft",
+          "source_title": "05_数组、矩阵与广义表.md",
+          "score": 0.4903,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "a48cc9e0-5519-4bed-8910-8f87e83327ca",
+          "source_id": "self-curated-draft",
+          "source_title": "07_森林与并查集.md",
+          "score": 0.459,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "203619fe-f6f8-4792-a76c-7028262b6073",
+          "source_id": "self-curated-draft",
+          "source_title": "07_森林与并查集.md",
+          "score": 0.4586,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "f90c780e-ac23-4a68-b184-e82886b32c6b",
+          "source_id": "self-curated-draft",
+          "source_title": "04_串与模式匹配.md",
+          "score": 0.4578,
+          "mode": "hybrid"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "",
+        "self-curated-draft",
+        ""
+      ],
+      "cited_quotes": [
+        "**常见误区**：\n- 只记结论，不解释复杂度产生原因。\n- 忽略空结构、单元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。",
+        "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "时间复杂度 O(n) 和 O(log n) 的直观差异是什么？",
+      "answerable": true,
+      "expected_sources": [
+        "self-curated-draft",
+        "mit-ocw-6006"
+      ],
+      "expected_evidence_terms": [
+        "O(n)",
+        "O(log n)"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "5ec1372b-beb0-4202-a5db-d5c3ea42c645",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.6401,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "f1675614-f69a-4c0f-9f44-cf5674881fee",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.6365,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "d78871b6-0dc6-40fc-b013-82545fcb5a3b",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.6357,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "f9bd41c1-94f3-41c3-822e-077eac441811",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.6354,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "63f336d0-2e07-421e-895c-62496d646e99",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.635,
+          "mode": "hybrid"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "义**：时间复杂度用于估计算法运行时间随输入规模增长的变化趋势，通常用基本操作执行次数的数量级表示。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "*：渐进记号包括 O、Ω、Θ 等，用于忽略常数因子和低阶项，描述算法复杂度的增长上界、下界或紧确界。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**常见误区**：\n- 只记结论，不解释复杂度产生原因。\n- 忽略空结构、单元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "递归算法的复杂度如何分析？",
+      "answerable": true,
+      "expected_sources": [
+        "runestone-pythonds",
+        "mit-ocw-6006"
+      ],
+      "expected_evidence_terms": [
+        "递归",
+        "复杂度"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "be9786b1-07e1-4b12-a99d-7749198f3977",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.6575,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "194e82e1-4791-4917-94e3-8809e60329f5",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.656,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "b349ad27-72f2-436e-bbbc-e49dec13ac21",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.6248,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "e6630d45-a26a-4d43-8475-cff4333f1c00",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.6132,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "31f10324-6bd3-4b8f-bcb2-5bae5065aa7f",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.1908,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。### DS-01-007 递归复杂度",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `递归复杂度` 属于 `绪论与复杂度分析`。\n- `递归复杂度` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "顺序表为什么支持随机访问？",
+      "answerable": true,
+      "expected_sources": [
+        "open-data-structures",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "顺序表",
+        "随机访问"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "ec995da5-d542-4215-b9ce-936bdd83fb6a",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.6065,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "f52e0130-e64d-4985-825e-b5ed9a68a28c",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.587,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "efd799e4-b8cc-4229-9e13-980769e769f8",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.5074,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "8affc085-a51d-4d1c-84f9-94894f73fc18",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.4375,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "40af6487-3873-4194-9cea-7f8dbb61cba8",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.1785,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "*：顺序表使用一段地址连续的存储单元依次存放线性表元素，支持随机访问，但插入和删除通常需要移动元素。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "**定义**：顺序表使用一段地址连续的存储单元依次存放线性表元素，支持随机访问，但插入和删除通常需要移动元素。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "链表插入删除为什么通常不需要移动大量元素？",
+      "answerable": true,
+      "expected_sources": [
+        "open-data-structures",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "链表",
+        "插入",
+        "删除"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "open-data-structures",
+        "opendsa",
+        "opendsa",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "1efe3915-97eb-41f4-a010-57b04a0c830b",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.5368,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "e8ed4ca6-c709-44ba-8070-c962eebdc1f6",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.4835,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "7efd5ed3-8c1f-41c2-a34d-144711425974",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.4736,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "ce7ab200-cfb6-41ee-9dd6-7594971c86e7",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.4735,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9009070f-87bd-4b5a-9df8-6b9d2a7a78e8",
+          "source_id": "open-data-structures",
+          "source_title": "ch03-array-based-lists.md",
+          "score": 0.203,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：单链表由若干结点组成，每个结点包含数据域和指针域，指针域指向后继结点，适合频繁插入删除但不支持按下标高效随机访问。",
+        "与场景**：按位访问 O(n)；插入/删除给定位置后继 O(1)；典型场景：适合频繁插入删除的场景。**常见误区**：\n- 只记结论，不解释复杂度产生原因。\n- 忽略空结构、单元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "单链表删除结点时最容易出错的边界条件有哪些？",
+      "answerable": true,
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "单链表",
+        "删除",
+        "边界"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "1efe3915-97eb-41f4-a010-57b04a0c830b",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.6539,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "1d4e2135-277a-49ad-98e3-554c320742b2",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.5408,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "7efd5ed3-8c1f-41c2-a34d-144711425974",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.4941,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "4f04ec61-26fe-4af8-a2c7-05e2316b6a96",
+          "source_id": "self-curated-draft",
+          "source_title": "02_线性表.md",
+          "score": 0.4737,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "46ecdb2a-a654-4a1e-90f4-cf548c0d29cc",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch09-binary-heap-implementation.md",
+          "score": 0.1937,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `单链表` 属于 `线性表`。\n- `单链表` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "**定义**：单链表由若干结点组成，每个结点包含数据域和指针域，指针域指向后继结点，适合频繁插入删除但不支持按下标高效随机访问。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "栈为什么适合括号匹配？",
+      "answerable": true,
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "栈",
+        "括号匹配"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "opendsa",
+        "opendsa",
+        "opendsa",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "f8ebd645-72f5-44d3-be2c-fc14ee267b71",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.4996,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "401e1d87-5c09-4203-8f1d-aed134903adb",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.4394,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "fb1fb919-d65e-4d7d-b45b-7c4a5943ee58",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.4131,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "9b7b5057-94d9-4491-9c16-83b3f1661658",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.398,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "a970b4dd-7416-413c-9819-bd9989336e2a",
+          "source_id": "opendsa",
+          "source_title": "ch05-opendsa-linked-stack.md",
+          "score": 0.1874,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**复杂度与场景**：入栈 O(1)；出栈 O(1)；典型场景：表达式求值、括号匹配、递归模拟。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `括号匹配` 属于 `栈与队列`。\n- `括号匹配` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "递归和调用栈之间有什么关系？",
+      "answerable": true,
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "递归",
+        "调用栈"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "opendsa",
+        "opendsa",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "605b3bc2-7066-4bc3-ab7a-bd17a4970f55",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.4947,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "6d8eaa47-3fc4-4dc5-817c-68e3a55b4e7b",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.4919,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9b7b5057-94d9-4491-9c16-83b3f1661658",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.4019,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "11564e71-a3e3-48c6-b622-1680a6bf4aea",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.4005,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "99298790-a708-4d9e-9fe5-b95c3bdd89dc",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch05-what-is-a-stack.md",
+          "score": 0.1885,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `递归与栈` 属于 `栈与队列`。\n- `递归与栈` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "**定义**：递归与栈是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "循环队列如何判断队空和队满？",
+      "answerable": true,
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "循环队列",
+        "队空",
+        "队满"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "19606d04-1a4e-4c37-9aca-046624ebf709",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.6415,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "4079df9f-eacb-438f-99a5-f6e512ba224b",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.5928,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "2aa7bffa-f1d4-43a4-8103-ee6e1e206b57",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.5418,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "920be107-93c9-46cb-8626-2ab7d904e173",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.3434,
+          "mode": "keyword"
+        },
+        {
+          "chunk_id": "24a726b9-bd24-4d11-8b31-123d502da6ae",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch04-implementing-an-unordered-list-with-linked-lists.md",
+          "score": 0.1948,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [],
+      "cited_quotes": [],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "BFS 为什么通常使用队列？",
+      "answerable": true,
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "BFS",
+        "队列"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "fb5866d2-134b-467d-b291-8725bdd4c695",
+          "source_id": "self-curated-draft",
+          "source_title": "11_高级结构与工程应用.md",
+          "score": 0.3586,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "e504d129-fb00-4a36-aed6-4923d312ffc7",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.3276,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "c87bd435-f316-4368-8799-6acf277f2adc",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3257,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "5fbb7059-fd19-480b-a15e-0ab2192ecb01",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.323,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "316efabd-28e9-4655-9065-e54182620a5e",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.2546,
+          "mode": "hybrid"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：优先队列支持按优先级访问和删除元素，通常用堆实现。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `优先队列` 属于 `高级结构与工程应用`。\n- `优先队列` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `BFS` 属于 `图`。\n- `BFS` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "**定义**：链队列是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `链队列` 属于 `栈与队列`。\n- `链队列` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "DFS 为什么可以用递归实现？",
+      "answerable": true,
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "DFS",
+        "递归"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "opendsa",
+        "opendsa",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "399cc959-e321-4ef8-8397-63b46a4f4ae8",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3277,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "c2b85cd3-39b3-47c7-b645-346f03f0281d",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3098,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "6d8eaa47-3fc4-4dc5-817c-68e3a55b4e7b",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.243,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "b349ad27-72f2-436e-bbbc-e49dec13ac21",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.24,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "316efabd-28e9-4655-9065-e54182620a5e",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.187,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：深度优先搜索从某一顶点出发尽可能深入访问未访问邻接点，常用递归或栈实现。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "二叉树的前序、中序、后序遍历有什么区别？",
+      "answerable": true,
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "前序",
+        "中序",
+        "后序"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "243c44d0-20b6-4b59-bc5c-c41e558e8ade",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.6573,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "dee29434-0858-4576-be53-6760bd163678",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.6476,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9edb2f3a-118b-450a-875d-040d3a31cc60",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.6442,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "fad990d1-869d-4a71-b15b-34540a8884cc",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.64,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "76d857e4-16ae-418b-99ba-a49253a02013",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.1915,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：中序遍历按左子树、根、右子树的顺序访问二叉树结点，二叉排序树的中序序列为非递减序列。",
+        "**定义**：后序遍历按左子树、右子树、根的顺序访问二叉树结点，常用于先处理子问题再合并结果的场景。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "完全二叉树为什么适合数组存储？",
+      "answerable": true,
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "完全二叉树",
+        "数组"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "opendsa",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "f21aea27-4ed6-42f2-94ac-469d5d88fba3",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.6643,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "0bec2a57-1bb8-4dc4-bacd-56a8bb1ab0f2",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.6608,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9fc76201-7574-4851-ab1c-7a08c2c168eb",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.6582,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "a08fd2fa-3335-48d9-94c3-766fc161bc8a",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.639,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "640badc3-9da8-4299-9ac5-4bbaa0770746",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch09-binary-heap-implementation.md",
+          "score": 0.186,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "2^(i-1) 个结点、深度 k 的二叉树最多 2^k-1 个结点，以及完全二叉树可用数组高效存储。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "**定义**：二叉树性质包括第 i 层最多 2^(i-1) 个结点、深度 k 的二叉树最多 2^k-1 个结点，以及完全二叉树可用数组高效存储。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "堆和二叉排序树有什么区别？",
+      "answerable": true,
+      "expected_sources": [
+        "open-data-structures",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "堆",
+        "二叉排序树"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "1302112c-e430-4c0f-a741-2b927a86cbf6",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.6567,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "eec50783-7ecb-408a-8c2c-6a063d91b7ea",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.6274,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "92754ed2-6778-4769-9367-eac55ea964da",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.5654,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "dee29434-0858-4576-be53-6760bd163678",
+          "source_id": "self-curated-draft",
+          "source_title": "06_树与二叉树.md",
+          "score": 0.4994,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "640badc3-9da8-4299-9ac5-4bbaa0770746",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch09-binary-heap-implementation.md",
+          "score": 0.1861,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：堆是一种满足父子结点关键字大小关系的完全二叉树，常用于优先队列和堆排序。",
+        "**定义**：二叉排序树满足左子树关键字小于根、右子树关键字大于根，中序遍历可得到有序序列。",
+        "**定义**：中序遍历按左子树、根、右子树的顺序访问二叉树结点，二叉排序树的中序序列为非递减序列。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `堆排序` 属于 `排序`。\n- `堆排序` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `二叉排序树` 属于 `查找`。\n- `二叉排序树` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "哈希表平均 O(1) 查找依赖哪些前提？",
+      "answerable": true,
+      "expected_sources": [
+        "open-data-structures",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "哈希表",
+        "O(1)"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "opendsa",
+        "opendsa",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "efec85c0-f83b-4f68-aa5a-18b5a21c9172",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.547,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "a6cfb3a5-9339-407e-8551-07a6cb919fb7",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.513,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "b4fda6ee-21f8-4135-8780-fd779892fb41",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.4643,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "96cf5f99-67d7-42e2-b2ca-c4d68ac427e3",
+          "source_id": "opendsa",
+          "source_title": "ch11-opendsa-hashing-introduction.md",
+          "score": 0.4438,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "6711e112-871a-439f-89e9-fa4686be9515",
+          "source_id": "opendsa",
+          "source_title": "ch11-opendsa-hashing-introduction.md",
+          "score": 0.433,
+          "mode": "hybrid"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        ""
+      ],
+      "cited_quotes": [
+        "**定义**：散列表通过哈希函数将关键字映射到存储地址，理想情况下查找、插入、删除接近 O(1)。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `哈希函数` 属于 `查找`。\n- `哈希函数` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "*：渐进记号包括 O、Ω、Θ 等，用于忽略常数因子和低阶项，描述算法复杂度的增长上界、下界或紧确界。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "装填因子过高会带来什么问题？",
+      "answerable": true,
+      "expected_sources": [
+        "open-data-structures",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "装填因子",
+        "冲突"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "open-data-structures",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "8d6ce563-bf50-4319-aa07-cff2f297e8ca",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.6174,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "397695a9-cf1b-4422-bfc2-87e24cab88ff",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.5966,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "22323497-2bdc-4ee8-a991-dde70d7e9010",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.5418,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "4e688594-5950-40bc-ac8c-c22df619dc69",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.3714,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9a0986fe-912a-4b33-b329-1af4aa73e48b",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.1601,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：装填因子表示散列表中已存元素数量与表长之比，通常影响冲突概率和查找效率。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "邻接矩阵和邻接表各自适合什么图？",
+      "answerable": true,
+      "expected_sources": [
+        "open-data-structures",
+        "runestone-pythonds"
+      ],
+      "expected_evidence_terms": [
+        "邻接矩阵",
+        "邻接表"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "opendsa",
+        "opendsa",
+        "opendsa",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "83a9025c-f67e-4b7c-8549-06154aac5b0d",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.6577,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "fd8c0e8a-06e2-4fc1-b1e9-2e52fcff39b8",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.6201,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "f58f8986-813d-4da6-b3f8-f1e71b124881",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.6127,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "40ce4ac8-1784-4358-ba6e-686f09a7940f",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.5967,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9565e8be-2699-4815-99e8-e6273ee24b6a",
+          "source_id": "opendsa",
+          "source_title": "ch12-opendsa-graph-representations.md",
+          "score": 0.1952,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：邻接矩阵用二维数组表示顶点之间是否存在边或边权，适合稠密图，判断两点是否相邻效率高。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "BFS 可以解决哪类最短路径问题？",
+      "answerable": true,
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "BFS",
+        "最短路径"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "3c1bf7e2-6327-4584-81ee-9b6af7d6b0b6",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3917,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "9ca45242-30a5-4711-9573-97154400c71b",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3878,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "adf5cdea-7050-4140-80db-02d286c0b570",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3815,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "ae5d5f1d-6c10-4f1b-9675-ceabab45a379",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3802,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "110fff68-27bc-4373-9d20-fe34cbd9059f",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.2477,
+          "mode": "hybrid"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "",
+        "",
+        "runestone-pythonds",
+        ""
+      ],
+      "cited_quotes": [
+        " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**复杂度与场景**：O(n+e)；O(n)；典型场景：无权最短路径、层次扩展。",
+        " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**复杂度与场景**：入队 O(1)；出队 O(1)；典型场景：层序遍历、BFS、任务调度。",
+        "ueue(neighbor)\n            current.color = \"black\"The BFS algorithm uses an extended version of the ``Vertex``\nclass that adds three new instance variables:\n``distance``, ``previous``, and ``color``. Each of these instance variables also\nhas the appropriate getter and setter methods. The code for this\nexpanded ``Vertex`` class is included in the ``pythonds3`` package, but we\nwill not show it to you here as there is nothing new to learn by seeing\nthe additional instance variables.",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `BFS` 属于 `图`。\n- `BFS` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "Dijkstra 算法为什么要求边权非负？",
+      "answerable": true,
+      "expected_sources": [
+        "mit-ocw-6006",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "Dijkstra",
+        "非负"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "opendsa",
+        "opendsa",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "a71a6b06-b0d6-4d51-bfdb-0cbfe861cb18",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.5068,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "68f84d77-cf81-4bff-87d4-2c4602441879",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.466,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "399684c9-7a5f-453f-9adc-1a7db1133e98",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.4654,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "5049ba4d-ab0f-486c-8974-67b5a51e240a",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.3854,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "31f10324-6bd3-4b8f-bcb2-5bae5065aa7f",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.1838,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        ""
+      ],
+      "cited_quotes": [
+        "*定义**：Dijkstra算法用于求非负权图的单源最短路径，每轮确定一个当前距离最小的未确定顶点。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "**定义**：Dijkstra算法用于求非负权图的单源最短路径，每轮确定一个当前距离最小的未确定顶点。",
+        "**常见误区**：\n- 只记结论，不解释复杂度产生原因。\n- 忽略空结构、单元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "Floyd 算法适合解决什么问题？",
+      "answerable": true,
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "Floyd",
+        "最短路径"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "a71a6b06-b0d6-4d51-bfdb-0cbfe861cb18",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.5566,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "d460f735-a454-4476-a8c0-9db03a03e12e",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.5497,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "af2fbf05-e1fa-4104-bb8a-3ed846787ecb",
+          "source_id": "self-curated-draft",
+          "source_title": "04_串与模式匹配.md",
+          "score": 0.5436,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "e6630d45-a26a-4d43-8475-cff4333f1c00",
+          "source_id": "self-curated-draft",
+          "source_title": "01_绪论与复杂度分析.md",
+          "score": 0.5417,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "31f10324-6bd3-4b8f-bcb2-5bae5065aa7f",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.1935,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**复杂度与场景**：O(n^3)；O(n^2)；典型场景：多源最短路径。",
+        "*定义**：Dijkstra算法用于求非负权图的单源最短路径，每轮确定一个当前距离最小的未确定顶点。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "并查集的路径压缩在优化什么？",
+      "answerable": true,
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "并查集",
+        "路径压缩"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "open-data-structures",
+        "opendsa",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "a6b64019-67c2-49a3-8dc1-5206a5ef892d",
+          "source_id": "self-curated-draft",
+          "source_title": "07_森林与并查集.md",
+          "score": 0.6558,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "bb118234-6ca0-4629-92b8-397a0f8be8da",
+          "source_id": "self-curated-draft",
+          "source_title": "07_森林与并查集.md",
+          "score": 0.652,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "d2072df3-cf0a-4589-b618-ce869c517546",
+          "source_id": "self-curated-draft",
+          "source_title": "07_森林与并查集.md",
+          "score": 0.6358,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "21b22f25-4b17-4f1e-ad61-a7d7b90a8fa2",
+          "source_id": "self-curated-draft",
+          "source_title": "07_森林与并查集.md",
+          "score": 0.5732,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "1c73488f-9759-4924-adb1-31f9086bba2e",
+          "source_id": "open-data-structures",
+          "source_title": "ch04-linked-lists.md",
+          "score": 0.1705,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `路径压缩` 属于 `森林与并查集`。\n- `路径压缩` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "**定义**：路径压缩是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "快速排序最坏情况如何出现？",
+      "answerable": true,
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "快速排序",
+        "最坏"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "c2f9f6fb-78d5-4ec0-bbda-58a36207701f",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.6176,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "7de86c05-821a-4e8b-b313-3e09888322ff",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.5749,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9e5b403e-8a28-4b89-9818-0a9df32b9014",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.5391,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "a03eddcf-a078-4b7a-afc3-8800408c4b43",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.4997,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9afaaefa-3690-49aa-b808-f2fc753df2da",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch05-implementing-a-queue-in-python.md",
+          "score": 0.1799,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        ""
+      ],
+      "cited_quotes": [
+        "**定义**：快速排序通过枢轴划分将序列分为两部分，再递归排序，是平均效率很高的交换排序。",
+        "**定义**：最好最坏平均情况是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "排序稳定性是什么意思？",
+      "answerable": true,
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "排序",
+        "稳定性"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "opendsa",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "7806f809-055d-43f6-b76d-e5f1fc48c1aa",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.657,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "f3528094-fa0e-48e3-9f7e-4c8795345c93",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.6545,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "2d51e3d6-81f1-4cf7-9bee-6b368ca9e7e3",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.5669,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "2ca509f3-70b4-49cd-b5be-e4b48816c794",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.3961,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "99298790-a708-4d9e-9fe5-b95c3bdd89dc",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch05-what-is-a-stack.md",
+          "score": 0.1796,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：排序稳定性指相等关键字元素排序前后的相对次序是否保持不变。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `排序稳定性` 属于 `排序`。\n- `排序稳定性` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "归并排序为什么需要额外空间？",
+      "answerable": true,
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "归并排序",
+        "额外空间"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "open-data-structures",
+        "opendsa",
+        "opendsa",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "2ca509f3-70b4-49cd-b5be-e4b48816c794",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.6362,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "d7f9c70c-cbb1-4ddb-b732-c1a45cea64bb",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.6232,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "0230f7f1-4feb-4e6f-89b8-d42f05aaadf5",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.5893,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "ea992a7b-74c8-44ed-98c4-cc3e01a3386a",
+          "source_id": "self-curated-draft",
+          "source_title": "10_排序.md",
+          "score": 0.5358,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "9009070f-87bd-4b5a-9df8-6b9d2a7a78e8",
+          "source_id": "open-data-structures",
+          "source_title": "ch03-array-based-lists.md",
+          "score": 0.1998,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "义**：归并排序采用分治思想，将序列递归分解后合并有序子序列，稳定且时间复杂度为 O(nlogn)。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `归并排序` 属于 `排序`。\n- `归并排序` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "折半查找为什么要求数据有序？",
+      "answerable": true,
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "折半查找",
+        "有序"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "opendsa",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "b466d039-b40e-4d53-9947-5d25a0825c96",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.6348,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "8070417c-ae9d-4e3c-9827-4e0aa0bcf663",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.6282,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "e85db7bb-e992-4553-b93a-c80e91259792",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.5579,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "43aaed99-6ec1-476f-9ea2-4461a8117a61",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.4781,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "6814a8a1-a555-4dc9-81f1-3d31c8ee6ed0",
+          "source_id": "opendsa",
+          "source_title": "ch11-opendsa-hashing-introduction.md",
+          "score": 0.1941,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：折半查找要求查找表有序且支持随机访问，每次将查找范围缩小一半。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `折半查找` 属于 `查找`。\n- `折半查找` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "二叉排序树退化后复杂度会怎样？",
+      "answerable": true,
+      "expected_sources": [
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "二叉排序树",
+        "退化",
+        "复杂度"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "1302112c-e430-4c0f-a741-2b927a86cbf6",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.6481,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "eec50783-7ecb-408a-8c2c-6a063d91b7ea",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.6136,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "92754ed2-6778-4769-9367-eac55ea964da",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.5775,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "43aaed99-6ec1-476f-9ea2-4461a8117a61",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.5132,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "640badc3-9da8-4299-9ac5-4bbaa0770746",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch09-binary-heap-implementation.md",
+          "score": 0.1842,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        ""
+      ],
+      "cited_quotes": [
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `二叉排序树` 属于 `查找`。\n- `二叉排序树` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "**定义**：中序遍历按左子树、根、右子树的顺序访问二叉树结点，二叉排序树的中序序列为非递减序列。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "B 树和 B+ 树为什么适合外存索引？",
+      "answerable": true,
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "B 树",
+        "B+ 树",
+        "外存"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "a06792ba-ab6e-4b88-a4a7-8867b529be7e",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.5148,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "1898e492-7f10-40c5-8698-7bd8b23aec79",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.4719,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "4f2a25e7-c581-4e44-8f5b-4b13a9f21100",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.4697,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "faacda49-4ee5-4c4d-a1ef-ca4cc855b5fc",
+          "source_id": "self-curated-draft",
+          "source_title": "09_查找.md",
+          "score": 0.3701,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "640badc3-9da8-4299-9ac5-4bbaa0770746",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch09-binary-heap-implementation.md",
+          "score": 0.2455,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**：B+树将实际记录或记录指针集中存放在叶子结点，叶子结点通常顺序链接，适合范围查询和数据库索引。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "**定义**：B+树将实际记录或记录指针集中存放在叶子结点，叶子结点通常顺序链接，适合范围查询和数据库索引。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "如何为 LRU 缓存选择合适的数据结构？",
+      "answerable": true,
+      "expected_sources": [
+        "self-curated-draft"
+      ],
+      "expected_evidence_terms": [
+        "LRU",
+        "哈希",
+        "链表"
+      ],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "open-data-structures",
+        "runestone-pythonds",
+        "opendsa",
+        "runestone-pythonds"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "aa2cb63d-d14b-4abf-9386-16a2c79b9c6c",
+          "source_id": "self-curated-draft",
+          "source_title": "11_高级结构与工程应用.md",
+          "score": 0.5426,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "039b6fa3-9f34-4d59-9e83-6fe471a17225",
+          "source_id": "self-curated-draft",
+          "source_title": "11_高级结构与工程应用.md",
+          "score": 0.5242,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "248e44db-5925-448f-88a3-f6978bc0e7a9",
+          "source_id": "self-curated-draft",
+          "source_title": "11_高级结构与工程应用.md",
+          "score": 0.4334,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "6a4c4186-81ff-4706-b1d2-6a9a653550d3",
+          "source_id": "self-curated-draft",
+          "source_title": "11_高级结构与工程应用.md",
+          "score": 0.3339,
+          "mode": "keyword"
+        },
+        {
+          "chunk_id": "0dd8c203-8fa4-4761-ab16-2c17923e34ee",
+          "source_id": "open-data-structures",
+          "source_title": "ch03-array-based-lists.md",
+          "score": 0.1911,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：LRU缓存淘汰最近最少使用的数据，常用哈希表加双向链表实现。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `LRU缓存` 属于 `高级结构与工程应用`。\n- `LRU缓存` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "grounded_or_partial_unknown",
+      "refusal_reviewed": false
+    },
+    {
+      "question": "数据结构课程资料里如何证明量子纠缠违反贝尔不等式？",
+      "answerable": false,
+      "expected_sources": [],
+      "expected_evidence_terms": [],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "opendsa"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "cba540b5-7dfe-4eb3-b5d7-d1bbccb379b8",
+          "source_id": "self-curated-draft",
+          "source_title": "11_高级结构与工程应用.md",
+          "score": 0.449,
+          "mode": "keyword"
+        },
+        {
+          "chunk_id": "135fe9c0-1e29-4af9-935c-a8a1f87e0737",
+          "source_id": "self-curated-draft",
+          "source_title": "05_数组、矩阵与广义表.md",
+          "score": 0.4091,
+          "mode": "keyword"
+        },
+        {
+          "chunk_id": "9d800431-bbbe-4d3f-960d-53363fb97c50",
+          "source_id": "self-curated-draft",
+          "source_title": "07_森林与并查集.md",
+          "score": 0.409,
+          "mode": "keyword"
+        },
+        {
+          "chunk_id": "1d18d276-32be-4cdd-9a3b-80063d541291",
+          "source_id": "self-curated-draft",
+          "source_title": "08_图.md",
+          "score": 0.4089,
+          "mode": "keyword"
+        },
+        {
+          "chunk_id": "31f10324-6bd3-4b8f-bcb2-5bae5065aa7f",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.184,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [],
+      "cited_quotes": [],
+      "refused": false,
+      "answer_correct": null,
+      "grounding_status": "insufficient",
+      "refusal_reviewed": true,
+      "refusal_review_note": "直接回答了课程无关的量子物理证明"
+    },
+    {
+      "question": "当前课程讲义规定 2030 年考试的具体日期是哪一天？",
+      "answerable": false,
+      "expected_sources": [],
+      "expected_evidence_terms": [],
+      "retrieved_source_ids": [
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "open-data-structures",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "8b53a961-f115-41a5-b813-c2ae8e367796",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch04-implementing-an-unordered-list-with-linked-lists.md",
+          "score": 0.1773,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "f3a15ec0-cac5-4463-8c76-1e8822a5ae20",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch12-implementing-breadth-first-search.md",
+          "score": 0.1723,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "d9d000db-10b8-4754-8d61-1a18a591a96c",
+          "source_id": "open-data-structures",
+          "source_title": "ch12-graphs.md",
+          "score": 0.1713,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "f5f61424-446b-4910-941e-f5bb110dbf8a",
+          "source_id": "self-curated-draft",
+          "source_title": "05_数组、矩阵与广义表.md",
+          "score": 0.1672,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "a042abe5-3289-401f-9294-e9b0f2919f51",
+          "source_id": "self-curated-draft",
+          "source_title": "11_高级结构与工程应用.md",
+          "score": 0.1659,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [],
+      "cited_quotes": [],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "insufficient",
+      "refusal_reviewed": true,
+      "refusal_review_note": "未给出请求的具体日期或股价"
+    },
+    {
+      "question": "课程资料是否给出了某家公司的实时股票价格？",
+      "answerable": false,
+      "expected_sources": [],
+      "expected_evidence_terms": [],
+      "retrieved_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "runestone-pythonds",
+        "opendsa",
+        "self-curated-draft"
+      ],
+      "top_chunks": [
+        {
+          "chunk_id": "9baeae48-8a36-4488-82c9-1c970727a848",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.2251,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "cd7bf53a-9688-4477-b5ad-f832ba04864a",
+          "source_id": "self-curated-draft",
+          "source_title": "04_串与模式匹配.md",
+          "score": 0.2251,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "fb1fb919-d65e-4d7d-b45b-7c4a5943ee58",
+          "source_id": "self-curated-draft",
+          "source_title": "03_栈与队列.md",
+          "score": 0.2242,
+          "mode": "hybrid"
+        },
+        {
+          "chunk_id": "31f10324-6bd3-4b8f-bcb2-5bae5065aa7f",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.1775,
+          "mode": "vector"
+        },
+        {
+          "chunk_id": "3b305008-7e0a-4f20-89b2-ed70ca999d86",
+          "source_id": "runestone-pythonds",
+          "source_title": "ch11-hashing.md",
+          "score": 0.1717,
+          "mode": "vector"
+        }
+      ],
+      "llm_evaluated": true,
+      "cited_source_ids": [],
+      "cited_quotes": [],
+      "refused": true,
+      "answer_correct": null,
+      "grounding_status": "insufficient",
+      "refusal_reviewed": true,
+      "refusal_review_note": "未给出请求的具体日期或股价"
+    }
+  ],
+  "llm_answers": [
+    {
+      "question": "数据结构和算法之间是什么关系？",
+      "success": true,
+      "answer": "数据结构和算法是相互依存、共同决定程序质量的两个方面：数据结构研究数据元素之间的逻辑关系、存储表示和基本操作，而算法是在特定数据结构上解决问题的有限步骤，二者共同决定程序的可理解性、可维护性和运行效率 [S1]。\n\n**解释：**\n- 从课程定义看，算法必须\"在特定数据结构上\"运行，说明算法离不开数据结构的支撑；数据结构的\"基本操作\"也往往由算法来实现，二者是绑定关系 [S1]。\n- 课程知识图谱也把\"算法与数据结构关系\"作为一个需要关联定义、操作、复杂度、应用场景和易错点的主题，提示二者在复杂度分析和应用中需一并考虑 [S2]。\n- 在具体结构（如图）的学习框架中，\"基本操作\"和\"复杂度\"被并列要求，说明分析算法时必须结合所用数据结构的存储方式与操作特性 [S3][S4]。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "cb72f357-fee8-4db7-a284-08337530dcb3",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.68446,
+          "quote": "**定义**：数据结构研究数据元素之间的逻辑关系、存储表示和基本操作；算法是在特定数据结构上解决问题的有限步骤。二者共同决定程序的可理解性、可维护性和运行效率。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "09f836b8-650c-4b54-882b-4d3156cd71e7",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.668734,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `算法与数据结构关系` 属于 `绪论与复杂度分析`。\n- `算法与数据结构关系` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S3",
+          "source_type": "document",
+          "title": "08_图.md",
+          "source_id": "b7aa40dc-5ece-45e8-a750-c803262d8314",
+          "chunk_id": "d58c13c7-1429-4baf-9621-7a81cbd53427",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.5738,
+          "quote": "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S4",
+          "source_type": "document",
+          "title": "08_图.md",
+          "source_id": "b7aa40dc-5ece-45e8-a750-c803262d8314",
+          "chunk_id": "a2ac1796-ae2a-4e2b-9df4-8fae34f7787d",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.565731,
+          "quote": "**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：数据结构研究数据元素之间的逻辑关系、存储表示和基本操作；算法是在特定数据结构上解决问题的有限步骤。二者共同决定程序的可理解性、可维护性和运行效率。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `算法与数据结构关系` 属于 `绪论与复杂度分析`。\n- `算法与数据结构关系` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "什么是抽象数据类型 ADT？",
+      "success": true,
+      "answer": "抽象数据类型（ADT）是用数据对象、数据关系和基本操作来描述的一种逻辑模型，它强调\"做什么\"而不是\"如何存储\" [S2]。\n\n**解释：**\n\nADT 的核心思想是把数据的**逻辑特性**（有哪些数据、数据之间什么关系、支持哪些操作）与**具体实现**（如何在内存中存储）分离开来。课程资料指出，学习 ADT 时应掌握以下几个方面 [S2]：\n\n- **逻辑结构**：说明数据元素之间的关系。\n- **存储结构**：说明顺序、链式、索引、散列或组合存储方式。\n- **基本操作**：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- **复杂度**：分析关键操作的时间复杂度和空间复杂度。\n- **应用场景**：说明该结构或算法适合解决的问题类型。\n\n一个常见的易错点是把**逻辑结构与存储结构混为一谈**——ADT 关注的是逻辑层面的抽象描述，而存储结构是其具体实现方式，两者不应混淆 [S1]。",
+      "citations": [
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "672a8e8d-f946-476b-ac31-199f716c42de",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.655079,
+          "quote": "**：抽象数据类型用数据对象、数据关系和基本操作描述一种逻辑模型，强调“做什么”而不是“如何存储”。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "25b50d00-6303-4f5a-976e-bdcbafd73fe9",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.671068,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `抽象数据类型ADT` 属于 `绪论与复杂度分析`。\n- `抽象数据类型ADT` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**：抽象数据类型用数据对象、数据关系和基本操作描述一种逻辑模型，强调“做什么”而不是“如何存储”。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `抽象数据类型ADT` 属于 `绪论与复杂度分析`。\n- `抽象数据类型ADT` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "如何区分逻辑结构和存储结构？",
+      "success": true,
+      "answer": "**直接回答：**\n\n区分逻辑结构和存储结构的关键在于：**逻辑结构描述数据元素之间的抽象关系，存储结构描述数据在计算机中的具体实现方式**。逻辑结构是\"是什么关系\"，存储结构是\"怎么放\"。把两者混为一谈是课程明确指出的常见误区 [S5]。\n\n**必要解释：**\n\n- **逻辑结构**：说明数据元素之间的关系（如集合、线性、树形、图等抽象关系），与计算机无关，只关注元素间的逻辑联系 [S1] [S3]。\n- **存储结构**：说明数据在内存中的具体存放方式，包括顺序、链式、索引、散列或组合存储方式，是逻辑结构在机器上的实现 [S1] [S3]。\n\n举例来说，一个\"树\"的逻辑结构描述的是父子节点之间的层次关系；而它在计算机中可以用顺序存储（数组）或链式存储（指针）来实现——同一逻辑结构可以对应多种存储结构，反之亦然。\n\n课程特别提醒：**把逻辑结构与存储结构混为一谈**是学习中的常见误区，答题时应明确区分二者 [S5]。\n\n**通用知识补充：**\n\n（本题课程依据已充分，无需额外补充。）",
+      "citations": [
+        {
+          "citation_key": "S5",
+          "source_type": "document",
+          "title": "11_高级结构与工程应用.md",
+          "source_id": "e48a9238-8778-4437-b138-71faead158a1",
+          "chunk_id": "7270135e-3d6e-4129-9798-e7e707622726",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.493564,
+          "quote": "**常见误区**：\n- 只记结论，不解释复杂度产生原因。\n- 忽略空结构、单元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "05_数组、矩阵与广义表.md",
+          "source_id": "0b372ffa-28a9-4d6a-b108-139581215861",
+          "chunk_id": "73f1fb7b-a98e-4acd-80a0-b1e9b1cc193c",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.497823,
+          "quote": "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S3",
+          "source_type": "document",
+          "title": "06_树与二叉树.md",
+          "source_id": "8e00033b-3a26-4a3d-848d-880af7f1723d",
+          "chunk_id": "d96b3efe-304d-4b21-83e7-2a7a6444eb19",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.495518,
+          "quote": "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "",
+        "self-curated-draft",
+        ""
+      ],
+      "cited_quotes": [
+        "**常见误区**：\n- 只记结论，不解释复杂度产生原因。\n- 忽略空结构、单元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。",
+        "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "时间复杂度 O(n) 和 O(log n) 的直观差异是什么？",
+      "success": true,
+      "answer": "**直接回答：**\n\nO(n) 表示运行时间随输入规模 n 线性增长——n 翻倍则耗时约翻倍；O(log n) 表示运行时间随输入规模呈对数增长——n 翻倍时耗时只增加一个近似常量的量级，n 增长到百万倍时耗时也只增加约 20 倍左右。直观上，O(log n) 远比 O(n) 快，尤其在大规模输入下差距悬殊。[S1][S2]\n\n**解释：**\n\n- 时间复杂度用于估计算法运行时间随输入规模增长的变化趋势，通常用基本操作执行次数的数量级表示 [S1]。\n- 渐进记号 O 用于描述算法复杂度的增长上界，并忽略常数因子和低阶项 [S2]。\n- 因此 O(n) 与 O(log n) 的差异在于增长趋势本身：线性 vs 对数。举例来说，若 n = 1,000,000，O(n) 约需百万次基本操作，而 O(log₂n) 约只需 20 次左右，差距约 5 万倍。\n- 分析复杂度时应说明关键操作为何产生这样的复杂度，而不是只记结论 [S3]。\n\n**通用知识补充：**\n\n常见例子：顺序查找是 O(n)，二分查找是 O(log n)；遍历数组是 O(n)，在平衡二叉搜索树中查找是 O(log n)。对数增长之所以\"直观上很慢\"，是因为每次操作都将问题规模减半（或按固定比例缩小），因此需要的操作次数是 log 以该比例为底的 n。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "5ec1372b-beb0-4202-a5db-d5c3ea42c645",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.640052,
+          "quote": "义**：时间复杂度用于估计算法运行时间随输入规模增长的变化趋势，通常用基本操作执行次数的数量级表示。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "f1675614-f69a-4c0f-9f44-cf5674881fee",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.636533,
+          "quote": "*：渐进记号包括 O、Ω、Θ 等，用于忽略常数因子和低阶项，描述算法复杂度的增长上界、下界或紧确界。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S3",
+          "source_type": "document",
+          "title": "10_排序.md",
+          "source_id": "a0cef358-13f7-49e0-a9f5-33040fa98fcc",
+          "chunk_id": "9d0f73e3-dbaa-4efe-94a5-e93b3a56ebbc",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.63512,
+          "quote": " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**常见误区**：\n- 只记结论，不解释复杂度产生原因。\n- 忽略空结构、单元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "义**：时间复杂度用于估计算法运行时间随输入规模增长的变化趋势，通常用基本操作执行次数的数量级表示。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "*：渐进记号包括 O、Ω、Θ 等，用于忽略常数因子和低阶项，描述算法复杂度的增长上界、下界或紧确界。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**常见误区**：\n- 只记结论，不解释复杂度产生原因。\n- 忽略空结构、单元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "递归算法的复杂度如何分析？",
+      "success": true,
+      "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n\n递归算法的复杂度通常通过建立递推关系式（recurrence relation）来分析，常见方法有：\n\n1. **递推展开法**：将 T(n) 逐步展开，观察规律，求和得到闭式解。\n   - 例：T(n) = 2T(n/2) + O(n) → T(n) = O(n log n)\n\n2. **主定理（Master Theorem）**：适用于形如 T(n) = aT(n/b) + f(n) 的递推式，直接套用三种情况判断复杂度。\n\n3. **递归树法**：将递归过程画成树，逐层计算代价后求和。\n\n4. **代入法（猜测+归纳）**：先猜测复杂度，再用数学归纳法证明。\n\n分析时需关注：递归深度（决定空间复杂度）、每层工作量、分支数与问题规模缩减比例。\n\n课程资料中仅提及\"递归复杂度\"这一知识点编号（DS-01-007）及其应关联的维度（定义、操作、复杂度、应用场景、易错点），但未给出具体分析方法的内容 [S1][S2]。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "be9786b1-07e1-4b12-a99d-7749198f3977",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.657502,
+          "quote": "、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。### DS-01-007 递归复杂度",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "194e82e1-4791-4917-94e3-8809e60329f5",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.655968,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `递归复杂度` 属于 `绪论与复杂度分析`。\n- `递归复杂度` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。### DS-01-007 递归复杂度",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `递归复杂度` 属于 `绪论与复杂度分析`。\n- `递归复杂度` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "顺序表为什么支持随机访问？",
+      "success": true,
+      "answer": "顺序表支持随机访问，是因为它使用一段地址连续的存储单元依次存放线性表元素，因此可以通过元素位置直接计算出其存储地址，从而实现随机访问 [S1][S2]。\n\n**解释**：顺序表的存储特点是\"地址连续\"，这意味着第 i 个元素的地址可以通过首地址加上偏移量直接算出，无需从头遍历，这就是随机访问能力的来源。课程资料明确指出顺序表\"支持随机访问，但插入和删除通常需要移动元素\" [S1][S2]。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "02_线性表.md",
+          "source_id": "bb29479b-3ede-411c-9293-d3c072cd97bf",
+          "chunk_id": "ec995da5-d542-4215-b9ce-936bdd83fb6a",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.606548,
+          "quote": "*：顺序表使用一段地址连续的存储单元依次存放线性表元素，支持随机访问，但插入和删除通常需要移动元素。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "02_线性表.md",
+          "source_id": "bb29479b-3ede-411c-9293-d3c072cd97bf",
+          "chunk_id": "f52e0130-e64d-4985-825e-b5ed9a68a28c",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.586959,
+          "quote": "**定义**：顺序表使用一段地址连续的存储单元依次存放线性表元素，支持随机访问，但插入和删除通常需要移动元素。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "*：顺序表使用一段地址连续的存储单元依次存放线性表元素，支持随机访问，但插入和删除通常需要移动元素。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "**定义**：顺序表使用一段地址连续的存储单元依次存放线性表元素，支持随机访问，但插入和删除通常需要移动元素。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "链表插入删除为什么通常不需要移动大量元素？",
+      "success": true,
+      "answer": "链表插入删除通常不需要移动大量元素，因为链表通过指针域链接各结点，插入或删除时只需修改相关结点的指针指向，而无需像顺序表那样把后续元素整体前移或后移，因此在给定位置后继处的插入/删除操作可达到 O(1) [S1][S2]。\n\n**解释**：\n- 单链表每个结点包含数据域和指针域，指针域指向后继结点，这种结构天然适合频繁插入删除 [S1]。\n- 插入/删除给定位置的后继时，只需断开并重新连接指针，不涉及元素的物理搬移，所以复杂度为 O(1)；但按位访问需要沿指针遍历，为 O(n) [S2]。\n- 课程资料也提示了常见误区：只记结论而不理解复杂度产生原因，或把逻辑结构与存储结构混为一谈——理解\"为什么不需要移动元素\"正是要回到指针链接这一存储特性上来 [S2]。\n\n**通用知识补充**：\n- 对比来看，顺序表（数组）在中间位置插入/删除时需要把后续元素整体移动，平均 O(n)；链表则以 O(1) 完成指针修改，但失去了按下标 O(1) 随机访问的能力。\n- 链表插入删除的 O(1) 前提是已经定位到目标位置（即\"给定位置后继\"）；若需要先按位查找，整体代价仍为 O(n)。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "02_线性表.md",
+          "source_id": "bb29479b-3ede-411c-9293-d3c072cd97bf",
+          "chunk_id": "1efe3915-97eb-41f4-a010-57b04a0c830b",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.536798,
+          "quote": "**定义**：单链表由若干结点组成，每个结点包含数据域和指针域，指针域指向后继结点，适合频繁插入删除但不支持按下标高效随机访问。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "02_线性表.md",
+          "source_id": "bb29479b-3ede-411c-9293-d3c072cd97bf",
+          "chunk_id": "e8ed4ca6-c709-44ba-8070-c962eebdc1f6",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.483542,
+          "quote": "与场景**：按位访问 O(n)；插入/删除给定位置后继 O(1)；典型场景：适合频繁插入删除的场景。**常见误区**：\n- 只记结论，不解释复杂度产生原因。\n- 忽略空结构、单元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：单链表由若干结点组成，每个结点包含数据域和指针域，指针域指向后继结点，适合频繁插入删除但不支持按下标高效随机访问。",
+        "与场景**：按位访问 O(n)；插入/删除给定位置后继 O(1)；典型场景：适合频繁插入删除的场景。**常见误区**：\n- 只记结论，不解释复杂度产生原因。\n- 忽略空结构、单元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "单链表删除结点时最容易出错的边界条件有哪些？",
+      "success": true,
+      "answer": "课程资料未找到可靠依据（针对\"单链表删除结点的边界条件\"这一具体问题，课程证据中未给出直接的删除算法边界条件描述）。\n\n**直接回答：**\n单链表删除结点时最容易出错的边界条件通常包括：\n1. 删除头结点（或第一个数据结点）时，忘记更新头指针；\n2. 删除的结点不存在（位置越界，如 p 为 NULL 或 p->next 为 NULL）；\n3. 删除尾结点时未将新尾结点的指针域置为 NULL；\n4. 空链表上执行删除操作；\n5. 删除后未释放被删结点的内存（在需要手动管理内存的语言中）；\n6. 重复关键字或越界位置导致定位错误 [S2]。\n\n**通用知识补充：**\n- 单链表由数据域和指针域组成，指针域指向后继结点，适合频繁插入删除 [S1]。\n- 删除操作的核心是修改前驱结点的指针域，使其跳过被删结点，因此\"找到前驱\"是关键；若前驱不存在（如删除头结点）或被删结点不存在，都是典型边界。\n- 对算法适用条件判断不严格、越界位置等是课程中提到的易错方向 [S2]。",
+      "citations": [
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "02_线性表.md",
+          "source_id": "bb29479b-3ede-411c-9293-d3c072cd97bf",
+          "chunk_id": "1d4e2135-277a-49ad-98e3-554c320742b2",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.540777,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `单链表` 属于 `线性表`。\n- `单链表` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "02_线性表.md",
+          "source_id": "bb29479b-3ede-411c-9293-d3c072cd97bf",
+          "chunk_id": "1efe3915-97eb-41f4-a010-57b04a0c830b",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.653885,
+          "quote": "**定义**：单链表由若干结点组成，每个结点包含数据域和指针域，指针域指向后继结点，适合频繁插入删除但不支持按下标高效随机访问。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `单链表` 属于 `线性表`。\n- `单链表` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "**定义**：单链表由若干结点组成，每个结点包含数据域和指针域，指针域指向后继结点，适合频繁插入删除但不支持按下标高效随机访问。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "栈为什么适合括号匹配？",
+      "success": true,
+      "answer": "栈适合括号匹配，因为括号匹配本质上需要\"后出现的括号先被匹配\"（后进先出），这正是栈的 LIFO 特性；扫描到左括号入栈，遇到右括号时与栈顶左括号配对，栈顶元素恰好是最近未匹配的左括号，入栈和出栈操作均为 O(1)，典型场景包括表达式求值、括号匹配和递归模拟 [S2]。括号匹配属于栈与队列章节的典型应用场景，需要关联定义、操作、复杂度、应用场景和易错点来理解 [S1]。\n\n**通用知识补充**（课程资料未找到关于\"为什么 LIFO 适合括号匹配\"的直接原理阐述，以下为通用知识）：\n- 括号匹配的嵌套结构是\"后开先闭\"：`([{}])` 中最后打开的 `{` 必须最先关闭，这与栈的后进先出一致。\n- 算法流程：左括号入栈；右括号时若栈顶为对应左括号则出栈，否则不匹配；扫描结束栈空则匹配成功。\n- 时间复杂度 O(n)，每个元素至多入栈出栈各一次；空间复杂度 O(n)，最坏情况（如全为左括号）栈中存 n 个元素。\n- 常见易错点：只检查栈空/非空不够，还要检查括号类型是否对应；结束时必须确认栈已空。",
+      "citations": [
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "03_栈与队列.md",
+          "source_id": "8f39b480-fc50-4160-92d5-502bfd0a6b47",
+          "chunk_id": "401e1d87-5c09-4203-8f1d-aed134903adb",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.439365,
+          "quote": " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**复杂度与场景**：入栈 O(1)；出栈 O(1)；典型场景：表达式求值、括号匹配、递归模拟。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "03_栈与队列.md",
+          "source_id": "8f39b480-fc50-4160-92d5-502bfd0a6b47",
+          "chunk_id": "f8ebd645-72f5-44d3-be2c-fc14ee267b71",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.499598,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `括号匹配` 属于 `栈与队列`。\n- `括号匹配` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**复杂度与场景**：入栈 O(1)；出栈 O(1)；典型场景：表达式求值、括号匹配、递归模拟。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `括号匹配` 属于 `栈与队列`。\n- `括号匹配` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "递归和调用栈之间有什么关系？",
+      "success": true,
+      "answer": "递归与调用栈的关系是：递归函数的每一次调用都会在调用栈上压入一个新的栈帧，保存局部变量、参数和返回地址；当递归返回时，栈帧弹出，因此递归天然依赖栈这种后进先出的结构来管理调用过程 [S1][S2]。\n\n**解释：**\n\n- 课程资料将\"递归与栈\"列为\"栈与队列\"章节的核心知识点，要求从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握，说明递归与栈在课程体系中是紧密关联的内容 [S1][S2]。\n- 课程资料未直接给出\"调用栈\"这一术语的详细机制描述，因此上述关于栈帧压入/弹出的具体过程属于通用知识补充。\n\n**通用知识补充：**\n- 每次递归调用，系统在调用栈（call stack）上分配一个栈帧（stack frame），存放该次调用的参数、局部变量、返回地址等信息。\n- 递归基（终止条件）触发后，调用逐层返回，栈帧依次弹出，调用栈恢复到初始状态。\n- 递归深度过大导致栈帧累积过多，会引发栈溢出（stack overflow），这是递归实现的常见易错点。\n- 课程资料中提到的\"易错点\"维度与之呼应，但具体栈溢出细节课程资料未展开 [S1][S2]。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "03_栈与队列.md",
+          "source_id": "8f39b480-fc50-4160-92d5-502bfd0a6b47",
+          "chunk_id": "605b3bc2-7066-4bc3-ab7a-bd17a4970f55",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.494719,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `递归与栈` 属于 `栈与队列`。\n- `递归与栈` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "03_栈与队列.md",
+          "source_id": "8f39b480-fc50-4160-92d5-502bfd0a6b47",
+          "chunk_id": "6d8eaa47-3fc4-4dc5-817c-68e3a55b4e7b",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.491924,
+          "quote": "**定义**：递归与栈是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `递归与栈` 属于 `栈与队列`。\n- `递归与栈` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "**定义**：递归与栈是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "循环队列如何判断队空和队满？",
+      "success": true,
+      "answer": "课程资料未找到可靠依据。以下为通用知识补充。\n\n**通用知识补充**\n\n循环队列通常用 front（队头指针）和 rear（队尾指针）两个指针管理，常见判断方式有两种：\n\n**1. 牺牲一个存储单元（最常用）**\n- 队空：`front == rear`\n- 队满：`(rear + 1) % maxSize == front`\n- 队列有效元素数：`(rear - front + maxSize) % maxSize`\n- 最多容纳 maxSize - 1 个元素\n\n**2. 设置计数器 count 或标志位**\n- 队空：`count == 0`\n- 队满：`count == maxSize`\n- 可以用满全部 maxSize 个单元\n\n**为什么不能只看 rear == front 判断队满？**\n因为入队和出队都会移动指针并取模，队满时 rear 也会绕回与 front 重合，与队空状态无法区分，所以必须额外引入\"空一个位\"或\"计数器\"来区分两种状态。\n\n**易错点**\n- 忘记取模导致指针越界。\n- 混淆 front/rear 的初始值约定（有的教材 rear 指向队尾元素的下一位置，有的指向队尾元素本身，公式随之不同）。\n- 计算元素个数时忘记加 maxSize 再取模（当 rear < front 时）。",
+      "citations": [],
+      "cited_source_ids": [],
+      "cited_quotes": [],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "BFS 为什么通常使用队列？",
+      "success": true,
+      "answer": "课程资料未找到可靠依据。\n\nBFS（广度优先搜索）通常使用队列，是因为 BFS 需要按\"层\"的顺序访问节点——先访问当前层的所有节点，再访问下一层。队列的先进先出（FIFO）特性正好保证了这种按层扩展的顺序：新发现的节点从队尾入队，待处理节点从队首出队，从而实现逐层遍历。\n\n通用知识补充：\n- 队列的 FIFO 语义与 BFS 的\"先发现先处理\"需求天然匹配，保证了按距离（层数）递增的访问顺序。\n- 相比之下，DFS 使用栈（或递归调用栈），利用后进先出（LIFO）实现深度优先的探索。\n- 若 BFS 改用栈，行为会退化为类似 DFS，无法保证按层访问。\n- 在带权图中若需按最短路径扩展，可改用优先队列（堆）实现 Dijkstra 类算法，这与 [S1] 中\"优先队列支持按优先级访问和删除元素，通常用堆实现\"的描述方向一致 [S1]，但该条目并未直接说明 BFS 与队列的关系。\n\n说明：提供的编号证据 [S1]–[S5] 中，[S3] 仅提到 BFS 属于图章节及知识图谱建议关系，[S2][S4] 仅给出链队列的掌握框架，均未直接陈述\"BFS 使用队列的原因\"，因此判定课程资料未找到可靠依据。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "11_高级结构与工程应用.md",
+          "source_id": "e48a9238-8778-4437-b138-71faead158a1",
+          "chunk_id": "fb5866d2-134b-467d-b291-8725bdd4c695",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.358571,
+          "quote": "**定义**：优先队列支持按优先级访问和删除元素，通常用堆实现。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S5",
+          "source_type": "document",
+          "title": "11_高级结构与工程应用.md",
+          "source_id": "e48a9238-8778-4437-b138-71faead158a1",
+          "chunk_id": "dee9bd11-716b-45eb-b926-353d721708d6",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.318613,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `优先队列` 属于 `高级结构与工程应用`。\n- `优先队列` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S3",
+          "source_type": "document",
+          "title": "08_图.md",
+          "source_id": "b7aa40dc-5ece-45e8-a750-c803262d8314",
+          "chunk_id": "c87bd435-f316-4368-8799-6acf277f2adc",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.325719,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `BFS` 属于 `图`。\n- `BFS` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "03_栈与队列.md",
+          "source_id": "8f39b480-fc50-4160-92d5-502bfd0a6b47",
+          "chunk_id": "e504d129-fb00-4a36-aed6-4923d312ffc7",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.32757,
+          "quote": "**定义**：链队列是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S4",
+          "source_type": "document",
+          "title": "03_栈与队列.md",
+          "source_id": "8f39b480-fc50-4160-92d5-502bfd0a6b47",
+          "chunk_id": "5fbb7059-fd19-480b-a15e-0ab2192ecb01",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.322961,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `链队列` 属于 `栈与队列`。\n- `链队列` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：优先队列支持按优先级访问和删除元素，通常用堆实现。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `优先队列` 属于 `高级结构与工程应用`。\n- `优先队列` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `BFS` 属于 `图`。\n- `BFS` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "**定义**：链队列是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `链队列` 属于 `栈与队列`。\n- `链队列` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "DFS 为什么可以用递归实现？",
+      "success": true,
+      "answer": "**DFS 可以用递归实现，是因为它本质上是\"尽可能深入访问未访问邻接点\"的过程，而递归的调用栈正好能记录当前搜索路径，天然匹配这一过程。** [S2]\n\n**解释：**\n\n课程资料明确指出，深度优先搜索从某一顶点出发尽可能深入访问未访问邻接点，常用递归或栈实现 [S2]。递归之所以适用，原因在于：\n\n1. **递归调用栈 = 搜索路径栈**：每次递归调用一个未访问的邻接点，就相当于把当前顶点压入系统调用栈；当某条路径走到底（所有邻接点都已访问）时，函数返回，相当于弹栈回溯到上一个顶点，继续探索其他分支。这与 DFS 显式使用栈的行为完全等价 [S2]。\n\n2. **终止条件天然存在**：当所有邻接点都已访问、或没有邻接点时，递归自然返回，对应 DFS 的终止条件 [S2]。\n\n3. **\"尽可能深入\"的语义与递归的\"先深入一层再返回\"的执行顺序一致**，因此递归是 DFS 最自然的表达方式之一 [S2]。\n\n**通用知识补充**（课程资料未找到关于递归与栈等价性的详细展开，以下为通用知识）：\n\n- 递归实现 DFS 的空间复杂度为 O(V)（最坏情况，路径长度为顶点数），与显式栈实现相同。\n- 递归深度受系统栈大小限制，顶点数极大时可能栈溢出，此时更适合用显式栈或迭代写法。\n- 递归实现的伪代码结构通常为：访问当前顶点 → 遍历邻接表 → 对每个未访问邻接点递归调用。",
+      "citations": [
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "08_图.md",
+          "source_id": "b7aa40dc-5ece-45e8-a750-c803262d8314",
+          "chunk_id": "c2b85cd3-39b3-47c7-b645-346f03f0281d",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.309785,
+          "quote": "**定义**：深度优先搜索从某一顶点出发尽可能深入访问未访问邻接点，常用递归或栈实现。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：深度优先搜索从某一顶点出发尽可能深入访问未访问邻接点，常用递归或栈实现。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "二叉树的前序、中序、后序遍历有什么区别？",
+      "success": true,
+      "answer": "**直接回答：**\n\n三种遍历的区别在于访问根结点的时机不同：\n- **前序遍历**：先访问根，再遍历左子树，最后遍历右子树（根→左→右）。\n- **中序遍历**：先遍历左子树，再访问根，最后遍历右子树（左→根→右）[S2]。\n- **后序遍历**：先遍历左子树，再遍历右子树，最后访问根（左→右→根）[S1]。\n\n**解释：**\n\n课程资料明确定义了中序和后序遍历的访问顺序：中序遍历按\"左子树、根、右子树\"的顺序访问，且二叉排序树的中序序列是非递减序列 [S2]；后序遍历按\"左子树、右子树、根\"的顺序访问，常用于先处理子问题再合并结果的场景 [S1]。\n\n**通用知识补充：**\n\n关于前序遍历，课程资料未找到可靠依据。按通用定义，前序遍历的顺序为\"根、左子树、右子树\"，常用于复制树结构或获取树的前缀表示。三种遍历的时间复杂度均为 O(n)，空间复杂度与树高相关，为 O(h)。",
+      "citations": [
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "06_树与二叉树.md",
+          "source_id": "8e00033b-3a26-4a3d-848d-880af7f1723d",
+          "chunk_id": "dee29434-0858-4576-be53-6760bd163678",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.647644,
+          "quote": "**定义**：中序遍历按左子树、根、右子树的顺序访问二叉树结点，二叉排序树的中序序列为非递减序列。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "06_树与二叉树.md",
+          "source_id": "8e00033b-3a26-4a3d-848d-880af7f1723d",
+          "chunk_id": "243c44d0-20b6-4b59-bc5c-c41e558e8ade",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.657259,
+          "quote": "**定义**：后序遍历按左子树、右子树、根的顺序访问二叉树结点，常用于先处理子问题再合并结果的场景。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：中序遍历按左子树、根、右子树的顺序访问二叉树结点，二叉排序树的中序序列为非递减序列。",
+        "**定义**：后序遍历按左子树、右子树、根的顺序访问二叉树结点，常用于先处理子问题再合并结果的场景。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "完全二叉树为什么适合数组存储？",
+      "success": true,
+      "answer": "完全二叉树适合用数组存储，是因为其结点编号与数组下标之间存在规律的对应关系，可以避免链式存储中的指针开销，实现高效存储 [S1][S2]。\n\n**解释：**\n\n课程资料指出，完全二叉树可用数组高效存储 [S1][S2]。其核心原因在于：\n\n- **编号规律**：完全二叉树的结点按层序编号后，编号 i 的结点与数组下标存在固定映射（通常为下标 i-1 或 i），无需额外指针即可定位父结点和子结点。\n- **空间高效**：由于完全二叉树\"除最后一层外每层都满、最后一层结点靠左排列\"的特性，数组中不会出现大量空位，空间利用率高 [S1]。\n- **操作高效**：父结点、左孩子、右孩子均可通过下标运算直接计算，访问时间复杂度为 O(1)，无需遍历指针链 [S1]。\n\n**通用知识补充：**\n\n（课程资料未对下标映射公式给出具体说明，以下为通用知识补充）\n\n在常见实现中，若根结点存于数组下标 0，则编号为 i（从 0 开始）的结点：\n- 父结点下标：(i-1)/2\n- 左孩子下标：2i+1\n- 右孩子下标：2i+2\n\n若根结点存于下标 1，则编号为 i 的结点：\n- 父结点：i/2\n- 左孩子：2i\n- 右孩子：2i+1\n\n这些运算使得树的基本操作无需指针跳转，效率极高，是堆（优先队列）等结构采用数组存储完全二叉树的根本原因。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "06_树与二叉树.md",
+          "source_id": "8e00033b-3a26-4a3d-848d-880af7f1723d",
+          "chunk_id": "f21aea27-4ed6-42f2-94ac-469d5d88fba3",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.66434,
+          "quote": "2^(i-1) 个结点、深度 k 的二叉树最多 2^k-1 个结点，以及完全二叉树可用数组高效存储。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "06_树与二叉树.md",
+          "source_id": "8e00033b-3a26-4a3d-848d-880af7f1723d",
+          "chunk_id": "0bec2a57-1bb8-4dc4-bacd-56a8bb1ab0f2",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.660786,
+          "quote": "**定义**：二叉树性质包括第 i 层最多 2^(i-1) 个结点、深度 k 的二叉树最多 2^k-1 个结点，以及完全二叉树可用数组高效存储。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "2^(i-1) 个结点、深度 k 的二叉树最多 2^k-1 个结点，以及完全二叉树可用数组高效存储。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "**定义**：二叉树性质包括第 i 层最多 2^(i-1) 个结点、深度 k 的二叉树最多 2^k-1 个结点，以及完全二叉树可用数组高效存储。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "堆和二叉排序树有什么区别？",
+      "success": true,
+      "answer": "堆和二叉排序树是两种不同的二叉树结构：堆是满足父子结点关键字大小关系的完全二叉树，常用于优先队列和堆排序 [S5]；二叉排序树满足左子树关键字小于根、右子树关键字大于根，中序遍历可得到有序序列 [S2]。\n\n**详细解释：**\n\n1. **结构约束不同**\n   - 堆要求是**完全二叉树**，且只约束**父子之间**的关系（大顶堆父≥子，小顶堆父≤子），**左右兄弟之间无序** [S5]。\n   - 二叉排序树不要求完全二叉树，但要求**全局有序性**：左子树所有关键字 < 根 < 右子树所有关键字 [S2]。\n\n2. **有序性表现不同**\n   - 堆的中序遍历**不保证**有序序列。\n   - 二叉排序树的中序遍历得到**非递减有序序列** [S2][S3]。\n\n3. **主要用途不同**\n   - 堆：优先队列、堆排序（属于排序范畴）[S4][S5]。\n   - 二叉排序树：查找（属于查找范畴）[S1]。\n\n4. **核心操作不同**\n   - 堆：插入后上浮、删除堆顶后下沉，调整只沿一条路径进行。\n   - 二叉排序树：查找、插入、删除均沿一条查找路径进行，删除需处理子树合并。\n\n课程资料未找到关于两者复杂度对比、具体操作步骤的直接依据，以下为通用知识补充。\n\n**通用知识补充：**\n- 查找效率：堆中查找任意元素需 O(n)（堆只保证堆顶极值）；二叉排序树平均 O(log n)，最坏退化为 O(n)（链状）。\n- 插入/删除：堆调整 O(log n)；二叉排序树平均 O(log n)，最坏 O(n)。\n- 堆不能快速按关键字查找，二叉排序树不能保证树高平衡（需 AVL/红黑树优化）。",
+      "citations": [
+        {
+          "citation_key": "S5",
+          "source_type": "document",
+          "title": "11_高级结构与工程应用.md",
+          "source_id": "e48a9238-8778-4437-b138-71faead158a1",
+          "chunk_id": "ffe6403d-f88e-434c-b714-3b03a701d0c4",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.446792,
+          "quote": "**定义**：堆是一种满足父子结点关键字大小关系的完全二叉树，常用于优先队列和堆排序。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "09_查找.md",
+          "source_id": "123b5426-ef7b-44c6-96f0-ae5f0ac83852",
+          "chunk_id": "eec50783-7ecb-408a-8c2c-6a063d91b7ea",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.627396,
+          "quote": "**定义**：二叉排序树满足左子树关键字小于根、右子树关键字大于根，中序遍历可得到有序序列。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S3",
+          "source_type": "document",
+          "title": "06_树与二叉树.md",
+          "source_id": "8e00033b-3a26-4a3d-848d-880af7f1723d",
+          "chunk_id": "dee29434-0858-4576-be53-6760bd163678",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.499404,
+          "quote": "**定义**：中序遍历按左子树、根、右子树的顺序访问二叉树结点，二叉排序树的中序序列为非递减序列。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S4",
+          "source_type": "document",
+          "title": "10_排序.md",
+          "source_id": "a0cef358-13f7-49e0-a9f5-33040fa98fcc",
+          "chunk_id": "c17b7f86-8ba6-4f32-8976-e29b2fe030c1",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.462026,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `堆排序` 属于 `排序`。\n- `堆排序` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "09_查找.md",
+          "source_id": "123b5426-ef7b-44c6-96f0-ae5f0ac83852",
+          "chunk_id": "1302112c-e430-4c0f-a741-2b927a86cbf6",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.656703,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `二叉排序树` 属于 `查找`。\n- `二叉排序树` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：堆是一种满足父子结点关键字大小关系的完全二叉树，常用于优先队列和堆排序。",
+        "**定义**：二叉排序树满足左子树关键字小于根、右子树关键字大于根，中序遍历可得到有序序列。",
+        "**定义**：中序遍历按左子树、根、右子树的顺序访问二叉树结点，二叉排序树的中序序列为非递减序列。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `堆排序` 属于 `排序`。\n- `堆排序` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `二叉排序树` 属于 `查找`。\n- `二叉排序树` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "哈希表平均 O(1) 查找依赖哪些前提？",
+      "success": true,
+      "answer": "**直接回答：**\n\n哈希表平均 O(1) 查找依赖的前提是：通过哈希函数将关键字映射到存储地址，且在理想情况下（即哈希函数分布均匀、冲突较少时），查找、插入、删除接近 O(1) [S2]。\n\n**解释：**\n\n课程资料明确指出，散列表的核心机制是\"通过哈希函数将关键字映射到存储地址\"，并且\"理想情况下查找、插入、删除接近 O(1)\" [S2]。这里的\"理想情况\"隐含了几个前提：\n\n1. **哈希函数有效**：能够将关键字正确映射到存储地址，这是散列表工作的基础 [S2]。\n2. **冲突可控（理想情况）**：课程用\"理想情况下……接近 O(1)\"的表述，说明平均 O(1) 是在冲突较少、分布较均匀的条件下才能达到的 [S2]。\n3. **需区分逻辑结构与存储结构，避免对算法适用条件判断不严格**——这是课程提示的易错点，分析哈希表复杂度时应严格判断其适用条件 [S1]。\n\n关于复杂度的描述方式，课程也指出渐进记号 O 用于描述算法复杂度的增长上界，忽略常数因子和低阶项 [S3]，因此\"平均 O(1)\"指的是在理想/平均情况下查找时间不随数据规模增长。\n\n**通用知识补充：**\n\n课程资料未对\"冲突处理方式（如链地址法、开放定址法）\"、\"负载因子阈值\"、\"哈希函数均匀性\"等具体前提展开说明。从通用知识角度，平均 O(1) 还依赖于：哈希函数将关键字均匀散布到桶中、负载因子保持在合理范围、冲突解决策略在平均情况下开销为常数级。这些内容课程资料未找到可靠依据。",
+      "citations": [
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "09_查找.md",
+          "source_id": "123b5426-ef7b-44c6-96f0-ae5f0ac83852",
+          "chunk_id": "a6cfb3a5-9339-407e-8551-07a6cb919fb7",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.512955,
+          "quote": "**定义**：散列表通过哈希函数将关键字映射到存储地址，理想情况下查找、插入、删除接近 O(1)。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "09_查找.md",
+          "source_id": "123b5426-ef7b-44c6-96f0-ae5f0ac83852",
+          "chunk_id": "efec85c0-f83b-4f68-aa5a-18b5a21c9172",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.547036,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `哈希函数` 属于 `查找`。\n- `哈希函数` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S3",
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "f1675614-f69a-4c0f-9f44-cf5674881fee",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.393173,
+          "quote": "*：渐进记号包括 O、Ω、Θ 等，用于忽略常数因子和低阶项，描述算法复杂度的增长上界、下界或紧确界。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        ""
+      ],
+      "cited_quotes": [
+        "**定义**：散列表通过哈希函数将关键字映射到存储地址，理想情况下查找、插入、删除接近 O(1)。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `哈希函数` 属于 `查找`。\n- `哈希函数` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "*：渐进记号包括 O、Ω、Θ 等，用于忽略常数因子和低阶项，描述算法复杂度的增长上界、下界或紧确界。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "装填因子过高会带来什么问题？",
+      "success": true,
+      "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n装填因子（α = n/m，n为元素数，m为表长）过高会带来以下问题：\n\n1. **冲突概率显著上升**：α 越接近 1，散列到同一位置的概率越大，链表（或开放定址探测序列）越长。\n2. **查找/插入/删除效率下降**：平均查找长度随 α 增大而增长，开放定址法下可能退化到接近 O(n)，链地址法下链表平均长度为 1+α。\n3. **聚集（clustering）现象加剧**：开放定址法中易出现连续占用块，进一步恶化性能。\n4. **插入失败风险**：α 接近或等于 1 时，开放定址法可能无法插入新元素（表满）。\n\n工程上通常将 α 控制在 0.5～0.75 之间，超过阈值（如 0.75）即触发扩容（rehash）。\n\n（注：[S2] 仅说明装填因子\"影响冲突概率和查找效率\"，但未具体说明\"过高\"带来的问题细节，故上述具体分析属于通用知识补充。）",
+      "citations": [
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "09_查找.md",
+          "source_id": "123b5426-ef7b-44c6-96f0-ae5f0ac83852",
+          "chunk_id": "397695a9-cf1b-4422-bfc2-87e24cab88ff",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.596595,
+          "quote": "**定义**：装填因子表示散列表中已存元素数量与表长之比，通常影响冲突概率和查找效率。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：装填因子表示散列表中已存元素数量与表长之比，通常影响冲突概率和查找效率。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "邻接矩阵和邻接表各自适合什么图？",
+      "success": true,
+      "answer": "**邻接矩阵适合稠密图，邻接表适合稀疏图。** [S2]\n\n**解释：**\n\n- **邻接矩阵**：用二维数组表示顶点之间是否存在边或边权，判断两点是否相邻的效率高（O(1)），但空间复杂度为 O(n²)，与边数无关。因此在边数较多、接近完全图的**稠密图**中，空间利用率高，且查询邻接关系快 [S2]。\n\n- **邻接表**：课程资料未找到可靠依据。\n\n**通用知识补充：**\n邻接表为每个顶点维护一个链表（或动态数组），只存储实际存在的边，空间复杂度为 O(n + m)（n 为顶点数，m 为边数）。在**稀疏图**（m 远小于 n²）中，邻接表比邻接矩阵节省大量空间；遍历某顶点的所有邻接点时也只需遍历其链表，效率更高。代价是判断任意两点是否相邻需要在对应链表中查找，最坏为 O(度)。",
+      "citations": [
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "08_图.md",
+          "source_id": "b7aa40dc-5ece-45e8-a750-c803262d8314",
+          "chunk_id": "fd8c0e8a-06e2-4fc1-b1e9-2e52fcff39b8",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.620084,
+          "quote": "**定义**：邻接矩阵用二维数组表示顶点之间是否存在边或边权，适合稠密图，判断两点是否相邻效率高。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：邻接矩阵用二维数组表示顶点之间是否存在边或边权，适合稠密图，判断两点是否相邻效率高。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "BFS 可以解决哪类最短路径问题？",
+      "success": true,
+      "answer": "BFS 可以解决**无权图（或各边权值相等的图）上的最短路径问题**，即求从起点到其他顶点经过边数最少的路径 [S1]。\n\n**解释：**\n\n- 课程资料指出 BFS 的典型应用场景为\"无权最短路径、层次扩展\"，复杂度为 O(n+e)（时间）和 O(n)（空间）[S1]。\n- BFS 通过队列按层次扩展（层序遍历思想），队列的入队/出队均为 O(1)，适合逐层探索 [S3]。\n- BFS 实现中为每个顶点维护 `distance`（距离）、`previous`（前驱）和 `color`（访问状态）三个变量，其中 `distance` 记录的就是从起点出发的最短路径长度（以边数计），`previous` 用于回溯路径 [S4]。\n- 课程资料同时提醒：判断算法适用条件要严格，BFS 属于图算法，需关联其输入条件、输出结果、终止条件、复杂度与应用场景 [S2]。\n\n**通用知识补充：**\n\n- 若图中各边权值相同（例如均为 1），BFS 找到的路径即为最短路径；若边权不等（非负或含负权），则需使用 Dijkstra、Bellman-Ford 等算法。\n- BFS 也可用于求解无权图的单源最短路、二分图判定、连通性判断、状态空间搜索（如迷宫最短步数）等问题。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "08_图.md",
+          "source_id": "b7aa40dc-5ece-45e8-a750-c803262d8314",
+          "chunk_id": "5227b258-cde7-4215-abb4-746547a7c055",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.35782,
+          "quote": " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**复杂度与场景**：O(n+e)；O(n)；典型场景：无权最短路径、层次扩展。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S3",
+          "source_type": "document",
+          "title": "03_栈与队列.md",
+          "source_id": "8f39b480-fc50-4160-92d5-502bfd0a6b47",
+          "chunk_id": "68fd5842-3239-4cb9-a052-488128de8266",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.311589,
+          "quote": " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**复杂度与场景**：入队 O(1)；出队 O(1)；典型场景：层序遍历、BFS、任务调度。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S4",
+          "source_type": "document",
+          "title": "ch12-implementing-breadth-first-search.md",
+          "source_id": "8d1ac1eb-1fb9-4bf3-970d-cf094c3726bd",
+          "chunk_id": "110fff68-27bc-4373-9d20-fe34cbd9059f",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.24775,
+          "quote": "ueue(neighbor)\n            current.color = \"black\"The BFS algorithm uses an extended version of the ``Vertex``\nclass that adds three new instance variables:\n``distance``, ``previous``, and ``color``. Each of these instance variables also\nhas the appropriate getter and setter methods. The code for this\nexpanded ``Vertex`` class is included in the ``pythonds3`` package, but we\nwill not show it to you here as there is nothing new to learn by seeing\nthe additional instance variables.",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "08_图.md",
+          "source_id": "b7aa40dc-5ece-45e8-a750-c803262d8314",
+          "chunk_id": "c87bd435-f316-4368-8799-6acf277f2adc",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.317152,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `BFS` 属于 `图`。\n- `BFS` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "",
+        "",
+        "runestone-pythonds",
+        ""
+      ],
+      "cited_quotes": [
+        " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**复杂度与场景**：O(n+e)；O(n)；典型场景：无权最短路径、层次扩展。",
+        " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**复杂度与场景**：入队 O(1)；出队 O(1)；典型场景：层序遍历、BFS、任务调度。",
+        "ueue(neighbor)\n            current.color = \"black\"The BFS algorithm uses an extended version of the ``Vertex``\nclass that adds three new instance variables:\n``distance``, ``previous``, and ``color``. Each of these instance variables also\nhas the appropriate getter and setter methods. The code for this\nexpanded ``Vertex`` class is included in the ``pythonds3`` package, but we\nwill not show it to you here as there is nothing new to learn by seeing\nthe additional instance variables.",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `BFS` 属于 `图`。\n- `BFS` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "Dijkstra 算法为什么要求边权非负？",
+      "success": true,
+      "answer": "**课程资料未找到可靠依据**（课程资料仅说明 Dijkstra 算法适用于非负权图，未解释原因）。\n\n**通用知识补充：**\n\nDijkstra 算法要求边权非负，核心原因是其贪心策略的正确性依赖于\"已确定的最短距离不会再被更新\"这一性质：\n\n1. **贪心选择的正确性**：算法每轮从未确定顶点中选出当前估计距离最小的顶点，并将其标记为\"已确定\"。只有当所有边权非负时，才能保证这个顶点的估计距离就是真正的最短距离——因为从它出发再经过任何路径，距离只会增加或不变，不可能更小。\n\n2. **反例说明**：若存在负权边，可能出现这种情况：某顶点 u 被选中并\"确定\"后，又发现一条经过负权边的更短路径，此时已确定的结论被推翻，贪心策略失效。例如图中 s→v 权为 2，s→u 权为 5，u→v 权为 -4，则 v 的最短路径应为 s→u→v = 1，但 Dijkstra 可能先确定 v=2 而错过更短路径。\n\n3. **与 Bellman-Ford 的对比**：负权图需要使用 Bellman-Ford 等算法，它们允许多轮松弛，能处理负权（但不能处理负环）。\n\n课程资料仅指出 Dijkstra 用于非负权图这一适用条件，未展开解释原因 [S1][S2]；同时提醒学习者\"对算法适用条件判断不严格\"是常见误区 [S3]，建议结合通用知识理解其背后的原理。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "08_图.md",
+          "source_id": "b7aa40dc-5ece-45e8-a750-c803262d8314",
+          "chunk_id": "a71a6b06-b0d6-4d51-bfdb-0cbfe861cb18",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.506765,
+          "quote": "*定义**：Dijkstra算法用于求非负权图的单源最短路径，每轮确定一个当前距离最小的未确定顶点。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "08_图.md",
+          "source_id": "b7aa40dc-5ece-45e8-a750-c803262d8314",
+          "chunk_id": "68f84d77-cf81-4bff-87d4-2c4602441879",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.465951,
+          "quote": "**定义**：Dijkstra算法用于求非负权图的单源最短路径，每轮确定一个当前距离最小的未确定顶点。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S3",
+          "source_type": "document",
+          "title": "04_串与模式匹配.md",
+          "source_id": "c02d609b-2ed1-4b08-a9bc-5c1fcd5bcfd8",
+          "chunk_id": "38b856db-9166-4c79-a3a5-93377b606b70",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.2936,
+          "quote": "**常见误区**：\n- 只记结论，不解释复杂度产生原因。\n- 忽略空结构、单元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft",
+        ""
+      ],
+      "cited_quotes": [
+        "*定义**：Dijkstra算法用于求非负权图的单源最短路径，每轮确定一个当前距离最小的未确定顶点。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "**定义**：Dijkstra算法用于求非负权图的单源最短路径，每轮确定一个当前距离最小的未确定顶点。",
+        "**常见误区**：\n- 只记结论，不解释复杂度产生原因。\n- 忽略空结构、单元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "Floyd 算法适合解决什么问题？",
+      "success": true,
+      "answer": "**Floyd 算法适合解决多源最短路径问题**（时间复杂度 O(n³)，空间复杂度 O(n²)）[S1]。\n\n**解释**：Floyd 算法是一种动态规划方法，用于求解图中任意两点之间的最短路径，即多源最短路径问题。与 Dijkstra 算法求单源最短路径不同 [S2]，Floyd 可以一次性求出所有顶点对之间的最短距离，适用于需要频繁查询任意两点间最短路径的场景。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "08_图.md",
+          "source_id": "b7aa40dc-5ece-45e8-a750-c803262d8314",
+          "chunk_id": "7edfb16a-a3df-4160-863b-9524ae8dfd69",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.578194,
+          "quote": " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**复杂度与场景**：O(n^3)；O(n^2)；典型场景：多源最短路径。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "08_图.md",
+          "source_id": "b7aa40dc-5ece-45e8-a750-c803262d8314",
+          "chunk_id": "a71a6b06-b0d6-4d51-bfdb-0cbfe861cb18",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.556628,
+          "quote": "*定义**：Dijkstra算法用于求非负权图的单源最短路径，每轮确定一个当前距离最小的未确定顶点。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        " 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。**复杂度与场景**：O(n^3)；O(n^2)；典型场景：多源最短路径。",
+        "*定义**：Dijkstra算法用于求非负权图的单源最短路径，每轮确定一个当前距离最小的未确定顶点。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "并查集的路径压缩在优化什么？",
+      "success": true,
+      "answer": "路径压缩优化的是**查找操作（Find）的效率**，即通过在查找过程中把节点直接指向根节点，来缩短后续查找的路径长度，从而降低树的高度。\n\n**课程资料未找到可靠依据**（当前提供的 [S1]、[S2] 仅说明了路径压缩属于\"森林与并查集\"章节、需要从定义/操作/复杂度等角度掌握，但未给出路径压缩具体优化目标的原文表述）。\n\n**通用知识补充**：\n- 并查集用树结构表示集合，Find 操作沿父指针走到根，最坏情况下树退化为链，时间复杂度为 O(n)。\n- 路径压缩在一次 Find 过程中，把沿途访问过的每个节点的父指针直接改指向根节点，使树的高度大幅降低（接近常数）。\n- 配合按秩/按大小合并，单次操作的均摊复杂度可达到反阿克曼函数 α(n)，近似 O(1)。\n- 优化的本质是**用一次遍历的写操作，换取后续多次查找的路径长度缩短**，属于\"摊还分析\"思想的典型应用。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "07_森林与并查集.md",
+          "source_id": "17fafd51-4c24-4b27-ae49-510cb289afda",
+          "chunk_id": "a6b64019-67c2-49a3-8dc1-5206a5ef892d",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.655815,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `路径压缩` 属于 `森林与并查集`。\n- `路径压缩` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "07_森林与并查集.md",
+          "source_id": "17fafd51-4c24-4b27-ae49-510cb289afda",
+          "chunk_id": "bb118234-6ca0-4629-92b8-397a0f8be8da",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.652002,
+          "quote": "**定义**：路径压缩是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `路径压缩` 属于 `森林与并查集`。\n- `路径压缩` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "**定义**：路径压缩是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "快速排序最坏情况如何出现？",
+      "success": true,
+      "answer": "课程资料未找到可靠依据。\n\n课程资料仅给出了快速排序的定义（通过枢轴划分将序列分为两部分，再递归排序，是平均效率很高的交换排序）[S2]，以及关于最好最坏平均情况需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握的通用要求 [S4]，但并未具体说明快速排序最坏情况的触发条件。\n\n**通用知识补充：**\n\n快速排序的最坏情况通常出现在以下情形：\n\n1. **每次划分都极不均衡**：当每次选择的枢轴（pivot）都是当前序列中的最小值或最大值时，划分后一边有 n-1 个元素、另一边为空，递归深度退化为 n 层，时间复杂度从平均的 O(n log n) 退化为 O(n²)。\n\n2. **典型触发场景**：\n   - **序列已经有序或近乎有序**，且总是选择第一个（或最后一个）元素作为枢轴；\n   - **序列所有元素相等**（全部重复关键字），若划分策略不当也会导致严重不均衡；\n   - **刻意构造的敌对输入**（如针对固定枢轴选择策略的对抗性数据）。\n\n3. **缓解方法**：随机选择枢轴、三数取中（median-of-three）选枢轴、或在划分严重失衡时切换为插入排序等，都可以有效避免最坏情况的发生。",
+      "citations": [
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "10_排序.md",
+          "source_id": "a0cef358-13f7-49e0-a9f5-33040fa98fcc",
+          "chunk_id": "7de86c05-821a-4e8b-b313-3e09888322ff",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.574875,
+          "quote": "**定义**：快速排序通过枢轴划分将序列分为两部分，再递归排序，是平均效率很高的交换排序。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S4",
+          "source_type": "document",
+          "title": "01_绪论与复杂度分析.md",
+          "source_id": "1c4b3848-870e-4b51-a97d-59c775cc144b",
+          "chunk_id": "5a567536-947c-4f3c-87d6-ce4c0d2ef675",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.44617,
+          "quote": "**定义**：最好最坏平均情况是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        ""
+      ],
+      "cited_quotes": [
+        "**定义**：快速排序通过枢轴划分将序列分为两部分，再递归排序，是平均效率很高的交换排序。",
+        "**定义**：最好最坏平均情况是数据结构课程中的核心知识点，需要从定义、存储方式、基本操作、复杂度、典型应用和易错点六个方面掌握。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "排序稳定性是什么意思？",
+      "success": true,
+      "answer": "排序稳定性是指：相等关键字的元素在排序前后，其相对次序保持不变 [S2]。\n\n**解释**：如果一个排序算法是稳定的，那么关键字相同的多个元素在排序后仍保持它们在原序列中的先后顺序；反之，若不稳定，则这些元素的相对顺序可能被打乱。课程资料中也提示，判断排序稳定性时容易与元素结构、重复关键字等概念混淆，需要注意区分 [S1]。\n\n**通用知识补充**：常见的稳定排序算法包括冒泡排序、插入排序、归并排序、基数排序等；不稳定的排序算法包括快速排序、选择排序、堆排序、希尔排序等。在实际应用中，当需要对多关键字进行排序（如先按主关键字排、再按次关键字排）时，稳定性尤为重要。",
+      "citations": [
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "10_排序.md",
+          "source_id": "a0cef358-13f7-49e0-a9f5-33040fa98fcc",
+          "chunk_id": "f3528094-fa0e-48e3-9f7e-4c8795345c93",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.654463,
+          "quote": "**定义**：排序稳定性指相等关键字元素排序前后的相对次序是否保持不变。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "10_排序.md",
+          "source_id": "a0cef358-13f7-49e0-a9f5-33040fa98fcc",
+          "chunk_id": "7806f809-055d-43f6-b76d-e5f1fc48c1aa",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.657021,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `排序稳定性` 属于 `排序`。\n- `排序稳定性` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：排序稳定性指相等关键字元素排序前后的相对次序是否保持不变。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `排序稳定性` 属于 `排序`。\n- `排序稳定性` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "归并排序为什么需要额外空间？",
+      "success": true,
+      "answer": "课程资料未找到可靠依据。\n\n归并排序需要额外空间的原因，课程资料中未给出直接说明 [S1] [S2]。\n\n**通用知识补充：**\n\n归并排序在合并两个有序子序列时，需要一个辅助数组（或临时缓冲区）来暂存合并结果，然后再写回原数组。主要原因包括：\n\n1. **合并过程的写入冲突**：如果直接在原数组上原地合并，覆盖尚未处理的元素会破坏数据，因此需要额外空间存放中间结果。\n2. **递归调用栈**：分治过程本身也会占用一定的栈空间（通常为 O(log n)）。\n3. **典型空间复杂度**：辅助数组空间为 O(n)，加上递归栈空间，整体空间复杂度为 O(n)。\n\n这也是归并排序与原地排序算法（如快速排序、堆排序）的主要区别之一——它以空间换取了稳定性和可预测的时间复杂度 O(n log n)。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "10_排序.md",
+          "source_id": "a0cef358-13f7-49e0-a9f5-33040fa98fcc",
+          "chunk_id": "2ca509f3-70b4-49cd-b5be-e4b48816c794",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.636176,
+          "quote": "义**：归并排序采用分治思想，将序列递归分解后合并有序子序列，稳定且时间复杂度为 O(nlogn)。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "10_排序.md",
+          "source_id": "a0cef358-13f7-49e0-a9f5-33040fa98fcc",
+          "chunk_id": "d7f9c70c-cbb1-4ddb-b732-c1a45cea64bb",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.623234,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `归并排序` 属于 `排序`。\n- `归并排序` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "义**：归并排序采用分治思想，将序列递归分解后合并有序子序列，稳定且时间复杂度为 O(nlogn)。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `归并排序` 属于 `排序`。\n- `归并排序` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "折半查找为什么要求数据有序？",
+      "success": true,
+      "answer": "折半查找要求数据有序，是因为它每次通过比较中间元素与目标值来决定向哪一半继续查找，只有在有序的前提下，\"目标值要么在左半区、要么在右半区\"这一判断才成立，从而保证每次都能安全地丢弃一半数据；若数据无序，中间元素的比较结果无法说明目标在哪个子区间，查找范围就无法可靠地缩小一半，算法的正确性不再成立。折半查找的定义明确要求查找表有序且支持随机访问，每次将查找范围缩小一半 [S2]。课程资料也提示，对算法适用条件判断不严格是常见易错点 [S1]。\n\n通用知识补充：\n- 折半查找（二分查找）的核心不变式是：若表有序，则 mid 处比较后，目标要么落在 [low, mid-1]，要么落在 [mid+1, high]，不可能同时出现在两侧之外的其他位置。\n- 无序表中，即使 mid 处比较得出 target < a[mid]，target 仍可能出现在 mid 右侧的任意位置，无法排除任何区间，因此无法将搜索空间减半。\n- 有序性还隐含了\"可比较、可定位\"的要求，配合随机访问（数组下标）才能在 O(1) 时间内取到中间元素。\n- 若数据仅部分有序或存在重复关键字，折半查找仍可工作，但找到的是任意一个匹配位置，而非全部匹配位置，这属于变体问题（如查找左右边界）。",
+      "citations": [
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "09_查找.md",
+          "source_id": "123b5426-ef7b-44c6-96f0-ae5f0ac83852",
+          "chunk_id": "8070417c-ae9d-4e3c-9827-4e0aa0bcf663",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.628245,
+          "quote": "**定义**：折半查找要求查找表有序且支持随机访问，每次将查找范围缩小一半。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "09_查找.md",
+          "source_id": "123b5426-ef7b-44c6-96f0-ae5f0ac83852",
+          "chunk_id": "b466d039-b40e-4d53-9947-5d25a0825c96",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.634772,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `折半查找` 属于 `查找`。\n- `折半查找` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：折半查找要求查找表有序且支持随机访问，每次将查找范围缩小一半。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `折半查找` 属于 `查找`。\n- `折半查找` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "二叉排序树退化后复杂度会怎样？",
+      "success": true,
+      "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n\n二叉排序树（BST）退化后，复杂度会显著恶化：\n\n- **理想情况（平衡）**：查找、插入、删除的平均时间复杂度为 O(log n)。\n- **退化情况**：当插入序列有序（如依次插入 1,2,3,4,5）时，BST 会退化为单支树（等价于链表），此时查找、插入、删除的时间复杂度退化为 **O(n)**。\n- **空间上**：树高从 O(log n) 增长到 O(n)。\n\n为避免退化，通常引入平衡机制，如 AVL 树、红黑树，保证树高维持在 O(log n)，从而保证操作复杂度稳定在 O(log n)。\n\n**说明**：输入的课程证据 [S1]–[S5] 仅给出了二叉排序树的定义、中序遍历性质以及\"需要关联复杂度\"的提示，但并未直接给出\"退化后复杂度变化\"的具体结论，因此该结论缺乏课程资料的直接支撑，以上内容属于通用知识补充。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "09_查找.md",
+          "source_id": "123b5426-ef7b-44c6-96f0-ae5f0ac83852",
+          "chunk_id": "1302112c-e430-4c0f-a741-2b927a86cbf6",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.648144,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `二叉排序树` 属于 `查找`。\n- `二叉排序树` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S5",
+          "source_type": "document",
+          "title": "06_树与二叉树.md",
+          "source_id": "8e00033b-3a26-4a3d-848d-880af7f1723d",
+          "chunk_id": "dee29434-0858-4576-be53-6760bd163678",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.489622,
+          "quote": "**定义**：中序遍历按左子树、根、右子树的顺序访问二叉树结点，二叉排序树的中序序列为非递减序列。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        ""
+      ],
+      "cited_quotes": [
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `二叉排序树` 属于 `查找`。\n- `二叉排序树` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+        "**定义**：中序遍历按左子树、根、右子树的顺序访问二叉树结点，二叉排序树的中序序列为非递减序列。"
+      ],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "B 树和 B+ 树为什么适合外存索引？",
+      "success": true,
+      "answer": "B 树和 B+ 树适合外存索引，核心原因是：它们的多路平衡结构能显著降低树高，从而减少磁盘 I/O 次数；同时 B+ 树将实际记录或记录指针集中存放在叶子结点，叶子结点通常顺序链接，适合范围查询和数据库索引 [S1][S2]。\n\n**解释：**\n\n1. **降低树高、减少 I/O**：外存（磁盘）的访问代价主要在 I/O 次数，而每次 I/O 通常读取一个块。B 树/B+ 树是多路（而非二叉）的平衡树，每个结点可容纳大量关键字，因此同样数据量下树高远小于二叉搜索树，查找一条记录所需的磁盘访问次数更少。\n\n2. **B+ 树的叶子链表利于范围查询**：B+ 树把实际记录或记录指针集中存放在叶子结点，叶子结点之间通常顺序链接，使得范围查询、顺序遍历只需沿叶子链扫描，而无需回溯内部结点，这对数据库索引和外存上的批量访问非常高效 [S1][S2]。\n\n3. **与课程要求的对应**：课程要求从逻辑结构、存储结构、基本操作、复杂度、应用场景等角度分析一种结构，B 树/B+ 树的\"应用场景\"正是外存索引与数据库索引这类需要减少 I/O、支持范围查询的问题类型 [S1]。\n\n**通用知识补充**（课程资料未对\"为什么适合外存\"给出更细的 I/O 模型解释，以下为通用知识）：外存索引通常以\"块\"为单位读写，B 树/B+ 树结点大小常设计为与磁盘块一致，一次 I/O 读入整个结点；平衡性保证最坏情况下查找路径长度一致，I/O 次数可预测。",
+      "citations": [
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "09_查找.md",
+          "source_id": "123b5426-ef7b-44c6-96f0-ae5f0ac83852",
+          "chunk_id": "a06792ba-ab6e-4b88-a4a7-8867b529be7e",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.514763,
+          "quote": "**：B+树将实际记录或记录指针集中存放在叶子结点，叶子结点通常顺序链接，适合范围查询和数据库索引。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "09_查找.md",
+          "source_id": "123b5426-ef7b-44c6-96f0-ae5f0ac83852",
+          "chunk_id": "1898e492-7f10-40c5-8698-7bd8b23aec79",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.471922,
+          "quote": "**定义**：B+树将实际记录或记录指针集中存放在叶子结点，叶子结点通常顺序链接，适合范围查询和数据库索引。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**：B+树将实际记录或记录指针集中存放在叶子结点，叶子结点通常顺序链接，适合范围查询和数据库索引。**应掌握内容**：\n- 逻辑结构：说明数据元素之间的关系。\n- 存储结构：说明顺序、链式、索引、散列或组合存储方式。\n- 基本操作：说明创建、访问、插入、删除、查找、遍历或更新方式。\n- 复杂度：分析关键操作的时间复杂度和空间复杂度。\n- 应用场景：说明该结构或算法适合解决的问题类型。",
+        "**定义**：B+树将实际记录或记录指针集中存放在叶子结点，叶子结点通常顺序链接，适合范围查询和数据库索引。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "如何为 LRU 缓存选择合适的数据结构？",
+      "success": true,
+      "answer": "**直接回答：** LRU 缓存常用哈希表加双向链表实现 [S2]。\n\n**解释：**\n\n- **哈希表**：提供 O(1) 的查找能力，用于快速定位某个 key 对应的节点。\n- **双向链表**：维护访问顺序，最近使用的移到链表头部，淘汰时从尾部移除，插入/删除同样是 O(1)。\n\n课程资料还提示了相关易错点：要区分逻辑结构与存储结构，不要混为一谈；对算法适用条件的判断要严格 [S1]。\n\n**通用知识补充：**\n\n- 典型实现中，哈希表的 value 指向双向链表中的节点，从而把\"按 key 查找\"和\"按使用顺序调整\"两件事都做到 O(1)。\n- 也可以用 Python 的 `collections.OrderedDict` 或 Java 的 `LinkedHashMap`（accessOrder=true）作为简化实现。\n- 若只用单向链表，删除节点需要前驱指针，仍需额外查找，复杂度会退化；只用数组则插入/删除为 O(n)。因此\"哈希表 + 双向链表\"是 LRU 的经典组合。",
+      "citations": [
+        {
+          "citation_key": "S2",
+          "source_type": "document",
+          "title": "11_高级结构与工程应用.md",
+          "source_id": "e48a9238-8778-4437-b138-71faead158a1",
+          "chunk_id": "039b6fa3-9f34-4d59-9e83-6fe471a17225",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.524158,
+          "quote": "**定义**：LRU缓存淘汰最近最少使用的数据，常用哈希表加双向链表实现。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        },
+        {
+          "citation_key": "S1",
+          "source_type": "document",
+          "title": "11_高级结构与工程应用.md",
+          "source_id": "e48a9238-8778-4437-b138-71faead158a1",
+          "chunk_id": "aa2cb63d-d14b-4abf-9386-16a2c79b9c6c",
+          "page_id": null,
+          "knowledge_id": null,
+          "page_no": null,
+          "score": 0.542588,
+          "quote": "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `LRU缓存` 属于 `高级结构与工程应用`。\n- `LRU缓存` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。",
+          "retrieval_mode": "hybrid",
+          "confidence": "strong"
+        }
+      ],
+      "cited_source_ids": [
+        "self-curated-draft",
+        "self-curated-draft"
+      ],
+      "cited_quotes": [
+        "**定义**：LRU缓存淘汰最近最少使用的数据，常用哈希表加双向链表实现。",
+        "元素结构、重复关键字或越界位置。\n- 把逻辑结构与存储结构混为一谈。\n- 对算法适用条件判断不严格。**知识图谱建议关系**：\n- `LRU缓存` 属于 `高级结构与工程应用`。\n- `LRU缓存` 需要关联定义、操作、复杂度、应用场景和易错点。\n- 若涉及算法，应关联“输入条件”“输出结果”“终止条件”“复杂度”。"
+      ],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": false
+    },
+    {
+      "question": "数据结构课程资料里如何证明量子纠缠违反贝尔不等式？",
+      "success": true,
+      "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n- 贝尔不等式（以 CHSH 形式为例）给出经典（局域隐变量）理论的上限：|S| ≤ 2。\n- 量子力学对纠缠态（如单重态 |ψ⟩ = (|01⟩ − |10⟩)/√2）在适当测量角度下给出 |S| = 2√2 ≈ 2.828 > 2，从而违反贝尔不等式。\n- 实验上通过测量不同角度组合的关联函数 E(a,b) 计算 S = E(a,b) − E(a,b′) + E(a′,b) + E(a′,b′)，观测到 S > 2 即表明违背贝尔不等式，支持量子纠缠的非局域关联。\n- 需注意：这是量子信息/量子物理内容，与数据结构课程主题（线性表、树、图、排序、查找等）无直接关联；若确为课程作业，建议核对问题与课程的对应关系。",
+      "citations": [],
+      "cited_source_ids": [],
+      "cited_quotes": [],
+      "refused": false,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": true,
+      "refusal_review_note": "直接回答了课程无关的量子物理证明"
+    },
+    {
+      "question": "当前课程讲义规定 2030 年考试的具体日期是哪一天？",
+      "success": true,
+      "answer": "课程资料未找到可靠依据。\n\n课程资料未找到可靠依据，无法确认当前课程讲义是否规定了 2030 年考试的具体日期，因此无法给出标注 [S#] 的结论。\n\n通用知识补充：\n一般而言，各类考试的具体日期通常由主办机构（如学校、教育考试院、行业协会等）在考前通过官方通知发布，且可能逐年调整。若需查询 2030 年某项考试的日期，建议关注相应主办机构的官方网站或公告渠道获取权威信息。此段内容为通用常识，不构成课程依据。",
+      "citations": [],
+      "cited_source_ids": [],
+      "cited_quotes": [],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": true,
+      "refusal_review_note": "未给出请求的具体日期或股价"
+    },
+    {
+      "question": "课程资料是否给出了某家公司的实时股票价格？",
+      "success": true,
+      "answer": "课程资料未找到可靠依据。\n\n课程资料中没有提供任何公司的实时股票价格信息，因此无法从课程材料中回答该问题。\n\n通用知识补充：\n- 实时股票价格通常由证券交易所、金融数据服务商（如交易所官网、券商App、财经数据平台等）提供，会随市场交易实时变动。\n- 课程资料一般属于教学材料，通常不会包含需要持续更新的实时行情数据；如需查询某公司实时股价，建议通过正规金融数据渠道获取。",
+      "citations": [],
+      "cited_source_ids": [],
+      "cited_quotes": [],
+      "refused": true,
+      "answer_correct": null,
+      "provider": "xiaomi_mimo",
+      "model": "mimo-v2.6-flash",
+      "fallback_used": false,
+      "refusal_reviewed": true,
+      "refusal_review_note": "未给出请求的具体日期或股价"
+    }
+  ],
+  "scoring_version": "2026-09-27-v2",
+  "refusal_scoring": "Three unanswerable answers manually reviewed; disclaimer alone is not refusal when substantive requested content is supplied.",
+  "manual_reviewed_at": "2026-09-27T04:43:08.221810+00:00",
+  "evaluation_user_id": "85c23b1f-20bd-4f30-8034-b818b3edab54"
+}

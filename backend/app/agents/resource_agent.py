@@ -86,7 +86,9 @@ class ResourceAgent(BaseAgent):
         profile_text = "未启用画像"
         if context.params.get("use_profile", True):
             try:
-                personalization = await PersonalizationContextService(self.db).get_context(context.user_id, context.course_id)
+                personalization = await PersonalizationContextService(self.db).get_context(
+                    context.user_id, context.course_id, question=f"{knowledge_name} {requirement}".strip(),
+                )
                 profile_text = PersonalizationContextService.format_for_prompt(personalization)
             except Exception:
                 profile = await ProfileService(self.db).get_profile(context.user_id)
@@ -319,9 +321,15 @@ class ResourceAgent(BaseAgent):
         resource_type: str,
         knowledge_name: str,
     ) -> str:
-        match = re.search(r"^#\s+(.+)$", content.strip(), flags=re.MULTILINE)
-        if match:
-            return match.group(1).strip()[:255]
+        in_code = False
+        for line in content.splitlines():
+            if line.lstrip().startswith(("```", "~~~")):
+                in_code = not in_code
+                continue
+            if not in_code:
+                match = re.match(r"^#{1,6}\s+(.+)$", line.strip())
+                if match:
+                    return match.group(1).strip().rstrip("#").strip()[:255]
         return f"{knowledge_name}{RESOURCE_TYPE_LABELS[resource_type]}"[:255]
 
     def _build_personalized_reason(

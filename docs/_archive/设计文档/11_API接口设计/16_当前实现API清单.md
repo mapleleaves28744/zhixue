@@ -2,9 +2,9 @@
 
 > 文档状态：**自动生成的当前实现事实源**
 >
-> 生成日期：2026-07-24
+> 生成日期：2026-10-12
 >
-> HTTP 操作数：**147**
+> HTTP 操作数：**149**
 > 生成命令：`python scripts/export_implementation_docs.py`
 
 | 方法 | 路径 | 权限 | Path / Query 参数 | 请求体 |
@@ -25,7 +25,7 @@
 | `GET` | `/api/v1/agent-tasks/{task_id}/steps` | JWT | task_id* | - |
 | `GET` | `/api/v1/agent/conversations` | JWT | - | - |
 | `POST` | `/api/v1/agent/conversations` | JWT | - | application/json: `AgentConversationCreateRequest` |
-| `GET` | `/api/v1/agent/conversations/{conversation_id}/messages` | JWT | conversation_id* | - |
+| `GET` | `/api/v1/agent/conversations/{conversation_id}/messages` | JWT | conversation_id*, limit | - |
 | `POST` | `/api/v1/agent/conversations/{conversation_id}/messages` | JWT | conversation_id* | application/json: `AgentMessageCreateRequest` |
 | `GET` | `/api/v1/agent/tasks/{task_id}` | JWT | task_id* | - |
 | `POST` | `/api/v1/agent/tasks/{task_id}/cancel` | JWT | task_id* | - |
@@ -122,6 +122,7 @@
 | `POST` | `/api/v1/student/memory/reflect` | JWT | course_id | - |
 | `DELETE` | `/api/v1/student/memory/{memory_id}` | JWT | memory_id* | - |
 | `PATCH` | `/api/v1/student/memory/{memory_id}` | JWT | memory_id* | application/json: `MemoryUpdate` |
+| `GET` | `/api/v1/student/memory/{memory_id}/evidence` | JWT | memory_id* | - |
 | `POST` | `/api/v1/student/memory/{memory_id}/restore` | JWT | memory_id* | - |
 | `GET` | `/api/v1/student/pet/feed` | JWT | - | - |
 | `POST` | `/api/v1/student/pet/notifications/read-all` | JWT | - | - |
@@ -137,6 +138,7 @@
 | `GET` | `/api/v1/student/profile/summary` | JWT | - | - |
 | `POST` | `/api/v1/tutor/ask` | JWT | - | application/json: `TutorChatRequest` |
 | `POST` | `/api/v1/tutor/chat` | JWT | - | application/json: `TutorChatRequest` |
+| `GET` | `/api/v1/tutor/conversations/{conversation_id}/requests/{client_request_id}` | JWT | conversation_id*, client_request_id* | - |
 | `POST` | `/api/v1/tutor/messages/{message_id}/feedback` | JWT | message_id* | application/json: `TutorFeedbackRequest` |
 | `POST` | `/api/v1/tutor/messages/{message_id}/save-to-wiki` | JWT | message_id* | application/json: `TutorSaveToWikiRequest` |
 | `GET` | `/api/v1/tutor/ping` | JWT | - | - |

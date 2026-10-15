@@ -55,3 +55,5 @@ class AgentState(TypedDict, total=False):
     skip_tools: list[str]
     tool_topics: dict[str, str]
     parsed_intents: list[dict[str, Any]]
+    intent_frame_v1: dict[str, Any]
+    answer_generation_metadata: dict[str, Any]

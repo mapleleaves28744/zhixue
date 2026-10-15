@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-09-30T13:06:55.992742+00:00",
+  "provider": "compatible",
+  "model": "qwen3.8-flash",
+  "scenario_file": "C:\\Users\\28744\\Desktop\\zhixue\\data\\seed_knowledge\\data_structure\\eval\\agent_runtime_scenarios.yml",
+  "provider_policy": "OpenAI-compatible real provider; Agent Runtime disables Mock fallback",
+  "summary": {
+    "scenario_count": 1,
+    "passed_count": 1,
+    "task_completion_rate": 1.0,
+    "scenario_pass_rate": 1.0,
+    "tool_selection_accuracy": 1.0,
+    "high_risk_interception_rate": null,
+    "replan_success_rate": null,
+    "duplicate_write_count": null,
+    "cross_user_leak_count": null,
+    "unmeasured_metrics": [
+      "duplicate_write_count",
+      "cross_user_leak_count"
+    ]
+  },
+  "results": [
+    {
+      "id": "agent-015",
+      "category": "multi_agent",
+      "goal": "先检索图的课程资料，再生成讲解和一组练习题。",
+      "task_id": "c6bf32a2-5ae9-40b7-9fb0-6ec30a19421f",
+      "status": "succeeded",
+      "passed": true,
+      "planned_tools": [],
+      "attempted_tools": [
+        "search_course_knowledge",
+        "generate_quiz",
+        "generate_explanation"
+      ],
+      "actual_tools": [
+        "search_course_knowledge",
+        "generate_quiz",
+        "generate_explanation"
+      ],
+      "expected_any_tools": [
+        "search_course_knowledge",
+        "generate_explanation",
+        "generate_quiz"
+      ],
+      "expected_tool_groups": [
+        [
+          "search_course_knowledge",
+          "answer_course_question"
+        ],
+        [
+          "generate_explanation"
+        ],
+        [
+          "generate_quiz"
+        ]
+      ],
+      "tool_match": true,
+      "forbidden_tools": [],
+      "citation_count": 13,
+      "iteration_count": 2,
+      "tool_call_count": 3,
+      "replan_count": 0,
+      "event_types": [
+        "queued",
+        "intent_resolved",
+        "intent_resolved",
+        "planning",
+        "plan_created",
+        "tool_started",
+        "tool_completed",
+        "observation",
+        "tool_started",
+        "tool_completed",
+        "observation",
+        "tool_started",
+        "tool_completed",
+        "observation",
+        "plan_created",
+        "reviewed",
+        "memory_reflected",
+        "completed"
+      ],
+      "error_message": null,
+      "mock_text_fallback_tools": []
+    }
+  ]
+}

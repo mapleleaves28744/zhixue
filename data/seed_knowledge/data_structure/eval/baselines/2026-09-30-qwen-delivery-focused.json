@@ -1,0 +1,7 @@
+{
+  "model": "qwen3.8-flash",
+  "started_at": "2026-09-30T11:50:05.156344+00:00",
+  "passed": false,
+  "error": "TimeoutError: Contract delivery exceeded 180 seconds",
+  "finished_at": "2026-09-30T11:53:06.504967+00:00"
+}

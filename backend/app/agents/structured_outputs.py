@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any, Literal
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -103,6 +104,8 @@ class MemoryItemOutput(BaseModel):
     content: str = ""
     evidence: list[str] = Field(default_factory=list)
     confidence: float = 0.8
+    suggested_action: Literal["add", "reinforce", "dispute", "supersede", "ignore"] = "add"
+    related_memory_id: UUID | None = None
 
     @field_validator("evidence", mode="before")
     @classmethod

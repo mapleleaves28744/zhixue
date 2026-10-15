@@ -1,0 +1,40 @@
+{
+  "finished_at": "2026-10-01T05:00:58.346097+00:00",
+  "split": "dev",
+  "configured_model": "qwen3.8-flash",
+  "synthetic_evaluation": true,
+  "independent_human_review": false,
+  "groups": {
+    "intent:production": {
+      "total": 48,
+      "passed": 29,
+      "accuracy": 0.6041666666666666,
+      "mode_macro_f1": 0.6190476190476191,
+      "mode_accuracy": 0.7916666666666666
+    },
+    "intent:rules": {
+      "total": 48,
+      "passed": 24,
+      "accuracy": 0.5,
+      "mode_macro_f1": 0.6296296296296297,
+      "mode_accuracy": 0.8333333333333334
+    }
+  },
+  "budget": {
+    "cap": 3000000,
+    "charged_tokens": 8823,
+    "calls": {
+      "succeeded": {
+        "count": 8,
+        "charged_tokens": 8823
+      }
+    },
+    "unknown_usage_policy": "failed/pending/missing usage charged full reservation"
+  },
+  "limits": [
+    "mode F1 is three routing modes, not all business intents",
+    "contract exact match is not delivery success",
+    "context projection is controlled, source-preserving; worker quality separately verified",
+    "no semantic teaching-quality score"
+  ]
+}

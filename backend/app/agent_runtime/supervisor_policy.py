@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from collections import Counter
 from typing import Any
 
 from app.agent_runtime import supervisor_intents
@@ -49,6 +50,23 @@ def _resource_type_for_goal(goal: str) -> str:
     return "explanation"
 
 
+def _quiz_count(goal: str) -> int | None:
+    match = re.search(r"(?<!\d)(\d{1,2}|[一二三四五六七八九十两]{1,3})\s*道", goal)
+    if match is None:
+        return None
+    value = match.group(1)
+    if value.isdecimal():
+        return min(20, max(1, int(value)))
+    digits = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    if value == "十":
+        return 10
+    if "十" in value:
+        before, after = value.split("十", 1)
+        count = (digits.get(before, 1) * 10) + (digits.get(after, 0) if after else 0)
+        return min(20, max(1, count))
+    return digits.get(value)
+
+
 def safe_arguments(
     tool_name: str,
     arguments: dict[str, Any],
@@ -82,9 +100,9 @@ def safe_arguments(
         if duration_match:
             normalized["duration_seconds"] = min(240, max(30, int(duration_match.group(1))))
     if tool_name == "generate_quiz":
-        count_match = re.search(r"(?<!\d)(\d{1,2})\s*道", goal)
-        if count_match:
-            normalized["count"] = min(20, max(1, int(count_match.group(1))))
+        count = _quiz_count(goal)
+        if count is not None:
+            normalized["count"] = count
     if tool_name == "review_multimodal_asset" and not normalized.get("asset_id"):
         match = re.search(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", goal, flags=re.IGNORECASE)
         if match:
@@ -106,6 +124,43 @@ class SupervisorPolicy:
     @staticmethod
     def completed_tool_names(state: dict[str, Any]) -> set[str]:
         return {str(item.get("tool_name")) for item in state.get("observations") or [] if item.get("success") is True and item.get("tool_name")}
+
+    @staticmethod
+    def pending_repeated_topic_tool(state: dict[str, Any], available: set[str]) -> tuple[str, str] | None:
+        contract = state.get("intent_frame_v1") or {}
+        intents = contract.get("tasks") or state.get("parsed_intents") or []
+        counts = Counter(str(tool) for intent in intents for tool in intent.get("tools") or [])
+        topic_tools = {
+            "generate_quiz", "generate_explanation", "generate_mindmap",
+            "generate_diagram", "generate_learning_path", "generate_educational_image",
+            "generate_interactive_courseware",
+        }
+        repeated = {name for name, count in counts.items() if count > 1 and name in topic_tools}
+        if not repeated:
+            return None
+        observations = {
+            str(item.get("tool_call_id")): item
+            for item in state.get("observations") or []
+            if item.get("success") is True and item.get("tool_call_id")
+        }
+        completed: set[tuple[str, str]] = set()
+        for call in state.get("tool_calls") or []:
+            if str(call.get("id")) not in observations:
+                continue
+            name = str(call.get("name") or "")
+            arguments = call.get("arguments") or {}
+            topic = str(arguments.get("topic") or arguments.get("concept") or arguments.get("goal") or "").strip().casefold()
+            if topic:
+                completed.add((name, topic))
+        for intent in intents:
+            topic = str(intent.get("topic") or "").strip()
+            for name in intent.get("tools") or []:
+                if name not in repeated or name not in available:
+                    continue
+                normalized = topic.casefold()
+                if not any(tool == name and (done == normalized or len(normalized) >= 2 and normalized in done) for tool, done in completed):
+                    return name, topic
+        return None
 
     @staticmethod
     def is_profile_update_only_goal(goal: str) -> bool:
@@ -161,6 +216,13 @@ class SupervisorPolicy:
         return [PlannedToolCall(id=f"call_{uuid4().hex}", name=pending[0], arguments=safe_arguments(pending[0], {}, goal, state))] if chosen.isdisjoint(set(pending)) else calls
 
     def deliverables_complete_decision(self, state: dict[str, Any], schemas: list[dict[str, Any]]) -> AgentDecision | None:
+        from app.agent_runtime.intent_contract import subtask_progress
+
+        contract = state.get("intent_frame_v1") or {}
+        if contract.get("mode") == "execute" and contract.get("tasks"):
+            if any(item["status"] != "succeeded" for item in subtask_progress(contract, state)):
+                return None
+            return AgentDecision(status="complete", summary="契约要求的子任务已完成。", final_answer=build_completion_answer(state))
         goal = str(state.get("goal") or "")
         if not self.required_deliverables(goal):
             return None
@@ -244,16 +306,6 @@ def apply_safety_net(
                 safe_tool = host.next_tool_hint(state, available, completed_tools, skip_tools)
                 safe_tool = safe_tool or host.fallback_next_tool(
                     goal, available, completed_tools, skip_tools
-                )
-                safe_tool = safe_tool or next(
-                    (
-                        str(item.get("function", {}).get("name"))
-                        for item in tool_schemas
-                        if str(item.get("function", {}).get("name")) in available
-                        and str(item.get("function", {}).get("name")) not in completed_tools
-                        and str(item.get("function", {}).get("name")) not in skip_tools
-                    ),
-                    None,
                 )
                 if safe_tool:
                     return host.force_tool(

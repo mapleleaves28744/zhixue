@@ -122,6 +122,9 @@ class FakeConversationRepository:
     async def list_messages(self, conversation_id: UUID, limit: int = 80) -> list[SimpleNamespace]:  # noqa: ARG002
         return []
 
+    async def get_task_user_message(self, conversation_id: UUID, task_id: UUID) -> None:  # noqa: ARG002
+        return None
+
 
 class FakeBroker:
     def __init__(self) -> None:
@@ -169,6 +172,196 @@ def build_runtime_service_for_claim(
 
 
 @pytest.mark.asyncio
+async def test_clarification_task_finishes_without_provider(monkeypatch) -> None:
+    service, task = build_runtime_service_for_claim(True)
+    task.input_payload = {
+        "intent_frame_v1": {
+            "mode": "clarify",
+            "clarification_question": "请告诉我要练习哪个知识点。",
+        },
+    }
+    service._finish_task = AsyncMock()
+
+    def provider_unavailable(**kwargs):  # noqa: ARG001
+        raise AssertionError("clarification must not load provider")
+
+    monkeypatch.setattr("app.services.agent_runtime_service.get_llm_provider", provider_unavailable)
+
+    result = await service.execute(task.id)
+
+    assert result["status"] == "completed"
+    assert result["final_answer"] == "请告诉我要练习哪个知识点。"
+    service._finish_task.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_agent_web_reference_uses_bounded_conversation_target(monkeypatch) -> None:
+    service, task = build_runtime_service_for_claim(True)
+    task.task_goal = "总结第二个链接"
+    task.input_payload = {"intent_frame_v1": {"mode": "answer", "tasks": []}}
+    service.conversations.get_task_user_message = AsyncMock(return_value=SimpleNamespace(sequence_no=5))
+    service._get_user = AsyncMock(return_value=SimpleNamespace(id=task.user_id))
+    service._finish_task = AsyncMock()
+    monkeypatch.setattr(
+        "app.services.conversation_context_service.ConversationContextService.load",
+        AsyncMock(return_value=SimpleNamespace(web_references=(), history=(), summary="", older_user_requests=())),
+    )
+    monkeypatch.setattr(
+        "app.services.course_service.CourseService.get_readable_course",
+        AsyncMock(return_value=SimpleNamespace(id=task.course_id)),
+    )
+    answer_reference = AsyncMock(return_value=("第二个网页的摘要", [{"source_type": "web", "url": "https://example.com/2"}], "test"))
+    monkeypatch.setattr("app.services.tutor_service.TutorService._answer_web_reference", answer_reference)
+    monkeypatch.setattr(
+        "app.services.agent_runtime_service.get_llm_provider",
+        lambda **kwargs: (_ for _ in ()).throw(AssertionError("Supervisor must not re-search the ordinal")),
+    )
+
+    result = await service.execute(task.id)
+
+    assert result["final_answer"] == "第二个网页的摘要"
+    assert result["direct_reference"] is True
+    service._finish_task.assert_awaited_once()
+    answer_reference.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_agent_quiz_option_uses_verified_quiz_target(monkeypatch) -> None:
+    service, task = build_runtime_service_for_claim(True)
+    task.task_goal = "讲解上一题第二个选项"
+    task.input_payload = {"intent_frame_v1": {"mode": "answer", "tasks": []}}
+    service.conversations.get_task_user_message = AsyncMock(return_value=SimpleNamespace(sequence_no=5))
+    service._get_user = AsyncMock(return_value=SimpleNamespace(id=task.user_id))
+    service._finish_task = AsyncMock()
+    monkeypatch.setattr(
+        "app.services.conversation_context_service.ConversationContextService.load",
+        AsyncMock(return_value=SimpleNamespace(quiz_reference={"id": str(uuid4())})),
+    )
+    monkeypatch.setattr(
+        "app.services.course_service.CourseService.get_readable_course",
+        AsyncMock(return_value=SimpleNamespace(id=task.course_id)),
+    )
+    explain = AsyncMock(return_value=("B 选项遵循后进先出", [{"source_type": "quiz"}], "test"))
+    monkeypatch.setattr("app.services.tutor_service.TutorService._answer_quiz_option", explain)
+
+    result = await service.execute(task.id)
+
+    assert "B 选项" in result["final_answer"]
+    assert result["citations"][0]["source_type"] == "quiz"
+    explain.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_agent_material_reference_uses_verified_material_target(monkeypatch) -> None:
+    service, task = build_runtime_service_for_claim(True)
+    task.task_goal = "总结刚才那份资料"
+    task.input_payload = {"intent_frame_v1": {"mode": "answer", "tasks": []}}
+    service.conversations.get_task_user_message = AsyncMock(return_value=SimpleNamespace(sequence_no=5))
+    service._get_user = AsyncMock(return_value=SimpleNamespace(id=task.user_id))
+    service._finish_task = AsyncMock()
+    monkeypatch.setattr(
+        "app.services.conversation_context_service.ConversationContextService.load",
+        AsyncMock(return_value=SimpleNamespace(material_references=({"id": str(uuid4())},))),
+    )
+    monkeypatch.setattr(
+        "app.services.course_service.CourseService.get_readable_course",
+        AsyncMock(return_value=SimpleNamespace(id=task.course_id)),
+    )
+    summarize = AsyncMock(return_value=("只概括已引用片段", [{"source_type": "document"}], "test"))
+    monkeypatch.setattr("app.services.tutor_service.TutorService._answer_material_reference", summarize)
+
+    result = await service.execute(task.id)
+
+    assert result["final_answer"] == "只概括已引用片段"
+    summarize.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_agent_resource_revision_returns_new_version_artifact(monkeypatch) -> None:
+    service, task = build_runtime_service_for_claim(True)
+    task.task_goal = "修改上个产物，补一个例子"
+    task.input_payload = {"intent_frame_v1": {"mode": "answer", "tasks": []}}
+    service.conversations.get_task_user_message = AsyncMock(return_value=SimpleNamespace(sequence_no=5))
+    service._get_user = AsyncMock(return_value=SimpleNamespace(id=task.user_id))
+    service._finish_task = AsyncMock()
+    resource_id = uuid4()
+    monkeypatch.setattr(
+        "app.services.conversation_context_service.ConversationContextService.load",
+        AsyncMock(return_value=SimpleNamespace(resource_references=({
+            "id": str(resource_id), "title": "栈总结", "resource_type": "summary",
+        },))),
+    )
+    monkeypatch.setattr(
+        "app.services.course_service.CourseService.get_readable_course",
+        AsyncMock(return_value=SimpleNamespace(id=task.course_id)),
+    )
+    revision = SimpleNamespace(
+        id=uuid4(), title="栈总结（修订）", revision_no=2,
+        resource_type="summary", previous_resource_id=resource_id,
+        citations=[{"source_type": "document"}], model_name="test-model",
+    )
+    revise = AsyncMock(return_value=(revision, {"pass": True}))
+    monkeypatch.setattr("app.services.resource_service.ResourceService.revise_resource_from_conversation", revise)
+
+    result = await service.execute(task.id)
+
+    revise.assert_awaited_once()
+    assert result["artifacts"][0]["previous_resource_id"] == str(resource_id)
+    assert result["artifacts"][0]["revision_no"] == 2
+    assert "原版本已保留" in result["final_answer"]
+
+
+@pytest.mark.asyncio
+async def test_direct_completion_publishes_terminal_event() -> None:
+    task = _build_task(status="succeeded")
+    db = FakeAsyncSession({task.id: "succeeded"})
+    broker = FakeBroker()
+    service = AgentRuntimeService(db, broker=broker)
+    service.tasks = FakeTaskRepository(task)
+    service.conversations = FakeConversationRepository()
+
+    await service._publish_direct_completion(task.id, {
+        "final_answer": "已读取第二个网页", "citations": [{"source_type": "web", "url": "https://example.com/2"}],
+    })
+
+    assert service.conversations.events[0]["event_type"] == "completed"
+    assert broker.published[0][1] == "completed"
+    assert broker.published[0][2]["sequence_no"] == 1
+    assert broker.published[0][2]["final_answer"] == "已读取第二个网页"
+
+
+@pytest.mark.asyncio
+async def test_direct_completion_skips_cancelled_task() -> None:
+    task = _build_task(status="cancelled")
+    db = FakeAsyncSession({task.id: "cancelled"})
+    broker = FakeBroker()
+    service = AgentRuntimeService(db, broker=broker)
+    service.tasks = FakeTaskRepository(task)
+    service.conversations = FakeConversationRepository()
+
+    await service._publish_direct_completion(task.id, {"final_answer": "迟到的回答"})
+
+    assert service.conversations.events == []
+    assert broker.published == []
+
+
+@pytest.mark.asyncio
+async def test_late_event_failure_does_not_reopen_succeeded_task() -> None:
+    task = _build_task(status="succeeded")
+    db = FakeAsyncSession({task.id: "succeeded"})
+    broker = FakeBroker()
+    service = AgentRuntimeService(db, broker=broker)
+    service.tasks = FakeTaskRepository(task)
+    service.conversations = FakeConversationRepository()
+
+    await service._mark_failed(task.id, RuntimeError("事件发送失败"))
+
+    assert task.status == "succeeded"
+    assert service.conversations.events == []
+    assert broker.published == []
+
+
+@pytest.mark.asyncio
 async def test_record_event_does_not_turn_cancelled_task_into_succeeded(
 ) -> None:
     task = _build_task()
@@ -176,7 +369,7 @@ async def test_record_event_does_not_turn_cancelled_task_into_succeeded(
 
     with pytest.raises(AgentTaskCancelled):
         await service._record_event(
-            task,
+            task.id,
             registry=SimpleNamespace(),
             event_type="completed",
             state={},
@@ -195,7 +388,7 @@ async def test_finish_task_does_not_turn_cancelled_task_into_succeeded() -> None
     service, tasks, conversations, broker = _build_service(task)
 
     await service._finish_task(
-        task,
+        task.id,
         {
             "status": "completed",
             "final_answer": "栈是后进先出。",
@@ -228,7 +421,7 @@ async def test_finish_task_reuses_grounded_record_without_duplicate_publish(
     monkeypatch.setattr(PetService, "safely_create_agent_completion", AsyncMock())
     record_id = uuid4()
     await service._finish_task(
-        task,
+        task.id,
         {
             "status": "completed",
             "final_answer": "栈是后进先出 [S1]。",
@@ -290,7 +483,7 @@ async def test_finish_task_compensates_when_grounded_postprocess_was_skipped(
         ],
     }
 
-    await service._finish_task(task, result)
+    await service._finish_task(task.id, result)
 
     publish.assert_awaited_once_with(task, result)
 
@@ -300,7 +493,7 @@ async def test_mark_failed_does_not_turn_cancelled_task_into_failed() -> None:
     task = _build_task()
     service, tasks, conversations, broker = _build_service(task)
 
-    await service._mark_failed(task, RuntimeError("late failure"))
+    await service._mark_failed(task.id, RuntimeError("late failure"))
 
     assert task.status == "cancelled"
     assert tasks.update_calls == []
@@ -406,7 +599,7 @@ async def test_tool_completed_event_persists_duration_to_matching_step() -> None
     service.conversations = FakeConversationRepository()
 
     await service._record_event(
-        task,
+        task.id,
         registry=SimpleNamespace(),
         event_type="tool_completed",
         state={},

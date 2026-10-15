@@ -36,6 +36,12 @@ export function ResourceDetailDrawer({
             {getResourceTypeLabel(resource.resource_type)} ·{" "}
             {new Date(resource.created_at).toLocaleString()}
           </p>
+          {resource.revision_no && resource.revision_no > 1 ? (
+            <p className="text-xs text-primary">
+              修订版本 v{resource.revision_no}
+              {resource.previous_resource_id ? ` · 基于 ${resource.previous_resource_id.slice(0, 8)}` : ""}
+            </p>
+          ) : null}
         </DialogHeader>
 
         <ResourcePreviewBody

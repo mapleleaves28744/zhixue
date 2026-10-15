@@ -8,7 +8,7 @@ export function heartbeatLearningSession(payload: {
   page: string
   active: boolean
 }): Promise<HeartbeatResponse> {
-  return request<HeartbeatResponse>("/learning-analytics/sessions/heartbeat", {
+  return request<HeartbeatResponse>("/api/v1/learning-analytics/sessions/heartbeat", {
     method: "POST",
     body: payload,
     redirectOnUnauthorized: false,
@@ -16,7 +16,7 @@ export function heartbeatLearningSession(payload: {
 }
 
 export function endLearningSession(sessionId: string): Promise<HeartbeatResponse> {
-  return request<HeartbeatResponse>(`/learning-analytics/sessions/${sessionId}/end`, {
+  return request<HeartbeatResponse>(`/api/v1/learning-analytics/sessions/${sessionId}/end`, {
     method: "POST",
     redirectOnUnauthorized: false,
   })

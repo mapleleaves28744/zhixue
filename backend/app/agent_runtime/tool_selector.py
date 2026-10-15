@@ -15,19 +15,25 @@ def select_tool_schemas(
         goal,
         is_profile_update_only=supervisor_intents.is_profile_update_only_goal(goal),
     )
+    contract = state.get("intent_frame_v1") or {}
+    if contract.get("parser") == "semantic_v1" and contract.get("mode") == "execute":
+        planned = _dedupe([str(name) for task in contract.get("tasks") or [] for name in task.get("tools") or []])
     if not planned and _is_course_qa_goal(goal):
         planned = ["search_course_knowledge", "answer_course_question"]
     elif _requires_course_grounding(planned):
         planned = ["search_course_knowledge", *planned]
     names = _dedupe([*planned, *(state.get("tool_hints") or [])])
+    if any(word in goal for word in ("之前的对话", "以前讨论", "历史对话", "上次讨论", "前几次")):
+        names = _dedupe(["search_conversation_history", *names])
     skipped = set(state.get("skip_tools") or [])
     available_candidates = [name for name in names if name in available]
     if available_candidates:
         return [available[name] for name in available_candidates if name not in skipped]
+    exploratory = {"search_course_knowledge", "search_web"}
     return [
-        item
-        for item in tool_schemas
-        if str(item.get("function", {}).get("name")) not in skipped
+        item for item in tool_schemas
+        if str(item.get("function", {}).get("name")) in exploratory
+        and str(item.get("function", {}).get("name")) not in skipped
     ]
 
 
@@ -51,8 +57,6 @@ def _requires_course_grounding(tool_names: Sequence[str]) -> bool:
             "generate_mindmap",
             "generate_diagram",
             "generate_educational_image",
-            "generate_lesson_video",
-            "generate_immersive_classroom",
             "generate_storyboard_html",
             "generate_interactive_courseware",
         }
@@ -62,5 +66,5 @@ def _requires_course_grounding(tool_names: Sequence[str]) -> bool:
 
 def _is_course_qa_goal(goal: str) -> bool:
     return any(
-        keyword in goal for keyword in ("什么是", "讲解", "解释", "为什么", "如何", "帮我理解")
+        keyword in goal for keyword in ("什么是", "讲解", "解释", "为什么", "如何", "帮我理解", "复杂度", "区别", "总结我们", "总结刚才", "回顾本次", "接着说")
     )

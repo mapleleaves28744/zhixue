@@ -1,0 +1,27 @@
+{
+  "model": "qwen3.8-flash",
+  "passed": true,
+  "results": [
+    {
+      "conversation_id": "3d94665e-c177-4923-860e-8dc4972ccf96",
+      "passed": true,
+      "version": 3,
+      "method": "source_selection_v1",
+      "summary_characters": 209
+    },
+    {
+      "conversation_id": "b4800b9d-d385-4289-87e8-28a858da82b2",
+      "passed": true,
+      "version": 3,
+      "method": "source_selection_v1",
+      "summary_characters": 227
+    },
+    {
+      "conversation_id": "72afa46c-3520-4311-ad37-5cededda8623",
+      "passed": true,
+      "version": 3,
+      "method": "source_selection_v1",
+      "summary_characters": 151
+    }
+  ]
+}

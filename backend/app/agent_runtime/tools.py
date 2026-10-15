@@ -101,17 +101,28 @@ class ToolRegistry:
     def risk_level(self, name: str) -> str:
         return self.get(name).risk_level
 
+    async def cached_result(self, context: ToolContext) -> ToolExecutionResult | None:
+        if context.idempotency_key in self._results:
+            return self._results[context.idempotency_key]
+        if self._result_loader:
+            result = await self._result_loader(context.idempotency_key)
+            if result is not None:
+                self._results[context.idempotency_key] = result
+            return result
+        return None
+
     async def execute(
         self,
         name: str,
         arguments: dict[str, Any],
         context: ToolContext,
+        *, persisted_lookup_done: bool = False,
     ) -> ToolExecutionResult:
         tool = self.get(name)
         cached = self._results.get(context.idempotency_key)
         if cached is not None:
             return cached
-        if self._result_loader is not None:
+        if self._result_loader is not None and not persisted_lookup_done:
             persisted = await self._result_loader(context.idempotency_key)
             if persisted is not None:
                 self._results[context.idempotency_key] = persisted
@@ -129,7 +140,8 @@ class ToolRegistry:
             return result
         attempts = 0
         last_error: Exception | None = None
-        while attempts <= tool.max_retries:
+        max_attempts = 1 if tool.writes_db else max(1, tool.max_retries + 1)
+        while attempts < max_attempts:
             attempts += 1
             try:
                 result = await asyncio.wait_for(
@@ -138,6 +150,7 @@ class ToolRegistry:
                 )
             except Exception as exc:
                 last_error = exc
+                await self._recover_from_handler_error(exc)
                 continue
             result.attempts = attempts
             self._results[context.idempotency_key] = result
@@ -145,11 +158,13 @@ class ToolRegistry:
             return result
         result = ToolExecutionResult(
             success=False,
-            error_message=str(last_error or "工具执行失败")[:2000],
+            error_message=(
+                f"工具执行超过 {tool.timeout_seconds} 秒"
+                if isinstance(last_error, asyncio.TimeoutError)
+                else str(last_error or "工具执行失败") or (last_error.__class__.__name__ if last_error else "工具执行失败")
+            )[:2000],
             attempts=attempts,
         )
-        if last_error is not None:
-            await self._recover_from_handler_error(last_error)
         self._results[context.idempotency_key] = result
         await self._save_result_safely(context.idempotency_key, result)
         return result

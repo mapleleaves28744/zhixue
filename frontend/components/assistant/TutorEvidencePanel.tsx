@@ -12,11 +12,12 @@ interface TutorEvidencePanelProps {
 }
 
 const statusCopy = (response: TutorChatResponse): string => {
+  const webSource = response.citations.some((citation) => citation.source_type === "web")
   if (response.grounding_status === "grounded") {
-    return `基于 ${response.citations.length} 条课程资料`
+    return webSource ? "基于已读取的网页" : `基于 ${response.citations.length} 条课程资料`
   }
-  if (response.grounding_status === "partial") return "部分绑定来源"
-  return "课程依据不足"
+  if (response.grounding_status === "partial") return webSource ? "基于网页搜索结果" : "部分绑定来源"
+  return webSource ? "网页依据不足" : "课程依据不足"
 }
 
 export function TutorEvidencePanel({ response, wikiPageId, onFollowUp }: TutorEvidencePanelProps) {
@@ -92,7 +93,7 @@ export function TutorEvidencePanel({ response, wikiPageId, onFollowUp }: TutorEv
       {response.citations.length ? (
         <details className="rounded-2xl border border-outline/10 bg-white/35 px-3 py-2 open:bg-white/55">
           <summary className="cursor-pointer select-none font-semibold text-ink">
-            查看课程依据（{response.citations.length}）
+            {response.citations.some((citation) => citation.source_type === "web") ? "查看网页来源" : "查看课程依据"}（{response.citations.length}）
           </summary>
           <div className="mt-2 space-y-2">
             {response.citations.map((citation, index) => (
@@ -100,6 +101,11 @@ export function TutorEvidencePanel({ response, wikiPageId, onFollowUp }: TutorEv
                 <div className="flex flex-wrap items-center gap-2 font-semibold text-ink">
                   <span>{citation.citation_key ? `[${citation.citation_key}] ` : ""}{citation.title}</span>
                   {citation.page_no ? <span className="font-normal text-outline">第 {citation.page_no} 页</span> : null}
+                  {citation.url && /^https?:\/\//i.test(citation.url) ? (
+                    <a href={citation.url} target="_blank" rel="noopener noreferrer" className="font-normal text-primary underline underline-offset-2">
+                      打开网页
+                    </a>
+                  ) : null}
                 </div>
                 {citation.quote ? <p className="mt-1 leading-5">“{citation.quote}”</p> : null}
                 <p className="mt-1 text-[11px] text-outline/80">

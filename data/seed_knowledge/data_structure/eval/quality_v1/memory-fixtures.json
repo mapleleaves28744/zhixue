@@ -1,0 +1,91 @@
+{
+  "synthetic_evaluation": true,
+  "label_source": "automatic fixture construction",
+  "cases": [
+    {
+      "id": "memory-00",
+      "kind": "active",
+      "course_id": "ae4e4a46-6188-4add-918c-c59a419fc2d3",
+      "expected": "REM-739",
+      "synthetic_value": "REM-739"
+    },
+    {
+      "id": "memory-01",
+      "kind": "forgotten",
+      "course_id": "244a761f-6f4e-4eba-b28d-59763bff244e",
+      "expected": null,
+      "synthetic_value": "REM-888"
+    },
+    {
+      "id": "memory-02",
+      "kind": "archived",
+      "course_id": "5d2b286a-eed7-4ef0-b6c1-0ca58a20a09d",
+      "expected": null,
+      "synthetic_value": "REM-1037"
+    },
+    {
+      "id": "memory-03",
+      "kind": "expired",
+      "course_id": "bff8aca8-0ac6-4405-a032-c888548856b3",
+      "expected": null,
+      "synthetic_value": "REM-1186"
+    },
+    {
+      "id": "memory-04",
+      "kind": "foreign_user",
+      "course_id": "b2b6e9de-31fe-44fb-8119-aee3ab8d9b39",
+      "expected": null,
+      "synthetic_value": "REM-1335"
+    },
+    {
+      "id": "memory-05",
+      "kind": "other_course",
+      "course_id": "06c963a4-5ba9-4d59-aaab-17ba2011b61c",
+      "expected": null,
+      "synthetic_value": "REM-1484"
+    },
+    {
+      "id": "memory-06",
+      "kind": "active",
+      "course_id": "20ee826d-b140-4ded-acf7-1243bb17901e",
+      "expected": "REM-1633",
+      "synthetic_value": "REM-1633"
+    },
+    {
+      "id": "memory-07",
+      "kind": "forgotten",
+      "course_id": "843ad3d4-ed93-4023-bde7-c16292d3da0b",
+      "expected": null,
+      "synthetic_value": "REM-1782"
+    },
+    {
+      "id": "memory-08",
+      "kind": "archived",
+      "course_id": "1acea0e1-acfd-4b57-ab23-695d6e6799e0",
+      "expected": null,
+      "synthetic_value": "REM-1931"
+    },
+    {
+      "id": "memory-09",
+      "kind": "expired",
+      "course_id": "ca812840-aaf9-4f8f-ae76-27cc41ce1d18",
+      "expected": null,
+      "synthetic_value": "REM-2080"
+    },
+    {
+      "id": "memory-10",
+      "kind": "foreign_user",
+      "course_id": "ade120ef-d717-4124-8fd2-fd06ab5d8c70",
+      "expected": null,
+      "synthetic_value": "REM-2229"
+    },
+    {
+      "id": "memory-11",
+      "kind": "other_course",
+      "course_id": "d88034c0-6722-4464-8508-a314505867cd",
+      "expected": null,
+      "synthetic_value": "REM-2378"
+    }
+  ],
+  "owner_id": "64cfad35-b7ef-43ad-814b-b3c8a5c2b619"
+}

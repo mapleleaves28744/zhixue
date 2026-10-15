@@ -1,6 +1,7 @@
 import { buildApiUrl } from "@/lib/api"
 import { getToken } from "@/lib/auth"
 import { request } from "@/lib/request"
+import { RequestError } from "@/lib/request"
 import { consumeSseStream } from "@/lib/sse"
 import type {
   TutorChatRequest,
@@ -18,6 +19,14 @@ export function chatWithTutor(
     body: payload,
     signal,
   })
+}
+
+export function getTutorRequestStatus(
+  conversationId: string,
+  clientRequestId: string,
+  signal?: AbortSignal,
+): Promise<{ status: string; response: TutorChatResponse | null; error_message: string | null }> {
+  return request(`/api/v1/tutor/conversations/${conversationId}/requests/${clientRequestId}`, { signal })
 }
 
 export type TutorStreamHandlers = {
@@ -47,9 +56,30 @@ export async function streamTutorChat(
   let receivedDone = false
   let fallbackAttempted = false
 
+  const awaitCommittedResult = async (): Promise<TutorChatResponse | null> => {
+    if (!payload.conversation_id || !payload.client_request_id) return null
+    for (let attempt = 0; attempt < 15 && !handlers.signal?.aborted; attempt += 1) {
+      try {
+        const state = await getTutorRequestStatus(payload.conversation_id, payload.client_request_id, handlers.signal)
+        if (state.status === "succeeded" && state.response) {
+          handlers.onDone?.(state.response)
+          return state.response
+        }
+        if (state.status === "failed") return null
+      } catch (error) {
+        if (error instanceof RequestError && error.status === 404) return null
+      }
+      await new Promise<void>((resolve) => setTimeout(resolve, 1000))
+    }
+    return null
+  }
+
   const runFallback = async (): Promise<TutorChatResponse | null> => {
     if (handlers.signal?.aborted) return finalPayload
     fallbackAttempted = true
+    const committed = await awaitCommittedResult()
+    if (committed) return committed
+    if (handlers.signal?.aborted) return finalPayload
     const fallback = await chatWithTutor({ ...payload, stream: false }, handlers.signal)
     if (handlers.signal?.aborted) return finalPayload
     handlers.onDone?.(fallback)
@@ -98,6 +128,8 @@ export async function streamTutorChat(
     if (!receivedDone) {
       const eofError = new Error("AI Tutor 流式连接提前结束")
       if (!receivedDelta) return await runFallback()
+      const committed = await awaitCommittedResult()
+      if (committed) return committed
       handlers.onInterrupted?.(eofError)
       return finalPayload
     }
@@ -111,6 +143,8 @@ export async function streamTutorChat(
     if (!receivedDelta) {
       return await runFallback()
     }
+    const committed = await awaitCommittedResult()
+    if (committed) return committed
     handlers.onInterrupted?.(streamError)
     return finalPayload
   }

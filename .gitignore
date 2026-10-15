@@ -39,3 +39,6 @@ storage/
 
 # 本地 SSH 代理配置（含个人端口，勿提交）
 deploy/ssh-cursor-proxy.config
+
+# Evaluation ledger runtime; sanitized JSON evidence is retained separately
+data/seed_knowledge/data_structure/eval/quality_v1/budget.sqlite*

@@ -1,0 +1,26 @@
+{
+  "model": "qwen3.8-flash",
+  "started_at": "2026-09-30T11:37:17.139262+00:00",
+  "passed": true,
+  "original_task_id": "1749258c-8ead-490f-8f4e-6c8e4437d20d",
+  "revised_task_id": "615d92a6-d718-4f0d-b069-59aee85166a9",
+  "checks": [
+    "request replay",
+    "two distinct persisted resources",
+    "revision has one new topic",
+    "original source retained"
+  ],
+  "original_titles": [
+    "数据结构讲解",
+    "栈与队列简短讲解"
+  ],
+  "revised_titles": [
+    "归并排序简短讲解"
+  ],
+  "finished_at": "2026-09-30T11:40:23.902540+00:00",
+  "resource_models": [
+    "qwen3.8-flash",
+    "qwen3.8-flash",
+    "qwen3.8-flash"
+  ]
+}

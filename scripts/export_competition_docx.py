@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import re
 import shutil
 import subprocess
 import sys
@@ -11,6 +13,19 @@ ROOT = Path(__file__).resolve().parents[1]
 MASTER = ROOT / "docs" / "22_比赛材料规划" / "智学工坊比赛材料合集.md"
 OUT_DIR = ROOT / "docs" / "22_比赛材料规划" / "submission"
 OUT_DOCX = OUT_DIR / "智学工坊系统说明书.docx"
+
+
+def submission_markdown() -> str:
+    """Keep relative Markdown links valid when copying into submission/."""
+    def rebase(match: re.Match[str]) -> str:
+        target = match.group(1)
+        if target.startswith(("#", "/")) or ":" in target:
+            return match.group(0)
+        path, separator, anchor = target.partition("#")
+        relative = Path(os.path.relpath(MASTER.parent / path, OUT_DIR)).as_posix()
+        return f"]({relative}{separator}{anchor})"
+
+    return re.sub(r"\]\(([^)\s]+)\)", rebase, MASTER.read_text(encoding="utf-8"))
 
 
 def main() -> int:
@@ -24,7 +39,7 @@ def main() -> int:
         print(f"Fallback: copy {MASTER} to submission/ and convert manually in Word.")
         OUT_DIR.mkdir(parents=True, exist_ok=True)
         fallback = OUT_DIR / "智学工坊系统说明书.md"
-        fallback.write_text(MASTER.read_text(encoding="utf-8"), encoding="utf-8")
+        fallback.write_text(submission_markdown(), encoding="utf-8")
         print(f"Wrote fallback markdown: {fallback}")
         return 0
 

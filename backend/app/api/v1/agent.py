@@ -4,7 +4,7 @@ import json
 from collections.abc import AsyncIterator
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -49,10 +49,11 @@ async def list_conversations(
 async def list_messages(
     conversation_id: UUID,
     request: Request,
+    limit: int = Query(default=40, ge=1, le=100),
     current_user: User = Depends(require_student),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    items = await AgentConversationService(db).list_messages(conversation_id, current_user)
+    items = await AgentConversationService(db).list_messages(conversation_id, current_user, limit=limit)
     return success_response({"items": [item.model_dump(mode="json") for item in items]}, request=request)
 
 

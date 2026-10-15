@@ -1,0 +1,36 @@
+{"id": "late_commit-0", "kind": "late_commit", "passed": true, "processed_sources": 2}
+{"id": "late_commit-1", "kind": "late_commit", "passed": true, "processed_sources": 2}
+{"id": "late_commit-2", "kind": "late_commit", "passed": true, "processed_sources": 2}
+{"id": "late_commit-3", "kind": "late_commit", "passed": true, "processed_sources": 2}
+{"id": "late_commit-4", "kind": "late_commit", "passed": true, "processed_sources": 2}
+{"id": "late_commit-5", "kind": "late_commit", "passed": true, "processed_sources": 2}
+{"id": "same_timestamp_100-0", "kind": "same_timestamp_100", "passed": true, "processed_sources": 100}
+{"id": "same_timestamp_100-1", "kind": "same_timestamp_100", "passed": true, "processed_sources": 100}
+{"id": "same_timestamp_100-2", "kind": "same_timestamp_100", "passed": true, "processed_sources": 100}
+{"id": "same_timestamp_100-3", "kind": "same_timestamp_100", "passed": true, "processed_sources": 100}
+{"id": "same_timestamp_100-4", "kind": "same_timestamp_100", "passed": true, "processed_sources": 100}
+{"id": "same_timestamp_100-5", "kind": "same_timestamp_100", "passed": true, "processed_sources": 100}
+{"id": "two_workers-0", "kind": "two_workers", "passed": true, "processed_sources": 6}
+{"id": "two_workers-1", "kind": "two_workers", "passed": true, "processed_sources": 6}
+{"id": "two_workers-2", "kind": "two_workers", "passed": true, "processed_sources": 6}
+{"id": "two_workers-3", "kind": "two_workers", "passed": true, "processed_sources": 6}
+{"id": "two_workers-4", "kind": "two_workers", "passed": true, "processed_sources": 6}
+{"id": "two_workers-5", "kind": "two_workers", "passed": true, "processed_sources": 6}
+{"id": "stale_lease_fence-0", "kind": "stale_lease_fence", "passed": false, "error_type": "AssertionError", "detail": ""}
+{"id": "stale_lease_fence-1", "kind": "stale_lease_fence", "passed": false, "error_type": "AssertionError", "detail": ""}
+{"id": "stale_lease_fence-2", "kind": "stale_lease_fence", "passed": false, "error_type": "AssertionError", "detail": ""}
+{"id": "stale_lease_fence-3", "kind": "stale_lease_fence", "passed": false, "error_type": "AssertionError", "detail": ""}
+{"id": "stale_lease_fence-4", "kind": "stale_lease_fence", "passed": false, "error_type": "AssertionError", "detail": ""}
+{"id": "stale_lease_fence-5", "kind": "stale_lease_fence", "passed": false, "error_type": "AssertionError", "detail": ""}
+{"id": "process_exit_after_claim-0", "kind": "process_exit_after_claim", "passed": true, "processed_sources": 1}
+{"id": "process_exit_after_claim-1", "kind": "process_exit_after_claim", "passed": true, "processed_sources": 1}
+{"id": "process_exit_after_claim-2", "kind": "process_exit_after_claim", "passed": true, "processed_sources": 1}
+{"id": "process_exit_after_claim-3", "kind": "process_exit_after_claim", "passed": true, "processed_sources": 1}
+{"id": "process_exit_after_claim-4", "kind": "process_exit_after_claim", "passed": true, "processed_sources": 1}
+{"id": "process_exit_after_claim-5", "kind": "process_exit_after_claim", "passed": true, "processed_sources": 1}
+{"id": "empty_fake_evidence-0", "kind": "empty_fake_evidence", "passed": true, "processed_sources": 1}
+{"id": "empty_fake_evidence-1", "kind": "empty_fake_evidence", "passed": true, "processed_sources": 1}
+{"id": "empty_fake_evidence-2", "kind": "empty_fake_evidence", "passed": true, "processed_sources": 1}
+{"id": "empty_fake_evidence-3", "kind": "empty_fake_evidence", "passed": true, "processed_sources": 1}
+{"id": "empty_fake_evidence-4", "kind": "empty_fake_evidence", "passed": true, "processed_sources": 1}
+{"id": "empty_fake_evidence-5", "kind": "empty_fake_evidence", "passed": true, "processed_sources": 1}

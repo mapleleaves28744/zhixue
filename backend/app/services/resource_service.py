@@ -20,6 +20,7 @@ from app.repositories.wiki_repository import WikiRepository
 from app.schemas.resource import (
     RESOURCE_TYPE_ALIASES,
     VALID_RESOURCE_TYPES,
+    GeneratedResourceListItemRead,
     GeneratedResourceRead,
     ResourceGenerateRequest,
     ResourceGenerateResponse,
@@ -88,7 +89,7 @@ class ResourceService:
             params={
                 "knowledge_id": str(knowledge.id) if knowledge else None,
                 "wiki_page_id": str(wiki_page.id) if wiki_page else None,
-                "knowledge_name": knowledge.name if knowledge else None,
+                "knowledge_name": knowledge.name if knowledge else payload.topic,
                 "resource_type": resource_type,
                 "requirement": payload.requirement,
                 "use_profile": payload.use_profile,
@@ -160,6 +161,75 @@ class ResourceService:
         )
         return ResourceGenerateResponse.model_validate(response_data)
 
+    async def revise_resource_from_conversation(
+        self, *, resource_id: UUID, course_id: UUID, requirement: str, current_user: User,
+    ) -> tuple[GeneratedResource, dict[str, Any]]:
+        from app.llm.provider import get_llm_provider
+        from app.llm.schemas import ChatMessage
+        from app.services.prompt_service import PromptService
+
+        course = await self._get_accessible_course(course_id, current_user)
+        original = await self._get_owned_resource(resource_id, current_user.id)
+        if original.course_id != course.id or original.status == "archived":
+            raise BusinessException(
+                code=ErrorCode.NOT_FOUND, detail="当前课程找不到可修订的资源", status_code=404,
+            )
+        editable_types = {"explanation", "summary", "example", "flashcard", "review", "code_project", "reading_pack"}
+        if original.resource_type not in editable_types:
+            raise BusinessException(
+                code=ErrorCode.PARAM_ERROR,
+                detail="这个资源类型包含媒体或交互文件，当前不能在聊天中直接修订",
+                status_code=400,
+            )
+        if len(original.content) > 16000:
+            source_content = original.content[:16000]
+            scope_note = "输入资源超出修订长度限制，本次只提供前 16000 个字符。"
+        else:
+            source_content = original.content
+            scope_note = ""
+        rendered = await PromptService(self.db).render_prompt(
+            agent_name="ResourceAgent", scene="resource.revise",
+            params={
+                "title": original.title, "resource_type": original.resource_type,
+                "requirement": requirement[:1000], "scope_note": scope_note,
+                "content": source_content,
+            },
+        )
+        provider = get_llm_provider(
+            db=self.db, user_id=current_user.id, course_id=course.id,
+            prompt_version_id=rendered.prompt_version_id,
+        )
+        response = await provider.chat(
+            [ChatMessage(role="user", content=rendered.content)],
+            temperature=0.2, max_tokens=3000, thinking={"type": "disabled"},
+            prompt_version_id=rendered.prompt_version_id,
+        )
+        revised_content = str(response.content or "").strip()
+        if not revised_content:
+            raise BusinessException(
+                code=ErrorCode.LLM_CALL_FAILED, detail="资源修订结果为空", status_code=500,
+            )
+        citations = list(original.citations or [])
+        review = await self._review_generated_content(
+            user_id=current_user.id, course_id=course.id,
+            content=revised_content, citations=citations,
+        )
+        revision = await self.resources.create(
+            user_id=current_user.id, course_id=course.id,
+            knowledge_id=original.knowledge_id, wiki_page_id=original.wiki_page_id,
+            resource_type=original.resource_type,
+            title=f"{original.title[:246]}（修订）",
+            content=revised_content, citations=citations,
+            personalized_reason=f"基于资源版本 {original.revision_no} 修订：{requirement[:500]}",
+            model_name=getattr(response, "model", None) or getattr(response, "provider", None),
+            prompt_version_id=rendered.prompt_version_id,
+            previous_resource_id=original.id,
+            revision_no=original.revision_no + 1,
+        )
+        await self.db.commit()
+        await self.db.refresh(revision)
+        return revision, review
+
     async def list_resources(
         self,
         *,
@@ -169,7 +239,7 @@ class ResourceService:
         status: str | None,
         page: int,
         page_size: int,
-    ) -> tuple[list[GeneratedResourceRead], int]:
+    ) -> tuple[list[GeneratedResourceListItemRead], int]:
         if course_id is not None:
             await self._get_accessible_course(course_id, current_user)
         normalized_type = self._normalize_resource_type(resource_type) if resource_type else None
@@ -182,11 +252,27 @@ class ResourceService:
             page=page,
             page_size=page_size,
         )
-        enriched: list[GeneratedResourceRead] = []
+        summaries: list[GeneratedResourceListItemRead] = []
         for item in items:
-            payload = await self._with_media_fields(item, current_user.id)
-            enriched.append(GeneratedResourceRead.model_validate(payload))
-        return enriched, total
+            summaries.append(
+                GeneratedResourceListItemRead(
+                    id=item["id"],
+                    user_id=item["user_id"],
+                    course_id=item["course_id"],
+                    knowledge_id=item["knowledge_id"],
+                    wiki_page_id=item["wiki_page_id"],
+                    resource_type=item["resource_type"],
+                    title=item["title"],
+                    personalized_reason=item["personalized_reason"],
+                    status=item["status"],
+                    created_at=item["created_at"],
+                    content_format=(
+                        "mermaid" if item["resource_type"] in {"mindmap", "diagram"} else "markdown"
+                    ),
+                    preview_mode=self._preview_mode(item["resource_type"], None),
+                )
+            )
+        return summaries, total
 
     async def get_resource(
         self,

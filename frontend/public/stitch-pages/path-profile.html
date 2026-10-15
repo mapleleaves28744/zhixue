@@ -360,6 +360,10 @@
           <select id="memory-status" class="text-[11px] px-2 py-1 rounded-full bg-surface-container-high text-on-surface-variant border-none">
             <option value="active" ${memoryStatus === "active" ? "selected" : ""}>活跃</option>
             <option value="archived" ${memoryStatus === "archived" ? "selected" : ""}>归档</option>
+            <option value="pending" ${memoryStatus === "pending" ? "selected" : ""}>待确认</option>
+            <option value="forgotten" ${memoryStatus === "forgotten" ? "selected" : ""}>已遗忘</option>
+            <option value="disputed" ${memoryStatus === "disputed" ? "selected" : ""}>有争议</option>
+            <option value="resolved" ${memoryStatus === "resolved" ? "selected" : ""}>已解决</option>
             <option value="all" ${memoryStatus === "all" ? "selected" : ""}>全部</option>
           </select>
           <span class="text-[11px] px-2 py-1 rounded-full bg-surface-container-high text-on-surface-variant">${memoryHealth?.active_count || 0}/${memoryHealth?.capacity || 0} · ${memories.length} 条</span>
@@ -379,7 +383,8 @@
             </div>
             <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
               <button class="p-1.5 text-primary hover:bg-primary-fixed rounded-lg" data-action="evidence" title="查看证据"><span class="material-symbols-outlined text-sm">link</span></button>
-              ${memory.status === "archived" ? `<button class="p-1.5 text-primary hover:bg-primary-fixed rounded-lg" data-action="restore" title="恢复"><span class="material-symbols-outlined text-sm">restore</span></button>` : `<button class="p-1.5 text-error hover:bg-error-container rounded-lg" data-action="delete" title="归档"><span class="material-symbols-outlined text-sm">archive</span></button>`}
+              ${memory.status !== "active" ? `<button class="p-1.5 text-primary hover:bg-primary-fixed rounded-lg" data-action="restore" title="${memory.status === 'pending' ? '确认采用' : '恢复'}"><span class="material-symbols-outlined text-sm">restore</span></button>` : `<button class="p-1.5 text-primary hover:bg-primary-fixed rounded-lg" data-action="archive" title="归档"><span class="material-symbols-outlined text-sm">archive</span></button>`}
+              ${memory.status !== "forgotten" ? `<button class="p-1.5 text-primary hover:bg-primary-fixed rounded-lg" data-action="edit" title="纠正"><span class="material-symbols-outlined text-sm">edit</span></button><button class="p-1.5 text-error hover:bg-error-container rounded-lg" data-action="delete" title="遗忘"><span class="material-symbols-outlined text-sm">delete</span></button>` : ""}
             </div>
           </div>
         `).join("") : `
@@ -392,28 +397,55 @@
     section.querySelector("#memory-reflect-button")?.addEventListener("click", reflectMemory);
     section.querySelector("#memory-status")?.addEventListener("change", (event) => loadProfileSpace(event.target.value));
     section.querySelectorAll("[data-action='evidence']").forEach((button) => {
-      button.addEventListener("click", (event) => {
+      button.addEventListener("click", async (event) => {
+        const id = event.currentTarget.closest("[data-memory-id]")?.dataset.memoryId;
+        const card = event.currentTarget.closest("[data-memory-id]");
+        try {
+          const records = await api.memoryEvidence(id);
+          let panel = card.querySelector("[data-memory-evidence]");
+          if (!panel) { panel = document.createElement("div"); panel.dataset.memoryEvidence = ""; card.appendChild(panel); }
+          panel.className = "text-xs text-on-surface-variant whitespace-pre-wrap mt-2";
+          card.classList.add("flex-wrap");
+          panel.classList.add("w-full");
+          panel.textContent = records.length ? records.map((item) => `${api.formatDate(item.created_at)} · ${item.event_type}\n${item.excerpt}`).join("\n\n") : "暂无可读取的原始证据";
+        } catch (error) { api.toast(error.message || "读取证据失败", "error"); }
+      });
+    });
+    section.querySelectorAll("[data-action='archive'], [data-action='edit']").forEach((button) => {
+      button.addEventListener("click", async (event) => {
         const id = event.currentTarget.closest("[data-memory-id]")?.dataset.memoryId;
         const memory = memories.find((item) => item.id === id);
-        api.toast(memory && memory.evidence && memory.evidence.length ? JSON.stringify(memory.evidence).slice(0, 180) : "暂无证据链，后续行为会继续补充。", "info");
+        try {
+          if (button.dataset.action === "archive") await api.updateMemory(id, { status: "archived" });
+          else {
+            const content = prompt("纠正这条学习记忆", memory.content);
+            if (!content || !content.trim()) return;
+            await api.updateMemory(id, { content: content.trim() });
+          }
+          await loadProfileSpace(memoryStatus);
+        } catch (error) { api.toast(error.message || "更新记忆失败", "error"); }
       });
     });
     section.querySelectorAll("[data-action='delete']").forEach((button) => {
       button.addEventListener("click", async (event) => {
         const id = event.currentTarget.closest("[data-memory-id]")?.dataset.memoryId;
-        if (!id || !confirm("确认归档这条长期记忆？")) return;
-        await api.request(`/student/memory/${id}`, { method: "DELETE" });
-        api.toast("记忆已归档", "success");
-        await loadProfileSpace();
+        if (!id || !confirm("确认遗忘这条长期记忆？它将停止参与个性化和自动重建。")) return;
+        try {
+          await api.request(`/student/memory/${id}`, { method: "DELETE" });
+          api.toast("记忆已遗忘", "success");
+          await loadProfileSpace();
+        } catch (error) { api.toast(error.message || "遗忘记忆失败", "error"); }
       });
     });
     section.querySelectorAll("[data-action='restore']").forEach((button) => {
       button.addEventListener("click", async (event) => {
         const id = event.currentTarget.closest("[data-memory-id]")?.dataset.memoryId;
         if (!id) return;
-        await api.restoreMemory(id);
-        api.toast("记忆已恢复，容量规则会自动整理活跃集合", "success");
-        await loadProfileSpace("archived");
+        try {
+          await api.restoreMemory(id);
+          api.toast("记忆已确认生效", "success");
+          await loadProfileSpace(memoryStatus);
+        } catch (error) { api.toast(error.message || "恢复记忆失败", "error"); }
       });
     });
   }

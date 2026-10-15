@@ -2848,6 +2848,66 @@
         ]
       }
     },
+    "/api/v1/tutor/conversations/{conversation_id}/requests/{client_request_id}": {
+      "get": {
+        "tags": [
+          "tutor"
+        ],
+        "summary": "Get Tutor Request Status",
+        "operationId": "get_tutor_request_status_api_v1_tutor_conversations__conversation_id__requests__client_request_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Conversation Id"
+            }
+          },
+          {
+            "name": "client_request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Client Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Tutor Request Status Api V1 Tutor Conversations  Conversation Id  Requests  Client Request Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/tutor/messages/{message_id}/save-to-wiki": {
       "post": {
         "tags": [
@@ -5291,6 +5351,18 @@
               "format": "uuid",
               "title": "Conversation Id"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 40,
+              "title": "Limit"
+            }
           }
         ],
         "responses": {
@@ -6423,6 +6495,56 @@
                   "type": "object",
                   "additionalProperties": true,
                   "title": "Response Restore Memory Api V1 Student Memory  Memory Id  Restore Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/student/memory/{memory_id}/evidence": {
+      "get": {
+        "tags": [
+          "student-memory"
+        ],
+        "summary": "Memory Evidence",
+        "operationId": "memory_evidence_api_v1_student_memory__memory_id__evidence_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "memory_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Memory Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Memory Evidence Api V1 Student Memory  Memory Id  Evidence Get"
                 }
               }
             }
@@ -7755,6 +7877,30 @@
             "minLength": 1,
             "title": "Content"
           },
+          "client_request_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Request Id"
+          },
+          "revises_task_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revises Task Id"
+          },
           "tool_hints": {
             "items": {
               "type": "string"
@@ -8637,6 +8783,36 @@
               }
             ],
             "title": "Memory Type"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "active",
+                  "archived",
+                  "disputed",
+                  "resolved"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
           }
         },
         "type": "object",
@@ -8938,6 +9114,19 @@
             "format": "uuid",
             "title": "Course Id"
           },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 240,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          },
           "knowledge_id": {
             "anyOf": [
               {
@@ -9155,6 +9344,18 @@
               }
             ],
             "title": "Conversation Id"
+          },
+          "client_request_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Request Id"
           },
           "session_id": {
             "anyOf": [

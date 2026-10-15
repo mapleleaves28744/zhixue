@@ -1,0 +1,54 @@
+{
+  "version": "intent-matrix-v1",
+  "automatic_synthetic_labels": true,
+  "independent_human_review": false,
+  "scope": "contract selection; unavailable-authority probes are not an execution/privacy audit",
+  "evaluation_status": "first run of a new synthetic matrix; templates authored after earlier regression findings",
+  "total": 120,
+  "passed": 96,
+  "groups": {
+    "unavailable_authority": {
+      "total": 20,
+      "passed": 20
+    },
+    "followup_revision": {
+      "total": 20,
+      "passed": 17
+    },
+    "negation": {
+      "total": 20,
+      "passed": 20
+    },
+    "multi": {
+      "total": 20,
+      "passed": 19
+    },
+    "clarify": {
+      "total": 20,
+      "passed": 20
+    },
+    "single": {
+      "total": 20,
+      "passed": 0
+    }
+  },
+  "budget": {
+    "cap": 3000000,
+    "charged_tokens": 1208783,
+    "calls": {
+      "failed": {
+        "count": 36,
+        "charged_tokens": 588807
+      },
+      "pending": {
+        "count": 1,
+        "charged_tokens": 7022
+      },
+      "succeeded": {
+        "count": 381,
+        "charged_tokens": 612954
+      }
+    },
+    "unknown_usage_policy": "failed/pending/missing usage charged full reservation"
+  }
+}

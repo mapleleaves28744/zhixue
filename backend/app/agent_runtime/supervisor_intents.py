@@ -145,7 +145,9 @@ def mindmap_intent(goal: str) -> bool:
 
 
 def quiz_intent(goal: str) -> bool:
-    return any(k in goal for k in ("练习题", "生成练习", "生成一组练习", "配套练习", "出题", "测试题", "几道"))
+    return any(k in goal for k in ("练习题", "生成练习", "生成一组练习", "配套练习", "出题", "测试题", "几道", "同类题")) or bool(
+        re.search(r"[一二三四五六七八九十两\d]+\s*道(?:题|练习|选择题|判断题)", goal)
+    )
 
 
 def learning_path_intent(goal: str) -> bool:
@@ -163,7 +165,7 @@ def explanation_resource_intent(goal: str) -> bool:
 
 
 def qa_intent(goal: str) -> bool:
-    if presentation_intent(goal):
+    if presentation_intent(goal) or web_search_intent(goal):
         return False
     if any(
         k in goal
@@ -172,12 +174,23 @@ def qa_intent(goal: str) -> bool:
         return False
     return any(
         k in goal
-        for k in ("什么是", "是什么", "讲解一下", "解释一下", "帮我理解", "什么意思", "为什么", "如何")
-    )
+        for k in ("什么是", "是什么", "讲解一下", "解释一下", "帮我理解", "什么意思", "为什么", "如何",
+                  "复杂度", "区别", "总结我们", "总结刚才", "回顾本次", "接着说")
+    ) or (search_explicit_intent(goal) and any(k in goal for k in ("解释", "讲解", "回答")))
 
 
 def search_explicit_intent(goal: str) -> bool:
-    return any(k in goal for k in ("检索", "课程资料", "课程知识库", "基于资料", "基于课程", "引用", "来源"))
+    return any(k in goal for k in ("检索", "课程资料", "课程知识库", "基于资料", "基于课程", "引用")) or (
+        "来源" in goal and any(k in goal for k in ("给出来源", "标注来源", "附上来源", "提供来源"))
+    )
+
+
+def recommendation_intent(goal: str) -> bool:
+    return any(k in goal for k in ("推荐下一步", "推荐学习内容", "刷新推荐", "根据画像推送", "主动推荐", "诊断后推荐", "推荐资源"))
+
+
+def artifact_review_intent(goal: str) -> bool:
+    return any(k in goal for k in ("来源、幻觉和风险审查", "审查学习产物", "审核学习产物"))
 
 
 def web_search_intent(goal: str) -> bool:
@@ -284,8 +297,6 @@ def should_intent_first_route(goal: str) -> bool:
     return any(
         (
             presentation_intent(goal),
-            immersive_classroom_intent(goal),
-            video_intent(goal),
             speech_intent(goal),
             transcribe_intent(goal),
             quiz_intent(goal),
@@ -296,6 +307,7 @@ def should_intent_first_route(goal: str) -> bool:
             image_intent(goal) and not diagram_intent(goal),
             explanation_resource_intent(goal),
             web_search_intent(goal),
+            artifact_review_intent(goal),
         )
     )
 
@@ -364,6 +376,8 @@ _TOPIC_NOISE_TERMS = (
     "视频讲解",
     "沉浸课堂",
     "互动课堂",
+    "出练习题",
+    "出题",
     "练习题",
     "配套练习",
     "学习计划",
@@ -471,8 +485,6 @@ _DELIVERABLE_TOOL_NAMES = frozenset(
     {
         "transcribe_audio",
         "synthesize_speech",
-        "generate_immersive_classroom",
-        "generate_lesson_video",
         "generate_interactive_courseware",
         "generate_educational_image",
         "generate_diagram",
@@ -497,10 +509,6 @@ def plan_required_tools(goal: str, *, is_profile_update_only: bool) -> list[str]
         if should_prepare_speech_script(goal):
             tools.append("generate_explanation")
         tools.append("synthesize_speech")
-    if immersive_classroom_intent(goal):
-        tools.append("generate_immersive_classroom")
-    elif video_intent(goal):
-        tools.append("generate_lesson_video")
     if storyboard_intent(goal):
         tools.append("generate_storyboard_html")
     if courseware_intent(goal):
@@ -529,22 +537,11 @@ def plan_required_tools(goal: str, *, is_profile_update_only: bool) -> list[str]
         tools.append("generate_quiz")
     if any(k in goal for k in ("薄弱点", "错误模式", "学习诊断")):
         tools.append("analyze_learning_diagnosis")
-    if any(
-        k in goal
-        for k in (
-            "推荐下一步",
-            "推荐学习内容",
-            "刷新推荐",
-            "根据画像推送",
-            "主动推荐",
-            "诊断后推荐",
-            "推荐资源",
-        )
-    ):
+    if recommendation_intent(goal):
         tools.append("refresh_recommendations")
     if any(k in goal for k in ("解析资料", "解析文档", "处理上传", "解析这份")):
         tools.append("parse_uploaded_document")
-    if any(k in goal for k in ("来源、幻觉和风险审查", "审查学习产物", "审核学习产物")):
+    if artifact_review_intent(goal):
         tools.append("review_artifacts")
     if any(k in goal for k in ("审核多模态", "审查插图", "审查视频", "审查课件", "审查产物安全", "multimodal review")):
         tools.append("review_multimodal_asset")
@@ -583,8 +580,9 @@ def plan_required_tools(goal: str, *, is_profile_update_only: bool) -> list[str]
         # 生成资源、诊断或推荐等多意图任务仍需先取得课程证据；纯问答则由
         # answer_course_question 内部完成检索与一次生成，避免重复工具调用。
         tools.insert(0, "search_course_knowledge")
-    if not tools and qa_intent(goal):
-        tools.append("answer_course_question")
+    if qa_intent(goal) and "answer_course_question" not in tools:
+        insert_at = tools.index("refresh_recommendations") if "refresh_recommendations" in tools else len(tools)
+        tools.insert(insert_at, "answer_course_question")
 
     return _dedupe(tools)
 
@@ -595,10 +593,6 @@ def required_deliverables(goal: str) -> list[str]:
         deliverables.append("transcribe_audio")
     if speech_intent(goal):
         deliverables.append("synthesize_speech")
-    if immersive_classroom_intent(goal):
-        deliverables.append("generate_immersive_classroom")
-    elif video_intent(goal):
-        deliverables.append("generate_lesson_video")
     if courseware_intent(goal):
         deliverables.append("generate_interactive_courseware")
     if knowledge_card_intent(goal):
@@ -615,6 +609,12 @@ def required_deliverables(goal: str) -> list[str]:
         deliverables.append("generate_learning_path")
     if explanation_resource_intent(goal):
         deliverables.append("generate_explanation")
+    if qa_intent(goal):
+        deliverables.append("answer_course_question")
+    if recommendation_intent(goal):
+        deliverables.append("refresh_recommendations")
+    if artifact_review_intent(goal):
+        deliverables.append("review_artifacts")
     if any(k in goal for k in ("应用最新的一条自进化策略", "应用自进化策略")):
         deliverables.append("apply_evolution_strategy")
     return _dedupe(deliverables)

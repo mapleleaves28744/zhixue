@@ -1,0 +1,1417 @@
+{
+  "version": "quality-v1",
+  "label_source": "automatic synthetic template labels",
+  "independent_human_review": false,
+  "split_unit": "template family",
+  "purpose": "contract parsing, not delivery success or natural user distribution",
+  "cases": [
+    {
+      "id": "dev-quiz-00",
+      "split": "dev",
+      "kind": "quiz",
+      "goal": "给栈出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "栈",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-explanation-00",
+      "split": "dev",
+      "kind": "explanation",
+      "goal": "为栈生成讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "栈",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-multi-00",
+      "split": "dev",
+      "kind": "multi",
+      "goal": "栈和队列各出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "栈",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "队列",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-answer-00",
+      "split": "dev",
+      "kind": "answer",
+      "goal": "栈的原理是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "dev-followup-00",
+      "split": "dev",
+      "kind": "followup",
+      "goal": "再给我五道同类题",
+      "previous": "给栈出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "栈",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-clarify-00",
+      "split": "dev",
+      "kind": "clarify",
+      "goal": "再给我五道同类题",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "dev-quiz-01",
+      "split": "dev",
+      "kind": "quiz",
+      "goal": "给队列出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "队列",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-explanation-01",
+      "split": "dev",
+      "kind": "explanation",
+      "goal": "为队列生成讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "队列",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-multi-01",
+      "split": "dev",
+      "kind": "multi",
+      "goal": "队列和链表各出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "队列",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "链表",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-answer-01",
+      "split": "dev",
+      "kind": "answer",
+      "goal": "队列的原理是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "dev-followup-01",
+      "split": "dev",
+      "kind": "followup",
+      "goal": "再给我五道同类题",
+      "previous": "给队列出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "队列",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-clarify-01",
+      "split": "dev",
+      "kind": "clarify",
+      "goal": "再给我五道同类题",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "dev-quiz-02",
+      "split": "dev",
+      "kind": "quiz",
+      "goal": "给链表出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "链表",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-explanation-02",
+      "split": "dev",
+      "kind": "explanation",
+      "goal": "为链表生成讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "链表",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-multi-02",
+      "split": "dev",
+      "kind": "multi",
+      "goal": "链表和二叉树各出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "链表",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "二叉树",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-answer-02",
+      "split": "dev",
+      "kind": "answer",
+      "goal": "链表的原理是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "dev-followup-02",
+      "split": "dev",
+      "kind": "followup",
+      "goal": "再给我五道同类题",
+      "previous": "给链表出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "链表",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-clarify-02",
+      "split": "dev",
+      "kind": "clarify",
+      "goal": "再给我五道同类题",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "dev-quiz-03",
+      "split": "dev",
+      "kind": "quiz",
+      "goal": "给二叉树出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "二叉树",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-explanation-03",
+      "split": "dev",
+      "kind": "explanation",
+      "goal": "为二叉树生成讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "二叉树",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-multi-03",
+      "split": "dev",
+      "kind": "multi",
+      "goal": "二叉树和哈希表各出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "二叉树",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "哈希表",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-answer-03",
+      "split": "dev",
+      "kind": "answer",
+      "goal": "二叉树的原理是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "dev-followup-03",
+      "split": "dev",
+      "kind": "followup",
+      "goal": "再给我五道同类题",
+      "previous": "给二叉树出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "二叉树",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-clarify-03",
+      "split": "dev",
+      "kind": "clarify",
+      "goal": "再给我五道同类题",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "dev-quiz-04",
+      "split": "dev",
+      "kind": "quiz",
+      "goal": "给哈希表出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "哈希表",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-explanation-04",
+      "split": "dev",
+      "kind": "explanation",
+      "goal": "为哈希表生成讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "哈希表",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-multi-04",
+      "split": "dev",
+      "kind": "multi",
+      "goal": "哈希表和归并排序各出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "哈希表",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "归并排序",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-answer-04",
+      "split": "dev",
+      "kind": "answer",
+      "goal": "哈希表的原理是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "dev-followup-04",
+      "split": "dev",
+      "kind": "followup",
+      "goal": "再给我五道同类题",
+      "previous": "给哈希表出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "哈希表",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-clarify-04",
+      "split": "dev",
+      "kind": "clarify",
+      "goal": "再给我五道同类题",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "dev-quiz-05",
+      "split": "dev",
+      "kind": "quiz",
+      "goal": "给归并排序出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "归并排序",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-explanation-05",
+      "split": "dev",
+      "kind": "explanation",
+      "goal": "为归并排序生成讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "归并排序",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-multi-05",
+      "split": "dev",
+      "kind": "multi",
+      "goal": "归并排序和快速排序各出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "归并排序",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "快速排序",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-answer-05",
+      "split": "dev",
+      "kind": "answer",
+      "goal": "归并排序的原理是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "dev-followup-05",
+      "split": "dev",
+      "kind": "followup",
+      "goal": "再给我五道同类题",
+      "previous": "给归并排序出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "归并排序",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-clarify-05",
+      "split": "dev",
+      "kind": "clarify",
+      "goal": "再给我五道同类题",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "dev-quiz-06",
+      "split": "dev",
+      "kind": "quiz",
+      "goal": "给快速排序出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "快速排序",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-explanation-06",
+      "split": "dev",
+      "kind": "explanation",
+      "goal": "为快速排序生成讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "快速排序",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-multi-06",
+      "split": "dev",
+      "kind": "multi",
+      "goal": "快速排序和堆各出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "快速排序",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "堆",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-answer-06",
+      "split": "dev",
+      "kind": "answer",
+      "goal": "快速排序的原理是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "dev-followup-06",
+      "split": "dev",
+      "kind": "followup",
+      "goal": "再给我五道同类题",
+      "previous": "给快速排序出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "快速排序",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-clarify-06",
+      "split": "dev",
+      "kind": "clarify",
+      "goal": "再给我五道同类题",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "dev-quiz-07",
+      "split": "dev",
+      "kind": "quiz",
+      "goal": "给堆出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "堆",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-explanation-07",
+      "split": "dev",
+      "kind": "explanation",
+      "goal": "为堆生成讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "堆",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-multi-07",
+      "split": "dev",
+      "kind": "multi",
+      "goal": "堆和栈各出练习题",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "堆",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "栈",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-answer-07",
+      "split": "dev",
+      "kind": "answer",
+      "goal": "堆的原理是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "dev-followup-07",
+      "split": "dev",
+      "kind": "followup",
+      "goal": "再给我五道同类题",
+      "previous": "给堆出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "堆",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "dev-clarify-07",
+      "split": "dev",
+      "kind": "clarify",
+      "goal": "再给我五道同类题",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "holdout-quiz-00",
+      "split": "holdout",
+      "kind": "quiz",
+      "goal": "帮我准备一套关于栈的自测题，并附上答案解析",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "栈",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-explanation-00",
+      "split": "holdout",
+      "kind": "explanation",
+      "goal": "替我写一份面向初学者的栈讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "栈",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-multi-00",
+      "split": "holdout",
+      "kind": "multi",
+      "goal": "请给栈出练习题，另外给队列出练习题，分开交付",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "栈",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "队列",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-answer-00",
+      "split": "holdout",
+      "kind": "answer",
+      "goal": "学习栈时，最容易混淆的概念是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "holdout-followup-00",
+      "split": "holdout",
+      "kind": "followup",
+      "goal": "继续围绕刚才那个知识点出练习题",
+      "previous": "给栈出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "栈",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-clarify-00",
+      "split": "holdout",
+      "kind": "clarify",
+      "goal": "帮我准备几道练习题，但我还没选定知识点",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "holdout-quiz-01",
+      "split": "holdout",
+      "kind": "quiz",
+      "goal": "帮我准备一套关于队列的自测题，并附上答案解析",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "队列",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-explanation-01",
+      "split": "holdout",
+      "kind": "explanation",
+      "goal": "替我写一份面向初学者的队列讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "队列",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-multi-01",
+      "split": "holdout",
+      "kind": "multi",
+      "goal": "请给队列出练习题，另外给链表出练习题，分开交付",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "队列",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "链表",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-answer-01",
+      "split": "holdout",
+      "kind": "answer",
+      "goal": "学习队列时，最容易混淆的概念是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "holdout-followup-01",
+      "split": "holdout",
+      "kind": "followup",
+      "goal": "继续围绕刚才那个知识点出练习题",
+      "previous": "给队列出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "队列",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-clarify-01",
+      "split": "holdout",
+      "kind": "clarify",
+      "goal": "帮我准备几道练习题，但我还没选定知识点",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "holdout-quiz-02",
+      "split": "holdout",
+      "kind": "quiz",
+      "goal": "帮我准备一套关于链表的自测题，并附上答案解析",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "链表",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-explanation-02",
+      "split": "holdout",
+      "kind": "explanation",
+      "goal": "替我写一份面向初学者的链表讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "链表",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-multi-02",
+      "split": "holdout",
+      "kind": "multi",
+      "goal": "请给链表出练习题，另外给二叉树出练习题，分开交付",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "链表",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "二叉树",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-answer-02",
+      "split": "holdout",
+      "kind": "answer",
+      "goal": "学习链表时，最容易混淆的概念是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "holdout-followup-02",
+      "split": "holdout",
+      "kind": "followup",
+      "goal": "继续围绕刚才那个知识点出练习题",
+      "previous": "给链表出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "链表",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-clarify-02",
+      "split": "holdout",
+      "kind": "clarify",
+      "goal": "帮我准备几道练习题，但我还没选定知识点",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "holdout-quiz-03",
+      "split": "holdout",
+      "kind": "quiz",
+      "goal": "帮我准备一套关于二叉树的自测题，并附上答案解析",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "二叉树",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-explanation-03",
+      "split": "holdout",
+      "kind": "explanation",
+      "goal": "替我写一份面向初学者的二叉树讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "二叉树",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-multi-03",
+      "split": "holdout",
+      "kind": "multi",
+      "goal": "请给二叉树出练习题，另外给哈希表出练习题，分开交付",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "二叉树",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "哈希表",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-answer-03",
+      "split": "holdout",
+      "kind": "answer",
+      "goal": "学习二叉树时，最容易混淆的概念是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "holdout-followup-03",
+      "split": "holdout",
+      "kind": "followup",
+      "goal": "继续围绕刚才那个知识点出练习题",
+      "previous": "给二叉树出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "二叉树",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-clarify-03",
+      "split": "holdout",
+      "kind": "clarify",
+      "goal": "帮我准备几道练习题，但我还没选定知识点",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "holdout-quiz-04",
+      "split": "holdout",
+      "kind": "quiz",
+      "goal": "帮我准备一套关于哈希表的自测题，并附上答案解析",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "哈希表",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-explanation-04",
+      "split": "holdout",
+      "kind": "explanation",
+      "goal": "替我写一份面向初学者的哈希表讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "哈希表",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-multi-04",
+      "split": "holdout",
+      "kind": "multi",
+      "goal": "请给哈希表出练习题，另外给归并排序出练习题，分开交付",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "哈希表",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "归并排序",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-answer-04",
+      "split": "holdout",
+      "kind": "answer",
+      "goal": "学习哈希表时，最容易混淆的概念是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "holdout-followup-04",
+      "split": "holdout",
+      "kind": "followup",
+      "goal": "继续围绕刚才那个知识点出练习题",
+      "previous": "给哈希表出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "哈希表",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-clarify-04",
+      "split": "holdout",
+      "kind": "clarify",
+      "goal": "帮我准备几道练习题，但我还没选定知识点",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "holdout-quiz-05",
+      "split": "holdout",
+      "kind": "quiz",
+      "goal": "帮我准备一套关于归并排序的自测题，并附上答案解析",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "归并排序",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-explanation-05",
+      "split": "holdout",
+      "kind": "explanation",
+      "goal": "替我写一份面向初学者的归并排序讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "归并排序",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-multi-05",
+      "split": "holdout",
+      "kind": "multi",
+      "goal": "请给归并排序出练习题，另外给快速排序出练习题，分开交付",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "归并排序",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "快速排序",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-answer-05",
+      "split": "holdout",
+      "kind": "answer",
+      "goal": "学习归并排序时，最容易混淆的概念是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "holdout-followup-05",
+      "split": "holdout",
+      "kind": "followup",
+      "goal": "继续围绕刚才那个知识点出练习题",
+      "previous": "给归并排序出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "归并排序",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-clarify-05",
+      "split": "holdout",
+      "kind": "clarify",
+      "goal": "帮我准备几道练习题，但我还没选定知识点",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "holdout-quiz-06",
+      "split": "holdout",
+      "kind": "quiz",
+      "goal": "帮我准备一套关于快速排序的自测题，并附上答案解析",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "快速排序",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-explanation-06",
+      "split": "holdout",
+      "kind": "explanation",
+      "goal": "替我写一份面向初学者的快速排序讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "快速排序",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-multi-06",
+      "split": "holdout",
+      "kind": "multi",
+      "goal": "请给快速排序出练习题，另外给堆出练习题，分开交付",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "快速排序",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "堆",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-answer-06",
+      "split": "holdout",
+      "kind": "answer",
+      "goal": "学习快速排序时，最容易混淆的概念是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "holdout-followup-06",
+      "split": "holdout",
+      "kind": "followup",
+      "goal": "继续围绕刚才那个知识点出练习题",
+      "previous": "给快速排序出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "快速排序",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-clarify-06",
+      "split": "holdout",
+      "kind": "clarify",
+      "goal": "帮我准备几道练习题，但我还没选定知识点",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    },
+    {
+      "id": "holdout-quiz-07",
+      "split": "holdout",
+      "kind": "quiz",
+      "goal": "帮我准备一套关于堆的自测题，并附上答案解析",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "堆",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-explanation-07",
+      "split": "holdout",
+      "kind": "explanation",
+      "goal": "替我写一份面向初学者的堆讲解资源",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "堆",
+          [
+            "generate_explanation"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-multi-07",
+      "split": "holdout",
+      "kind": "multi",
+      "goal": "请给堆出练习题，另外给栈出练习题，分开交付",
+      "previous": null,
+      "mode": "execute",
+      "tasks": [
+        [
+          "堆",
+          [
+            "generate_quiz"
+          ]
+        ],
+        [
+          "栈",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-answer-07",
+      "split": "holdout",
+      "kind": "answer",
+      "goal": "学习堆时，最容易混淆的概念是什么？",
+      "previous": null,
+      "mode": "answer",
+      "tasks": []
+    },
+    {
+      "id": "holdout-followup-07",
+      "split": "holdout",
+      "kind": "followup",
+      "goal": "继续围绕刚才那个知识点出练习题",
+      "previous": "给堆出练习题",
+      "mode": "execute",
+      "tasks": [
+        [
+          "堆",
+          [
+            "generate_quiz"
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "holdout-clarify-07",
+      "split": "holdout",
+      "kind": "clarify",
+      "goal": "帮我准备几道练习题，但我还没选定知识点",
+      "previous": null,
+      "mode": "clarify",
+      "tasks": []
+    }
+  ]
+}

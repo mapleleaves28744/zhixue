@@ -90,7 +90,7 @@ class TutorAgent(BaseAgent):
             enabled=use_wiki,
         )
         wiki_context = self._format_wiki_context(wiki_pages)
-        personalization = await PersonalizationContextService(self.db).get_context(context.user_id, context.course_id) if use_profile else {}
+        personalization = await PersonalizationContextService(self.db).get_context(context.user_id, context.course_id, question=question) if use_profile else {}
         student_profile = PersonalizationContextService.format_for_prompt(personalization) if use_profile else "未启用学生画像"
         memory_context = student_profile
 

@@ -10,6 +10,10 @@ from app.core.exceptions import BusinessException
 from app.services.evidence_retrieval_service import EvidenceRetrievalService
 
 
+def test_retrieval_normalizes_binary_search_tree_alias() -> None:
+    assert EvidenceRetrievalService._normalize_query("二叉搜索树在什么条件下退化？") == "二叉排序树在什么条件下退化？"
+
+
 def _document_item(material_id: object, *, index: int) -> dict[str, object]:
     return {
         "chunk_id": str(uuid4()),

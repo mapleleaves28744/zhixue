@@ -1,0 +1,32 @@
+{
+  "finished_at": "2026-10-01T05:25:55.747380+00:00",
+  "automatic_synthetic_labels": true,
+  "independent_human_review": false,
+  "scope": "MemoryAgent extraction including source guards; synthetic source records; not natural-user quality",
+  "total": 20,
+  "passed": 20,
+  "tp": 8,
+  "fp": 0,
+  "fn": 0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "negative_no_output": 12,
+  "negative_total": 12,
+  "budget": {
+    "cap": 3000000,
+    "charged_tokens": 1009049,
+    "calls": {
+      "failed": {
+        "count": 36,
+        "charged_tokens": 588807
+      },
+      "succeeded": {
+        "count": 253,
+        "charged_tokens": 420242
+      }
+    },
+    "unknown_usage_policy": "failed/pending/missing usage charged full reservation"
+  },
+  "evaluation_status": "post-fix regression on observed synthetic statements"
+}

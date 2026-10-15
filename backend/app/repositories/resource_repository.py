@@ -4,6 +4,7 @@ from typing import Any
 from uuid import UUID
 
 from sqlalchemy import func, select
+from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.resource import GeneratedResource
@@ -27,6 +28,8 @@ class ResourceRepository:
         personalized_reason: str | None,
         model_name: str | None,
         prompt_version_id: UUID | None,
+        previous_resource_id: UUID | None = None,
+        revision_no: int = 1,
     ) -> GeneratedResource:
         resource = GeneratedResource(
             user_id=user_id,
@@ -40,6 +43,8 @@ class ResourceRepository:
             personalized_reason=personalized_reason,
             model_name=model_name,
             prompt_version_id=prompt_version_id,
+            previous_resource_id=previous_resource_id,
+            revision_no=revision_no,
             status="active",
         )
         self.db.add(resource)
@@ -62,8 +67,21 @@ class ResourceRepository:
         status: str | None,
         page: int,
         page_size: int,
-    ) -> tuple[list[GeneratedResource], int]:
-        stmt = select(GeneratedResource).where(GeneratedResource.user_id == user_id)
+    ) -> tuple[list[RowMapping], int]:
+        stmt = select(
+            GeneratedResource.id,
+            GeneratedResource.user_id,
+            GeneratedResource.course_id,
+            GeneratedResource.knowledge_id,
+            GeneratedResource.wiki_page_id,
+            GeneratedResource.resource_type,
+            GeneratedResource.title,
+            GeneratedResource.personalized_reason,
+            GeneratedResource.previous_resource_id,
+            GeneratedResource.revision_no,
+            GeneratedResource.status,
+            GeneratedResource.created_at,
+        ).where(GeneratedResource.user_id == user_id)
         if course_id is not None:
             stmt = stmt.where(GeneratedResource.course_id == course_id)
         if resource_type is not None:
@@ -82,7 +100,7 @@ class ResourceRepository:
             .offset((page - 1) * page_size)
             .limit(page_size)
         )
-        return list(result.scalars().all()), int(total or 0)
+        return list(result.mappings().all()), int(total or 0)
 
     async def archive(self, resource: GeneratedResource) -> GeneratedResource:
         resource.status = "archived"

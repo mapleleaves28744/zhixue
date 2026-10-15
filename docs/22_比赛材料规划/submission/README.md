@@ -13,7 +13,7 @@
 # 1. 刷新事实源（改 API/Model 后）
 python3 scripts/export_implementation_docs.py
 
-# 2. 全量测试（2026-07-24：503 passed）
+# 2. 全量测试（2026-10-12 强制 Mock：633 passed、2 failed；历史 635 passed 见验收记录）
 cd backend && .venv/bin/python -m pytest tests -q
 
 # 3. 校验文档数字
@@ -29,3 +29,5 @@ bash scripts/render_diagrams.sh
 > **环境提示**：若 Cursor/CI shell 设置了 `DEBUG=release` 等非布尔值，会覆盖 `.env` 导致 pytest 无法启动；本地请 `unset DEBUG`。仓库内 `.env` / `backend/.env` 的 `DEBUG=true/false` 是正确的。
 
 维护入口：只编辑 [`../智学工坊比赛材料合集.md`](../智学工坊比赛材料合集.md)，不要恢复 6 份分散说明书。
+
+2026-10-12 已同步 Markdown 副本并调整相对链接；本次未生成 Word/PPT/视频成品。两项 Mock 测试失败与未复跑项见 [文档同步复核记录](../../19_测试方案/30_文档同步复核记录.md)。

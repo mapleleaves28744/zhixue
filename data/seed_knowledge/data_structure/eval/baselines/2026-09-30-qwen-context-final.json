@@ -1,0 +1,3228 @@
+{
+  "started_at": "2026-09-30T11:24:45.831744+00:00",
+  "checks": "HTTP persistence, source identity, request replay and conservative topic heuristics; not blind semantic grading",
+  "results": [
+    {
+      "id": "fast_3",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释链表的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n链表的核心特点包括：\n1. **非连续存储**：节点在内存中分散存放，通过指针连接。\n2. **动态大小**：无需预先分配固定空间，可灵活增删节点。\n3. **操作效率差异**：插入和删除效率高（O(1)，若已知位置），但随机访问效率低（O(n)）。",
+          "model": "qwen3.8-flash",
+          "message_id": "7069faa9-06c7-4351-9a12-95c89e7abbb7",
+          "seconds": 5.55
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n链表常见操作的时间复杂度如下：\n1. **访问/查找**：O(n)，需从头遍历。\n2. **插入/删除**：若已知节点位置，为 O(1)；若需先查找位置，则为 O(n)。",
+          "model": "qwen3.8-flash",
+          "message_id": "c649a05a-2d92-4980-8466-5fdc7b06e45d",
+          "seconds": 2.5
+        },
+        {
+          "mode": "fast",
+          "question": "它和数组有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n链表与数组的主要区别：\n1. **内存结构**：数组连续存储，支持随机访问；链表分散存储，需遍历访问。\n2. **大小灵活性**：数组大小固定（静态）或扩容成本高；链表可动态增删节点。\n3. **操作效率**：数组查找快（O(1)），插入/删除慢（O(n)）；链表反之（已知位置时插入/删除为 O(1)，查找为 O(n)）。",
+          "model": "qwen3.8-flash",
+          "message_id": "be3c8c94-fd4e-4b91-9fc5-596ff4c87970",
+          "seconds": 3.83
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论的两个知识点总结如下：\n1. **链表核心特点与时间复杂度**：链表采用非连续存储，支持动态增删；访问和查找的时间复杂度为 O(n)，已知位置时的插入/删除为 O(1)。\n2. **链表与数组的区别**：数组内存连续、大小固定，擅长随机访问（O(1)）但增删慢（O(n)）；链表内存分散、大小灵活，擅长增删（O(1)）但访问慢（O(n)）。",
+          "model": "qwen3.8-flash",
+          "message_id": "69271619-b36a-447e-9eb3-f766f54efc8c",
+          "seconds": 5.44
+        }
+      ],
+      "passed": true,
+      "conversation_id": "ad0011f5-c850-4b6b-ae35-9ee3452294d6"
+    },
+    {
+      "id": "fast_2",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释二叉树的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树的核心特点是每个节点最多只有两个子节点，分别称为左子节点和右子节点。",
+          "model": "qwen3.8-flash",
+          "message_id": "75dddf7c-5eff-4e0a-97c4-45e793ebf7d6",
+          "seconds": 6.73
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树常见操作的时间复杂度取决于树的平衡性：\n*   **平衡二叉树**：查找、插入、删除的平均时间复杂度为 O(log n)。\n*   **非平衡（退化）二叉树**：最坏情况下退化为链表，时间复杂度为 O(n)。",
+          "model": "qwen3.8-flash",
+          "message_id": "391688fb-fc08-4789-9755-d4c7682f816e",
+          "seconds": 3.05
+        },
+        {
+          "mode": "fast",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树是结构定义，而二叉搜索树（BST）是带有特定排序规则的二叉树：\n*   **二叉树**：每个节点最多有两个子节点，无大小顺序要求。\n*   **二叉搜索树**：左子节点值 < 根节点值 < 右子节点值，支持高效查找。",
+          "model": "qwen3.8-flash",
+          "message_id": "a0975657-4123-4a97-8bce-b481b33a3947",
+          "seconds": 3.24
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论了以下两个知识点：\n1.  **二叉树的核心特点与时间复杂度**：每个节点最多有两个子节点；平衡时操作复杂度为 O(log n)，退化时为 O(n)。\n2.  **二叉树与二叉搜索树的区别**：二叉树仅定义结构，无顺序要求；二叉搜索树遵循“左小右大”的排序规则，支持高效查找。",
+          "model": "qwen3.8-flash",
+          "message_id": "ab00ff9b-8a06-4f99-b326-314c8b8c187c",
+          "seconds": 7.06
+        }
+      ],
+      "passed": true,
+      "conversation_id": "e4bd0e8f-d6ca-495a-a14c-04b20db43e73"
+    },
+    {
+      "id": "fast_1",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释栈的核心特点。",
+          "answer": "栈的核心特点是“后进先出”（LIFO）。\n\n课程资料未找到可靠依据。\n\n通用知识补充：\n栈是一种受限的线性数据结构，只允许在表的一端（称为栈顶）进行插入和删除操作。这意味着最后进入栈的元素会最先被移除，就像叠盘子一样，只能从最上面取放。",
+          "model": "qwen3.8-flash",
+          "message_id": "f5fa3214-1f80-4a13-8fd4-3282a2b0e5cf",
+          "seconds": 8.88
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "栈的核心操作（入栈和出栈）时间复杂度均为 O(1)。\n\n课程资料未找到可靠依据。\n\n通用知识补充：\n由于栈只允许在栈顶进行插入（push）和删除（pop）操作，不需要移动其他元素，因此这些基本操作的时间复杂度是常数级别，即 O(1)。",
+          "model": "qwen3.8-flash",
+          "message_id": "58ac5cee-ce37-4741-ba79-522a9efef360",
+          "seconds": 4.14
+        },
+        {
+          "mode": "fast",
+          "question": "它和队列有什么区别？",
+          "answer": "栈是“后进先出”，队列是“先进先出”。\n\n课程资料未找到可靠依据。\n\n通用知识补充：\n- **栈 (Stack)**：只允许在**栈顶**进行插入和删除，最后进入的元素最先离开（LIFO）。\n- **队列 (Queue)**：允许在**队尾**插入、在**队头**删除，最先进入的元素最先离开（FIFO）。",
+          "model": "qwen3.8-flash",
+          "message_id": "15ef2a04-4e19-4f93-ab5f-bfaa8155fcee",
+          "seconds": 6.26
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "我们刚才讨论了栈的核心特点（后进先出）及其与队列的区别（先进先出）。\n\n课程资料未找到可靠依据。\n\n通用知识补充：\n1. **栈的特点**：遵循“后进先出”（LIFO）原则，仅允许在栈顶进行插入和删除操作，入栈和出栈的时间复杂度均为 O(1)。\n2. **与队列的区别**：队列遵循“先进先出”（FIFO）原则，在队尾插入、队头删除；而栈只在同一端（栈顶）操作。",
+          "model": "qwen3.8-flash",
+          "message_id": "7fa79f7a-38f3-4455-aa72-b406743eec88",
+          "seconds": 3.81
+        }
+      ],
+      "passed": true,
+      "conversation_id": "133d0ed0-a1ad-42bc-b35d-4d327af09359"
+    },
+    {
+      "id": "fast_4",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释广度优先搜索的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n广度优先搜索（BFS）的核心特点是“逐层遍历”。它从起始节点出发，先访问所有距离为1的邻居节点，再访问距离为2的节点，依此类推。这种策略通常借助队列（Queue）数据结构实现，具有完备性，且在无权图中能找到最短路径。",
+          "model": "qwen3.8-flash",
+          "message_id": "7e02254e-cd21-4974-93b4-62fa5e1282b6",
+          "seconds": 3.92
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n广度优先搜索（BFS）的时间复杂度通常为 **O(V + E)**，其中 V 是顶点数，E 是边数。这是因为每个顶点和每条边最多被访问一次。",
+          "model": "qwen3.8-flash",
+          "message_id": "aa4f1231-b18f-4e85-bcb8-3902b2c254d3",
+          "seconds": 2.0
+        },
+        {
+          "mode": "fast",
+          "question": "它和深度优先搜索有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n广度优先搜索（BFS）与深度优先搜索（DFS）的主要区别在于遍历策略和数据结构：\n1. **遍历顺序**：BFS 是“逐层”扩展，先访问所有近邻再深入；DFS 是“一条路走到黑”，尽可能深地搜索分支，回溯后再探索其他分支。\n2. **数据结构**：BFS 使用**队列**（Queue），遵循先进先出原则；DFS 使用**栈**（Stack）或递归调用栈，遵循后进先出原则。\n3. **应用场景**：BFS 常用于寻找无权图的**最短路径**；DFS 常用于检测环、拓扑排序或解决迷宫等需要完整探索路径的问题。",
+          "model": "qwen3.8-flash",
+          "message_id": "b5b88822-39ed-47b0-b5e6-c430349715cf",
+          "seconds": 4.75
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n我们刚才讨论了以下两个核心知识点：\n1. **广度优先搜索（BFS）的时间复杂度**：通常为 O(V + E)，其中 V 为顶点数，E 为边数，因为每个顶点和边最多被访问一次。\n2. **BFS 与深度优先搜索（DFS）的区别**：主要体现在遍历策略（逐层 vs 深入）、数据结构（队列 vs 栈/递归）以及典型应用场景（最短路径 vs 环检测/拓扑排序）。",
+          "model": "qwen3.8-flash",
+          "message_id": "1f3f7b6f-137b-420c-b26e-49bdb6548604",
+          "seconds": 3.34
+        }
+      ],
+      "passed": true,
+      "conversation_id": "cb6441e3-ea4a-42a5-8bd4-1f611b0fd47b"
+    },
+    {
+      "id": "fast_5",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释快速排序的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序的核心特点是：\n1. **分治策略**：通过选择一个“基准”（pivot），将数组划分为小于和大于基准的两部分，递归处理子数组。\n2. **原地排序**：通常不需要额外的存储空间（除了递归栈），空间复杂度较低。\n3. **平均高效**：在大多数情况下，时间复杂度为 O(n log n)，是实践中最快的通用排序算法之一。\n4. **不稳定**：相等元素的相对顺序可能在排序后发生改变。",
+          "model": "qwen3.8-flash",
+          "message_id": "61c78d2f-a989-4572-bbba-a63c873ec232",
+          "seconds": 4.33
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序的时间复杂度如下：\n1. **平均情况**：O(n log n)。每次划分大致将数组对半，递归深度为 log n，每层处理 n 个元素。\n2. **最坏情况**：O(n²)。当数组已有序或逆序且基准选择不当时，每次划分只减少一个元素，退化为冒泡排序的效率。\n3. **最好情况**：O(n log n)。每次划分都能均匀地将数组分为两半。",
+          "model": "qwen3.8-flash",
+          "message_id": "92b7d032-7ad9-45b9-bb06-ecf2fda1f0ec",
+          "seconds": 3.47
+        },
+        {
+          "mode": "fast",
+          "question": "它和归并排序有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序与归并排序的主要区别如下：\n1. **稳定性**：归并排序是稳定排序（相等元素相对顺序不变），快速排序是不稳定排序。\n2. **空间复杂度**：归并排序需要 O(n) 的额外空间用于合并，快速排序通常是原地排序，仅需 O(log n) 的递归栈空间。\n3. **最坏情况性能**：归并排序始终为 O(n log n)，性能稳定；快速排序在最坏情况下退化为 O(n²)。\n4. **适用场景**：快速排序因常数因子小且缓存友好，通常在实际应用中更快；归并排序更适合链表排序或外部排序（数据量大无法装入内存时）。",
+          "model": "qwen3.8-flash",
+          "message_id": "334d3e12-5f9e-4e03-81be-4aefb2f1e21a",
+          "seconds": 4.56
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论了两个知识点：\n1. **快速排序的核心特点与时间复杂度**：核心特点是分治、原地、平均高效但不稳定；时间复杂度平均为 O(n log n)，最坏为 O(n²)。\n2. **快速排序与归并排序的区别**：主要区别在于稳定性（归并稳定，快排不稳定）、空间复杂度（归并需额外空间，快排原地）以及最坏情况性能（归并始终 O(n log n)，快排可能退化）。",
+          "model": "qwen3.8-flash",
+          "message_id": "ca9a76ea-1642-4076-aacd-aef7a9048ca3",
+          "seconds": 2.78
+        }
+      ],
+      "passed": true,
+      "conversation_id": "66f909d6-e826-483e-ac45-cf32c02dd71c"
+    },
+    {
+      "id": "fast_6",
+      "category": "fast",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释哈希表的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n哈希表（Hash Table）的核心特点包括：\n1. **高效查找**：通过哈希函数将键映射到数组索引，平均时间复杂度为 O(1)，支持快速插入、删除和查询。\n2. **键值对存储**：以 Key-Value 形式存储数据，Key 唯一且用于计算哈希值。\n3. **冲突处理机制**：当不同 Key 映射到同一索引时，需采用链地址法或开放寻址法等策略解决冲突。\n4. **无序性**：元素存储顺序取决于哈希函数结果，通常不保证插入顺序（除非使用特定实现如 LinkedHashMap）。",
+          "model": "qwen3.8-flash",
+          "message_id": "f74d2d34-4b0a-46d7-9522-7b9de638643c",
+          "seconds": 4.23
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n哈希表的时间复杂度取决于操作类型和冲突情况：\n1. **平均情况**：查找、插入、删除均为 O(1)。\n2. **最坏情况**：若所有键发生严重冲突（如全部映射到同一索引），退化为线性结构，时间复杂度为 O(n)。",
+          "model": "qwen3.8-flash",
+          "message_id": "0a58d70e-b672-4ba2-a0a3-17dbbd8ce066",
+          "seconds": 3.38
+        },
+        {
+          "mode": "fast",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n哈希表与二叉搜索树（BST）的主要区别如下：\n\n1. **时间复杂度**：\n   - 哈希表平均为 O(1)，最坏 O(n)。\n   - BST 平均为 O(log n)（平衡时），最坏 O(n)（退化为链表时）。\n\n2. **数据有序性**：\n   - 哈希表无序，不支持范围查询或顺序遍历。\n   - BST 天然有序，支持中序遍历获取排序结果及范围查询。\n\n3. **实现依赖**：\n   - 哈希表依赖高效的哈希函数和冲突解决机制。\n   - BST 依赖节点间的比较逻辑和树的平衡策略（如 AVL、红黑树）。",
+          "model": "qwen3.8-flash",
+          "message_id": "5baee662-4fec-4f8d-a97d-6774bf1ba6a3",
+          "seconds": 4.59
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n我们刚才讨论的两个知识点总结如下：\n\n1. **哈希表的核心特点与时间复杂度**：\n   - 核心特点包括高效查找（平均 O(1)）、键值对存储、冲突处理机制及无序性。\n   - 时间复杂度在平均情况下为 O(1)，但在最坏情况（严重冲突）下退化为 O(n)。\n\n2. **哈希表与二叉搜索树（BST）的区别**：\n   - **效率**：哈希表平均更快（O(1) vs O(log n)），但 BST 在最坏情况下表现更稳定（若平衡）。\n   - **有序性**：BST 支持数据排序和范围查询，而哈希表不支持。\n   - **实现**：哈希表依赖哈希函数，BST 依赖比较逻辑和树的平衡。",
+          "model": "qwen3.8-flash",
+          "message_id": "b1a44068-b7e9-4be3-8cfe-a86d1b90118b",
+          "seconds": 4.75
+        }
+      ],
+      "passed": true,
+      "conversation_id": "75d518ad-b91f-4725-8c25-da36edb37a2f"
+    },
+    {
+      "id": "agent_1",
+      "category": "agent",
+      "turns": [
+        {
+          "mode": "agent",
+          "question": "后续用中文，简短回答。请解释栈的核心特点。",
+          "answer": "**直接回答：**\n栈的核心特点是“后进先出”（LIFO）。其基本操作包括入栈（Push，将元素添加到栈顶）和出栈（Pop，移除并返回栈顶元素）。典型应用包括函数调用管理、表达式求值、括号匹配以及回溯算法等。\n\n**必要解释：**\n课程资料未找到可靠依据。以下内容为通用知识补充：\n\n1.  **核心特点 (LIFO)**：\n    栈是一种受限的线性数据结构，只允许在一端（称为栈顶，Top）进行插入和删除操作。这意味着最后进入栈的元素会最先被取出，即 Last-In, First-Out。\n\n2.  **基本操作**：\n    *   **入栈 (Push)**：向栈顶添加一个新元素。如果栈已满（在固定大小实现中），可能会发生溢出错误。\n    *   **出栈 (Pop)**：移除栈顶元素并返回其值。如果栈为空，可能会发生下溢错误。\n    *   **查看栈顶 (Peek/Top)**：获取栈顶元素的值但不移除它。\n\n3.  **典型应用**：\n    *   **函数调用栈**：程序运行时，每次函数调用都会创建一个栈帧压入系统栈，包含局部变量、参数和返回地址；函数执行完毕后，栈帧弹出。这支持了递归调用。\n    *   **表达式求值与转换**：用于将中缀表达式转换为后缀表达式（逆波兰表示法），或直接计算后缀表达式的值。\n    *   **括号匹配检查**：遍历字符串，遇到左括号入栈，遇到右括号则检查栈顶是否为对应的左括号并出栈。若最终栈为空且无冲突，则匹配成功。\n    *   **浏览器前进/后退**：浏览历史通常用两个栈来实现，一个记录访问过的页面（后退），一个记录撤销的页面（前进）。\n    *   **深度优先搜索 (DFS)**：在图或树的遍历中，使用栈来存储待访问的节点，确保沿着一条路径深入到底后再回溯。",
+          "task_id": "6306ebb9-142d-4955-a850-a02f9285c0c3",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "answer",
+            "tasks": [],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "4aa3fa09-b067-4023-97e2-e0c0c15ab370",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 15.14
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "**直接回答：**\n栈的入栈（Push）和出栈（Pop）操作的时间复杂度均为 O(1)。\n\n**必要解释：**\n课程资料未找到可靠依据。以下内容为通用知识补充：\n\n1.  **基本操作复杂度**：\n    *   **O(1) 常数时间**：由于栈只允许在栈顶进行操作，无论栈中有多少元素，添加或删除栈顶元素都不需要遍历或移动其他数据，因此执行时间是恒定的。\n    *   **查看栈顶 (Peek)**：同样为 O(1)，因为只需访问栈顶指针指向的位置。\n\n2.  **整体操作复杂度**：\n    *   若连续进行 n 次 Push 或 Pop 操作，总时间复杂度为 O(n)。\n    *   空间复杂度取决于栈的最大容量，通常为 O(n)，其中 n 为栈中存储的元素数量。",
+          "task_id": "06544597-a106-4875-82a9-3953525f115e",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "ddaaad49-5947-4810-ad0c-40a1278bf499"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "ddaaad49-5947-4810-ad0c-40a1278bf499",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 7.69
+        },
+        {
+          "mode": "agent",
+          "question": "它和队列有什么区别？",
+          "answer": "**直接回答：**\n栈是后进先出（LIFO），队列是先进先出（FIFO）。两者均支持 O(1) 的基本操作。\n\n**必要解释：**\n课程资料未找到可靠依据。以下内容为通用知识补充：\n\n1.  **核心区别**：\n    *   **栈 (Stack)**：仅允许在一端（栈顶）进行插入和删除，最后进入的元素最先被取出。\n    *   **队列 (Queue)**：允许在两端操作，一端插入（队尾），另一端删除（队头），最早进入的元素最先被取出。\n\n2.  **延续知识点**：\n    *   正如之前所述，栈的 Push/Pop 为 O(1)。队列的 Enqueue/Dequeue 通常也为 O(1)（基于链表或循环数组实现时）。",
+          "task_id": "ae171ccb-2ece-4b0d-96cf-41e13fddc2cd",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "answer",
+            "tasks": [],
+            "parser": "semantic_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [],
+            "resolved_goal": "用中文简短回答当前问题：栈和队列有什么区别，并延续之前关于栈的知识点。",
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "23c4ce07-481d-4e23-ac5a-772ed3e171ce",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 22.8
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "**直接回答：**\n我们刚才讨论了栈的核心特点（后进先出 LIFO）及其时间复杂度（入栈/出栈均为 O(1)）。\n\n**必要解释：**\n课程资料未找到可靠依据。以下内容为通用知识补充：\n\n1.  **栈的核心特点**：\n    *   遵循“后进先出”原则，仅允许在栈顶进行插入（Push）和删除（Pop）操作。\n    *   典型应用包括函数调用管理、表达式求值等。\n\n2.  **时间复杂度**：\n    *   Push、Pop 和 Peek 操作的时间复杂度均为 O(1)，因为只需访问栈顶指针，无需遍历整个数据结构。",
+          "task_id": "2c8aa5d6-f662-4515-b798-dc49c87d3cae",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "6b1a284c-fb8b-4ec4-992a-5b750179f732"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "6b1a284c-fb8b-4ec4-992a-5b750179f732",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 6.7
+        }
+      ],
+      "passed": true,
+      "conversation_id": "1f308010-185a-4ef4-85c7-9095d5c1e3fd"
+    },
+    {
+      "id": "agent_2",
+      "category": "agent",
+      "turns": [
+        {
+          "mode": "agent",
+          "question": "后续用中文，简短回答。请解释二叉树的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树的核心特点是每个节点最多只有两个子节点，分别称为左子节点和右子节点。这种结构使得二叉树在搜索、插入和删除操作中通常具有对数级的时间复杂度（如平衡二叉树），并且其遍历方式（前序、中序、后序）具有明确的递归定义特性。",
+          "task_id": "97262ad3-3392-4ffb-a3cc-8b72201e56d0",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "answer",
+            "tasks": [],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "313db74f-f174-453e-b3d4-3e0ec0f4552f",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 6.44
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树操作的时间复杂度取决于树的平衡性：\n- **平衡二叉树**（如 AVL、红黑树）：查找、插入、删除的平均和最坏时间复杂度均为 $O(\\log n)$。\n- **非平衡二叉树**（退化为链表）：最坏情况下的时间复杂度为 $O(n)$。",
+          "task_id": "dc7a17dd-5fed-4215-b745-ec82c0b226e6",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "e3b5c5f8-237e-45e6-95ed-a9fb2cfed433"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "e3b5c5f8-237e-45e6-95ed-a9fb2cfed433",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 7.11
+        },
+        {
+          "mode": "agent",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n“它”（指代前文提到的普通二叉树）与二叉搜索树（BST）的核心区别在于**节点值的排列规则**：\n- **普通二叉树**：对左右子节点的值没有大小限制，结构任意。\n- **二叉搜索树**：严格遵循“左子树所有节点值 < 根节点值 < 右子树所有节点值”的规则。这一特性使得 BST 支持高效的有序遍历和基于比较的快速查找。",
+          "task_id": "ea029213-9a1d-4519-8396-48fd31ed556f",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "answer",
+            "tasks": [],
+            "parser": "semantic_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [],
+            "resolved_goal": "基于前文关于二叉树及其时间复杂度的讨论，用中文简短回答“它”与二叉搜索树的区别。",
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "143a7429-a180-4a86-ab52-1713aef48482",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 26.77
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论的两个知识点总结如下：\n1. **二叉树的核心特点与时间复杂度**：每个节点最多有两个子节点；平衡时操作复杂度为 $O(\\log n)$，非平衡最坏为 $O(n)$。\n2. **普通二叉树与二叉搜索树（BST）的区别**：普通二叉树无值的大小限制；BST 严格遵循“左 < 根 < 右”的排序规则，从而支持高效查找。",
+          "task_id": "008bd94f-4f61-469c-83cd-8961d7d41500",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "f42c22aa-f1a1-485b-bb92-720776a766b0"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "f42c22aa-f1a1-485b-bb92-720776a766b0",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 15.8
+        }
+      ],
+      "passed": true,
+      "conversation_id": "2c0ae1d8-03e1-4b18-8aa8-37509c2d2726"
+    },
+    {
+      "id": "agent_3",
+      "category": "agent",
+      "turns": [
+        {
+          "mode": "agent",
+          "question": "后续用中文，简短回答。请解释链表的核心特点。",
+          "answer": "**直接回答：**\n课程资料未找到可靠依据。\n\n**通用知识补充：**\n链表的核心特点是其节点通过指针相互连接，内存空间非连续分布。与数组相比，主要差异体现在以下方面：\n\n1.  **内存结构**：数组在内存中是连续存储的，而链表的节点可以分散在内存的任何位置，通过指针链接。\n2.  **插入和删除效率**：链表在已知节点位置的情况下，插入和删除操作的时间复杂度为 O(1)，因为只需修改指针指向，无需移动大量元素；相比之下，数组在中间插入或删除元素时，通常需要移动后续所有元素，时间复杂度为 O(n)。\n3.  **访问效率**：数组支持随机访问，可以通过索引直接定位到特定元素，时间复杂度为 O(1)；而链表不支持随机访问，必须从头节点开始逐个遍历才能找到目标节点，时间复杂度为 O(n)。",
+          "task_id": "5cdd4701-864d-4cdc-9401-3befc3ecdb0b",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "answer",
+            "tasks": [],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "3e199a63-4441-4e7d-ab60-1b9919d9ae87",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 15.88
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "**直接回答：**\n课程资料未找到可靠依据。\n\n**通用知识补充：**\n承接上文关于链表核心特点的解释，其常见操作的时间复杂度如下：\n\n1.  **访问（查找）**：O(n)。由于内存非连续，无法随机访问，必须从头节点开始逐个遍历直到找到目标节点 。\n2.  **插入**：O(1)（已知位置时）。若已持有指向插入位置的指针，只需修改相邻节点的指针指向即可，无需移动其他元素 。\n3.  **删除**：O(1)（已知位置时）。与插入类似，只需调整前驱和后继节点的指针连接，不涉及大量数据搬移 。\n\n*注：上述 O(1) 的插入/删除效率前提是“已知具体节点位置”。若需先查找再操作，则总时间复杂度仍为 O(n)。*",
+          "task_id": "a8cbcb0c-38de-46d6-9d7e-14e287c51ab0",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "e98f6665-edef-414a-a6be-e6f7a7d06372"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "e98f6665-edef-414a-a6be-e6f7a7d06372",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 9.88
+        },
+        {
+          "mode": "agent",
+          "question": "它和数组有什么区别？",
+          "answer": "**直接回答：**\n课程资料未找到可靠依据。\n\n**通用知识补充：**\n链表与数组的主要区别如下：\n\n1.  **内存结构**：数组在内存中连续存储；链表节点分散，通过指针连接。\n2.  **随机访问**：数组支持 O(1) 的随机访问（通过索引）；链表不支持，需从头遍历，时间复杂度为 O(n)。\n3.  **插入/删除效率**：在已知位置的情况下，链表插入和删除仅需修改指针，时间复杂度为 O(1)；数组通常需要移动大量元素，时间复杂度为 O(n)。",
+          "task_id": "7d0128b7-0a80-4283-a26c-b87de8318039",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "answer",
+            "tasks": [],
+            "parser": "semantic_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [],
+            "resolved_goal": "请用中文简短回答：链表与数组有什么区别，可包括内存结构、随机访问、插入删除效率及时间复杂度。",
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "9af91f95-bdd7-4999-ae3b-0e902af02307",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 49.59
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "**直接回答：**\n课程资料未找到可靠依据。\n\n**通用知识补充：**\n我们刚才讨论的两个知识点总结如下：\n\n1.  **链表的核心特点与时间复杂度**：链表通过指针连接分散的内存节点，不支持随机访问（查找为 O(n)），但在已知位置时插入和删除效率极高（O(1)）。\n2.  **链表与数组的区别**：数组内存连续、支持 O(1) 随机访问但增删慢（O(n)）；链表内存分散、随机访问慢（O(n)）但增删快（O(1)）。",
+          "task_id": "2ca14a27-f3ba-4e8a-9f96-23f33b6d28c0",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "2fb98e1b-292b-45ff-b388-b2df00362849"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "2fb98e1b-292b-45ff-b388-b2df00362849",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 7.31
+        }
+      ],
+      "passed": true,
+      "conversation_id": "55fed6e5-eac5-4c05-ac78-c29a6dfeea51"
+    },
+    {
+      "id": "agent_5",
+      "category": "agent",
+      "turns": [
+        {
+          "mode": "agent",
+          "question": "后续用中文，简短回答。请解释快速排序的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序（Quick Sort）是一种基于分治策略的高效排序算法，其核心特点包括：\n\n1.  **平均时间复杂度低**：在平均情况下，时间复杂度为 O(n log n)，实际运行速度通常快于其他具有相同复杂度的算法（如归并排序、堆排序）。\n2.  **原地排序（In-place）**：只需要很小的辅助空间（主要是递归栈空间），空间复杂度通常为 O(log n)。\n3.  **不稳定排序**：相等元素的相对顺序在排序后可能会发生改变。\n4.  **最坏情况性能退化**：如果每次选择的基准值（pivot）都是最大或最小元素（例如对已排序数组使用固定首元素作为基准），时间复杂度会退化为 O(n²)。但通过随机化选择基准值等优化手段可以有效避免此问题。",
+          "task_id": "e2c7fc9c-504b-4433-9fcf-dc8409a0ceab",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "answer",
+            "tasks": [],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "da38762f-c78f-4780-80d7-a0908b4ff0eb",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 12.36
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序的时间复杂度如下：\n\n1.  **平均情况**：O(n log n)。这是最常见的运行状态，效率很高。\n2.  **最坏情况**：O(n²)。当每次选择的基准值（pivot）都是当前子数组的最大或最小值时发生（例如对已排序数组使用固定首元素作为基准）。\n3.  **最好情况**：O(n log n)。当每次划分都能将数组均匀分成两半时达到。",
+          "task_id": "51f49423-6176-43e9-80ff-dc2dba27aa3d",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "2593261e-e03a-4995-a4f9-47d1cadb27e7"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "2593261e-e03a-4995-a4f9-47d1cadb27e7",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 7.36
+        },
+        {
+          "mode": "agent",
+          "question": "它和归并排序有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序与归并排序的主要区别：\n\n1.  **空间复杂度**：快排是原地排序，仅需 O(log n) 栈空间；归并需 O(n) 辅助数组空间。\n2.  **稳定性**：快排不稳定；归并排序稳定（相等元素相对顺序不变）。\n3.  **最坏情况**：快排可能退化至 O(n²)；归并始终为 O(n log n)。",
+          "task_id": "c9905359-b513-446e-897d-e84361f91b5c",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "answer",
+            "tasks": [],
+            "parser": "semantic_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [],
+            "resolved_goal": "用中文简短解释快速排序与归并排序的主要区别。",
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "f09b020f-c14d-460c-ab6f-6bf8d44b91ea",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 21.44
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n刚才讨论的两个知识点总结如下：\n\n1.  **快速排序核心特点与时间复杂度**：快排基于分治策略，平均时间复杂度为 O(n log n)，最坏情况为 O(n²)；它是原地排序（空间 O(log n）但不稳定。\n2.  **与归并排序的区别**：主要差异在于空间效率（快排更省内存）、稳定性（归并稳定，快排不稳定）以及最坏情况性能（归并始终 O(n log n)，快排可能退化）。",
+          "task_id": "c31d8754-807a-41f8-bec6-af75951c76f0",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "72728347-3b56-410b-8b25-1252939e7763"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "72728347-3b56-410b-8b25-1252939e7763",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 8.81
+        }
+      ],
+      "passed": true,
+      "conversation_id": "fcaac137-2fd9-46ac-9844-073d00df8c42"
+    },
+    {
+      "id": "agent_4",
+      "category": "agent",
+      "turns": [
+        {
+          "mode": "agent",
+          "question": "后续用中文，简短回答。请解释广度优先搜索的核心特点。",
+          "answer": "**直接回答：**\n广度优先搜索（BFS）的核心特点是**按层级遍历**，即从起始节点开始，先访问所有距离为1的邻居节点，再访问距离为2的邻居节点，依此类推。它通常使用**队列（Queue）**作为数据结构来实现，具有**完备性**（如果解存在，一定能找到），且在无权图中能找到**最短路径**。\n\n**必要解释：**\n1.  **遍历顺序**：BFS 像水波纹一样向外扩散，确保在探索更深层节点之前，已经完整探索了当前层的所有节点。\n2.  **数据结构**：依赖先进先出（FIFO）的队列来存储待访问的节点，保证访问顺序符合层级逻辑。\n3.  **适用场景**：适用于寻找最短路径（边权相等时）、连通性检查以及状态空间搜索中需要保证找到最浅层解的情况。\n4.  **复杂度**：时间复杂度和空间复杂度通常为 $O(V + E)$，其中 $V$ 是顶点数，$E$ 是边数。由于需要存储整个前沿层的节点，其空间开销可能较大。\n\n**课程依据说明：**\n课程资料未找到可靠依据。\n\n**通用知识补充：**\n上述关于 BFS 核心特点、实现机制及复杂度的描述基于计算机科学通用算法理论。",
+          "task_id": "a6e7cc62-43df-43fc-89de-2767b99ddc1b",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "answer",
+            "tasks": [],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "6bd07648-96cb-4f78-94e4-f5dd7fc206b2",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 12.53
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "**直接回答：**\n广度优先搜索（BFS）的时间复杂度通常为 $O(V + E)$，其中 $V$ 代表顶点数量，$E$ 代表边的数量。\n\n**必要解释：**\n1.  **遍历过程**：在 BFS 中，每个顶点最多被访问一次，每条边也最多被检查两次（无向图）或一次（有向图）。因此，总操作次数与顶点和边的总数成正比。\n2.  **数据结构影响**：使用队列进行节点入队和出队操作均为常数时间 $O(1)$，不会增加额外的渐近复杂度。\n3.  **空间复杂度**：虽然问题主要询问时间复杂度，但需注意其空间复杂度同样为 $O(V)$，因为最坏情况下队列需存储所有顶点。\n\n**课程依据说明：**\n课程资料未找到可靠依据。\n\n**通用知识补充：**\n上述关于 BFS 时间复杂度 $O(V + E)$ 的结论基于标准算法分析理论，适用于邻接表存储结构的图。若使用邻接矩阵，时间复杂度可能变为 $O(V^2)$，具体取决于图的稀疏程度和实现方式。",
+          "task_id": "4dc72cee-5921-463a-bac1-ce26d448fb59",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "dd37dd3e-15dd-47f4-b7f1-3ced9ad4acf7"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "dd37dd3e-15dd-47f4-b7f1-3ced9ad4acf7",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 12.64
+        },
+        {
+          "mode": "agent",
+          "question": "它和深度优先搜索有什么区别？",
+          "answer": "**直接回答：**\nBFS 按层级扩散，使用队列；DFS 沿路径深入，使用栈（或递归）。\n\n**必要解释：**\n课程资料未找到可靠依据。\n\n**通用知识补充：**\n1. **遍历策略**：BFS 先访问所有近邻节点再向外扩展，适合找最短路径；DFS 优先探索一条路径直到尽头再回溯，适合检测环或拓扑排序。\n2. **数据结构**：BFS 依赖先进先出的队列；DFS 依赖后进先出的栈或系统调用栈。\n3. **空间复杂度**：BFS 通常占用更多内存（需存储整个前沿层）；DFS 内存占用相对较少（仅存储当前路径）。",
+          "task_id": "256f8b15-abea-4cd3-8ed7-9a71009908d6",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "answer",
+            "tasks": [],
+            "parser": "semantic_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [],
+            "resolved_goal": "用中文简短回答：当前所指的广度优先搜索（BFS）与深度优先搜索（DFS）有什么区别。",
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "8fba2dc7-795b-4688-8351-48891601a826",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 30.67
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "**直接回答：**\n刚才讨论的两个知识点是：1. 广度优先搜索（BFS）的核心特点；2. BFS 与深度优先搜索（DFS）的区别。\n\n**必要解释：**\n课程资料未找到可靠依据。\n\n**通用知识补充：**\n1. **BFS 核心特点**：按层级遍历，使用队列，具有完备性，在无权图中可求最短路径。\n2. **BFS 与 DFS 区别**：\n   - **策略**：BFS 横向扩散（先近后远），DFS 纵向深入（一条路走到底再回溯）。\n   - **结构**：BFS 用队列，DFS 用栈或递归。\n   - **应用**：BFS 适合找最短路径，DFS 适合检测环、拓扑排序等。",
+          "task_id": "8e4d0230-a925-48e0-9606-7258759b1a0f",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "87df434e-2669-4ff6-ab21-f18715640940"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "87df434e-2669-4ff6-ab21-f18715640940",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 6.95
+        }
+      ],
+      "passed": true,
+      "conversation_id": "c6ec7292-da66-4b59-aa5f-332d11add908"
+    },
+    {
+      "id": "mixed_1",
+      "category": "mixed",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释栈的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n栈（Stack）的核心特点是“后进先出”（LIFO, Last-In-First-Out）。这意味着最后插入的元素最先被移除，所有操作（如入栈 push 和出栈 pop）都仅在栈顶进行。",
+          "model": "qwen3.8-flash",
+          "message_id": "13172481-b8a1-4a10-9632-d23c0183ef6d",
+          "seconds": 2.26
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n栈的核心操作（入栈 push、出栈 pop、查看栈顶 peek）的时间复杂度均为 **O(1)**，即常数时间。这是因为这些操作仅涉及栈顶指针的移动或固定位置的访问，无需遍历整个数据结构。",
+          "task_id": "1aeddc66-4bed-487a-8452-65c0b9194a95",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "2895fd2c-e36a-416b-98ed-18f213d648ce"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "2895fd2c-e36a-416b-98ed-18f213d648ce",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 5.38
+        },
+        {
+          "mode": "fast",
+          "question": "它和队列有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n栈与队列的核心区别在于存取顺序：\n1. **栈 (Stack)**：后进先出 (LIFO)，仅允许在栈顶进行插入和删除操作 。\n2. **队列 (Queue)**：先进先出 (FIFO)，允许在队尾插入，在队头删除 。",
+          "model": "qwen3.8-flash",
+          "message_id": "4ac49232-8273-4845-a53f-6894c2980942",
+          "seconds": 2.95
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n我们刚才讨论了栈的两个核心知识点：\n1. **核心特点**：栈遵循“后进先出”（LIFO）原则，所有操作仅在栈顶进行 。\n2. **时间复杂度**：栈的基本操作（入栈、出栈、查看栈顶）均为 O(1) 常数时间复杂度 。",
+          "task_id": "b02d19b5-75a6-4405-8a67-23993695df5b",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "f4583a02-5172-4308-8df4-0dd3adc50118"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "f4583a02-5172-4308-8df4-0dd3adc50118",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 7.78
+        }
+      ],
+      "passed": true,
+      "conversation_id": "762ccb76-2227-4108-9c27-a7ec797a0367"
+    },
+    {
+      "id": "mixed_2",
+      "category": "mixed",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释二叉树的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n二叉树的核心特点是每个节点最多只有两个子节点，分别称为左子节点和右子节点。这种结构使得二叉树在数据组织、搜索效率（如二叉搜索树）以及递归算法实现中具有独特优势。",
+          "model": "qwen3.8-flash",
+          "message_id": "0913965d-6618-4bcd-8040-02a0df874a4a",
+          "seconds": 2.33
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n二叉树常见操作的时间复杂度取决于树的平衡性：\n1. **查找、插入、删除**：在平衡二叉树（如 AVL 树）中为 O(log n)；在最坏情况（退化为链表）下为 O(n)。\n2. **遍历**（前序、中序、后序、层序）：均为 O(n)，因为需要访问每个节点一次。",
+          "task_id": "af8fd999-33e9-44ca-a843-86df2318ddc7",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "f212c16a-bb85-47ad-8dba-7146808a4559"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "f212c16a-bb85-47ad-8dba-7146808a4559",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 7.33
+        },
+        {
+          "mode": "fast",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n二叉树是结构定义，而二叉搜索树（BST）是一种特殊的二叉树。区别在于 BST 必须满足特定排序规则：左子节点值小于父节点，右子节点值大于父节点。普通二叉树无此限制。",
+          "model": "qwen3.8-flash",
+          "message_id": "e4256b58-1efc-4432-905a-b5082c64d713",
+          "seconds": 2.26
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n刚才讨论的两个知识点为：\n1. **二叉树核心特点与时间复杂度**：每个节点最多两个子节点；平衡时查找/插入/删除为 O(log n)，遍历为 O(n)。\n2. **二叉树与二叉搜索树（BST）的区别**：二叉树仅定义结构，无值序限制；BST 是特殊二叉树，必须满足“左小右大”的排序规则。",
+          "task_id": "44348901-02b9-4b64-a5ff-57b7e603236b",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "c5dcbdaa-962b-4e87-a54e-e79e1f89e92c"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "c5dcbdaa-962b-4e87-a54e-e79e1f89e92c",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 8.28
+        }
+      ],
+      "passed": true,
+      "conversation_id": "7d497974-69e2-4de9-8408-f4e19b8842e4"
+    },
+    {
+      "id": "agent_6",
+      "category": "agent",
+      "turns": [
+        {
+          "mode": "agent",
+          "question": "后续用中文，简短回答。请解释哈希表的核心特点。",
+          "answer": "**直接回答：**\n哈希表的核心特点是通过哈希函数将键映射到数组索引，以实现平均情况下 $O(1)$ 的查找、插入和删除时间复杂度；当发生冲突时，通常采用链地址法或开放寻址法进行处理。\n\n**必要解释：**\n课程资料未找到可靠依据。\n\n**通用知识补充：**\n1. **哈希函数（Hash Function）**：其作用是将任意大小的输入（Key）转换为固定范围的整数索引。理想的哈希函数应尽可能均匀地分布数据，以减少冲突。常见的实现包括除留余数法、乘法散列法等。\n2. **冲突处理（Collision Resolution）**：由于不同的 Key 可能映射到相同的索引（即冲突），必须采取策略解决：\n   - **链地址法（Chaining）**：在数组的每个位置维护一个链表（或其他数据结构），所有映射到该位置的元素都存入链表中。\n   - **开放寻址法（Open Addressing）**：当发生冲突时，按照某种探测序列（如线性探测、二次探测、双重哈希）寻找下一个空闲槽位存储数据。\n3. **时间复杂度**：\n   - **平均情况**：若哈希函数设计良好且负载因子（Load Factor）控制得当，查找、插入和删除的时间复杂度均为 $O(1)$。\n   - **最坏情况**：若所有元素都发生冲突并聚集在一起（例如退化为链表），时间复杂度可能降至 $O(n)$。因此，动态扩容（Rehashing）是维持高效性能的关键机制。",
+          "task_id": "f8681f1a-4c81-4438-9bf3-7c796f07b18e",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "answer",
+            "tasks": [],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "04fa85c2-1275-4a1b-8ba0-293d3037f785",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 13.48
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "**直接回答：**\n哈希表的时间复杂度在平均情况下为 $O(1)$，在最坏情况下为 $O(n)$。\n\n**必要解释：**\n课程资料未找到可靠依据。\n\n**通用知识补充：**\n1. **平均情况 $O(1)$**：当哈希函数分布均匀且负载因子（元素数量/桶数量）保持在合理范围时，查找、插入和删除操作只需常数时间。\n2. **最坏情况 $O(n)$**：若所有键值对都映射到同一个索引（严重冲突），哈希表退化为链表或线性结构，此时操作需遍历所有元素，时间复杂度变为线性。\n3. **影响因素**：实际性能取决于哈希函数的质量、冲突解决策略（如链地址法或开放寻址法）以及是否及时执行动态扩容（Rehashing）。",
+          "task_id": "23b9b818-e83a-4d84-b84d-7cc5ac6d9664",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "a08fd0b0-d2ca-43b2-85ce-c7c1140aaae3"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "a08fd0b0-d2ca-43b2-85ce-c7c1140aaae3",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 12.8
+        },
+        {
+          "mode": "agent",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "**直接回答：**\n哈希表基于数组和哈希函数，平均查找复杂度为 $O(1)$，无序；二叉搜索树（BST）基于节点指针，查找复杂度通常为 $O(\\log n)$，有序。\n\n**必要解释：**\n课程资料未找到可靠依据。\n\n**通用知识补充：**\n1. **数据结构基础**：哈希表本质是数组，通过哈希映射定位；BST 是树形结构，依赖左右子节点的大小关系进行导航。\n2. **性能差异**：哈希表在理想情况下常数时间完成操作，但最坏情况可能退化；平衡 BST（如 AVL、红黑树）能稳定保持对数时间复杂度，且支持范围查询。\n3. **应用场景**：需要快速精确匹配时用哈希表；需要有序遍历或频繁插入删除且要求稳定性时用 BST。",
+          "task_id": "53a45108-3ff2-4f34-a804-2885bb597939",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "answer",
+            "tasks": [],
+            "parser": "semantic_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [],
+            "resolved_goal": "用中文简短回答当前问题：哈希表与二叉搜索树有什么区别？",
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "cdd50549-df1b-4510-a093-ffbff0e84b72",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 22.58
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "**直接回答：**\n我们刚才讨论了哈希表的核心特点（$O(1)$ 平均复杂度、冲突处理）及其与二叉搜索树的区别（无序 vs 有序、数组 vs 树结构）。\n\n**必要解释：**\n课程资料未找到可靠依据。\n\n**通用知识补充：**\n1. **哈希表核心**：利用哈希函数将键映射到数组索引，实现快速查找；通过链地址法或开放寻址法解决冲突；性能依赖于负载因子和哈希分布均匀性。\n2. **与 BST 对比**：哈希表擅长精确匹配且无序，平均 $O(1)$；BST 支持有序遍历和范围查询，平衡状态下为 $O(\\log n)$，但常数因子通常高于哈希表。",
+          "task_id": "3bc03fc2-3cfb-4c2d-9c44-4b5666cce305",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "f269069d-f7b1-4ccf-82d2-3ea15526508c"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "f269069d-f7b1-4ccf-82d2-3ea15526508c",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 13.66
+        }
+      ],
+      "passed": true,
+      "conversation_id": "a07a82c7-9e0c-4c86-bf43-2d6733b18218"
+    },
+    {
+      "id": "mixed_4",
+      "category": "mixed",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释广度优先搜索的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n广度优先搜索（BFS）的核心特点是“逐层遍历”。它从起始节点出发，先访问所有距离为1的邻居节点，再访问距离为2的节点，依此类推。这种策略通常使用队列（Queue）数据结构来实现，确保在深入任何一条路径之前，先彻底探索完当前深度的所有可能路径。",
+          "model": "qwen3.8-flash",
+          "message_id": "99c32853-5bb9-4b71-b0f7-3a55cad8c120",
+          "seconds": 2.86
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n广度优先搜索（BFS）的时间复杂度通常为 **O(V + E)**，其中 V 是顶点数，E 是边数。这是因为每个顶点和每条边最多被访问一次。",
+          "task_id": "2670838b-0d97-4484-a96f-e45cb0456305",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "2a0a5294-b021-4728-9118-7d9d606f297e"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "2a0a5294-b021-4728-9118-7d9d606f297e",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 6.08
+        },
+        {
+          "mode": "fast",
+          "question": "它和深度优先搜索有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n广度优先搜索（BFS）与深度优先搜索（DFS）的主要区别在于遍历策略和数据结构：\n1. **遍历顺序**：BFS 是“逐层”向外扩展，先访问所有近邻再访问远邻；DFS 是“一条路走到黑”，尽可能深入后再回溯。\n2. **数据结构**：BFS 使用**队列**（Queue），遵循先进先出原则；DFS 使用**栈**（Stack）或递归调用，遵循后进先出原则。",
+          "model": "qwen3.8-flash",
+          "message_id": "253524f3-4139-4fb6-b5f6-3d57d5e82103",
+          "seconds": 4.56
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n我们刚才讨论了广度优先搜索（BFS）的两个核心知识点：\n1. **时间复杂度**：BFS 的时间复杂度为 O(V + E)，即每个顶点和边最多访问一次。\n2. **与 DFS 的区别**：主要在于遍历策略（逐层 vs 深入回溯）和数据结构（队列 vs 栈/递归）。",
+          "task_id": "86e60781-03a8-4593-8367-34bc1cc1df74",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "1056304b-9073-43b8-a9f4-e4ac223b5158"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "1056304b-9073-43b8-a9f4-e4ac223b5158",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 8.31
+        }
+      ],
+      "passed": true,
+      "conversation_id": "890abb07-aea8-494a-bfee-ce125502d02d"
+    },
+    {
+      "id": "mixed_3",
+      "category": "mixed",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释链表的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n链表的核心特点包括：\n1. **非连续存储**：节点在内存中分散存放，通过指针连接。\n2. **动态大小**：无需预先分配固定空间，可灵活增删节点。\n3. **插入/删除高效**：只需修改指针，时间复杂度为 O(1)（已知位置时）。\n4. **随机访问慢**：必须从头遍历，查找第 N 个元素的时间复杂度为 O(N)。",
+          "model": "qwen3.8-flash",
+          "message_id": "050ab84d-f974-4c9b-a0b7-3f82cf611628",
+          "seconds": 3.7
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n链表常见操作的时间复杂度如下：\n1. **访问**：按索引访问为 O(N)；访问头/尾节点（若有尾指针）为 O(1)。\n2. **插入/删除**：在已知节点位置后，插入或删除为 O(1)；若需先查找位置，则整体为 O(N)。\n3. **搜索**：遍历查找特定值为 O(N)。",
+          "task_id": "a36e2b5e-247d-461e-bf9c-c3215d8e1276",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "30e4328c-bd17-400a-a29f-da9bf2260327"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "30e4328c-bd17-400a-a29f-da9bf2260327",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 8.05
+        },
+        {
+          "mode": "fast",
+          "question": "它和数组有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n链表与数组的主要区别：\n1. **内存布局**：数组连续存储，支持随机访问 O(1)；链表分散存储，随机访问需遍历 O(N)。\n2. **增删效率**：数组插入/删除通常需移动元素 O(N)；链表只需修改指针 O(1)（已知位置时）。\n3. **空间灵活性**：数组大小固定或扩容成本高；链表可动态伸缩，但每个节点有额外指针开销。",
+          "model": "qwen3.8-flash",
+          "message_id": "fae80b2a-6ef2-4d85-8fe4-daf68b1b6936",
+          "seconds": 3.27
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论的两个知识点总结：\n1. **链表核心特点与时间复杂度**：链表非连续存储，动态大小；插入/删除高效（O(1)），但随机访问慢（O(N)）。\n2. **链表与数组的区别**：数组连续存储、支持快速随机访问（O(1)）但增删需移动元素（O(N)）；链表则相反，增删快但访问慢。",
+          "task_id": "26424a7e-9679-40cc-97ae-67e205406e1b",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "a3c1cf8e-788d-4487-875a-771ddafbb50e"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "a3c1cf8e-788d-4487-875a-771ddafbb50e",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 15.84
+        }
+      ],
+      "passed": true,
+      "conversation_id": "9180d676-adce-44be-a6f0-bef03bca0ca8"
+    },
+    {
+      "id": "reload_1",
+      "category": "reload",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释栈的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈（Stack）的核心特点是“后进先出”（LIFO, Last In First Out）。这意味着最后被压入（Push）栈顶的元素，会最先被弹出（Pop）。栈的操作严格限制在栈顶进行，不支持随机访问中间元素，这种特性使其非常适合用于函数调用管理、表达式求值以及撤销操作等场景。",
+          "model": "qwen3.8-flash",
+          "message_id": "84f5a91e-b7e2-4f29-b86d-d0986bff1a3f",
+          "seconds": 3.86
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的核心操作（压入 Push 和弹出 Pop）的时间复杂度均为 O(1)，即常数时间。这是因为这些操作仅涉及栈顶指针的移动，不依赖于栈中元素的数量。",
+          "model": "qwen3.8-flash",
+          "message_id": "8a938470-31f0-4586-8a41-2a63df4fde7b",
+          "seconds": 3.38
+        },
+        {
+          "mode": "fast",
+          "question": "它和队列有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈与队列的核心区别在于存取顺序：栈遵循“后进先出”（LIFO），仅允许在栈顶进行插入和删除；而队列遵循“先进先出”（FIFO），允许在队尾插入、队头删除。两者主要操作的时间复杂度均为 O(1)。",
+          "model": "qwen3.8-flash",
+          "message_id": "e9ce7a08-428f-452f-b292-b23439ff1cc8",
+          "seconds": 3.31
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论的两个知识点分别是：\n1. **栈的核心特点与时间复杂度**：栈遵循“后进先出”（LIFO）原则，其压入和弹出操作的时间复杂度均为 O(1)。\n2. **栈与队列的区别**：主要区别在于存取顺序，栈是 LIFO 且仅操作栈顶，而队列遵循“先进先出”（FIFO），分别在队尾插入、队头删除。",
+          "model": "qwen3.8-flash",
+          "message_id": "8fe97b0d-7969-4808-b172-ceb35d197196",
+          "seconds": 2.81
+        }
+      ],
+      "passed": true,
+      "conversation_id": "296f5c8a-3bce-418c-b2f6-9eb033d2e6fb"
+    },
+    {
+      "id": "mixed_6",
+      "category": "mixed",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释哈希表的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n哈希表的核心特点包括：\n1. **高效查找**：通过哈希函数将键映射到数组索引，平均时间复杂度为 O(1)。\n2. **键值对存储**：以 Key-Value 形式存储数据，支持快速检索、插入和删除。\n3. **冲突处理**：当不同键映射到同一索引时，需通过链地址法或开放寻址法等策略解决。\n4. **无序性**：元素存储顺序与插入顺序无关，取决于哈希计算结果。",
+          "model": "qwen3.8-flash",
+          "message_id": "1bf861fb-0174-4134-8f6c-7a3df337d3b0",
+          "seconds": 5.64
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n哈希表的时间复杂度如下：\n1. **平均情况**：查找、插入、删除均为 O(1)。\n2. **最坏情况**：当发生大量哈希冲突时，退化为 O(n)（如链表过长）。",
+          "task_id": "2476deea-0be0-4dbb-9332-a94a892da0c4",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "b4793aab-3b07-4b1b-abe1-7181562e19b1"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "b4793aab-3b07-4b1b-abe1-7181562e19b1",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 8.25
+        },
+        {
+          "mode": "fast",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n哈希表与二叉搜索树（BST）的主要区别：\n1. **数据组织**：哈希表基于键的哈希值映射，无序；BST 基于键的大小关系排序，有序。\n2. **时间复杂度**：哈希表平均 O(1)，最坏 O(n)；BST 平均 O(log n)，最坏 O(n)（若退化为链表）。\n3. **适用场景**：哈希表适合快速查找/插入且无需排序的场景；BST 适合需要范围查询、有序遍历或动态平衡的场景。",
+          "model": "qwen3.8-flash",
+          "message_id": "ca9caec8-534e-4eb7-b9bc-fd5762d7c842",
+          "seconds": 3.81
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论的两个知识点总结如下：\n1. **哈希表核心特点与时间复杂度**：哈希表通过键值对存储和哈希映射实现高效操作，平均查找/插入/删除时间为 O(1)，最坏情况因冲突退化为 O(n)。\n2. **哈希表与二叉搜索树（BST）的区别**：哈希表无序且平均性能更优（O(1)），适合快速检索；BST 有序且支持范围查询，平均性能为 O(log n)，适合需要排序或动态平衡的场景。",
+          "task_id": "8f739595-1f71-4e3f-97d6-9bea03334577",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "8dcb163d-0097-41a5-a52b-326d73a965e7"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "8dcb163d-0097-41a5-a52b-326d73a965e7",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 7.28
+        }
+      ],
+      "passed": true,
+      "conversation_id": "78464d58-62b6-4b48-88e0-c67d1f401900"
+    },
+    {
+      "id": "mixed_5",
+      "category": "mixed",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释快速排序的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序的核心特点包括：\n1. **分治策略**：通过选择一个“基准”（pivot），将数组划分为小于和大于基准的两部分，递归处理子数组。\n2. **原地排序**：通常不需要额外的存储空间（除递归栈外），空间复杂度较低。\n3. **平均高效**：在平均情况下时间复杂度为 O(n log n)，常数因子小，实际运行速度快。\n4. **不稳定**：相等元素的相对顺序可能在排序后改变。",
+          "model": "qwen3.8-flash",
+          "message_id": "8e473795-8846-41f4-8989-89e86fc53077",
+          "seconds": 5.28
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序的时间复杂度如下：\n1. **平均情况**：O(n log n)。每次划分大致将问题规模减半，递归深度为 log n，每层处理 n 个元素。\n2. **最坏情况**：O(n²)。当数组已有序或逆序且基准选择不当时，每次划分只减少一个元素，退化为冒泡排序的效率。\n3. **最好情况**：O(n log n)。每次划分都能均匀地将数组分为两半。",
+          "task_id": "92d175ed-59c8-4ac7-88f5-24f19de1b91d",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "87ce913d-d171-4599-b957-dfa5216d6851"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "87ce913d-d171-4599-b957-dfa5216d6851",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 16.03
+        },
+        {
+          "mode": "fast",
+          "question": "它和归并排序有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序与归并排序的主要区别：\n1. **稳定性**：归并排序是稳定排序，快速排序是不稳定排序。\n2. **空间复杂度**：归并排序需要 O(n) 的额外空间；快速排序通常为 O(log n)（递归栈），可原地操作。\n3. **最坏情况**：归并排序始终为 O(n log n)；快速排序最坏为 O(n²)。\n4. **适用场景**：快速排序在内存中通常更快（缓存友好）；归并排序更适合链表或外部排序。",
+          "model": "qwen3.8-flash",
+          "message_id": "0c35e8c6-83bb-4075-81f0-03b3cdfb6436",
+          "seconds": 4.47
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论的两个知识点总结如下：\n1. **快速排序的核心特点与时间复杂度**：核心特点是分治、原地、平均高效但不稳定；时间复杂度平均为 O(n log n)，最坏为 O(n²)。\n2. **与归并排序的区别**：主要差异在于稳定性（归并稳定，快排不稳定）、空间复杂度（归并需额外空间，快排可原地）以及最坏情况性能（归并始终 O(n log n)，快排可能退化）。",
+          "task_id": "ece403e7-8e14-4242-92d3-cff31d8151c4",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "804a5062-6d49-476c-b8b8-327977e9b077"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "804a5062-6d49-476c-b8b8-327977e9b077",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 7.77
+        }
+      ],
+      "passed": true,
+      "conversation_id": "659ae2fa-d11a-4d24-8b04-3af993841a35"
+    },
+    {
+      "id": "reload_2",
+      "category": "reload",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释二叉树的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树的核心特点包括：\n1. **节点限制**：每个节点最多有两个子节点，分别称为左子节点和右子节点。\n2. **递归结构**：二叉树本身由根节点、左子树和右子树组成，且左右子树也均为二叉树。\n3. **有序性**：左子树和右子树是有顺序的，不能随意交换（除非是特定类型的无序二叉树）。",
+          "model": "qwen3.8-flash",
+          "message_id": "77673f10-640f-45ed-8c22-4a9f171eeaa0",
+          "seconds": 3.7
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树常见操作的时间复杂度如下：\n1. **查找/插入/删除**：平均 O(log n)，最坏情况（退化为链表）O(n)。\n2. **遍历**：所有节点访问一次，时间复杂度为 O(n)。",
+          "model": "qwen3.8-flash",
+          "message_id": "5f24eac4-884f-424c-baee-3b67ba9ac86d",
+          "seconds": 3.09
+        },
+        {
+          "mode": "fast",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树与二叉搜索树（BST）的主要区别在于**有序性约束**：\n\n1. **结构约束**：\n   - **普通二叉树**：对节点值的大小没有特定要求，左子节点的值可以大于、小于或等于根节点。\n   - **二叉搜索树**：严格遵循“左小右大”规则。任意节点的左子树所有节点值均小于该节点，右子树所有节点值均大于该节点 。\n\n2. **查找效率**：\n   - **普通二叉树**：查找通常需要遍历整棵树，时间复杂度为 O(n)。\n   - **二叉搜索树**：利用有序性可快速排除一半数据，平均查找时间复杂度为 O(log n) 。",
+          "model": "qwen3.8-flash",
+          "message_id": "615caed0-a7f8-4bbe-b238-aadca802f34e",
+          "seconds": 4.31
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论的两个知识点总结如下：\n\n1. **二叉树的核心特点与时间复杂度**：\n   - 核心特点是每个节点最多有两个子节点（左、右），且左右有序 。\n   - 查找/插入/删除的平均时间复杂度为 O(log n)，最坏为 O(n)；遍历为 O(n)。\n\n2. **二叉树与二叉搜索树（BST）的区别**：\n   - 普通二叉树无大小约束，查找效率低（O(n)）。\n   - BST 严格遵循“左小右大”规则，利用有序性实现高效查找（平均 O(log n)）。",
+          "model": "qwen3.8-flash",
+          "message_id": "28ecb803-2ad9-449d-90d6-3592588b94b6",
+          "seconds": 3.49
+        }
+      ],
+      "passed": true,
+      "conversation_id": "c5e452fb-cc0c-46a3-84f7-460546b09a31"
+    },
+    {
+      "id": "reload_3",
+      "category": "reload",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释链表的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n链表的核心特点包括：\n1. **非连续存储**：节点在内存中分散存放，通过指针链接。\n2. **动态大小**：无需预先分配固定空间，可灵活增删节点。\n3. **随机访问慢**：不支持索引直接访问，需从头遍历（时间复杂度 O(n)）。\n4. **插入/删除快**：只需修改指针指向，无需移动大量元素（已知位置时时间复杂度 O(1)）。",
+          "model": "qwen3.8-flash",
+          "message_id": "b53c9444-fa4c-4375-b2ed-1433a920e494",
+          "seconds": 3.28
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n链表常见操作的时间复杂度如下：\n1. **访问/查找**：O(n)，需从头遍历至目标节点。\n2. **头部插入/删除**：O(1)，直接修改头指针。\n3. **尾部插入/删除**：若无尾指针为 O(n)；若有尾指针，插入为 O(1)，删除通常为 O(n)（因需定位前驱节点）。\n4. **已知位置插入/删除**：O(1)，仅修改指针指向。",
+          "model": "qwen3.8-flash",
+          "message_id": "b71f2961-ec80-4e90-8abd-b624ce273aa2",
+          "seconds": 4.22
+        },
+        {
+          "mode": "fast",
+          "question": "它和数组有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n链表与数组的主要区别如下：\n1. **内存布局**：数组元素在内存中连续存储；链表节点分散存储，通过指针连接。\n2. **访问效率**：数组支持随机访问（O(1)）；链表需顺序遍历（O(n)）。\n3. **增删效率**：数组插入/删除通常需移动大量元素（O(n)）；链表只需修改指针（已知位置时 O(1)）。\n4. **空间灵活性**：数组大小固定或扩容成本高；链表可动态伸缩，但每个节点需额外存储指针开销。",
+          "model": "qwen3.8-flash",
+          "message_id": "810721eb-8d80-49da-9bc7-b40cb76d0e12",
+          "seconds": 3.28
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论的两个知识点总结如下：\n1. **链表的核心特点与时间复杂度**：链表采用非连续存储，支持动态大小；其访问和查找操作的时间复杂度为 O(n)，而在已知位置进行插入或删除操作的时间复杂度为 O(1)。\n2. **链表与数组的区别**：数组内存连续且支持 O(1) 随机访问，但增删效率低（O(n)）；链表内存分散且访问慢（O(n)），但增删效率高（已知位置时 O(1)）。",
+          "model": "qwen3.8-flash",
+          "message_id": "ab509ccd-5808-45bc-83b3-791620f7577a",
+          "seconds": 3.67
+        }
+      ],
+      "passed": true,
+      "conversation_id": "9113eabd-c444-4899-be4f-5d2951c3177f"
+    },
+    {
+      "id": "reload_4",
+      "category": "reload",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释广度优先搜索的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n广度优先搜索（BFS）的核心特点是“逐层遍历”。它从起始节点出发，先访问所有距离为1的邻居节点，再访问距离为2的节点，依此类推。这种策略通常借助队列（Queue）数据结构实现，确保在深入探索之前，尽可能广泛地覆盖当前层级。",
+          "model": "qwen3.8-flash",
+          "message_id": "c45e2c8f-dd01-40e4-a625-8f4a2d045da1",
+          "seconds": 3.52
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n广度优先搜索（BFS）的时间复杂度通常为 **O(V + E)**，其中 V 是顶点数，E 是边数。这是因为每个顶点和每条边最多被访问一次。",
+          "model": "qwen3.8-flash",
+          "message_id": "a9742b59-e940-49da-ba88-1fc0b2d98226",
+          "seconds": 2.76
+        },
+        {
+          "mode": "fast",
+          "question": "它和深度优先搜索有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\nBFS 与 DFS 的核心区别在于遍历策略和数据结构：\n1. **策略不同**：BFS 是“逐层”向外扩展，优先访问近邻；DFS 是“一条路走到黑”，优先深入到底再回溯。\n2. **数据结构不同**：BFS 使用队列（Queue）；DFS 使用栈（Stack）或递归调用栈。\n3. **应用场景不同**：BFS 常用于求最短路径（无权图）；DFS 常用于检测环、拓扑排序或连通分量。",
+          "model": "qwen3.8-flash",
+          "message_id": "526f9d9a-8ebe-4854-a334-8b1a35b712c7",
+          "seconds": 3.53
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n我们刚才讨论了广度优先搜索（BFS）的两个核心知识点：\n1. **核心特点与复杂度**：BFS 采用“逐层遍历”策略，借助队列实现；其时间复杂度为 O(V + E)。\n2. **与 DFS 的区别**：主要差异在于遍历方向（BFS 横向扩展 vs DFS 纵向深入）、数据结构（队列 vs 栈/递归）以及典型应用场景（最短路径 vs 环检测/拓扑排序）。",
+          "model": "qwen3.8-flash",
+          "message_id": "4e30e232-fd46-4514-8fcd-0af6c8e4f473",
+          "seconds": 3.42
+        }
+      ],
+      "passed": true,
+      "conversation_id": "4f8aa5bf-eee5-4893-9a21-82cd442fae12"
+    },
+    {
+      "id": "reload_5",
+      "category": "reload",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释快速排序的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序的核心特点包括：\n1. **分治策略**：通过选择一个“基准”（pivot），将数组划分为小于和大于基准的两部分，递归处理子数组。\n2. **平均高效**：平均时间复杂度为 O(n log n)，在实际应用中通常比归并排序更快，因为常数因子小且缓存友好。\n3. **原地排序**：不需要额外的存储空间（除了递归栈），空间复杂度为 O(log n)。\n4. **不稳定**：相等元素的相对顺序可能在排序后改变。\n5. **最坏情况退化**：若每次选择的基准都是最大或最小值（如已排序数组选首元素为基准），时间复杂度退化为 O(n²)。",
+          "model": "qwen3.8-flash",
+          "message_id": "c146c540-8a1a-4443-8329-ae93b40354f7",
+          "seconds": 4.53
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序的时间复杂度如下：\n1. **平均情况**：O(n log n)。这是最常见的运行效率，得益于分治策略将问题规模对半缩减。\n2. **最坏情况**：O(n²)。当每次选取的基准（pivot）都是当前子数组的最大或最小值时发生（例如对已排序数组使用首元素作为基准）。\n3. **最好情况**：O(n log n)。当每次划分都能将数组均匀分成两半时达到。",
+          "model": "qwen3.8-flash",
+          "message_id": "a53e4739-5a17-4153-a3e5-63d769452e26",
+          "seconds": 3.58
+        },
+        {
+          "mode": "fast",
+          "question": "它和归并排序有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序与归并排序的主要区别如下：\n\n1. **稳定性**：\n   - 快速排序是**不稳定**的（相等元素相对顺序可能改变）。\n   - 归并排序是**稳定**的。\n\n2. **空间复杂度**：\n   - 快速排序通常是**原地排序**，额外空间主要为递归栈 O(log n)。\n   - 归并排序需要额外的数组空间来合并子序列，空间复杂度为 O(n)。\n\n3. **时间复杂度表现**：\n   - 快速排序平均为 O(n log n)，但最坏情况退化为 O(n²)；实际运行中因缓存友好通常更快。\n   - 归并排序在所有情况下均为 O(n log n)，性能更稳定，但常数因子较大。\n\n4. **适用场景**：\n   - 快速排序适合内存充足、对平均速度要求高的内部排序。\n   - 归并排序适合链表排序、外部排序（如大文件处理）或对稳定性有要求的场景。",
+          "model": "qwen3.8-flash",
+          "message_id": "a4e82d84-667b-4eac-8eba-fa8fe6fa545d",
+          "seconds": 5.2
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论的两个知识点总结如下：\n\n1. **快速排序的核心特点与时间复杂度**：\n   - 核心特点包括分治策略、平均高效（O(n log n)）、原地排序、不稳定以及最坏情况可能退化至 O(n²)。\n   - 时间复杂度方面，平均和最好情况为 O(n log n)，最坏情况为 O(n²)。\n\n2. **快速排序与归并排序的区别**：\n   - **稳定性**：快排不稳定，归并稳定。\n   - **空间复杂度**：快排主要为 O(log n)（递归栈），归并为 O(n)（需额外数组）。\n   - **性能表现**：快排平均更快但最坏情况较差；归并性能稳定始终为 O(n log n)。\n   - **适用场景**：快排适合内部排序，归并适合链表或外部排序。",
+          "model": "qwen3.8-flash",
+          "message_id": "cad8e020-eeba-4d96-b100-940de82b634f",
+          "seconds": 3.59
+        }
+      ],
+      "passed": true,
+      "conversation_id": "9ec5e745-d7c6-4d89-8a2d-5c27e931feb0"
+    },
+    {
+      "id": "reload_6",
+      "category": "reload",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释哈希表的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n哈希表的核心特点是**通过键（Key）直接计算存储位置，实现接近 O(1) 的平均查找、插入和删除效率**。它利用哈希函数将键映射到数组索引，但在发生冲突时需采用链地址法或开放寻址法等策略解决。",
+          "model": "qwen3.8-flash",
+          "message_id": "bce5dcef-7291-4fec-af71-8b4e8971a558",
+          "seconds": 5.83
+        },
+        {
+          "mode": "fast",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n哈希表的时间复杂度取决于操作类型和负载因子：\n*   **平均情况**：查找、插入、删除均为 **O(1)**。\n*   **最坏情况**：当所有键发生严重冲突（如全部映射到同一索引）时，退化为 **O(n)**。",
+          "model": "qwen3.8-flash",
+          "message_id": "4ba0b15e-fb8b-4e6b-82ea-337d9b08384d",
+          "seconds": 2.95
+        },
+        {
+          "mode": "fast",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n哈希表与二叉搜索树（BST）的主要区别如下：\n\n1.  **时间复杂度**：哈希表平均为 O(1)，最坏 O(n)；BST 平均为 O(log n)，最坏 O(n)（若不平衡）。\n2.  **数据有序性**：哈希表不保持键的顺序；BST 天然支持按键排序遍历。\n3.  **适用场景**：哈希表适合快速查找/去重；BST 适合需要范围查询、前驱后继或有序输出的场景。",
+          "model": "qwen3.8-flash",
+          "message_id": "f08356fd-1803-44b0-90f8-d1a2d543edb4",
+          "seconds": 3.25
+        },
+        {
+          "mode": "fast",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n我们刚才讨论了以下两个知识点：\n1.  **哈希表的核心特点与时间复杂度**：核心是通过键直接计算位置实现高效操作；平均时间复杂度为 O(1)，最坏情况因冲突退化为 O(n)。\n2.  **哈希表与二叉搜索树（BST）的区别**：主要差异在于哈希表无序且平均查找更快（O(1)），而 BST 有序且支持范围查询，但平均查找稍慢（O(log n)）。",
+          "model": "qwen3.8-flash",
+          "message_id": "0625a39b-6c64-4529-b4f2-85b0b98e1dc6",
+          "seconds": 3.44
+        }
+      ],
+      "passed": true,
+      "conversation_id": "17f40562-34c7-40e5-8e10-9d172c2a97e7"
+    },
+    {
+      "id": "boundary_1",
+      "category": "boundary",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释栈的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n栈（Stack）的核心特点是“后进先出”（LIFO, Last-In-First-Out）。这意味着最后被压入（Push）栈的元素，会最先被弹出（Pop）。所有操作都严格限制在栈顶进行，不支持随机访问中间元素。",
+          "model": "qwen3.8-flash",
+          "message_id": "c0ca6fd9-e083-418f-a515-219f643e4cef",
+          "seconds": 3.7
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n栈的核心操作（入栈 Push 和出栈 Pop）的时间复杂度均为 **O(1)**，即常数时间。这是因为这些操作只涉及栈顶指针的移动，不需要遍历或搜索整个数据结构。",
+          "task_id": "47615c79-d2aa-45fb-99a8-a11302e39ab7",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "5251ad83-db6c-4c94-9ed5-a72df75d0da7"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "5251ad83-db6c-4c94-9ed5-a72df75d0da7",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 11.49
+        },
+        {
+          "mode": "fast",
+          "question": "它和队列有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n栈和队列的主要区别在于元素的存取顺序：\n1. **栈（Stack）**：遵循“后进先出”（LIFO）原则，所有操作仅在栈顶进行。\n2. **队列（Queue）**：遵循“先进先出”（FIFO）原则，元素从队尾入队，从队头出队。",
+          "model": "qwen3.8-flash",
+          "message_id": "bc92fc12-b6f7-4a17-b29f-976d31af197d",
+          "seconds": 3.75
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n我们刚才讨论了栈的两个核心知识点：\n1. **核心特点与时间复杂度**：栈遵循“后进先出”（LIFO）原则，其入栈和出栈操作的时间复杂度均为 O(1)。\n2. **与队列的区别**：栈是 LIFO，而队列遵循“先进先出”（FIFO）原则，且队列支持从队尾插入、队头删除的双端操作特性。",
+          "task_id": "d9054322-0559-467f-9fac-91e52e2fb86a",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "9a8d438b-551c-4961-a524-399673fa8b39"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "9a8d438b-551c-4961-a524-399673fa8b39",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 6.28
+        }
+      ],
+      "passed": true,
+      "conversation_id": "763e0447-3f59-4453-a3c6-3b8db92aad18"
+    },
+    {
+      "id": "boundary_2",
+      "category": "boundary",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释二叉树的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n二叉树的核心特点是每个节点最多只有两个子节点，分别称为左子节点和右子节点。这种结构使得二叉树具有明确的层次关系，便于进行递归操作（如遍历、查找）以及构建平衡搜索树等高级数据结构。",
+          "model": "qwen3.8-flash",
+          "message_id": "f998030b-86fd-47fa-ab1f-731dbaa274b4",
+          "seconds": 3.0
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n二叉树常见操作的时间复杂度取决于树的平衡状态：\n1. **查找、插入、删除**：在平衡二叉树（如 AVL 树）中为 O(log n)；在最坏情况（退化为链表）下为 O(n)。\n2. **遍历**（前序、中序、后序、层序）：无论是否平衡，均为 O(n)，因为需要访问每个节点一次。",
+          "task_id": "966fc1df-6a3e-4785-a22a-78dd997378ee",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "f2450d54-c0ee-4382-a6d7-6a1edc39d4f1"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "f2450d54-c0ee-4382-a6d7-6a1edc39d4f1",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 6.16
+        },
+        {
+          "mode": "fast",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n二叉树是结构定义，而二叉搜索树（BST）是带有特定排序规则的二叉树。核心区别在于：\n1. **有序性约束**：BST 要求任意节点的左子树所有值小于该节点，右子树所有值大于该节点；普通二叉树无此限制 。\n2. **查找效率**：基于有序性，BST 可利用二分查找思想将平均查找复杂度降至 O(log n)；普通二叉树查找通常需遍历，复杂度为 O(n)。",
+          "model": "qwen3.8-flash",
+          "message_id": "2602f7c0-7736-48b3-b167-05b12006d484",
+          "seconds": 4.5
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充：**\n我们刚才讨论了以下两个核心知识点：\n1. **二叉树与二叉搜索树的区别**：二叉树仅定义结构（每个节点最多两个子节点），而二叉搜索树（BST）在此基础上增加了“左小右大”的有序性约束 。\n2. **时间复杂度差异**：普通二叉树的查找、插入等操作在最坏情况下为 O(n)，平均需遍历；而平衡的二叉搜索树利用有序性，可将这些操作的平均时间复杂度优化至 O(log n) 。",
+          "task_id": "80068d41-2d89-4506-8519-0673ebba2979",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "5b5e6293-3732-456c-bcec-c2094315498c"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "5b5e6293-3732-456c-bcec-c2094315498c",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 8.45
+        }
+      ],
+      "passed": true,
+      "conversation_id": "c45fac08-cf7f-4247-a96c-e8e48c33f97e"
+    },
+    {
+      "id": "boundary_3",
+      "category": "boundary",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释链表的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n链表的核心特点包括：\n1. **非连续存储**：节点在内存中分散存放，通过指针连接。\n2. **动态大小**：无需预先分配固定空间，可灵活增减节点。\n3. **高效插入/删除**：只需修改指针指向，时间复杂度为 O(1)（已知位置时）。\n4. **低效随机访问**：无法像数组一样直接索引，需从头遍历，时间复杂度为 O(n)。",
+          "model": "qwen3.8-flash",
+          "message_id": "abc42c23-7a8a-4d1a-849a-0287f0c248a0",
+          "seconds": 3.67
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n链表常见操作的时间复杂度如下：\n- **访问/查找**：O(n)，需从头遍历  不存在，故不标注。\n- **头部插入/删除**：O(1)，直接修改头指针。\n- **尾部插入**：若维护尾指针为 O(1)，否则为 O(n)。\n- **中间插入/删除**：查找位置 O(n) + 修改指针 O(1) = O(n)。",
+          "task_id": "e4e6386e-1fdc-4e63-b4e3-4c10526d8f68",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "4278d40e-aa35-4c64-b423-ce36b2c7282a"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "4278d40e-aa35-4c64-b423-ce36b2c7282a",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 7.55
+        },
+        {
+          "mode": "fast",
+          "question": "它和数组有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n链表与数组的核心区别在于内存布局与操作效率：\n\n1. **内存结构**\n   - **数组**：连续内存块，支持随机访问（通过下标直接定位）。\n   - **链表**：分散内存节点，通过指针串联，不支持随机访问。\n\n2. **操作复杂度对比**\n   | 操作 | 数组 | 链表 |\n   | :--- | :--- | :--- |\n   | **随机访问** | O(1) ✅ | O(n) ❌ |\n   | **头部插入/删除** | O(n) ❌ (需移动元素) | O(1) ✅ |\n   | **尾部插入** | O(1) ✅ (若容量足够) | O(1) ✅ (若有尾指针) / O(n) ❌ |\n   | **中间插入/删除** | O(n) ❌ (查找+移动) | O(n) ❌ (查找) + O(1) ✅ (修改指针) |\n\n3. **空间灵活性**\n   - **数组**：大小固定（静态）或扩容成本高（动态），易造成空间浪费或不足。\n   - **链表**：动态分配，按需使用内存，无预分配开销，但每个节点需额外存储指针（空间开销略大）。\n\n> 💡 **建议**：若需频繁按索引访问数据，选数组；若需频繁在任意位置增删且无需随机访问，选链表。",
+          "model": "qwen3.8-flash",
+          "message_id": "4645aef8-e87d-4e5b-8a75-bc6b5e03b76e",
+          "seconds": 7.2
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论了以下两个核心知识点：\n\n1. **链表的特点与时间复杂度**\n   - 特点：非连续存储、动态大小、指针连接 。\n   - 复杂度：访问 O(n)，头尾增删 O(1)（视实现而定），中间增删查找需 O(n) 。\n\n2. **链表与数组的区别**\n   - 内存布局：数组连续，支持随机访问；链表分散，不支持 。\n   - 操作效率：数组擅长读取（O(1)），链表擅长插入/删除（O(1)） 。\n   - 空间管理：数组固定或扩容成本高，链表动态灵活但额外存储指针开销 。",
+          "task_id": "01ef7cd8-16e5-460b-ab7a-9ba9e10cd490",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "e1822878-14b7-43f6-9443-a631b2985e8e"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "e1822878-14b7-43f6-9443-a631b2985e8e",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 7.58
+        }
+      ],
+      "passed": true,
+      "conversation_id": "70e7b0b7-330f-44d7-a009-590139d9ba30"
+    },
+    {
+      "id": "boundary_5",
+      "category": "boundary",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释快速排序的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序的核心特点是“分治”与“原地排序”。它通过选择一个基准值（Pivot），将数组划分为小于和大于基准的两部分，然后递归处理这两部分。其平均时间复杂度为 O(n log n)，空间复杂度较低（O(log n)）。\n\n**图解说明**\n由于你喜欢用图解释，以下是快速排序的简化流程示意：\n\n```text\n原始数组: [6, 1, 8, 7, 5]\n          ↓ 选择 Pivot = 5\n分区操作:\n   < 5    |   >= 5\n[1]      | [6, 8, 7]\n          ↓ 递归处理右侧\n          Pivot = 7\n       < 7    |   >= 7\n     [6]      | [8]\n          \n最终合并: [1, 5, 6, 7, 8] (有序)\n```",
+          "model": "qwen3.8-flash",
+          "message_id": "5115febc-5522-4ace-8442-a73f26e33e32",
+          "seconds": 5.05
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序的时间复杂度取决于分区是否均匀：\n*   **平均情况**：O(n log n) \n*   **最坏情况**：O(n²)，通常发生在数组已有序且基准值选择不当时 \n\n*(注：因当前输入中无有效编号证据，上述通用知识无法标注真实来源，故不添加虚构的 [S#] 标记，仅作为通用知识呈现)*",
+          "task_id": "6c9fd283-ecbe-44e2-bf04-038eb611b187",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "a21feb95-ae95-45fa-9fc4-cfd28c2ac94e"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "a21feb95-ae95-45fa-9fc4-cfd28c2ac94e",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 6.91
+        },
+        {
+          "mode": "fast",
+          "question": "它和归并排序有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n快速排序与归并排序的主要区别在于：\n1. **空间复杂度**：快排是原地排序（O(log n)），归并需要额外数组（O(n)）。\n2. **稳定性**：快排不稳定，归并稳定。\n3. **最坏情况**：快排可能退化到 O(n²)，归并始终为 O(n log n)。\n\n**图解说明**\n```text\n       快速排序 (Quick Sort)          归并排序 (Merge Sort)\n      ---------------------          --------------------\n分区:  [6,1,8] -> <5 | >5           [6,1,8] -> [6,1] [8]\n       (原地交换，无新数组)            (拆分到新数组)\n       \n合并:  无需合并步骤                  合并: [1,6] + [8] -> [1,6,8]\n       (递归返回即有序)              (需额外空间比较大小)\n```",
+          "model": "qwen3.8-flash",
+          "message_id": "37b8d273-c0b5-46cd-a3e1-049c816056fc",
+          "seconds": 5.36
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论了快速排序的两个核心知识点：\n1. **时间复杂度**：平均 O(n log n)，最坏 O(n²)。\n2. **与归并排序的区别**：快排原地、不稳定；归并需额外空间、稳定且性能更稳。\n\n**图解说明**\n```text\n       快速排序 (Quick Sort)          归并排序 (Merge Sort)\n      ---------------------          --------------------\n分区:  [6,1,8] -> <5 | >5           [6,1,8] -> [6,1] [8]\n       (原地交换，无新数组)            (拆分到新数组)\n       \n合并:  无需合并步骤                  合并: [1,6] + [8] -> [1,6,8]\n       (递归返回即有序)              (需额外空间比较大小)\n```",
+          "task_id": "fda1d2b0-bd64-44ee-981b-add181c927ff",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "9e116078-aed0-48da-bccd-935dec72f7a2"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "9e116078-aed0-48da-bccd-935dec72f7a2",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 7.5
+        }
+      ],
+      "passed": true,
+      "conversation_id": "0008fbb8-2d3b-4f57-bd84-b93fc863b911"
+    },
+    {
+      "id": "boundary_4",
+      "category": "boundary",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释广度优先搜索的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n\n广度优先搜索（BFS）的核心特点是**“层层推进”**，即从起始节点出发，先访问所有距离为1的邻居，再访问距离为2的邻居，依此类推。\n\n为了契合你喜欢的图示风格，可以这样理解：\n想象水波纹扩散，或者像剥洋葱一样一层一层向外扩展。它使用**队列（Queue）**数据结构来保证这种顺序，确保离起点近的节点一定比远的节点先被处理。",
+          "model": "qwen3.8-flash",
+          "message_id": "29e6819a-d356-437f-917d-82acceb11828",
+          "seconds": 3.5
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n\n广度优先搜索（BFS）的时间复杂度通常为 **O(V + E)**，其中 V 是顶点数，E 是边数。\n\n结合你喜欢的图示风格理解：\n想象你在迷宫里一层层向外探索。\n- **V (Vertices)**：代表你需要“标记”或“访问”的每一个房间（节点）。每个房间最多被进入一次。\n- **E (Edges)**：代表连接房间的每一条走廊（边）。为了发现新房间，你必须检查当前房间通往其他房间的所有走廊。\n\n因此，总的工作量就是“查看所有房间”加上“查看所有连接通道”，即 O(V + E)。",
+          "task_id": "f85cbc7d-d2cb-494d-b085-ff004634c236",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "341f8588-b9c9-4670-90d2-9d15180b0ee1"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "341f8588-b9c9-4670-90d2-9d15180b0ee1",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 13.01
+        },
+        {
+          "mode": "fast",
+          "question": "它和深度优先搜索有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n\n广度优先搜索（BFS）与深度优先搜索（DFS）的核心区别在于**探索策略**和**数据结构**：\n\n1.  **探索顺序不同**\n    *   **BFS**：像水波纹扩散，先访问离起点最近的邻居，再向外扩展（层层推进）。\n    *   **DFS**：像走迷宫，沿着一条路一直走到尽头，如果走不通再回头尝试其他路径（深入到底）。\n\n2.  **使用的数据结构不同**\n    *   **BFS**：使用**队列（Queue）**，遵循“先进先出”原则，保证近的先处理。\n    *   **DFS**：使用**栈（Stack）**或递归调用，遵循“后进先出”原则，保证最后发现的节点最先被继续深入。\n\n结合你喜欢的图示风格理解：\n*   **BFS 图示**：想象一个同心圆，从中心点开始，第一圈、第二圈依次填满。\n*   **DFS 图示**：想象一棵树，从根节点出发，一直沿着最左边的树枝爬到叶子，然后才回溯去爬右边的树枝。",
+          "model": "qwen3.8-flash",
+          "message_id": "4cf5222e-de3c-4778-8c24-dfde206b6a4e",
+          "seconds": 5.33
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n\n我们刚才讨论了广度优先搜索（BFS）的两个核心知识点：\n\n1.  **时间复杂度**：BFS 的时间复杂度为 O(V + E)，即需要访问所有顶点并检查所有边 。\n2.  **与 DFS 的区别**：BFS 采用“层层推进”策略，使用队列；而 DFS 采用“深入到底”策略，使用栈或递归 。\n\n结合你喜欢的图示风格理解：\n*   **BFS** 像同心圆扩散，一圈圈向外扩展。\n*   **DFS** 像树枝生长，沿着一条路径一直延伸到尽头再回溯。",
+          "task_id": "f7959304-33f7-4f03-8588-0c1a26cd316c",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "87f3a706-98c9-4ff2-a3b7-09d2495963ae"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "87f3a706-98c9-4ff2-a3b7-09d2495963ae",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 8.3
+        }
+      ],
+      "passed": true,
+      "conversation_id": "f1c9107d-d591-461b-985a-1625d8008426"
+    },
+    {
+      "id": "boundary_6",
+      "category": "boundary",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。请解释哈希表的核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n哈希表的核心特点是**通过键（Key）直接计算存储位置，实现接近 O(1) 的平均查找、插入和删除效率**。它利用哈希函数将键映射到数组索引，牺牲了数据的有序性以换取极高的访问速度。",
+          "model": "qwen3.8-flash",
+          "message_id": "95c3186b-aa95-4e7e-b89d-119c469e122c",
+          "seconds": 5.41
+        },
+        {
+          "mode": "agent",
+          "question": "接着说刚才这个知识点的时间复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n哈希表的时间复杂度取决于操作类型和负载因子：\n\n*   **平均情况**：查找、插入、删除均为 **O(1)**。这是因为哈希函数能直接将键映射到数组索引，无需遍历。\n*   **最坏情况**：**O(n)**。当大量键发生哈希冲突（例如所有键都映射到同一个索引）时，数据会退化为链表或树结构，需要线性扫描。\n\n**图示理解**\n想象一个有 10 个格子的柜子（数组）。\n*   **理想状态 (O(1))**：你有一把钥匙（哈希值），直接打开对应的格子拿到东西。不管柜子里有多少东西，动作都一样快。\n*   **冲突状态 (O(n))**：如果所有人都把东西塞进第 1 号格子，你要找特定物品时，就得从第 1 个开始一个个翻，直到找到为止。",
+          "task_id": "0f84b1d8-00da-4cc5-b11a-4a09da8a4e89",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "接着说刚才这个知识点 时间复杂度",
+                "segment": "接着说刚才这个知识点的时间复杂度。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "接着说刚才这个知识点 时间复杂度"
+                },
+                "source_message_id": "0c198b2a-244d-4814-89c3-57a93563a332"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "0c198b2a-244d-4814-89c3-57a93563a332",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 9.44
+        },
+        {
+          "mode": "fast",
+          "question": "它和二叉搜索树有什么区别？",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n哈希表与二叉搜索树（BST）的核心区别在于**数据组织方式**和**有序性支持**。\n\n*   **查找效率**：哈希表平均 O(1)，但最坏 O(n)；BST 平均 O(log n)，若树平衡则稳定为 O(log n)。\n*   **有序性**：BST 天然支持范围查询和中序遍历输出有序序列；哈希表无序，无法高效获取“大于某值的所有键”。\n*   **适用场景**：需要快速精确匹配用哈希表；需要排序、范围查询或动态维护顺序时用 BST。\n\n**图示理解**\n想象两种图书馆找书的方式：\n*   **哈希表**：像自动售货机。输入编号（Key），机器直接吐出对应商品（Value）。极快，但你不知道旁边有什么书，也无法按书名排列浏览。\n*   **二叉搜索树**：像传统的书架索引卡。每次比较决定往左还是往右走，虽然慢一点（O(log n)），但你可以轻松找到“所有 A 开头的书”或“第 10 到 20 本的书”，因为它们是有序排列的。",
+          "model": "qwen3.8-flash",
+          "message_id": "8f283cee-6a0e-4951-85c8-6c3537d66810",
+          "seconds": 6.77
+        },
+        {
+          "mode": "agent",
+          "question": "请总结我们刚才讨论的两个知识点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们刚才讨论了哈希表的两个核心知识点：\n\n1.  **时间复杂度特性**：哈希表在平均情况下提供 O(1) 的查找、插入和删除效率，但在最坏情况（大量冲突）下退化为 O(n)。\n2.  **与二叉搜索树的区别**：哈希表无序且擅长精确匹配；二叉搜索树有序，支持范围查询，但平均效率为 O(log n)。\n\n**图示理解**\n想象两条路：\n*   **哈希表**是“传送门”：输入坐标直接到达目标（O(1)），但周围没有地图（无序）。\n*   **二叉搜索树**是“分岔路口”：每次选择左或右，虽然慢一点（O(log n)），但你能看到沿途的风景顺序（有序）。",
+          "task_id": "8cbe3131-0e22-4787-be25-83b055e54c13",
+          "model": "qwen3.8-flash",
+          "intent": {
+            "mode": "execute",
+            "tasks": [
+              {
+                "id": "s1",
+                "tools": [
+                  "answer_course_question"
+                ],
+                "topic": "总结我们刚才讨论 两个知识点",
+                "segment": "请总结我们刚才讨论的两个知识点。",
+                "acceptance": {
+                  "kind": "tool_result_and_artifact",
+                  "topic": "总结我们刚才讨论 两个知识点"
+                },
+                "source_message_id": "395ca6e5-b551-4f76-970e-b1fcd11975eb"
+              }
+            ],
+            "parser": "rule_candidates_v1",
+            "revision": 1,
+            "exclusions": [],
+            "uncertainty": [
+              "规则候选需由执行器核验"
+            ],
+            "resolved_goal": null,
+            "schema_version": "v1",
+            "unresolved_slots": [],
+            "request_message_id": "395ca6e5-b551-4f76-970e-b1fcd11975eb",
+            "clarification_question": null,
+            "original_request_message_id": null
+          },
+          "seconds": 7.92
+        }
+      ],
+      "passed": true,
+      "conversation_id": "29b922a3-9799-4cda-bd2a-3a3efb551ff0"
+    },
+    {
+      "id": "long_1",
+      "category": "long",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。我正在学习栈，这是本次讨论的主题。请先说核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的核心特点是“后进先出”（LIFO），即最后放入的元素最先被取出，就像叠盘子一样，只能从顶部进行插入和删除操作。",
+          "model": "qwen3.8-flash",
+          "message_id": "2bc9ed17-23c1-450f-be9a-701977699e6c",
+          "seconds": 2.98
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的典型应用包括：函数调用管理（保存返回地址和局部变量）、表达式求值（如括号匹配、后缀表达式计算）以及撤销操作（如文本编辑器的“Ctrl+Z”）。",
+          "model": "qwen3.8-flash",
+          "message_id": "855d1f6a-6f74-4d3b-a2a0-56704d6f75da",
+          "seconds": 3.83
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n常见误区是认为栈可以随机访问中间元素，实际上它仅支持在顶部进行插入和删除操作 。",
+          "model": "qwen3.8-flash",
+          "message_id": "21173c3e-19ae-4fc0-b572-224d9e6c8b02",
+          "seconds": 2.75
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的核心操作（入栈 push、出栈 pop、查看栈顶 peek）的时间复杂度均为 O(1)，因为只需访问数组或链表的头部/尾部，无需遍历 。",
+          "model": "qwen3.8-flash",
+          "message_id": "e494698f-7115-4394-81c2-17566a399d29",
+          "seconds": 2.27
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n实现栈时需注意：1. 动态扩容策略（避免频繁内存分配）；2. 边界检查（防止下溢/上溢）；3. 线程安全（若多线程使用需加锁）。",
+          "model": "qwen3.8-flash",
+          "message_id": "fa74b2c4-603d-4cf4-84c8-2f8f2889813a",
+          "seconds": 2.72
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n*   **优点**：操作高效（O(1)），逻辑简单，天然适合处理“最后发生的最先处理”的场景（如撤销、递归）。\n*   **缺点**：无法随机访问中间元素，灵活性低；若实现不当（如数组固定大小）易溢出或浪费空间。",
+          "model": "qwen3.8-flash",
+          "message_id": "9e54097f-b626-488c-8d5b-b82a944c12ca",
+          "seconds": 3.08
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的典型应用包括：函数调用管理（保存返回地址和局部变量）、表达式求值（如括号匹配、后缀表达式计算）以及撤销操作（如文本编辑器的“Ctrl+Z”）。",
+          "model": "qwen3.8-flash",
+          "message_id": "e5c7c046-a533-40a3-8b0e-a1793467a13e",
+          "seconds": 2.12
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n常见误区是认为栈可以随机访问中间元素，实际上它仅支持在顶部进行插入和删除操作 。",
+          "model": "qwen3.8-flash",
+          "message_id": "f872165d-3204-4044-9735-3040ca4d9a39",
+          "seconds": 2.05
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的核心操作（入栈、出栈、查看栈顶）时间复杂度均为 O(1)。这是因为这些操作仅涉及数组或链表的头部/尾部，无需遍历整个结构。",
+          "model": "qwen3.8-flash",
+          "message_id": "d3deacfc-cec0-4ad3-ab81-aac5230e4560",
+          "seconds": 2.91
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n实现栈时需注意：1. 动态扩容策略（避免频繁内存分配）；2. 边界检查（防止下溢/上溢）；3. 线程安全（若多线程使用需加锁）。",
+          "model": "qwen3.8-flash",
+          "message_id": "d93ee855-2a8d-43e2-af94-2f4c752986de",
+          "seconds": 2.61
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n*   **优点**：操作高效（O(1)），逻辑简单，天然适合处理“最后发生的最先处理”的场景（如撤销、递归）。\n*   **缺点**：无法随机访问中间元素，灵活性低；若实现不当（如数组固定大小）易溢出或浪费空间。",
+          "model": "qwen3.8-flash",
+          "message_id": "0446503d-9884-4496-97f1-63c2c8347c07",
+          "seconds": 3.08
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的典型应用包括：函数调用管理（保存返回地址和局部变量）、表达式求值（如括号匹配、后缀表达式计算）以及撤销操作（如文本编辑器的“Ctrl+Z”）。",
+          "model": "qwen3.8-flash",
+          "message_id": "89372cae-64a2-4a81-977f-bf5990168f07",
+          "seconds": 5.17
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n常见误区是认为栈可以随机访问中间元素，实际上它仅支持在顶部进行插入和删除操作 。",
+          "model": "qwen3.8-flash",
+          "message_id": "6101a108-eb7b-42e2-9145-d9e25b4cd36c",
+          "seconds": 1.91
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的核心操作（入栈、出栈、查看栈顶）时间复杂度均为 O(1)。这是因为这些操作仅涉及数组或链表的头部/尾部，无需遍历整个结构。",
+          "model": "qwen3.8-flash",
+          "message_id": "63bd4ce7-ee03-4b6c-ab2e-8473be52d6d2",
+          "seconds": 1.95
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n实现栈时需注意：1. 动态扩容策略（避免频繁内存分配）；2. 边界检查（防止下溢/上溢）；3. 线程安全（若多线程使用需加锁）。",
+          "model": "qwen3.8-flash",
+          "message_id": "d66d1fe4-12f9-45e3-9b90-424063ecbc0e",
+          "seconds": 1.97
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n*   **优点**：操作高效（O(1)），逻辑简单，天然适合处理“最后发生的最先处理”的场景（如撤销、递归）。\n*   **缺点**：无法随机访问中间元素，灵活性低；若实现不当（如数组固定大小）易溢出或浪费空间。",
+          "model": "qwen3.8-flash",
+          "message_id": "65756941-d83b-47d2-a72a-4060d0f18957",
+          "seconds": 3.24
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的典型应用包括：函数调用管理（保存返回地址和局部变量）、表达式求值（如括号匹配、后缀表达式计算）以及撤销操作（如文本编辑器的“Ctrl+Z”）。",
+          "model": "qwen3.8-flash",
+          "message_id": "a092a260-da39-47f8-9377-5e3ac9146438",
+          "seconds": 2.67
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n常见误区是认为栈可以随机访问中间元素，实际上它仅支持在顶部进行插入和删除操作 。",
+          "model": "qwen3.8-flash",
+          "message_id": "036775ee-5a6c-4fab-a81a-5222e92ea516",
+          "seconds": 1.97
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的核心操作（入栈、出栈、查看栈顶）时间复杂度均为 O(1)。这是因为这些操作仅涉及数组或链表的头部/尾部，无需遍历整个结构。",
+          "model": "qwen3.8-flash",
+          "message_id": "2afee6c0-8f47-4701-8527-ac06bb5cbb07",
+          "seconds": 2.66
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n实现栈时需注意：1. 动态扩容策略（避免频繁内存分配）；2. 边界检查（防止下溢/上溢）；3. 线程安全（若多线程使用需加锁）。",
+          "model": "qwen3.8-flash",
+          "message_id": "8996239f-2a59-4e57-be86-915998ff8fee",
+          "seconds": 2.53
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n*   **优点**：操作高效（O(1)），逻辑简单，天然适合处理“最后发生的最先处理”的场景（如撤销、递归）。\n*   **缺点**：无法随机访问中间元素，灵活性低；若实现不当（如数组固定大小）易溢出或浪费空间。",
+          "model": "qwen3.8-flash",
+          "message_id": "ac83334a-1c79-445b-9bf8-4199b64c50d7",
+          "seconds": 2.39
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的典型应用包括：函数调用管理（保存返回地址和局部变量）、表达式求值（如括号匹配、后缀表达式计算）以及撤销操作（如文本编辑器的“Ctrl+Z”）。",
+          "model": "qwen3.8-flash",
+          "message_id": "9aac8b5a-4ed6-4f6e-a17f-7afb6dbb1915",
+          "seconds": 2.64
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n常见误区是认为栈可以随机访问中间元素，实际上它仅支持在顶部进行插入和删除操作 。",
+          "model": "qwen3.8-flash",
+          "message_id": "7fea0787-a6e8-4b9a-a06b-6eb7e98dfbd9",
+          "seconds": 2.52
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的核心操作（入栈、出栈、查看栈顶）时间复杂度均为 O(1)。这是因为这些操作仅涉及数组或链表的头部/尾部，无需遍历整个结构。",
+          "model": "qwen3.8-flash",
+          "message_id": "a8533ee1-03c5-4e75-904f-1cef8c3d0f1c",
+          "seconds": 2.66
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n实现栈时需注意：1. 动态扩容策略（避免频繁内存分配）；2. 边界检查（防止下溢/上溢）；3. 线程安全（若多线程使用需加锁）。",
+          "model": "qwen3.8-flash",
+          "message_id": "8856d61d-1116-4379-8412-4f26556084b4",
+          "seconds": 2.16
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n*   **优点**：操作高效（O(1)），逻辑简单，天然适合处理“最后发生的最先处理”的场景（如撤销、递归）。\n*   **缺点**：无法随机访问中间元素，灵活性低；若实现不当（如数组固定大小）易溢出或浪费空间。",
+          "model": "qwen3.8-flash",
+          "message_id": "97a7d1e6-4f38-4500-b543-86fa30db4ad9",
+          "seconds": 2.62
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的典型应用包括：函数调用管理（保存返回地址和局部变量）、表达式求值（如括号匹配、后缀表达式计算）以及撤销操作（如文本编辑器的“Ctrl+Z”）。",
+          "model": "qwen3.8-flash",
+          "message_id": "213fd6d2-9da6-4e42-8e42-176b83cea2ad",
+          "seconds": 2.16
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n常见误区是认为栈可以随机访问中间元素，实际上它仅支持在顶部进行插入和删除操作 。",
+          "model": "qwen3.8-flash",
+          "message_id": "d6af23b4-f3f4-4267-88a6-c87b212d086a",
+          "seconds": 3.67
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n栈的核心操作（入栈、出栈、查看栈顶）时间复杂度均为 O(1)。这是因为这些操作仅涉及数组或链表的头部/尾部，无需遍历整个结构。",
+          "model": "qwen3.8-flash",
+          "message_id": "dbc1d243-6b53-4b41-92c7-e136c6bc812b",
+          "seconds": 2.42
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕栈，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n实现栈时需注意：1. 动态扩容策略（避免频繁内存分配）；2. 边界检查（防止下溢/上溢）；3. 线程安全（若多线程使用需加锁）。",
+          "model": "qwen3.8-flash",
+          "message_id": "66f5f1ca-2d55-4669-a72a-a7b1ffbad05a",
+          "seconds": 2.97
+        },
+        {
+          "mode": "fast",
+          "question": "现在请回顾本次对话最开始确定的学习主题，并概括我们的讨论。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n本次对话的学习主题是**栈（Stack）**。我们围绕该数据结构，依次讨论了其典型应用、常见误区、操作复杂度、实现注意点以及优缺点。",
+          "model": "qwen3.8-flash",
+          "message_id": "c972dab5-ffcc-4b8f-8f0a-68b327d3fc8c",
+          "seconds": 2.28
+        }
+      ],
+      "passed": true,
+      "conversation_id": "3d94665e-c177-4923-860e-8dc4972ccf96"
+    },
+    {
+      "id": "long_2",
+      "category": "long",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。我正在学习二叉树，这是本次讨论的主题。请先说核心特点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树的核心特点是每个节点最多有两个子节点（左孩子和右孩子），且结构呈层级状，无环。",
+          "model": "qwen3.8-flash",
+          "message_id": "deba5fe6-f81d-47df-b99c-7272421c5bf8",
+          "seconds": 2.67
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树典型应用包括：\n1. **搜索效率**：如二叉搜索树（BST），用于快速查找数据 [图：根节点比较，左小右大]。\n2. **表达式解析**：编译器用表达式树处理数学运算优先级 [图：操作符在内部节点，操作数在叶子]。\n3. **层级结构**：如文件系统目录或组织架构图 [图：树状分支表示父子关系]。",
+          "model": "qwen3.8-flash",
+          "message_id": "ce2db87b-ccce-4aa9-8481-5da71e4585c9",
+          "seconds": 3.28
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n常见误区及图示解释：\n\n1.  **误以为所有二叉树都是有序的**\n    *   **解释**：普通二叉树不保证左子节点小于根节点。只有“二叉搜索树 (BST)”才具备此特性 [图：普通二叉树 vs BST，标注数值大小关系]。\n2.  **混淆“完全二叉树”与“满二叉树”**\n    *   **解释**：满二叉树每层都填满；完全二叉树仅最后一层可能不满，且节点必须从左到右连续排列 [图：对比两种树的叶子节点分布，标出空缺位置]。\n3.  **忽略递归终止条件导致栈溢出**\n    *   **解释**：处理空节点（null）时若未正确返回，会导致无限递归 [图：递归调用栈示意，标出 null 检查点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "a80a7be9-c5d9-4cd8-97ad-38ffab0e974d",
+          "seconds": 4.97
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树操作复杂度取决于树的形态：\n\n1.  **平衡二叉树（如 AVL、红黑树）**\n    *   **查找/插入/删除**：平均与最坏情况均为 $O(\\log n)$ [图：高度为 $\\log_2 n$ 的紧凑树，路径短]。\n2.  **退化二叉树（链状）**\n    *   **查找/插入/删除**：最坏情况退化为 $O(n)$ [图：节点呈单侧直线排列，需遍历所有节点]。\n3.  **遍历操作**\n    *   **前/中/后序遍历**：无论树形如何，均需访问每个节点一次，复杂度恒为 $O(n)$ [图：箭头依次经过所有节点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "cf657094-908f-4184-af40-1e79632d6e11",
+          "seconds": 4.73
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n实现二叉树时的关键注意点：\n\n1.  **指针/引用管理**\n    *   **解释**：在 C/C++ 等语言中，需手动释放内存以防泄漏；在 Java/Python 中需注意对象引用生命周期 [图：节点创建与销毁的箭头流向，标出“悬空指针”风险点]。\n2.  **递归深度限制**\n    *   **解释**：深树可能导致栈溢出（Stack Overflow）。对于极深的树，建议改用迭代法（使用显式栈）或尾递归优化 [图：调用栈堆积示意 vs 显式栈数组]。\n3.  **边界条件处理**\n    *   **解释**：必须正确处理空树（root == null）、单节点树、以及只有左子树或右子树的情况 [图：三种特殊形态的二叉树结构，标注判断分支]。\n4.  **平衡性维护**\n    *   **解释**：若频繁插入/删除且数据有序，普通 BST 会退化为链表。生产环境通常选用自平衡树（如 AVL、红黑树）或 B 树变体 [图：退化链状树 vs 平衡树的高度对比]。",
+          "model": "qwen3.8-flash",
+          "message_id": "390fb1bc-996c-4599-8ecb-dd83ab89853a",
+          "seconds": 6.66
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树的优缺点如下：\n\n1.  **优点**\n    *   **层级清晰**：天然适合表示具有父子关系的数据结构（如文件系统、组织架构） [图：树状分支展示层级]。\n    *   **搜索高效**：在平衡状态下，查找、插入和删除的平均时间复杂度为 $O(\\log n)$，优于线性表 [图：二分查找路径示意，对比线性扫描]。\n    *   **动态灵活**：相比数组，节点数量可动态增减，无需预分配固定空间 [图：节点链接示意，无连续内存块限制]。\n\n2.  **缺点**\n    *   **实现复杂**：需要维护指针/引用，代码逻辑比线性结构更繁琐，易出错 [图：多指针连接示意 vs 简单数组索引]。\n    *   **可能退化**：若数据有序插入且无平衡机制，树会退化为链表，性能降至 $O(n)$ [图：平衡树 vs 链状退化树的高度对比]。\n    *   **缓存不友好**：节点在内存中分散存储，遍历时局部性差，可能导致较高的缓存未命中率 [图：内存地址跳跃示意 vs 数组连续地址]。",
+          "model": "qwen3.8-flash",
+          "message_id": "94444877-f24a-4ab7-b4d4-7b611385e372",
+          "seconds": 5.83
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树典型应用包括：\n1. **搜索效率**：如二叉搜索树（BST），用于快速查找数据 [图：根节点比较，左小右大]。\n2. **表达式解析**：编译器用表达式树处理数学运算优先级 [图：操作符在内部节点，操作数在叶子]。\n3. **层级结构**：如文件系统目录或组织架构图 [图：树状分支表示父子关系]。",
+          "model": "qwen3.8-flash",
+          "message_id": "ddd76bf0-b603-4bcd-9d2b-f4a2879dd90d",
+          "seconds": 2.51
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n常见误区及图示解释：\n\n1.  **误以为所有二叉树都是有序的**\n    *   **解释**：普通二叉树不保证左子节点小于根节点。只有“二叉搜索树 (BST)”才具备此特性 [图：普通二叉树 vs BST，标注数值大小关系]。\n2.  **混淆“完全二叉树”与“满二叉树”**\n    *   **解释**：满二叉树每层都填满；完全二叉树仅最后一层可能不满，且节点必须从左到右连续排列 [图：对比两种树的叶子节点分布，标出空缺位置]。\n3.  **忽略递归终止条件导致栈溢出**\n    *   **解释**：处理空节点（null）时若未正确返回，会导致无限递归 [图：递归调用栈示意，标出 null 检查点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "2af45dfb-64bb-4b64-b0f0-deb302568d6d",
+          "seconds": 4.67
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树操作复杂度取决于树的形态：\n\n1.  **平衡二叉树（如 AVL、红黑树）**\n    *   **查找/插入/删除**：平均与最坏情况均为 $O(\\log n)$ [图：高度为 $\\log_2 n$ 的紧凑树，路径短]。\n2.  **退化二叉树（链状）**\n    *   **查找/插入/删除**：最坏情况退化为 $O(n)$ [图：节点呈单侧直线排列，需遍历所有节点]。\n3.  **遍历操作**\n    *   **前/中/后序遍历**：无论树形如何，均需访问每个节点一次，复杂度恒为 $O(n)$ [图：箭头依次经过所有节点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "e747b587-34e1-4cdd-b0dd-dfc3df2d1a8a",
+          "seconds": 3.11
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n实现二叉树时的关键注意点：\n\n1.  **指针/引用管理**\n    *   **解释**：在 C/C++ 等语言中，需手动释放内存以防泄漏；在 Java/Python 中需注意对象引用生命周期 [图：节点创建与销毁的箭头流向，标出“悬空指针”风险点]。\n2.  **递归深度限制**\n    *   **解释**：深树可能导致栈溢出（Stack Overflow）。对于极深的树，建议改用迭代法（使用显式栈）或尾递归优化 [图：调用栈堆积示意 vs 显式栈数组]。\n3.  **边界条件处理**\n    *   **解释**：必须正确处理空树（root == null）、单节点树、以及只有左子树或右子树的情况 [图：三种特殊形态的二叉树结构，标注判断分支]。\n4.  **平衡性维护**\n    *   **解释**：若频繁插入/删除且数据有序，普通 BST 会退化为链表。生产环境通常选用自平衡树（如 AVL、红黑树）或 B 树变体 [图：退化链状树 vs 平衡树的高度对比]。",
+          "model": "qwen3.8-flash",
+          "message_id": "f285fbbe-9f65-4695-96d4-c9ad1c91dc00",
+          "seconds": 5.19
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树的优缺点如下：\n\n1.  **优点**\n    *   **层级清晰**：天然适合表示具有父子关系的数据结构（如文件系统、组织架构） [图：树状分支展示层级]。\n    *   **搜索高效**：在平衡状态下，查找、插入和删除的平均时间复杂度为 $O(\\log n)$，优于线性表 [图：二分查找路径示意，对比线性扫描]。\n    *   **动态灵活**：相比数组，节点数量可动态增减，无需预分配固定空间 [图：节点链接示意，无连续内存块限制]。\n\n2.  **缺点**\n    *   **实现复杂**：需要维护指针/引用，代码逻辑比线性结构更繁琐，易出错 [图：多指针连接示意 vs 简单数组索引]。\n    *   **可能退化**：若数据有序插入且无平衡机制，树会退化为链表，性能降至 $O(n)$ [图：平衡树 vs 链状退化树的高度对比]。\n    *   **缓存不友好**：节点在内存中分散存储，遍历时局部性差，可能导致较高的缓存未命中率 [图：内存地址跳跃示意 vs 数组连续地址]。",
+          "model": "qwen3.8-flash",
+          "message_id": "a25655ab-2df1-4b66-8646-b64066223eeb",
+          "seconds": 5.92
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树典型应用包括：\n1. **搜索效率**：如二叉搜索树（BST），用于快速查找数据 [图：根节点比较，左小右大]。\n2. **表达式解析**：编译器用表达式树处理数学运算优先级 [图：操作符在内部节点，操作数在叶子]。\n3. **层级结构**：如文件系统目录或组织架构图 [图：树状分支表示父子关系]。",
+          "model": "qwen3.8-flash",
+          "message_id": "b18f65be-3edb-4947-8848-bf436e926408",
+          "seconds": 3.03
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n常见误区及图示解释：\n\n1.  **误以为所有二叉树都是有序的**\n    *   **解释**：普通二叉树不保证左子节点小于根节点。只有“二叉搜索树 (BST)”才具备此特性 [图：普通二叉树 vs BST，标注数值大小关系]。\n2.  **混淆“完全二叉树”与“满二叉树”**\n    *   **解释**：满二叉树每层都填满；完全二叉树仅最后一层可能不满，且节点必须从左到右连续排列 [图：对比两种树的叶子节点分布，标出空缺位置]。\n3.  **忽略递归终止条件导致栈溢出**\n    *   **解释**：处理空节点（null）时若未正确返回，会导致无限递归 [图：递归调用栈示意，标出 null 检查点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "6eea9d46-f7a4-410a-a8a2-087a24aedb31",
+          "seconds": 3.91
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树操作复杂度取决于树的平衡性：\n\n1.  **平衡二叉树（如 AVL、红黑树）**\n    *   **查找/插入/删除**：平均与最坏情况均为 $O(\\log n)$ [图：高度为 $\\log_2 n$ 的紧凑树，路径短]。\n2.  **退化二叉树（链状）**\n    *   **查找/插入/删除**：最坏情况退化为 $O(n)$ [图：节点呈单侧直线排列，需遍历所有节点]。\n3.  **遍历操作**\n    *   **前/中/后序遍历**：无论树形如何，均需访问每个节点一次，复杂度恒为 $O(n)$ [图：箭头依次经过所有节点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "fb548c22-2f39-4046-a6ac-bd8a2fb2296a",
+          "seconds": 4.55
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n实现二叉树时的关键注意点：\n\n1.  **指针/引用管理**\n    *   **解释**：在 C/C++ 等语言中，需手动释放内存以防泄漏；在 Java/Python 中需注意对象引用生命周期 [图：节点创建与销毁的箭头流向，标出“悬空指针”风险点]。\n2.  **递归深度限制**\n    *   **解释**：深树可能导致栈溢出（Stack Overflow）。对于极深的树，建议改用迭代法（使用显式栈）或尾递归优化 [图：调用栈堆积示意 vs 显式栈数组]。\n3.  **边界条件处理**\n    *   **解释**：必须正确处理空树（root == null）、单节点树、以及只有左子树或右子树的情况 [图：三种特殊形态的二叉树结构，标注判断分支]。\n4.  **平衡性维护**\n    *   **解释**：若频繁插入/删除且数据有序，普通 BST 会退化为链表。生产环境通常选用自平衡树（如 AVL、红黑树）或 B 树变体 [图：退化链状树 vs 平衡树的高度对比]。",
+          "model": "qwen3.8-flash",
+          "message_id": "1e2a499b-6436-4ec4-b982-3b596b75bb17",
+          "seconds": 4.77
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树的优缺点如下：\n\n1.  **优点**\n    *   **层级清晰**：天然适合表示具有父子关系的数据结构（如文件系统、组织架构） [图：树状分支展示层级]。\n    *   **搜索高效**：在平衡状态下，查找、插入和删除的平均时间复杂度为 $O(\\log n)$，优于线性表 [图：二分查找路径示意，对比线性扫描]。\n    *   **动态灵活**：相比数组，节点数量可动态增减，无需预分配固定空间 [图：节点链接示意，无连续内存块限制]。\n\n2.  **缺点**\n    *   **实现复杂**：需要维护指针/引用，代码逻辑比线性结构更繁琐，易出错 [图：多指针连接示意 vs 简单数组索引]。\n    *   **可能退化**：若数据有序插入且无平衡机制，树会退化为链表，性能降至 $O(n)$ [图：平衡树 vs 链状退化树的高度对比]。\n    *   **缓存不友好**：节点在内存中分散存储，遍历时局部性差，可能导致较高的缓存未命中率 [图：内存地址跳跃示意 vs 数组连续地址]。",
+          "model": "qwen3.8-flash",
+          "message_id": "c1fefb43-c1d0-4975-bd1e-c838654b1355",
+          "seconds": 5.89
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树典型应用包括：\n1. **搜索效率**：如二叉搜索树（BST），用于快速查找数据 [图：根节点比较，左小右大]。\n2. **表达式解析**：编译器用表达式树处理数学运算优先级 [图：操作符在内部节点，操作数在叶子]。\n3. **层级结构**：如文件系统目录或组织架构图 [图：树状分支表示父子关系]。",
+          "model": "qwen3.8-flash",
+          "message_id": "09839826-bcb6-4030-ae4f-63d067e88457",
+          "seconds": 3.7
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n常见误区及图示解释：\n\n1.  **误以为所有二叉树都是有序的**\n    *   **解释**：普通二叉树不保证左子节点小于根节点。只有“二叉搜索树 (BST)”才具备此特性 [图：普通二叉树 vs BST，标注数值大小关系]。\n2.  **混淆“完全二叉树”与“满二叉树”**\n    *   **解释**：满二叉树每层都填满；完全二叉树仅最后一层可能不满，且节点必须从左到右连续排列 [图：对比两种树的叶子节点分布，标出空缺位置]。\n3.  **忽略递归终止条件导致栈溢出**\n    *   **解释**：处理空节点（null）时若未正确返回，会导致无限递归 [图：递归调用栈示意，标出 null 检查点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "5c8ec46b-0969-4871-9643-8987600fb888",
+          "seconds": 3.45
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树操作复杂度取决于树的平衡性：\n\n1.  **平衡二叉树（如 AVL、红黑树）**\n    *   **查找/插入/删除**：平均与最坏情况均为 $O(\\log n)$ [图：高度为 $\\log_2 n$ 的紧凑树，路径短]。\n2.  **退化二叉树（链状）**\n    *   **查找/插入/删除**：最坏情况退化为 $O(n)$ [图：节点呈单侧直线排列，需遍历所有节点]。\n3.  **遍历操作**\n    *   **前/中/后序遍历**：无论树形如何，均需访问每个节点一次，复杂度恒为 $O(n)$ [图：箭头依次经过所有节点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "32f73660-b8d8-4f1f-96ec-976afd819498",
+          "seconds": 4.22
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n实现二叉树时的关键注意点：\n\n1.  **指针/引用管理**\n    *   **解释**：在 C/C++ 等语言中，需手动释放内存以防泄漏；在 Java/Python 中需注意对象引用生命周期 [图：节点创建与销毁的箭头流向，标出“悬空指针”风险点]。\n2.  **递归深度限制**\n    *   **解释**：深树可能导致栈溢出（Stack Overflow）。对于极深的树，建议改用迭代法（使用显式栈）或尾递归优化 [图：调用栈堆积示意 vs 显式栈数组]。\n3.  **边界条件处理**\n    *   **解释**：必须正确处理空树（root == null）、单节点树、以及只有左子树或右子树的情况 [图：三种特殊形态的二叉树结构，标注判断分支]。\n4.  **平衡性维护**\n    *   **解释**：若频繁插入/删除且数据有序，普通 BST 会退化为链表。生产环境通常选用自平衡树（如 AVL、红黑树）或 B 树变体 [图：退化链状树 vs 平衡树的高度对比]。",
+          "model": "qwen3.8-flash",
+          "message_id": "4da195d6-66d5-4d9c-8e50-4afe16727845",
+          "seconds": 5.45
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树的优缺点如下：\n\n1.  **优点**\n    *   **层级清晰**：天然适合表示具有父子关系的数据结构（如文件系统、组织架构） [图：树状分支展示层级]。\n    *   **搜索高效**：在平衡状态下，查找、插入和删除的平均时间复杂度为 $O(\\log n)$，优于线性表 [图：二分查找路径示意，对比线性扫描]。\n    *   **动态灵活**：相比数组，节点数量可动态增减，无需预分配固定空间 [图：节点链接示意，无连续内存块限制]。\n\n2.  **缺点**\n    *   **实现复杂**：需要维护指针/引用，代码逻辑比线性结构更繁琐，易出错 [图：多指针连接示意 vs 简单数组索引]。\n    *   **可能退化**：若数据有序插入且无平衡机制，树会退化为链表，性能降至 $O(n)$ [图：平衡树 vs 链状退化树的高度对比]。\n    *   **缓存不友好**：节点在内存中分散存储，遍历时局部性差，可能导致较高的缓存未命中率 [图：内存地址跳跃示意 vs 数组连续地址]。",
+          "model": "qwen3.8-flash",
+          "message_id": "1467f063-6d99-442e-a248-740956aeab87",
+          "seconds": 5.01
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树典型应用包括：\n1. **搜索效率**：如二叉搜索树（BST），用于快速查找数据 [图：根节点比较，左小右大]。\n2. **表达式解析**：编译器用表达式树处理数学运算优先级 [图：操作符在内部节点，操作数在叶子]。\n3. **层级结构**：如文件系统目录或组织架构图 [图：树状分支表示父子关系]。",
+          "model": "qwen3.8-flash",
+          "message_id": "d97562ae-ae96-45af-8374-ecbf7fbea2c0",
+          "seconds": 3.27
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n常见误区及图示解释：\n\n1.  **误以为所有二叉树都是有序的**\n    *   **解释**：普通二叉树不保证左子节点小于根节点。只有“二叉搜索树 (BST)”才具备此特性 [图：普通二叉树 vs BST，标注数值大小关系]。\n2.  **混淆“完全二叉树”与“满二叉树”**\n    *   **解释**：满二叉树每层都填满；完全二叉树仅最后一层可能不满，且节点必须从左到右连续排列 [图：对比两种树的叶子节点分布，标出空缺位置]。\n3.  **忽略递归终止条件导致栈溢出**\n    *   **解释**：处理空节点（null）时若未正确返回，会导致无限递归 [图：递归调用栈示意，标出 null 检查点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "8cfb0e23-cff6-4a73-bc2b-d75df5669302",
+          "seconds": 3.67
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树操作复杂度取决于树的平衡性：\n\n1.  **平衡二叉树（如 AVL、红黑树）**\n    *   **查找/插入/删除**：平均与最坏情况均为 $O(\\log n)$ [图：高度为 $\\log_2 n$ 的紧凑树，路径短]。\n2.  **退化二叉树（链状）**\n    *   **查找/插入/删除**：最坏情况退化为 $O(n)$ [图：节点呈单侧直线排列，需遍历所有节点]。\n3.  **遍历操作**\n    *   **前/中/后序遍历**：无论树形如何，均需访问每个节点一次，复杂度恒为 $O(n)$ [图：箭头依次经过所有节点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "e272d8c9-837b-45e2-86f8-d79a0e91ed64",
+          "seconds": 4.59
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n实现二叉树时的关键注意点：\n\n1.  **指针/引用管理**\n    *   **解释**：在 C/C++ 等语言中，需手动释放内存以防泄漏；在 Java/Python 中需注意对象引用生命周期 [图：节点创建与销毁的箭头流向，标出“悬空指针”风险点]。\n2.  **递归深度限制**\n    *   **解释**：深树可能导致栈溢出（Stack Overflow）。对于极深的树，建议改用迭代法（使用显式栈）或尾递归优化 [图：调用栈堆积示意 vs 显式栈数组]。\n3.  **边界条件处理**\n    *   **解释**：必须正确处理空树（root == null）、单节点树、以及只有左子树或右子树的情况 [图：三种特殊形态的二叉树结构，标注判断分支]。\n4.  **平衡性维护**\n    *   **解释**：若频繁插入/删除且数据有序，普通 BST 会退化为链表。生产环境通常选用自平衡树（如 AVL、红黑树）或 B 树变体 [图：退化链状树 vs 平衡树的高度对比]。",
+          "model": "qwen3.8-flash",
+          "message_id": "de5fd53a-8feb-45e7-bf1e-3eedf376eb47",
+          "seconds": 4.74
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树的优缺点如下：\n\n1.  **优点**\n    *   **层级清晰**：天然适合表示具有父子关系的数据结构（如文件系统、组织架构） [图：树状分支展示层级]。\n    *   **搜索高效**：在平衡状态下，查找、插入和删除的平均时间复杂度为 $O(\\log n)$，优于线性表 [图：二分查找路径示意，对比线性扫描]。\n    *   **动态灵活**：相比数组，节点数量可动态增减，无需预分配固定空间 [图：节点链接示意，无连续内存块限制]。\n\n2.  **缺点**\n    *   **实现复杂**：需要维护指针/引用，代码逻辑比线性结构更繁琐，易出错 [图：多指针连接示意 vs 简单数组索引]。\n    *   **可能退化**：若数据有序插入且无平衡机制，树会退化为链表，性能降至 $O(n)$ [图：平衡树 vs 链状退化树的高度对比]。\n    *   **缓存不友好**：节点在内存中分散存储，遍历时局部性差，可能导致较高的缓存未命中率 [图：内存地址跳跃示意 vs 数组连续地址]。",
+          "model": "qwen3.8-flash",
+          "message_id": "7eff4944-79a1-4a58-a979-e28c1c11cb28",
+          "seconds": 5.42
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树典型应用包括：\n1. **搜索效率**：如二叉搜索树（BST），用于快速查找数据 [图：根节点比较，左小右大]。\n2. **表达式解析**：编译器用表达式树处理数学运算优先级 [图：操作符在内部节点，操作数在叶子]。\n3. **层级结构**：如文件系统目录或组织架构图 [图：树状分支表示父子关系]。",
+          "model": "qwen3.8-flash",
+          "message_id": "d32703fc-2109-45c9-816b-7ba3b985b9f7",
+          "seconds": 3.59
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n常见误区及图示解释：\n\n1.  **误以为所有二叉树都是有序的**\n    *   **解释**：普通二叉树不保证左子节点小于根节点。只有“二叉搜索树 (BST)”才具备此特性 [图：普通二叉树 vs BST，标注数值大小关系]。\n2.  **混淆“完全二叉树”与“满二叉树”**\n    *   **解释**：满二叉树每层都填满；完全二叉树仅最后一层可能不满，且节点必须从左到右连续排列 [图：对比两种树的叶子节点分布，标出空缺位置]。\n3.  **忽略递归终止条件导致栈溢出**\n    *   **解释**：处理空节点（null）时若未正确返回，会导致无限递归 [图：递归调用栈示意，标出 null 检查点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "bfdbdb85-6d00-4c8f-9019-e67b77c760ca",
+          "seconds": 3.8
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n二叉树操作复杂度取决于树的平衡性：\n\n1.  **平衡二叉树（如 AVL、红黑树）**\n    *   **查找/插入/删除**：平均与最坏情况均为 $O(\\log n)$ [图：高度为 $\\log_2 n$ 的紧凑树，路径短]。\n2.  **退化二叉树（链状）**\n    *   **查找/插入/删除**：最坏情况退化为 $O(n)$ [图：节点呈单侧直线排列，需遍历所有节点]。\n3.  **遍历操作**\n    *   **前/中/后序遍历**：无论树形如何，均需访问每个节点一次，复杂度恒为 $O(n)$ [图：箭头依次经过所有节点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "7992954b-50e2-4769-bbeb-754c62194acd",
+          "seconds": 3.67
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕二叉树，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n实现二叉树时的关键注意点：\n\n1.  **指针/引用管理**\n    *   **解释**：在 C/C++ 等语言中，需手动释放内存以防泄漏；在 Java/Python 中需注意对象引用生命周期 [图：节点创建与销毁的箭头流向，标出“悬空指针”风险点]。\n2.  **递归深度限制**\n    *   **解释**：深树可能导致栈溢出（Stack Overflow）。对于极深的树，建议改用迭代法（使用显式栈）或尾递归优化 [图：调用栈堆积示意 vs 显式栈数组]。\n3.  **边界条件处理**\n    *   **解释**：必须正确处理空树（root == null）、单节点树、以及只有左子树或右子树的情况 [图：三种特殊形态的二叉树结构，标注判断分支]。\n4.  **平衡性维护**\n    *   **解释**：若频繁插入/删除且数据有序，普通 BST 会退化为链表。生产环境通常选用自平衡树（如 AVL、红黑树）或 B 树变体 [图：退化链状树 vs 平衡树的高度对比]。",
+          "model": "qwen3.8-flash",
+          "message_id": "8fc967d5-9c15-4d6c-98ec-5f96243ab64a",
+          "seconds": 5.55
+        },
+        {
+          "mode": "fast",
+          "question": "现在请回顾本次对话最开始确定的学习主题，并概括我们的讨论。",
+          "answer": "课程资料未找到可靠依据。\n\n**通用知识补充**\n我们围绕**二叉树**这一主题，从以下六个维度进行了简短探讨：\n\n1.  **典型应用**：搜索、表达式解析、层级结构 [图：树状分支]。\n2.  **常见误区**：混淆有序性、完全/满二叉树定义、递归终止条件 [图：对比不同树形]。\n3.  **操作复杂度**：平衡态 $O(\\log n)$ vs 退化态 $O(n)$，遍历恒为 $O(n)$ [图：路径长度对比]。\n4.  **实现注意点**：内存管理、栈溢出风险、边界处理、平衡维护 [图：指针与调用栈]。\n5.  **优缺点**：动态灵活但缓存不友好；搜索高效但实现复杂 [图：连续内存 vs 分散节点]。",
+          "model": "qwen3.8-flash",
+          "message_id": "eb9c3e36-9016-4098-980b-3da6338c4090",
+          "seconds": 4.98
+        }
+      ],
+      "passed": true,
+      "conversation_id": "b4800b9d-d385-4289-87e8-28a858da82b2"
+    },
+    {
+      "id": "long_3",
+      "category": "long",
+      "turns": [
+        {
+          "mode": "fast",
+          "question": "后续用中文，简短回答。我正在学习哈希表，这是本次讨论的主题。请先说核心特点。",
+          "answer": "哈希表的核心特点是**通过键（Key）直接计算得到值（Value）的存储位置，从而实现接近 O(1) 时间复杂度的快速查找、插入和删除**。\n\n课程资料未找到可靠依据。\n\n通用知识补充：\n既然你喜欢用图来理解，可以想象一个“带编号的储物柜”：\n1.  **哈希函数**就像是一个“分配员”，它看一眼你的钥匙（Key），立刻算出一个数字（比如第 5 号柜子）。\n2.  **数组**就是那一排排整齐的储物柜。\n3.  **冲突处理**（如链地址法或开放寻址法）则是当两个人同时被分到同一个柜子时，大家商量好的解决办法（比如在这个柜子上挂个小链表，或者找下一个空柜子）。",
+          "model": "qwen3.8-flash",
+          "message_id": "97ecd2c2-a4c0-44f4-8eec-313ebbff2422",
+          "seconds": 5.73
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的典型应用包括**数据库索引**、**缓存系统（如 Redis）**、**去重统计**以及**字典/集合的实现**。\n\n既然你喜欢用图来理解，可以想象一个“智能图书馆管理员”：\n1.  **场景**：读者（Key）想要借书（Value）。\n2.  **传统方式**：管理员一本本翻目录（线性查找），很慢。\n3.  **哈希表方式**：管理员看一眼书名，直接算出书架编号（Hash Index），瞬间走到对应位置拿到书。\n4.  **应用映射**：\n    *   **缓存**：就像把热门书籍放在最顺手的第一排架子，下次秒取。\n    *   **去重**：每进来一本书，先查一下有没有同名书在架子上，有就不放，没有才登记。",
+          "model": "qwen3.8-flash",
+          "message_id": "3f8ea445-0d50-4b4d-9397-cc3ea31ae8aa",
+          "seconds": 5.84
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n常见误区包括**误以为哈希表永远 O(1)**（忽略最坏情况）、**混淆哈希函数与加密哈希**、以及**忽视负载因子对性能的影响**。\n\n既然你喜欢用图来理解，可以想象一个“拥挤的派对”：\n1.  **误区一：永远秒进**\n    *   *理想*：每个人进门直接去专属房间（O(1)）。\n    *   *现实*：如果所有人都被分到同一个房间（哈希冲突严重），门口会排长队，变成 O(n)。\n2.  **误区二：密码锁 vs 门牌号**\n    *   *加密哈希*：像保险柜密码，不可逆，为了安全。\n    *   *普通哈希*：像门牌号分配器，只求快和均匀分布，不保证绝对安全或不可逆。\n3.  **误区三：房间无限多**\n    *   *负载因子*：当房间里人太多（超过阈值），管理员必须扩建大楼（Rehashing），这会非常耗时且卡顿，不是无代价的。",
+          "model": "qwen3.8-flash",
+          "message_id": "12d4775b-f532-4ca0-a0ae-20473a5f0f69",
+          "seconds": 6.24
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的操作复杂度通常为**平均 O(1)**，但在极端冲突下最坏为 **O(n)**。\n\n既然你喜欢用图来理解，可以想象一个“快递分拣站”：\n1.  **平均情况 (O(1))**：\n    *   每个包裹（Key）都有独特的条形码，分拣员看一眼条码，直接扔进对应的格子（Bucket）。\n    *   *图示*：`[包A] -> [格1]`, `[包B] -> [格2]`。一步到位，速度极快。\n2.  **最坏情况 (O(n))**：\n    *   所有包裹的条形码都算出了同一个数字，全部堆在“格1”里形成一条长链。\n    *   *图示*：`[包A]->[包B]->[包C]->...` 都在 `[格1]`。\n    *   找特定包裹时，必须从头到尾一个个检查链表，退化成线性查找，速度变慢。",
+          "model": "qwen3.8-flash",
+          "message_id": "24944a94-ec70-4dfa-85dd-40af9bcebc6d",
+          "seconds": 5.56
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n实现哈希表的关键注意点包括**选择高质量的哈希函数**、**合理设置初始容量与负载因子**以及**妥善处理哈希冲突**。\n\n既然你喜欢用图来理解，可以想象一个“停车场管理系统”：\n1.  **哈希函数（车牌识别器）**：\n    *   *注意*：如果识别算法太简单（如只看车牌最后一位），很多车会挤在同一个区域。好的算法能让车辆均匀分布到所有车位。\n2.  **负载因子（拥挤度阈值）**：\n    *   *注意*：当停车场使用率超过 70%（典型阈值）时，必须扩建或重新规划车位（Rehashing）。如果不提前扩容，找车位的时间会急剧增加。\n3.  **冲突处理（占位策略）**：\n    *   *注意*：当两个车被分到同一位置时，要么在旁边挂个小链表（链地址法），要么按规则找下一个空位（开放寻址法）。需根据场景权衡内存占用和查找速度。",
+          "model": "qwen3.8-flash",
+          "message_id": "b44d400e-28d1-4644-b03f-28fb6fca3272",
+          "seconds": 5.16
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的优点是**查找、插入和删除的平均时间复杂度极低（O(1)）**，缺点是**无序存储**且**最坏情况性能退化（O(n)）**，同时需要额外的内存空间来减少冲突。\n\n既然你喜欢用图来理解，可以想象一个“带编号的储物柜”：\n1.  **优点（快）**：你拿着钥匙（Key），看一眼就能算出柜子号，直接去拿东西，不用一个个翻找。\n2.  **缺点（乱 & 挤）**：\n    *   *无序*：柜子里的东西没有按大小或颜色排列，你想找“所有红色的东西”很难，只能一个个看。\n    *   *拥挤*：如果很多人算出了同一个柜子号（冲突），那个柜子就会挂满小袋子（链表），找东西时就得在袋子里翻，速度变慢。",
+          "model": "qwen3.8-flash",
+          "message_id": "056d834a-2a7a-4003-b60a-e823bfb1878f",
+          "seconds": 4.64
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的典型应用包括**数据库索引**、**缓存系统（如 Redis）**、**去重统计**以及**字典/集合的实现**。\n\n既然你喜欢用图来理解，可以想象一个“智能图书馆管理员”：\n1.  **场景**：读者（Key）想要借书（Value）。\n2.  **传统方式**：管理员一本本翻目录（线性查找），很慢。\n3.  **哈希表方式**：管理员看一眼书名，直接算出书架编号（Hash Index），瞬间走到对应位置拿到书。\n4.  **应用映射**：\n    *   **缓存**：就像把热门书籍放在最顺手的第一排架子，下次秒取。\n    *   **去重**：每进来一本书，先查一下有没有同名书在架子上，有就不放，没有才登记。",
+          "model": "qwen3.8-flash",
+          "message_id": "5be32619-2b08-4706-9a8d-536005867897",
+          "seconds": 3.84
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n常见误区包括**误以为哈希表永远 O(1)**（忽略最坏情况）、**混淆哈希函数与加密哈希**、以及**忽视负载因子对性能的影响**。\n\n既然你喜欢用图来理解，可以想象一个“拥挤的派对”：\n1.  **误区一：永远秒进**\n    *   *理想*：每个人进门直接去专属房间（O(1)）。\n    *   *现实*：如果所有人都被分到同一个房间（哈希冲突严重），门口会排长队，变成 O(n)。\n2.  **误区二：密码锁 vs 门牌号**\n    *   *加密哈希*：像保险柜密码，不可逆，为了安全。\n    *   *普通哈希*：像门牌号分配器，只求快和均匀分布，不保证绝对安全或不可逆。\n3.  **误区三：房间无限多**\n    *   *负载因子*：当房间里人太多（超过阈值），管理员必须扩建大楼（Rehashing），这会非常耗时且卡顿，不是无代价的。",
+          "model": "qwen3.8-flash",
+          "message_id": "9ea7566b-40e1-4e9f-943c-c4a2edc718cb",
+          "seconds": 5.01
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的操作复杂度通常为**平均 O(1)**，但在极端冲突下最坏为 **O(n)**。\n\n既然你喜欢用图来理解，可以想象一个“快递分拣站”：\n1.  **平均情况 (O(1))**：\n    *   每个包裹（Key）都有独特的条形码，分拣员看一眼条码，直接扔进对应的格子（Bucket）。\n    *   *图示*：`[包A] -> [格1]`, `[包B] -> [格2]`。一步到位，速度极快。\n2.  **最坏情况 (O(n))**：\n    *   所有包裹的条形码都算出了同一个数字，全部堆在“格1”里形成一条长链。\n    *   *图示*：`[包A]->[包B]->[包C]->...` 都在 `[格1]`。\n    *   找特定包裹时，必须从头到尾一个个检查链表，退化成线性查找，速度变慢。",
+          "model": "qwen3.8-flash",
+          "message_id": "3fa75f80-bdbb-4f89-87c5-ae5f06a5f886",
+          "seconds": 4.56
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n实现哈希表的关键注意点包括**选择高质量的哈希函数**、**合理设置初始容量与负载因子**以及**妥善处理哈希冲突**。\n\n既然你喜欢用图来理解，可以想象一个“停车场管理系统”：\n1.  **哈希函数（车牌识别器）**：\n    *   *注意*：如果识别算法太简单（如只看车牌最后一位），很多车会挤在同一个区域。好的算法能让车辆均匀分布到所有车位。\n2.  **负载因子（拥挤度阈值）**：\n    *   *注意*：当停车场使用率超过 70%（典型阈值）时，必须扩建或重新规划车位（Rehashing）。如果不提前扩容，找车位的时间会急剧增加。\n3.  **冲突处理（占位策略）**：\n    *   *注意*：当两个车被分到同一位置时，要么在旁边挂个小链表（链地址法），要么按规则找下一个空位（开放寻址法）。需根据场景权衡内存占用和查找速度。",
+          "model": "qwen3.8-flash",
+          "message_id": "7aa26e79-cc2d-4ba8-96da-740835698ceb",
+          "seconds": 4.58
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的优点是**查找、插入和删除的平均时间复杂度极低（O(1)）**，缺点是**无序存储**且**最坏情况性能退化（O(n)）**，同时需要额外的内存空间来减少冲突。\n\n既然你喜欢用图来理解，可以想象一个“带编号的储物柜”：\n1.  **优点（快）**：你拿着钥匙（Key），看一眼就能算出柜子号，直接去拿东西，不用一个个翻找。\n2.  **缺点（乱 & 挤）**：\n    *   *无序*：柜子里的东西没有按大小或颜色排列，你想找“所有红色的东西”很难，只能一个个看。\n    *   *拥挤*：如果很多人算出了同一个柜子号（冲突），那个柜子就会挂满小袋子（链表），找东西时就得在袋子里翻，速度变慢。",
+          "model": "qwen3.8-flash",
+          "message_id": "056026c2-42d9-4317-a7d3-d92c6fa39484",
+          "seconds": 4.23
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的典型应用包括**数据库索引**、**缓存系统（如 Redis）**、**去重统计**以及**字典/集合的实现**。\n\n既然你喜欢用图来理解，可以想象一个“智能图书馆管理员”：\n1.  **场景**：读者（Key）想要借书（Value）。\n2.  **传统方式**：管理员一本本翻目录（线性查找），很慢。\n3.  **哈希表方式**：管理员看一眼书名，直接算出书架编号（Hash Index），瞬间走到对应位置拿到书。\n4.  **应用映射**：\n    *   **缓存**：就像把热门书籍放在最顺手的第一排架子，下次秒取。\n    *   **去重**：每进来一本书，先查一下有没有同名书在架子上，有就不放，没有才登记。",
+          "model": "qwen3.8-flash",
+          "message_id": "42cc8d6a-be5d-4b7d-aba5-ea3644244140",
+          "seconds": 3.66
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n常见误区包括**误以为哈希表永远 O(1)**（忽略最坏情况）、**混淆哈希函数与加密哈希**、以及**忽视负载因子对性能的影响**。\n\n既然你喜欢用图来理解，可以想象一个“拥挤的派对”：\n1.  **误区一：永远秒进**\n    *   *理想*：每个人进门直接去专属房间（O(1)）。\n    *   *现实*：如果所有人都被分到同一个房间（哈希冲突严重），门口会排长队，变成 O(n)。\n2.  **误区二：密码锁 vs 门牌号**\n    *   *加密哈希*：像保险柜密码，不可逆，为了安全。\n    *   *普通哈希*：像门牌号分配器，只求快和均匀分布，不保证绝对安全或不可逆。\n3.  **误区三：房间无限多**\n    *   *负载因子*：当房间里人太多（超过阈值），管理员必须扩建大楼（Rehashing），这会非常耗时且卡顿，不是无代价的。",
+          "model": "qwen3.8-flash",
+          "message_id": "ca8e17de-2110-45e1-8627-35dd718d75af",
+          "seconds": 4.12
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的操作复杂度通常为**平均 O(1)**，但在极端冲突下最坏为 **O(n)**。\n\n既然你喜欢用图来理解，可以想象一个“快递分拣站”：\n1.  **平均情况 (O(1))**：\n    *   每个包裹（Key）都有独特的条形码，分拣员看一眼条码，直接扔进对应的格子（Bucket）。\n    *   *图示*：`[包A] -> [格1]`, `[包B] -> [格2]`。一步到位，速度极快。\n2.  **最坏情况 (O(n))**：\n    *   所有包裹的条形码都算出了同一个数字，全部堆在“格1”里形成一条长链。\n    *   *图示*：`[包A]->[包B]->[包C]->...` 都在 `[格1]`。\n    *   找特定包裹时，必须从头到尾一个个检查链表，退化成线性查找，速度变慢。",
+          "model": "qwen3.8-flash",
+          "message_id": "f22be080-d881-41ae-a055-ddee6eef7e58",
+          "seconds": 5.42
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n实现哈希表的关键注意点包括**选择高质量的哈希函数**、**合理设置初始容量与负载因子**以及**妥善处理哈希冲突**。\n\n既然你喜欢用图来理解，可以想象一个“停车场管理系统”：\n1.  **哈希函数（车牌识别器）**：\n    *   *注意*：如果识别算法太简单（如只看车牌最后一位），很多车会挤在同一个区域。好的算法能让车辆均匀分布到所有车位。\n2.  **负载因子（拥挤度阈值）**：\n    *   *注意*：当停车场使用率超过 70%（典型阈值）时，必须扩建或重新规划车位（Rehashing）。如果不提前扩容，找车位的时间会急剧增加。\n3.  **冲突处理（占位策略）**：\n    *   *注意*：当两个车被分到同一位置时，要么在旁边挂个小链表（链地址法），要么按规则找下一个空位（开放寻址法）。需根据场景权衡内存占用和查找速度。",
+          "model": "qwen3.8-flash",
+          "message_id": "4fe0b76b-e25e-411c-bb11-d46c61ad4f90",
+          "seconds": 5.45
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的优点是**查找、插入和删除的平均时间复杂度极低（O(1)）**，缺点是**无序存储**且**最坏情况性能退化（O(n)）**，同时需要额外的内存空间来减少冲突。\n\n既然你喜欢用图来理解，可以想象一个“带编号的储物柜”：\n1.  **优点（快）**：你拿着钥匙（Key），看一眼就能算出柜子号，直接去拿东西，不用一个个翻找。\n2.  **缺点（乱 & 挤）**：\n    *   *无序*：柜子里的东西没有按大小或颜色排列，你想找“所有红色的东西”很难，只能一个个看。\n    *   *拥挤*：如果很多人算出了同一个柜子号（冲突），那个柜子就会挂满小袋子（链表），找东西时就得在袋子里翻，速度变慢。",
+          "model": "qwen3.8-flash",
+          "message_id": "2ca8447e-38f7-4c6a-8fda-9252cb03d195",
+          "seconds": 4.73
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的典型应用包括**数据库索引**、**缓存系统（如 Redis）**、**去重统计**以及**字典/集合的实现**。\n\n既然你喜欢用图来理解，可以想象一个“智能图书馆管理员”：\n1.  **场景**：读者（Key）想要借书（Value）。\n2.  **传统方式**：管理员一本本翻目录（线性查找），很慢。\n3.  **哈希表方式**：管理员看一眼书名，直接算出书架编号（Hash Index），瞬间走到对应位置拿到书。\n4.  **应用映射**：\n    *   **缓存**：就像把热门书籍放在最顺手的第一排架子，下次秒取。\n    *   **去重**：每进来一本书，先查一下有没有同名书在架子上，有就不放，没有才登记。",
+          "model": "qwen3.8-flash",
+          "message_id": "a97e5d9d-436d-4d73-830b-40ea4dbd6a5e",
+          "seconds": 3.33
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n常见误区包括**误以为哈希表永远 O(1)**（忽略最坏情况）、**混淆哈希函数与加密哈希**、以及**忽视负载因子对性能的影响**。\n\n既然你喜欢用图来理解，可以想象一个“拥挤的派对”：\n1.  **误区一：永远秒进**\n    *   *理想*：每个人进门直接去专属房间（O(1)）。\n    *   *现实*：如果所有人都被分到同一个房间（哈希冲突严重），门口会排长队，变成 O(n)。\n2.  **误区二：密码锁 vs 门牌号**\n    *   *加密哈希*：像保险柜密码，不可逆，为了安全。\n    *   *普通哈希*：像门牌号分配器，只求快和均匀分布，不保证绝对安全或不可逆。\n3.  **误区三：房间无限多**\n    *   *负载因子*：当房间里人太多（超过阈值），管理员必须扩建大楼（Rehashing），这会非常耗时且卡顿，不是无代价的。",
+          "model": "qwen3.8-flash",
+          "message_id": "2f43325d-ce9f-4e7a-b53f-e976d88ca35b",
+          "seconds": 5.12
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的操作复杂度通常为**平均 O(1)**，但在极端冲突下最坏为 **O(n)**。\n\n既然你喜欢用图来理解，可以想象一个“快递分拣站”：\n1.  **平均情况 (O(1))**：\n    *   每个包裹（Key）都有独特的条形码，分拣员看一眼条码，直接扔进对应的格子（Bucket）。\n    *   *图示*：`[包A] -> [格1]`, `[包B] -> [格2]`。一步到位，速度极快。\n2.  **最坏情况 (O(n))**：\n    *   所有包裹的条形码都算出了同一个数字，全部堆在“格1”里形成一条长链。\n    *   *图示*：`[包A]->[包B]->[包C]->...` 都在 `[格1]`。\n    *   找特定包裹时，必须从头到尾一个个检查链表，退化成线性查找，速度变慢。",
+          "model": "qwen3.8-flash",
+          "message_id": "8dc42ed6-ea72-45b3-8aaf-f904b5457ba9",
+          "seconds": 4.84
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n实现哈希表的关键注意点包括**选择高质量的哈希函数**、**合理设置初始容量与负载因子**以及**妥善处理哈希冲突**。\n\n既然你喜欢用图来理解，可以想象一个“停车场管理系统”：\n1.  **哈希函数（车牌识别器）**：\n    *   *注意*：如果识别算法太简单（如只看车牌最后一位），很多车会挤在同一个区域。好的算法能让车辆均匀分布到所有车位。\n2.  **负载因子（拥挤度阈值）**：\n    *   *注意*：当停车场使用率超过 70%（典型阈值）时，必须扩建或重新规划车位（Rehashing）。如果不提前扩容，找车位的时间会急剧增加。\n3.  **冲突处理（占位策略）**：\n    *   *注意*：当两个车被分到同一位置时，要么在旁边挂个小链表（链地址法），要么按规则找下一个空位（开放寻址法）。需根据场景权衡内存占用和查找速度。",
+          "model": "qwen3.8-flash",
+          "message_id": "e8244f02-a63d-43af-ae4c-9b42c600dc17",
+          "seconds": 4.62
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的优点是**查找、插入和删除的平均时间复杂度极低（O(1)）**，缺点是**无序存储**且**最坏情况性能退化（O(n)）**，同时需要额外的内存空间来减少冲突。\n\n既然你喜欢用图来理解，可以想象一个“带编号的储物柜”：\n1.  **优点（快）**：你拿着钥匙（Key），看一眼就能算出柜子号，直接去拿东西，不用一个个翻找。\n2.  **缺点（乱 & 挤）**：\n    *   *无序*：柜子里的东西没有按大小或颜色排列，你想找“所有红色的东西”很难，只能一个个看。\n    *   *拥挤*：如果很多人算出了同一个柜子号（冲突），那个柜子就会挂满小袋子（链表），找东西时就得在袋子里翻，速度变慢。",
+          "model": "qwen3.8-flash",
+          "message_id": "568ccf4d-7d7b-435b-af55-4a92de541851",
+          "seconds": 5.28
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的典型应用包括**数据库索引**、**缓存系统（如 Redis）**、**去重统计**以及**字典/集合的实现**。\n\n既然你喜欢用图来理解，可以想象一个“智能图书馆管理员”：\n1.  **场景**：读者（Key）想要借书（Value）。\n2.  **传统方式**：管理员一本本翻目录（线性查找），很慢。\n3.  **哈希表方式**：管理员看一眼书名，直接算出书架编号（Hash Index），瞬间走到对应位置拿到书。\n4.  **应用映射**：\n    *   **缓存**：就像把热门书籍放在最顺手的第一排架子，下次秒取。\n    *   **去重**：每进来一本书，先查一下有没有同名书在架子上，有就不放，没有才登记。",
+          "model": "qwen3.8-flash",
+          "message_id": "d597331e-86f4-4ffe-95d0-0eb4323b9ec7",
+          "seconds": 4.12
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n常见误区包括**误以为哈希表永远 O(1)**（忽略最坏情况）、**混淆哈希函数与加密哈希**、以及**忽视负载因子对性能的影响**。\n\n既然你喜欢用图来理解，可以想象一个“拥挤的派对”：\n1.  **误区一：永远秒进**\n    *   *理想*：每个人进门直接去专属房间（O(1)）。\n    *   *现实*：如果所有人都被分到同一个房间（哈希冲突严重），门口会排长队，变成 O(n)。\n2.  **误区二：密码锁 vs 门牌号**\n    *   *加密哈希*：像保险柜密码，不可逆，为了安全。\n    *   *普通哈希*：像门牌号分配器，只求快和均匀分布，不保证绝对安全或不可逆。\n3.  **误区三：房间无限多**\n    *   *负载因子*：当房间里人太多（超过阈值），管理员必须扩建大楼（Rehashing），这会非常耗时且卡顿，不是无代价的。",
+          "model": "qwen3.8-flash",
+          "message_id": "3fe15df5-983e-457d-ba4f-535cdf515ec3",
+          "seconds": 4.94
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的操作复杂度通常为**平均 O(1)**，但在极端冲突下最坏为 **O(n)**。\n\n既然你喜欢用图来理解，可以想象一个“快递分拣站”：\n1.  **平均情况 (O(1))**：\n    *   每个包裹（Key）都有独特的条形码，分拣员看一眼条码，直接扔进对应的格子（Bucket）。\n    *   *图示*：`[包A] -> [格1]`, `[包B] -> [格2]`。一步到位，速度极快。\n2.  **最坏情况 (O(n))**：\n    *   所有包裹的条形码都算出了同一个数字，全部堆在“格1”里形成一条长链。\n    *   *图示*：`[包A]->[包B]->[包C]->...` 都在 `[格1]`。\n    *   找特定包裹时，必须从头到尾一个个检查链表，退化成线性查找，速度变慢。",
+          "model": "qwen3.8-flash",
+          "message_id": "f4df60c4-c5e6-4255-9e2b-0cf5cacd04b4",
+          "seconds": 4.23
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n实现哈希表的关键注意点包括**选择高质量的哈希函数**、**合理设置初始容量与负载因子**以及**妥善处理哈希冲突**。\n\n既然你喜欢用图来理解，可以想象一个“停车场管理系统”：\n1.  **哈希函数（车牌识别器）**：\n    *   *注意*：如果识别算法太简单（如只看车牌最后一位），很多车会挤在同一个区域。好的算法能让车辆均匀分布到所有车位。\n2.  **负载因子（拥挤度阈值）**：\n    *   *注意*：当停车场使用率超过 70%（典型阈值）时，必须扩建或重新规划车位（Rehashing）。如果不提前扩容，找车位的时间会急剧增加。\n3.  **冲突处理（占位策略）**：\n    *   *注意*：当两个车被分到同一位置时，要么在旁边挂个小链表（链地址法），要么按规则找下一个空位（开放寻址法）。需根据场景权衡内存占用和查找速度。",
+          "model": "qwen3.8-flash",
+          "message_id": "92870fd1-9c77-4651-891e-1655b116ded9",
+          "seconds": 4.69
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其优缺点。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的优点是**查找、插入和删除的平均时间复杂度极低（O(1)）**，缺点是**无序存储**且**最坏情况性能退化（O(n)）**，同时需要额外的内存空间来减少冲突。\n\n既然你喜欢用图来理解，可以想象一个“带编号的储物柜”：\n1.  **优点（快）**：你拿着钥匙（Key），看一眼就能算出柜子号，直接去拿东西，不用一个个翻找。\n2.  **缺点（乱 & 挤）**：\n    *   *无序*：柜子里的东西没有按大小或颜色排列，你想找“所有红色的东西”很难，只能一个个看。\n    *   *拥挤*：如果很多人算出了同一个柜子号（冲突），那个柜子就会挂满小袋子（链表），找东西时就得在袋子里翻，速度变慢。",
+          "model": "qwen3.8-flash",
+          "message_id": "72f247ca-b9e1-4596-af47-216440d87d42",
+          "seconds": 4.7
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其典型应用。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的典型应用包括**数据库索引**、**缓存系统（如 Redis）**、**去重统计**以及**字典/集合的实现**。\n\n既然你喜欢用图来理解，可以想象一个“智能图书馆管理员”：\n1.  **场景**：读者（Key）想要借书（Value）。\n2.  **传统方式**：管理员一本本翻目录（线性查找），很慢。\n3.  **哈希表方式**：管理员看一眼书名，直接算出书架编号（Hash Index），瞬间走到对应位置拿到书。\n4.  **应用映射**：\n    *   **缓存**：就像把热门书籍放在最顺手的第一排架子，下次秒取。\n    *   **去重**：每进来一本书，先查一下有没有同名书在架子上，有就不放，没有才登记。",
+          "model": "qwen3.8-flash",
+          "message_id": "3a4d3563-830a-4d66-96db-3cd66cade536",
+          "seconds": 4.58
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其常见误区。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n常见误区包括**误以为哈希表永远 O(1)**（忽略最坏情况）、**混淆哈希函数与加密哈希**、以及**忽视负载因子对性能的影响**。\n\n既然你喜欢用图来理解，可以想象一个“拥挤的派对”：\n1.  **误区一：永远秒进**\n    *   *理想*：每个人进门直接去专属房间（O(1)）。\n    *   *现实*：如果所有人都被分到同一个房间（哈希冲突严重），门口会排长队，变成 O(n)。\n2.  **误区二：密码锁 vs 门牌号**\n    *   *加密哈希*：像保险柜密码，不可逆，为了安全。\n    *   *普通哈希*：像门牌号分配器，只求快和均匀分布，不保证绝对安全或不可逆。\n3.  **误区三：房间无限多**\n    *   *负载因子*：当房间里人太多（超过阈值），管理员必须扩建大楼（Rehashing），这会非常耗时且卡顿，不是无代价的。",
+          "model": "qwen3.8-flash",
+          "message_id": "ac6c4cdb-7450-40e9-831e-1093c7932cc9",
+          "seconds": 5.12
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其操作复杂度。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n哈希表的操作复杂度通常为**平均 O(1)**，但在极端冲突下最坏为 **O(n)**。\n\n既然你喜欢用图来理解，可以想象一个“快递分拣站”：\n1.  **平均情况 (O(1))**：\n    *   每个包裹（Key）都有独特的条形码，分拣员看一眼条码，直接扔进对应的格子（Bucket）。\n    *   *图示*：`[包A] -> [格1]`, `[包B] -> [格2]`。一步到位，速度极快。\n2.  **最坏情况 (O(n))**：\n    *   所有包裹的条形码都算出了同一个数字，全部堆在“格1”里形成一条长链。\n    *   *图示*：`[包A]->[包B]->[包C]->...` 都在 `[格1]`。\n    *   找特定包裹时，必须从头到尾一个个检查链表，退化成线性查找，速度变慢。",
+          "model": "qwen3.8-flash",
+          "message_id": "cc4faae4-23b9-4bc9-be2f-2e0786d67575",
+          "seconds": 4.39
+        },
+        {
+          "mode": "fast",
+          "question": "仍然围绕哈希表，请简短解释其实现注意点。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n实现哈希表的关键注意点包括**选择高质量的哈希函数**、**合理设置初始容量与负载因子**以及**妥善处理哈希冲突**。\n\n既然你喜欢用图来理解，可以想象一个“停车场管理系统”：\n1.  **哈希函数（车牌识别器）**：\n    *   *注意*：如果识别算法太简单（如只看车牌最后一位），很多车会挤在同一个区域。好的算法能让车辆均匀分布到所有车位。\n2.  **负载因子（拥挤度阈值）**：\n    *   *注意*：当停车场使用率超过 70%（典型阈值）时，必须扩建或重新规划车位（Rehashing）。如果不提前扩容，找车位的时间会急剧增加。\n3.  **冲突处理（占位策略）**：\n    *   *注意*：当两个车被分到同一位置时，要么在旁边挂个小链表（链地址法），要么按规则找下一个空位（开放寻址法）。需根据场景权衡内存占用和查找速度。",
+          "model": "qwen3.8-flash",
+          "message_id": "a995c82c-ab33-4b8f-abba-c961f3af4a39",
+          "seconds": 4.42
+        },
+        {
+          "mode": "fast",
+          "question": "现在请回顾本次对话最开始确定的学习主题，并概括我们的讨论。",
+          "answer": "课程资料未找到可靠依据。\n\n通用知识补充：\n本次对话的学习主题是**哈希表（Hash Table）**。我们围绕其核心特性进行了多维度的简短探讨，主要涵盖以下五个方面：\n\n1.  **典型应用**：如数据库索引、缓存系统、去重统计等 。\n2.  **常见误区**：误以为永远 O(1)、混淆加密哈希与普通哈希、忽视负载因子影响 。\n3.  **操作复杂度**：平均情况为 O(1)，最坏情况因冲突退化为 O(n) 。\n4.  **实现注意点**：需关注哈希函数质量、初始容量与负载因子设置、以及冲突解决策略 。\n5.  **优缺点分析**：优点是查找/插入速度快；缺点是无序存储、空间开销大且存在最坏性能风险 。\n\n既然你喜欢用图来理解，我们可以把这次讨论想象成对“智能储物柜系统”的全面体检：\n*   **应用**：它被用来快速存取物品（缓存/索引）。\n*   **误区**：别以为它永远秒开，如果钥匙设计不好或柜子太挤，就会变慢。\n*   **复杂度**：正常时一步到位（O(1)），极端拥挤时需逐个翻找（O(n)）。\n*   **实现**：关键在于“钥匙算法”（哈希函数）要均匀，“柜子数量”（容量）要适时扩容，“占位规则”（冲突处理）要明确。\n*   **优缺点**：快是它的王牌，但“乱序”和“怕挤”是它的软肋。",
+          "model": "qwen3.8-flash",
+          "message_id": "0073790f-eb8f-4cbe-8293-8958842c9b6b",
+          "seconds": 7.06
+        }
+      ],
+      "passed": true,
+      "conversation_id": "72afa46c-3520-4311-ad37-5cededda8623"
+    }
+  ],
+  "configured_model": "qwen3.8-flash",
+  "evaluation_user_id": "ea7851de-65a1-440c-b11a-99b5da0fbc7e",
+  "evaluation_course_id": "783b52de-799c-4a7c-82f7-606b22ef35e6",
+  "finished_at": "2026-09-30T11:32:27.674007+00:00",
+  "passed": 33,
+  "total": 33
+}
